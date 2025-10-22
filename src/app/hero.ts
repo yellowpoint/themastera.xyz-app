@@ -4,11 +4,7 @@ import { heroui } from "@heroui/react";
 
 export default heroui({
   layout: {
-    radius: {
-      small: "2px",
-      medium: "2px",
-      large: "2px",
-    },
+    radius: {},
   },
   themes: {
     dark: {
