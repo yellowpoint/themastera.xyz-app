@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,18 +7,22 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// provider  = "postgresql"
+// url       = env("DATABASE_URL")
+// directUrl = env("DIRECT_URL")
+
 model User {
-  id            String    @id
+  id            String     @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean    @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  level         String    @default("User")
-  points        Int       @default(0)
-  isCreator     Boolean   @default(false)
-  earnings      Float     @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  level         String     @default("User")
+  points        Int        @default(0)
+  isCreator     Boolean    @default(false)
+  earnings      Float      @default(0)
   sessions      Session[]
   accounts      Account[]
   works         Work[]
@@ -78,25 +81,27 @@ model Verification {
 // 应用特定模型
 
 model Work {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  price       Float
-  category    String
-  tags        String?
-  fileUrl     String?
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  price        Float
+  category     String
+  tags         String?
+  fileUrl      String?
   thumbnailUrl String?
-  downloads   Int      @default(0)
-  rating      Float    @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status       String?
+  earnings     Float    @default(0)
+  downloads    Int      @default(0)
+  rating       Float    @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // 关联
-  authorId    String
-  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  purchases   Purchase[]
-  reviews     Review[]
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchases Purchase[]
+  reviews   Review[]
 
   @@map("works")
 }

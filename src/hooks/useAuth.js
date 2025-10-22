@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     const getInitialSession = async () => {
       try {
         const session = await auth.getSession()
-        setUser(session?.user || null)
+        setUser(session?.data?.user || null)
       } catch (error) {
         console.error('Error getting initial session:', error)
         setUser(null)
@@ -45,39 +45,75 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         name: additionalData.name,
+        image: additionalData.image, // 支持头像URL
+        callbackURL: additionalData.callbackURL, // 支持回调URL
         ...additionalData
       })
-      
+
       if (result.error) {
         return { error: result.error }
       }
-      
+
+      // 注册成功后如果有会话，立即更新用户状态
+      if (result.data?.session) {
+        try {
+          const session = await auth.getSession()
+          setUser(session?.data?.user || null)
+        } catch (sessionError) {
+          console.error('Error getting session after signup:', sessionError)
+        }
+      }
+
       return { data: result.data }
     } catch (error) {
       return { error: { message: error.message } }
     }
   }
 
-  const signIn = async (email, password) => {
+  const signIn = async (email, password, options = {}) => {
     try {
       const result = await auth.signIn.email({
         email,
         password,
+        callbackURL: options.callbackURL,
+        rememberMe: options.rememberMe !== false, // 默认为 true
       })
       
       if (result.error) {
         return { error: result.error }
       }
-      
-      return { data: result.data }
+
+      // 登录成功后立即获取最新的会话信息
+      if (result.data) {
+        try {
+          const session = await auth.getSession()
+          setUser(session?.data?.user || null)
+        } catch (sessionError) {
+          console.error('Error getting session after login:', sessionError)
+        }
+      }
+
+      return { data: result.data?.user }
     } catch (error) {
       return { error: { message: error.message } }
     }
   }
 
-  const signOut = async () => {
+  const signOut = async (options = {}) => {
     try {
-      await auth.signOut()
+      await auth.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            // 清理本地状态
+            setUser(null)
+            setLoading(false)
+            // 如果提供了成功回调，执行它
+            if (options.onSuccess) {
+              options.onSuccess()
+            }
+          },
+        },
+      })
       return { error: null }
     } catch (error) {
       return { error: { message: error.message } }
@@ -90,11 +126,11 @@ export const AuthProvider = ({ children }) => {
         email,
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
-      
+
       if (result.error) {
         return { error: result.error }
       }
-      
+
       return { data: result.data }
     } catch (error) {
       return { error: { message: error.message } }
@@ -104,11 +140,11 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (updates) => {
     try {
       const result = await auth.updateUser(updates)
-      
+
       if (result.error) {
         return { error: result.error }
       }
-      
+
       return { data: result.data }
     } catch (error) {
       return { error: { message: error.message } }

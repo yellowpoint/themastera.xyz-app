@@ -9,11 +9,11 @@ export async function GET(request, { params }) {
     const work = await prisma.work.findUnique({
       where: { id },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
-            avatar: true
+            image: true
           }
         },
         reviews: {
@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
             user: {
               select: {
                 name: true,
-                avatar: true
+                image: true
               }
             }
           }
@@ -98,11 +98,11 @@ export async function PUT(request, { params }) {
       where: { id },
       data: updateData,
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
-            avatar: true
+            image: true
           }
         }
       }

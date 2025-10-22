@@ -14,15 +14,15 @@ export async function GET(request) {
 
     // 构建查询条件
     const where = {}
-    
+
     if (userId) {
-      where.authorId = userId
+      where.userId = userId
     }
-    
+
     if (category) {
       where.category = category
     }
-    
+
     if (status) {
       where.status = status
     }
@@ -31,11 +31,11 @@ export async function GET(request) {
     const works = await prisma.work.findMany({
       where,
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
-            avatar: true
+            image: true
           }
         },
         reviews: {
@@ -73,10 +73,10 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching works:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to fetch works',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )
@@ -87,16 +87,16 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    
+
     // 验证必需字段
-    const { title, description, category, authorId, fileUrl } = body
-    
-    if (!title || !description || !category || !authorId || !fileUrl) {
+    const { title, description, category, userId, fileUrl } = body
+
+    if (!title || !description || !category || !userId) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Missing required fields',
-          required: ['title', 'description', 'category', 'authorId', 'fileUrl']
+          required: ['title', 'description', 'category', 'userId']
         },
         { status: 400 }
       )
@@ -108,20 +108,20 @@ export async function POST(request) {
         title,
         description,
         category,
-        authorId,
+        userId,
         fileUrl,
         price: parseFloat(body.price || 0),
-        tags: body.tags || [],
+        tags: body.tags,
         status: body.status || 'draft',
         downloads: 0,
         earnings: 0
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
-            avatar: true
+            image: true
           }
         }
       }
@@ -135,10 +135,10 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error creating work:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to create work',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )

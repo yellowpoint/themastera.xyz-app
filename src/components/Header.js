@@ -40,6 +40,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
   const { user, signOut, loading } = useAuth()
+  console.log('user', user);
 
   const menuItems = [
     { name: '首页', href: '/', icon: Home },

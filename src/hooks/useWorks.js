@@ -164,9 +164,9 @@ export const useWorks = (userId = null) => {
   }
 
   // 获取作品统计数据
-  const getWorkStats = useCallback(async (authorId) => {
+  const getWorkStats = useCallback(async (userId) => {
     try {
-      const response = await fetch(`/api/works/stats?authorId=${authorId}`)
+      const response = await fetch(`/api/works/stats?userId=${userId}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

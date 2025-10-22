@@ -130,8 +130,8 @@ export default function CreatorPage() {
         description: uploadForm.description,
         category: uploadForm.category,
         price: parseFloat(uploadForm.price),
-        tags: uploadForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        authorId: user.id,
+        tags: uploadForm.tags,
+        userId: user.id,
         fileUrl: uploadForm.fileUrl,
         thumbnail: uploadForm.thumbnail,
         status: 'reviewing'
@@ -704,7 +704,7 @@ export default function CreatorPage() {
             <Button
               color="primary"
               onPress={handleSubmitWork}
-              isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category || !uploadForm.fileUrl}
+              isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category}
             >
               上传作品
             </Button>

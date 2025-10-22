@@ -5,23 +5,23 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
-    const authorId = searchParams.get('authorId')
+    const userId = searchParams.get('userId')
 
-    if (!authorId) {
+    if (!userId) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Missing authorId parameter' 
+          error: 'Missing userId parameter' 
         },
         { status: 400 }
       )
     }
 
-    // 获取作者的所有已发布作品
+    // 获取作者的所有作品
     const works = await prisma.work.findMany({
       where: {
-        authorId,
-        status: 'published'
+        userId,
+        isActive: true
       },
       include: {
         reviews: {
@@ -61,7 +61,7 @@ export async function GET(request) {
     const monthlyPurchases = await prisma.purchase.findMany({
       where: {
         work: {
-          authorId
+          userId
         },
         createdAt: {
           gte: currentMonth,
@@ -71,7 +71,7 @@ export async function GET(request) {
       include: {
         work: {
           select: {
-            earnings: true
+            price: true
           }
         }
       }
@@ -79,7 +79,7 @@ export async function GET(request) {
 
     const monthlyStats = {
       monthlyEarnings: monthlyPurchases.reduce((sum, purchase) => 
-        sum + (purchase.work.earnings || 0), 0
+        sum + (purchase.work.price || 0), 0
       ),
       monthlyViews: 0, // 这需要额外的视图跟踪表
       completionRate: 96 // 这需要额外的逻辑来计算
