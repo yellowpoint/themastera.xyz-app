@@ -26,9 +26,6 @@ import {
   TableRow,
   TableCell
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function PointsPage() {
   const [activeTab, setActiveTab] = useState('shop')
   const [selectedItem, setSelectedItem] = useState(null)
@@ -214,8 +211,6 @@ export default function PointsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -559,9 +554,6 @@ export default function PointsPage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 兑换确认模态框 */}
       <Modal 
         isOpen={isExchangeOpen} 
         onClose={onExchangeClose}

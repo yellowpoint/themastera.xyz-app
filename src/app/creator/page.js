@@ -29,9 +29,6 @@ import {
   TableRow,
   TableCell
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
@@ -181,8 +178,6 @@ export default function CreatorPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -566,9 +561,6 @@ export default function CreatorPage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 上传作品模态框 */}
       <Modal 
         isOpen={isUploadOpen} 
         onClose={onUploadClose}

@@ -18,9 +18,6 @@ import {
   TableCell,
   Pagination
 } from '@heroui/react'
-import Navigation from '../../../components/Navigation'
-import Footer from '../../../components/Footer'
-
 export default function PointsHistoryPage() {
   const [filterType, setFilterType] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -111,8 +108,6 @@ export default function PointsHistoryPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -270,7 +265,6 @@ export default function PointsHistoryPage() {
         </Card>
       </main>
 
-      <Footer />
-    </div>
+      </div>
   )
 }

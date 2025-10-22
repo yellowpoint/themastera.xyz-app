@@ -19,9 +19,6 @@ import {
   Textarea,
   Checkbox
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function TermsPage() {
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure()
   const { isOpen: isReportOpen, onOpen: onReportOpen, onClose: onReportClose } = useDisclosure()
@@ -226,8 +223,6 @@ export default function TermsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation isLoggedIn={true} />
-      
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -422,9 +417,6 @@ export default function TermsPage() {
         </Card>
       </main>
 
-      <Footer />
-
-      {/* 法律咨询模态框 */}
       <Modal 
         isOpen={isContactOpen} 
         onClose={onContactClose}

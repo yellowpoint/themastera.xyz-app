@@ -32,8 +32,6 @@ import {
   AccordionItem,
 } from "@heroui/react";
 import { addToast } from "@heroui/toast";
-import Navigation from '../components/Navigation'
-import Footer from '../components/Footer'
 
 // 用户等级配置
 const membershipLevels = {
@@ -525,73 +523,67 @@ export default function MasteraPlatform() {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 欢迎横幅 */}
-        <div className="bg-gradient-to-r from-lime-400/20 to-green-400/20 rounded-2xl p-8 mb-8 border border-lime-400/30">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">
-                欢迎来到 <span className="text-lime-400">Mastera Platform</span>
-              </h1>
-              <p className="text-gray-300 text-lg">
-                连接创作者与粉丝的创意平台，让每个人都能发现和分享精彩内容
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
-              <Button 
-                color="primary" 
-                size="lg"
-                className="bg-lime-400 text-black font-semibold"
-                onPress={() => window.location.href = '/onboarding'}
-              >
-                开始探索
-              </Button>
-              <Button 
-                variant="bordered"
-                size="lg"
-                className="border-lime-400 text-lime-400 hover:bg-lime-400/10"
-                onPress={() => window.location.href = '/creator'}
-              >
-                成为创作者
-              </Button>
-            </div>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* 欢迎横幅 */}
+      <div className="bg-gradient-to-r from-lime-400/20 to-green-400/20 rounded-2xl p-8 mb-8 border border-lime-400/30">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              欢迎来到 <span className="text-lime-400">Mastera Platform</span>
+            </h1>
+            <p className="text-gray-300 text-lg">
+              连接创作者与粉丝的创意平台，让每个人都能发现和分享精彩内容
+            </p>
+          </div>
+          <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
+            <Button 
+              color="primary" 
+              size="lg"
+              className="bg-lime-400 text-black font-semibold"
+              onPress={() => window.location.href = '/onboarding'}
+            >
+              开始探索
+            </Button>
+            <Button 
+              variant="bordered"
+              size="lg"
+              className="border-lime-400 text-lime-400 hover:bg-lime-400/10"
+              onPress={() => window.location.href = '/creator'}
+            >
+              成为创作者
+            </Button>
           </div>
         </div>
-
-      {/* 主要内容区域 */}
-      <div className="space-y-8">
-        <Tabs 
-          selectedKey={activeTab} 
-          onSelectionChange={setActiveTab}
-          className="w-full"
-          color="primary"
-        >
-          <Tab key="dashboard" title="🏠 仪表盘">
-            {renderDashboard()}
-          </Tab>
-          <Tab key="user" title="👤 用户系统">
-            {renderUserSystem()}
-          </Tab>
-          <Tab key="content" title="📚 内容体系">
-            {renderContentSystem()}
-          </Tab>
-          <Tab key="community" title="🌐 社区互动">
-            {renderCommunity()}
-          </Tab>
-          <Tab key="points" title="⭐ 积分系统">
-            {renderPointsSystem()}
-          </Tab>
-          <Tab key="creator" title="🎨 创作者中心">
-            {renderCreatorSystem()}
-          </Tab>
-        </Tabs>
       </div>
-      </main>
-      
-      <Footer />
+
+    {/* 主要内容区域 */}
+    <div className="space-y-8">
+      <Tabs 
+        selectedKey={activeTab} 
+        onSelectionChange={setActiveTab}
+        className="w-full"
+        color="primary"
+      >
+        <Tab key="dashboard" title="🏠 仪表盘">
+          {renderDashboard()}
+        </Tab>
+        <Tab key="user" title="👤 用户系统">
+          {renderUserSystem()}
+        </Tab>
+        <Tab key="content" title="📚 内容体系">
+          {renderContentSystem()}
+        </Tab>
+        <Tab key="community" title="🌐 社区互动">
+          {renderCommunity()}
+        </Tab>
+        <Tab key="points" title="⭐ 积分系统">
+          {renderPointsSystem()}
+        </Tab>
+        <Tab key="creator" title="🎨 创作者中心">
+          {renderCreatorSystem()}
+        </Tab>
+      </Tabs>
+    </div>
 
       {/* 用户档案模态框 */}
       <Modal isOpen={isProfileOpen} onOpenChange={onProfileOpenChange} size="2xl">

@@ -25,9 +25,6 @@ import {
   DropdownItem,
   Checkbox
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState('content')
   const [sortBy, setSortBy] = useState('recent')
@@ -271,8 +268,6 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
@@ -672,9 +667,6 @@ export default function FavoritesPage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 创建收藏夹模态框 */}
       <Modal 
         isOpen={isCreateOpen} 
         onClose={onCreateClose}

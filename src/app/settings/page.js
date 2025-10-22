@@ -24,9 +24,6 @@ import {
   Avatar,
   Textarea
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('account')
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -133,8 +130,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation isLoggedIn={true} />
-      
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">设置</h1>
@@ -1042,9 +1037,6 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      <Footer />
-
-      {/* 修改密码模态框 */}
       <Modal 
         isOpen={isPasswordOpen} 
         onClose={onPasswordClose}

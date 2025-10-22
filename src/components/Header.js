@@ -35,7 +35,7 @@ import {
   LogOut
 } from 'lucide-react'
 
-export default function Navigation({ userProfile, isLoggedIn = false }) {
+export default function Header({ userProfile, isLoggedIn = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
 

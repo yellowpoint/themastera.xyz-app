@@ -22,9 +22,6 @@ import {
   Textarea,
   Divider
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState('circles')
   const [selectedCircle, setSelectedCircle] = useState(null)
@@ -163,8 +160,6 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -395,9 +390,6 @@ export default function CommunityPage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 圈子详情模态框 */}
       <Modal 
         isOpen={isCircleOpen} 
         onClose={onCircleClose}

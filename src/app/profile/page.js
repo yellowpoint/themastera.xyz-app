@@ -24,9 +24,6 @@ import {
   Divider,
   Badge
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isEditing, setIsEditing] = useState(false)
@@ -231,8 +228,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation userProfile={userProfile} isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 用户头部信息 */}
         <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700 mb-8">
@@ -545,9 +540,6 @@ export default function ProfilePage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 编辑资料模态框 */}
       <Modal 
         isOpen={isEditOpen} 
         onClose={onEditClose}

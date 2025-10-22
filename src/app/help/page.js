@@ -23,9 +23,6 @@ import {
   Select,
   SelectItem
 } from '@heroui/react'
-import Navigation from '../../components/Navigation'
-import Footer from '../../components/Footer'
-
 export default function HelpPage() {
   const [activeTab, setActiveTab] = useState('faq')
   const [searchQuery, setSearchQuery] = useState('')
@@ -251,8 +248,6 @@ export default function HelpPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navigation isLoggedIn={true} />
-      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -451,9 +446,6 @@ export default function HelpPage() {
         )}
       </main>
 
-      <Footer />
-
-      {/* 联系客服模态框 */}
       <Modal 
         isOpen={isContactOpen} 
         onClose={onContactClose}
