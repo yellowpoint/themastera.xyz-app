@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Card, 
   CardBody, 
@@ -29,9 +29,19 @@ import {
   TableRow,
   TableCell
 } from '@heroui/react'
+import { useAuth } from '@/hooks/useAuth'
+import { useWorks } from '@/hooks/useWorks'
+import FileUpload from '@/components/FileUpload'
+import AuthModal from '@/components/AuthModal'
+
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
+  const { isOpen: isAuthOpen, onOpen: onAuthOpen, onClose: onAuthClose } = useDisclosure()
+  
+  const { user, loading: authLoading } = useAuth()
+  const { works, loading: worksLoading, createWork, getWorkStats } = useWorks(user?.id)
+  
   const [uploadForm, setUploadForm] = useState({
     title: '',
     description: '',
@@ -39,68 +49,106 @@ export default function CreatorPage() {
     price: '',
     tags: ''
   })
-
-  // 模拟用户数据
-  const userProfile = {
-    name: "创作大师",
-    email: "creator@mastera.com",
-    avatar: "/api/placeholder/40/40",
-    level: "ProCreator",
-    points: 8540,
-    isCreator: true
-  }
-
-  // 创作者统计数据
-  const creatorStats = {
-    totalWorks: 156,
-    totalEarnings: 45680,
-    totalFollowers: 12340,
-    totalViews: 234567,
-    monthlyEarnings: 8920,
-    monthlyViews: 45678,
-    averageRating: 4.8,
+  
+  const [creatorStats, setCreatorStats] = useState({
+    totalWorks: 0,
+    totalEarnings: 0,
+    totalFollowers: 0,
+    totalViews: 0,
+    monthlyEarnings: 0,
+    monthlyViews: 0,
+    averageRating: 0,
     completionRate: 96
+  })
+
+  // 获取创作者统计数据
+  useEffect(() => {
+    if (user?.id) {
+      getWorkStats(user.id).then(stats => {
+        setCreatorStats(prev => ({
+          ...prev,
+          ...stats
+        }))
+      })
+    }
+  }, [user?.id, getWorkStats])
+
+  // 如果用户未登录，显示登录提示
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4">
+          <CardBody className="text-center p-8">
+            <h2 className="text-2xl font-bold mb-4">创作者中心</h2>
+            <p className="text-gray-600 mb-6">
+              请先登录以访问创作者功能
+            </p>
+            <Button 
+              color="primary" 
+              size="lg" 
+              onPress={onAuthOpen}
+              className="w-full"
+            >
+              登录 / 注册
+            </Button>
+          </CardBody>
+        </Card>
+        <AuthModal isOpen={isAuthOpen} onClose={onAuthClose} />
+      </div>
+    )
   }
 
-  // 作品数据
-  const works = [
-    {
-      id: 1,
-      title: "AI艺术作品集",
-      category: "视觉艺术",
-      price: 299,
-      downloads: 234,
-      earnings: 69666,
-      rating: 4.9,
-      status: "已发布",
-      uploadDate: "2024-01-15",
-      thumbnail: "/api/placeholder/200/150"
-    },
-    {
-      id: 2,
-      title: "摄影后期预设包",
-      category: "摄影",
-      price: 199,
-      downloads: 156,
-      earnings: 31044,
-      rating: 4.7,
-      status: "已发布",
-      uploadDate: "2024-01-10",
-      thumbnail: "/api/placeholder/200/150"
-    },
-    {
-      id: 3,
-      title: "音乐制作模板",
-      category: "音频",
-      price: 399,
-      downloads: 89,
-      earnings: 35511,
-      rating: 4.8,
-      status: "审核中",
-      uploadDate: "2024-01-20",
-      thumbnail: "/api/placeholder/200/150"
+  // 处理文件上传完成
+  const handleUploadComplete = (uploadResults) => {
+    if (uploadResults && uploadResults.length > 0) {
+      setUploadForm(prev => ({
+        ...prev,
+        fileUrl: uploadResults[0].publicUrl,
+        thumbnail: uploadResults[0].publicUrl
+      }))
     }
-  ]
+  }
+
+  // 提交新作品
+  const handleSubmitWork = async () => {
+    if (!uploadForm.title || !uploadForm.category || !uploadForm.price) {
+      alert('请填写必要信息')
+      return
+    }
+
+    try {
+      const workData = {
+        title: uploadForm.title,
+        description: uploadForm.description,
+        category: uploadForm.category,
+        price: parseFloat(uploadForm.price),
+        tags: uploadForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        authorId: user.id,
+        fileUrl: uploadForm.fileUrl,
+        thumbnail: uploadForm.thumbnail,
+        status: 'reviewing'
+      }
+
+      await createWork(workData)
+      
+      // 重置表单
+      setUploadForm({
+        title: '',
+        description: '',
+        category: '',
+        price: '',
+        tags: '',
+        fileUrl: '',
+        thumbnail: ''
+      })
+      
+      onUploadClose()
+      alert('作品提交成功，正在审核中')
+    } catch (error) {
+      console.error('Error submitting work:', error)
+      alert('提交失败，请重试')
+    }
+  }
 
   // 收益记录
   const earningsHistory = [
@@ -148,14 +196,6 @@ export default function CreatorPage() {
     { key: "design", label: "设计" },
     { key: "other", label: "其他" }
   ]
-
-  const handleUpload = () => {
-    if (uploadForm.title && uploadForm.description && uploadForm.category) {
-      console.log('上传作品:', uploadForm)
-      setUploadForm({ title: '', description: '', category: '', price: '', tags: '' })
-      onUploadClose()
-    }
-  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -562,75 +602,85 @@ export default function CreatorPage() {
       </main>
 
       <Modal 
-        isOpen={isUploadOpen} 
-        onClose={onUploadClose}
-        size="2xl"
-        className="bg-gray-900 text-white"
-      >
-        <ModalContent>
-          <ModalHeader>
-            <h2 className="text-xl font-bold">上传新作品</h2>
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <Input
-                label="作品标题"
-                placeholder="输入作品标题..."
-                value={uploadForm.title}
-                onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
-              />
-              
-              <Textarea
-                label="作品描述"
-                placeholder="描述你的作品..."
-                minRows={4}
-                value={uploadForm.description}
-                onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
-              />
+         isOpen={isUploadOpen} 
+         onClose={onUploadClose}
+         size="2xl"
+         className="bg-gray-900 text-white"
+       >
+         <ModalContent>
+           <ModalHeader>
+             <h2 className="text-xl font-bold">上传新作品</h2>
+           </ModalHeader>
+           <ModalBody>
+             <div className="space-y-4">
+               <Input
+                 label="作品标题"
+                 placeholder="输入作品标题..."
+                 value={uploadForm.title}
+                 onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
+               />
+               
+               <Textarea
+                 label="作品描述"
+                 placeholder="描述你的作品..."
+                 minRows={4}
+                 value={uploadForm.description}
+                 onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
+               />
 
-              <Select
-                label="作品分类"
-                placeholder="选择分类"
-                selectedKeys={uploadForm.category ? [uploadForm.category] : []}
-                onSelectionChange={(keys) => setUploadForm({...uploadForm, category: Array.from(keys)[0]})}
-              >
-                {categories.map((category) => (
-                  <SelectItem key={category.key} value={category.key}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-              </Select>
+               <Select
+                 label="作品分类"
+                 placeholder="选择分类"
+                 selectedKeys={uploadForm.category ? [uploadForm.category] : []}
+                 onSelectionChange={(keys) => setUploadForm({...uploadForm, category: Array.from(keys)[0]})}
+               >
+                 {categories.map((category) => (
+                   <SelectItem key={category.key} value={category.key}>
+                     {category.label}
+                   </SelectItem>
+                 ))}
+               </Select>
 
-              <Input
-                label="作品价格"
-                placeholder="设置价格（元）"
-                type="number"
-                value={uploadForm.price}
-                onChange={(e) => setUploadForm({...uploadForm, price: e.target.value})}
-              />
+               <Input
+                 label="作品价格"
+                 placeholder="设置价格（元）"
+                 type="number"
+                 value={uploadForm.price}
+                 onChange={(e) => setUploadForm({...uploadForm, price: e.target.value})}
+               />
 
-              <Input
-                label="标签"
-                placeholder="输入标签，用逗号分隔"
-                value={uploadForm.tags}
-                onChange={(e) => setUploadForm({...uploadForm, tags: e.target.value})}
-              />
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onUploadClose}>
-              取消
-            </Button>
-            <Button 
-              color="primary"
-              onPress={handleUpload}
-              isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category}
-            >
-              上传作品
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+               <Input
+                 label="标签"
+                 placeholder="输入标签，用逗号分隔"
+                 value={uploadForm.tags}
+                 onChange={(e) => setUploadForm({...uploadForm, tags: e.target.value})}
+               />
+
+               <div>
+                 <label className="block text-sm font-medium mb-2">上传文件</label>
+                 <FileUpload
+                   onUploadComplete={handleUploadComplete}
+                   acceptedTypes={['image/*', 'video/*', 'audio/*', '.zip', '.rar', '.pdf']}
+                   maxSize={100 * 1024 * 1024} // 100MB
+                   bucket="works"
+                 />
+               </div>
+             </div>
+           </ModalBody>
+           <ModalFooter>
+             <Button variant="light" onPress={onUploadClose}>
+               取消
+             </Button>
+             <Button 
+               color="primary"
+               onPress={handleSubmitWork}
+               isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category || !uploadForm.fileUrl}
+             >
+               上传作品
+             </Button>
+           </ModalFooter>
+         </ModalContent>
+       </Modal>
     </div>
   )
 }

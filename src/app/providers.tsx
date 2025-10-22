@@ -2,6 +2,7 @@
 
 import { HeroUIProvider } from "@heroui/react";
 import { ToastProvider } from "@heroui/toast";
+import { AuthProvider } from "@/hooks/useAuth";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         placement="top-center"
         toastProps={{ radius: "full" }}
       ></ToastProvider>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
     </HeroUIProvider>
   );
 }

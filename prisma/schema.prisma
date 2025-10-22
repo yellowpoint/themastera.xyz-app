@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// 用户模型
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  level     String   @default("User")
+  points    Int      @default(0)
+  isCreator Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  works     Work[]
+  purchases Purchase[]
+  reviews   Review[]
+
+  @@map("users")
+}
+
+// 作品模型
+model Work {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  category    String
+  price       Float
+  downloads   Int      @default(0)
+  earnings    Float    @default(0)
+  rating      Float    @default(0)
+  status      String   @default("draft") // draft, published, reviewing, rejected
+  thumbnail   String?
+  fileUrl     String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  purchases Purchase[]
+  reviews   Review[]
+
+  @@map("works")
+}
+
+// 购买记录模型
+model Purchase {
+  id        String   @id @default(uuid())
+  amount    Float
+  createdAt DateTime @default(now())
+
+  // 关联
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workId String
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@map("purchases")
+}
+
+// 评价模型
+model Review {
+  id        String   @id @default(uuid())
+  rating    Float
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // 关联
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workId String
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@map("reviews")
+}

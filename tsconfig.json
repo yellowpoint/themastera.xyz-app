@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     "target": "ES2017",
     "lib": [
       "dom",
@@ -31,5 +36,5 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
 }
