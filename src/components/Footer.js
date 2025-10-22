@@ -119,7 +119,7 @@ export default function Footer() {
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
             © {currentYear} Mastera Platform. 保留所有权利。
           </div>
-          
+
           <div className="flex flex-wrap gap-6 text-sm">
             <Link href="/privacy" className="text-gray-400 hover:text-lime-400">
               隐私政策
@@ -133,29 +133,6 @@ export default function Footer() {
             <Link href="/accessibility" className="text-gray-400 hover:text-lime-400">
               无障碍声明
             </Link>
-          </div>
-        </div>
-
-        {/* 额外信息 */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-            <div className="mb-2 md:mb-0">
-              Mastera Platform - 让创意无界限，让价值有回报
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center gap-1">
-                <Star size={16} />
-                会员等级系统
-              </span>
-              <span className="flex items-center gap-1">
-                <Target size={16} />
-                积分奖励机制
-              </span>
-              <span className="flex items-center gap-1">
-                <Rocket size={16} />
-                创作者扶持计划
-              </span>
-            </div>
           </div>
         </div>
       </div>

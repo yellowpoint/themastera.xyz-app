@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Navbar, 
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarItem, 
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
   NavbarMenuToggle,
   NavbarMenu,
   NavbarMenuItem,
@@ -19,13 +19,13 @@ import {
   Badge
 } from '@heroui/react'
 import { useRouter } from 'next/navigation'
-import { 
-  Bell, 
-  Home, 
-  FileText, 
-  Users, 
-  PenTool, 
-  ShoppingBag, 
+import {
+  Bell,
+  Home,
+  FileText,
+  Users,
+  PenTool,
+  ShoppingBag,
   Target,
   User,
   Heart,
@@ -66,12 +66,12 @@ export default function Header() {
 
   if (loading) {
     return (
-      <Navbar className="bg-black/90 backdrop-blur-md border-b border-gray-800" maxWidth="full">
+      <Navbar className="backdrop-blur-md border-b border-gray-800" maxWidth="full">
         <NavbarContent>
           <NavbarBrand>
             <Button
               variant="light"
-              className="text-2xl font-bold text-white"
+              className="text-2xl font-bold"
               onPress={() => router.push('/')}
             >
               Mastera
@@ -84,20 +84,20 @@ export default function Header() {
 
   return (
     <>
-      <Navbar 
+      <Navbar
         onMenuOpenChange={setIsMenuOpen}
-        className="bg-black/90 backdrop-blur-md border-b border-gray-800"
+        className="backdrop-blur-md border-b border-gray-800"
         maxWidth="full"
       >
         <NavbarContent>
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="sm:hidden text-white"
+            className="sm:hidden"
           />
           <NavbarBrand>
             <Button
               variant="light"
-              className="text-2xl font-bold text-white"
+              className="text-2xl font-bold"
               onPress={() => router.push('/')}
             >
               Mastera
@@ -110,7 +110,7 @@ export default function Header() {
             <NavbarItem key={item.name}>
               <Button
                 variant="light"
-                className="text-gray-300 hover:text-lime-400 flex items-center gap-2"
+                className="hover:bg-primary flex items-center gap-2"
                 onPress={() => router.push(item.href)}
               >
                 <item.icon size={16} />
@@ -134,10 +134,10 @@ export default function Header() {
                   </Button>
                 </Badge>
               </NavbarItem>
-              
+
               <NavbarItem>
-                <Chip 
-                  color="primary" 
+                <Chip
+                  color="primary"
                   variant="flat"
                   className="cursor-pointer"
                   onClick={() => router.push('/points')}
@@ -164,7 +164,7 @@ export default function Header() {
                     <p className="font-semibold">{user?.email}</p>
                   </DropdownItem>
                   {userMenuItems.map((item) => (
-                    <DropdownItem 
+                    <DropdownItem
                       key={item.name}
                       onPress={() => router.push(item.href)}
                       startContent={<item.icon size={16} />}
@@ -172,8 +172,8 @@ export default function Header() {
                       {item.name}
                     </DropdownItem>
                   ))}
-                  <DropdownItem 
-                    key="logout" 
+                  <DropdownItem
+                    key="logout"
                     color="danger"
                     startContent={<LogOut size={16} />}
                     onPress={handleSignOut}
@@ -223,7 +223,7 @@ export default function Header() {
               </Button>
             </NavbarMenuItem>
           ))}
-          
+
           {user && (
             <>
               <NavbarMenuItem>
@@ -259,7 +259,7 @@ export default function Header() {
               </NavbarMenuItem>
             </>
           )}
-          
+
           {!user && (
             <>
               <NavbarMenuItem>
