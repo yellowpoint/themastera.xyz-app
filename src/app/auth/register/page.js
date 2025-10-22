@@ -76,7 +76,7 @@ export default function RegisterPage() {
         formData.email, 
         formData.password, 
         {
-          username: formData.username,
+          name: formData.username,
           user_type: formData.userType,
           referral_code: formData.referralCode || null,
           agree_marketing: formData.agreeMarketing
@@ -84,7 +84,7 @@ export default function RegisterPage() {
       );
       
       if (result.error) {
-        setError(getErrorMessage(result.error.message));
+        setError(getErrorMessage(result.error));
       } else {
         // 注册成功，显示成功消息
         setError('注册成功！请检查您的邮箱并点击验证链接来激活账户。');

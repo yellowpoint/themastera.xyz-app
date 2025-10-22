@@ -48,7 +48,7 @@ export default function LoginPage() {
       const result = await signIn(formData.email, formData.password);
       
       if (result.error) {
-        setError(getErrorMessage(result.error.message));
+        setError(getErrorMessage(result.error));
       } else {
         // 登录成功，跳转到首页或用户指定页面
         router.push('/');

@@ -83,16 +83,53 @@ export default function AuthModal({ isOpen, onClose }) {
   }
 
   const handleSubmit = async () => {
-    if (!validateForm()) return
-
+    setErrors({})
     setLoading(true)
-    setErrors({}) // 清除之前的错误
-    
+
     try {
       let result
       if (activeTab === 'login') {
+        // 登录验证
+        if (!formData.email.trim()) {
+          setErrors({ email: '请输入邮箱地址' })
+          setLoading(false)
+          return
+        }
+        if (!formData.password) {
+          setErrors({ password: '请输入密码' })
+          setLoading(false)
+          return
+        }
+        
         result = await signIn(formData.email, formData.password)
       } else {
+        // 注册验证
+        if (!formData.name.trim()) {
+          setErrors({ name: '请输入姓名' })
+          setLoading(false)
+          return
+        }
+        if (!formData.email.trim()) {
+          setErrors({ email: '请输入邮箱地址' })
+          setLoading(false)
+          return
+        }
+        if (!formData.password) {
+          setErrors({ password: '请输入密码' })
+          setLoading(false)
+          return
+        }
+        if (formData.password.length < 6) {
+          setErrors({ password: '密码长度至少为6位' })
+          setLoading(false)
+          return
+        }
+        if (formData.password !== formData.confirmPassword) {
+          setErrors({ confirmPassword: '两次输入的密码不一致' })
+          setLoading(false)
+          return
+        }
+        
         result = await signUp(formData.email, formData.password, {
           name: formData.name
         })

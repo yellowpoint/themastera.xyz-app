@@ -1,18 +1,18 @@
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from './useAuth'
 
 export const useFileUpload = () => {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const { user } = useAuth()
 
-  const uploadFile = async (file, bucket = 'works', folder = '') => {
+  const uploadFile = async (file, folder = '') => {
     if (!file) {
       throw new Error('No file provided')
     }
 
     // 检查用户认证状态
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    if (!user) {
       throw new Error('请先登录后再上传文件')
     }
 
@@ -36,59 +36,48 @@ export const useFileUpload = () => {
         })
       }, 200)
 
-      // 上传文件到 Supabase Storage，添加用户元数据
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-          metadata: {
-            userId: user.id,
-            originalName: file.name
-          }
-        })
+      // 创建 FormData 对象
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('filePath', filePath)
+      formData.append('userId', user.id)
+
+      // 上传文件到自定义 API 端点
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
 
       clearInterval(progressInterval)
 
-      if (error) {
-        console.error('Supabase upload error:', error)
-        throw new Error(`上传失败: ${error.message}`)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`上传失败: ${errorData.message || '未知错误'}`)
       }
 
-      if (!data || !data.path) {
-        throw new Error('上传失败: 未收到有效的上传数据')
-      }
-
-      // 获取公共 URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath)
-
-      if (!publicUrl) {
-        throw new Error('获取文件URL失败')
-      }
-
+      const result = await response.json()
       setProgress(100)
-      
+
       return {
-        path: data.path,
-        publicUrl,
-        fullPath: data.fullPath,
+        path: result.path,
+        publicUrl: result.publicUrl,
+        fullPath: filePath,
         fileName: fileName,
         originalName: file.name,
         size: file.size,
         type: file.type
       }
+
     } catch (error) {
       console.error('Upload error:', error)
       throw error
     } finally {
       setUploading(false)
-      setTimeout(() => setProgress(0), 1000) // 延迟重置进度条
+      setTimeout(() => setProgress(0), 1000)
     }
   }
 
-  const uploadMultipleFiles = async (files, bucket = 'works', folder = '') => {
+  const uploadMultipleFiles = async (files, folder = '') => {
     if (!files || files.length === 0) {
       throw new Error('No files provided')
     }
@@ -98,45 +87,52 @@ export const useFileUpload = () => {
 
     for (let i = 0; i < files.length; i++) {
       try {
-        const result = await uploadFile(files[i], bucket, folder)
+        const result = await uploadFile(files[i], folder)
         results.push(result)
       } catch (error) {
-        console.error(`Failed to upload file ${files[i].name}:`, error)
         errors.push({ file: files[i].name, error: error.message })
       }
     }
 
-    if (errors.length > 0) {
-      const errorMessage = `部分文件上传失败: ${errors.map(e => e.file).join(', ')}`
-      throw new Error(errorMessage)
+    return {
+      results,
+      errors,
+      success: errors.length === 0
     }
-
-    return results
   }
 
-  const deleteFile = async (filePath, bucket = 'works') => {
-    try {
-      const { error } = await supabase.storage
-        .from(bucket)
-        .remove([filePath])
+  const deleteFile = async (filePath) => {
+    if (!user) {
+      throw new Error('请先登录')
+    }
 
-      if (error) {
-        throw error
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filePath,
+          userId: user.id
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`删除失败: ${errorData.message || '未知错误'}`)
       }
 
-      return true
+      return { error: null }
     } catch (error) {
       console.error('Delete error:', error)
-      throw error
+      return { error }
     }
   }
 
-  const getFileUrl = (filePath, bucket = 'works') => {
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath)
-    
-    return data.publicUrl
+  const getFileUrl = (filePath) => {
+    // 返回文件的公共访问 URL
+    return `/api/files/${filePath}`
   }
 
   return {

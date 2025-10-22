@@ -1,129 +1,128 @@
 import { useState, useEffect, createContext, useContext } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createAuthClient } from "better-auth/react"
 
 const AuthContext = createContext({})
 
+// Better Auth 客户端配置
+const auth = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+})
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [localUser, setLocalUser] = useState(null)
   const [loading, setLoading] = useState(true)
-
-  // 同步用户到本地数据库
-  const syncUserToLocal = async (supabaseUser) => {
-    if (!supabaseUser) {
-      setLocalUser(null)
-      return null
-    }
-
-    try {
-      const response = await fetch('/api/auth/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: supabaseUser.id,
-          email: supabaseUser.email,
-          name: supabaseUser.user_metadata?.name || supabaseUser.user_metadata?.full_name,
-          avatar: supabaseUser.user_metadata?.avatar_url
-        })
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success) {
-          setLocalUser(result.data)
-          return result.data
-        }
-      }
-    } catch (error) {
-      console.error('Error syncing user to local database:', error)
-    }
-    
-    return null
-  }
 
   useEffect(() => {
     // 获取初始会话
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      const supabaseUser = session?.user ?? null
-      setUser(supabaseUser)
-      
-      if (supabaseUser) {
-        await syncUserToLocal(supabaseUser)
+      try {
+        const session = await auth.getSession()
+        setUser(session?.user || null)
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
       }
-      
-      setLoading(false)
     }
 
     getInitialSession()
 
     // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        const supabaseUser = session?.user ?? null
-        setUser(supabaseUser)
-        
-        if (supabaseUser) {
-          await syncUserToLocal(supabaseUser)
-        } else {
-          setLocalUser(null)
-        }
-        
-        setLoading(false)
-      }
-    )
+    const unsubscribe = auth.onSessionChange((session) => {
+      setUser(session?.user || null)
+      setLoading(false)
+    })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      if (unsubscribe) unsubscribe()
+    }
   }, [])
 
-  const signUp = async (email, password, metadata = {}) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata
+  const signUp = async (email, password, additionalData = {}) => {
+    try {
+      const result = await auth.signUp.email({
+        email,
+        password,
+        name: additionalData.name,
+        ...additionalData
+      })
+      
+      if (result.error) {
+        return { error: result.error }
       }
-    })
-    return { data, error }
+      
+      return { data: result.data }
+    } catch (error) {
+      return { error: { message: error.message } }
+    }
   }
 
   const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    return { data, error }
+    try {
+      const result = await auth.signIn.email({
+        email,
+        password,
+      })
+      
+      if (result.error) {
+        return { error: result.error }
+      }
+      
+      return { data: result.data }
+    } catch (error) {
+      return { error: { message: error.message } }
+    }
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      await auth.signOut()
+      return { error: null }
+    } catch (error) {
+      return { error: { message: error.message } }
+    }
   }
 
   const resetPassword = async (email) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email)
-    return { data, error }
+    try {
+      const result = await auth.forgetPassword({
+        email,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      })
+      
+      if (result.error) {
+        return { error: result.error }
+      }
+      
+      return { data: result.data }
+    } catch (error) {
+      return { error: { message: error.message } }
+    }
   }
 
   const updateProfile = async (updates) => {
-    const { data, error } = await supabase.auth.updateUser({
-      data: updates
-    })
-    return { data, error }
+    try {
+      const result = await auth.updateUser(updates)
+      
+      if (result.error) {
+        return { error: result.error }
+      }
+      
+      return { data: result.data }
+    } catch (error) {
+      return { error: { message: error.message } }
+    }
   }
 
   const value = {
-    user, // Supabase Auth用户
-    localUser, // 本地数据库用户
+    user,
     loading,
     signUp,
     signIn,
     signOut,
     resetPassword,
     updateProfile,
-    syncUserToLocal
   }
 
   return (
