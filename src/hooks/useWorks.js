@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import { prisma } from '@/lib/prisma'
+import { useState, useEffect, useCallback } from 'react'
 
 export const useWorks = (userId = null) => {
   const [works, setWorks] = useState([])
@@ -8,50 +6,57 @@ export const useWorks = (userId = null) => {
   const [error, setError] = useState(null)
 
   // 获取作品列表
-  const fetchWorks = async (filters = {}) => {
+  const fetchWorks = useCallback(async (filters = {}) => {
     setLoading(true)
     setError(null)
     
     try {
-      // 构建查询条件
-      let query = supabase
-        .from('works')
-        .select(`
-          *,
-          author:users(id, name, avatar),
-          reviews(rating),
-          purchases(id)
-        `)
-
-      // 如果指定了用户ID，只获取该用户的作品
+      // 构建查询参数
+      const params = new URLSearchParams()
+      
       if (userId) {
-        query = query.eq('authorId', userId)
+        params.append('userId', userId)
       }
-
-      // 应用其他过滤条件
+      
       if (filters.category) {
-        query = query.eq('category', filters.category)
+        params.append('category', filters.category)
       }
       
       if (filters.status) {
-        query = query.eq('status', filters.status)
+        params.append('status', filters.status)
+      }
+      
+      if (filters.page) {
+        params.append('page', filters.page.toString())
+      }
+      
+      if (filters.limit) {
+        params.append('limit', filters.limit.toString())
       }
 
-      // 排序
-      query = query.order('createdAt', { ascending: false })
+      const response = await fetch(`/api/works?${params.toString()}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch works')
+      }
 
-      const { data, error } = await query
-
-      if (error) throw error
-
-      setWorks(data || [])
+      setWorks(result.data || [])
+      return result
     } catch (err) {
       setError(err.message)
       console.error('Error fetching works:', err)
+      setWorks([])
+      throw err
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId])
 
   // 创建新作品
   const createWork = async (workData) => {
@@ -59,16 +64,26 @@ export const useWorks = (userId = null) => {
     setError(null)
 
     try {
-      const { data, error } = await supabase
-        .from('works')
-        .insert([workData])
-        .select()
-        .single()
+      const response = await fetch('/api/works', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(workData)
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
 
-      setWorks(prev => [data, ...prev])
-      return data
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create work')
+      }
+
+      setWorks(prev => [result.data, ...prev])
+      return result.data
     } catch (err) {
       setError(err.message)
       console.error('Error creating work:', err)
@@ -84,22 +99,31 @@ export const useWorks = (userId = null) => {
     setError(null)
 
     try {
-      const { data, error } = await supabase
-        .from('works')
-        .update(updates)
-        .eq('id', workId)
-        .select()
-        .single()
+      const response = await fetch(`/api/works/${workId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates)
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update work')
+      }
 
       setWorks(prev => 
         prev.map(work => 
-          work.id === workId ? { ...work, ...data } : work
+          work.id === workId ? { ...work, ...result.data } : work
         )
       )
       
-      return data
+      return result.data
     } catch (err) {
       setError(err.message)
       console.error('Error updating work:', err)
@@ -115,12 +139,19 @@ export const useWorks = (userId = null) => {
     setError(null)
 
     try {
-      const { error } = await supabase
-        .from('works')
-        .delete()
-        .eq('id', workId)
+      const response = await fetch(`/api/works/${workId}`, {
+        method: 'DELETE'
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete work')
+      }
 
       setWorks(prev => prev.filter(work => work.id !== workId))
     } catch (err) {
@@ -133,45 +164,34 @@ export const useWorks = (userId = null) => {
   }
 
   // 获取作品统计数据
-  const getWorkStats = async (authorId) => {
+  const getWorkStats = useCallback(async (authorId) => {
     try {
-      const { data, error } = await supabase
-        .from('works')
-        .select(`
-          id,
-          downloads,
-          earnings,
-          reviews(rating)
-        `)
-        .eq('authorId', authorId)
-        .eq('status', 'published')
-
-      if (error) throw error
-
-      const stats = {
-        totalWorks: data.length,
-        totalDownloads: data.reduce((sum, work) => sum + work.downloads, 0),
-        totalEarnings: data.reduce((sum, work) => sum + work.earnings, 0),
-        averageRating: 0
+      const response = await fetch(`/api/works/stats?authorId=${authorId}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch work stats')
       }
 
-      // 计算平均评分
-      const allRatings = data.flatMap(work => work.reviews.map(r => r.rating))
-      if (allRatings.length > 0) {
-        stats.averageRating = allRatings.reduce((sum, rating) => sum + rating, 0) / allRatings.length
-      }
-
-      return stats
+      return result.data
     } catch (err) {
       console.error('Error fetching work stats:', err)
       return {
         totalWorks: 0,
         totalDownloads: 0,
         totalEarnings: 0,
-        averageRating: 0
+        averageRating: 0,
+        monthlyEarnings: 0,
+        monthlyViews: 0,
+        completionRate: 96
       }
     }
-  }
+  }, [])
 
   // 初始加载
   useEffect(() => {

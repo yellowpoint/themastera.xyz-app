@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -38,10 +38,10 @@ export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
   const { isOpen: isAuthOpen, onOpen: onAuthOpen, onClose: onAuthClose } = useDisclosure()
-  
+
   const { user, loading: authLoading } = useAuth()
   const { works, loading: worksLoading, createWork, getWorkStats } = useWorks(user?.id)
-  
+
   const [uploadForm, setUploadForm] = useState({
     title: '',
     description: '',
@@ -49,7 +49,7 @@ export default function CreatorPage() {
     price: '',
     tags: ''
   })
-  
+
   const [creatorStats, setCreatorStats] = useState({
     totalWorks: 0,
     totalEarnings: 0,
@@ -63,12 +63,16 @@ export default function CreatorPage() {
 
   // 获取创作者统计数据
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && getWorkStats) {
       getWorkStats(user.id).then(stats => {
-        setCreatorStats(prev => ({
-          ...prev,
-          ...stats
-        }))
+        if (stats) {
+          setCreatorStats(prev => ({
+            ...prev,
+            ...stats
+          }))
+        }
+      }).catch(error => {
+        console.error('Failed to fetch work stats:', error)
       })
     }
   }, [user?.id, getWorkStats])
@@ -83,9 +87,9 @@ export default function CreatorPage() {
             <p className="text-gray-600 mb-6">
               请先登录以访问创作者功能
             </p>
-            <Button 
-              color="primary" 
-              size="lg" 
+            <Button
+              color="primary"
+              size="lg"
               onPress={onAuthOpen}
               className="w-full"
             >
@@ -100,12 +104,16 @@ export default function CreatorPage() {
 
   // 处理文件上传完成
   const handleUploadComplete = (uploadResults) => {
+    console.log('Upload results:', uploadResults) // 添加调试日志
     if (uploadResults && uploadResults.length > 0) {
+      const firstFile = uploadResults[0]
       setUploadForm(prev => ({
         ...prev,
-        fileUrl: uploadResults[0].publicUrl,
-        thumbnail: uploadResults[0].publicUrl
+        fileUrl: firstFile.publicUrl,
+        thumbnail: firstFile.publicUrl,
+        fileName: firstFile.originalName || firstFile.fileName
       }))
+      console.log('Updated uploadForm with:', firstFile) // 添加调试日志
     }
   }
 
@@ -130,7 +138,7 @@ export default function CreatorPage() {
       }
 
       await createWork(workData)
-      
+
       // 重置表单
       setUploadForm({
         title: '',
@@ -141,7 +149,7 @@ export default function CreatorPage() {
         fileUrl: '',
         thumbnail: ''
       })
-      
+
       onUploadClose()
       alert('作品提交成功，正在审核中')
     } catch (error) {
@@ -231,21 +239,21 @@ export default function CreatorPage() {
 
         {/* 快速操作 */}
         <div className="flex flex-wrap gap-4 mb-8">
-          <Button 
-            color="primary" 
+          <Button
+            color="primary"
             onPress={onUploadOpen}
             startContent={<span>📤</span>}
           >
             上传新作品
           </Button>
-          <Button 
+          <Button
             variant="bordered"
             className="border-lime-400 text-lime-400"
             startContent={<span>📊</span>}
           >
             查看分析
           </Button>
-          <Button 
+          <Button
             variant="bordered"
             className="border-gray-600 text-gray-300"
             startContent={<span>💰</span>}
@@ -255,8 +263,8 @@ export default function CreatorPage() {
         </div>
 
         {/* 内容标签页 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -351,8 +359,8 @@ export default function CreatorPage() {
                       <span className="text-gray-400">完成率</span>
                       <span className="text-lg font-semibold">{creatorStats.completionRate}%</span>
                     </div>
-                    <Progress 
-                      value={creatorStats.completionRate} 
+                    <Progress
+                      value={creatorStats.completionRate}
                       color="success"
                       className="w-full"
                     />
@@ -393,13 +401,13 @@ export default function CreatorPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {works.map((work) => (
-                <Card 
-                  key={work.id} 
+                <Card
+                  key={work.id}
                   className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
                 >
                   <CardHeader className="p-0">
-                    <img 
-                      src={work.thumbnail} 
+                    <img
+                      src={work.thumbnail}
                       alt={work.title}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -407,17 +415,17 @@ export default function CreatorPage() {
                   <CardBody className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-semibold line-clamp-1">{work.title}</h3>
-                      <Chip 
-                        size="sm" 
+                      <Chip
+                        size="sm"
                         color={getStatusColor(work.status)}
                         variant="flat"
                       >
                         {work.status}
                       </Chip>
                     </div>
-                    
+
                     <p className="text-gray-400 text-sm mb-3">{work.category}</p>
-                    
+
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">价格</span>
@@ -467,7 +475,7 @@ export default function CreatorPage() {
                   <p className="text-2xl font-bold">¥{creatorStats.monthlyEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
-              
+
               <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700">
                 <CardBody className="p-6 text-center">
                   <div className="text-3xl mb-2">📈</div>
@@ -475,7 +483,7 @@ export default function CreatorPage() {
                   <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
-              
+
               <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700">
                 <CardBody className="p-6 text-center">
                   <div className="text-3xl mb-2">🎯</div>
@@ -503,8 +511,8 @@ export default function CreatorPage() {
                         <TableCell>{record.date}</TableCell>
                         <TableCell>{record.work}</TableCell>
                         <TableCell>
-                          <Chip 
-                            size="sm" 
+                          <Chip
+                            size="sm"
                             color={record.type === '销售' ? 'success' : 'primary'}
                             variant="flat"
                           >
@@ -601,86 +609,108 @@ export default function CreatorPage() {
         )}
       </main>
 
-      <Modal 
-         isOpen={isUploadOpen} 
-         onClose={onUploadClose}
-         size="2xl"
-         className="bg-gray-900 text-white"
-       >
-         <ModalContent>
-           <ModalHeader>
-             <h2 className="text-xl font-bold">上传新作品</h2>
-           </ModalHeader>
-           <ModalBody>
-             <div className="space-y-4">
-               <Input
-                 label="作品标题"
-                 placeholder="输入作品标题..."
-                 value={uploadForm.title}
-                 onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
-               />
-               
-               <Textarea
-                 label="作品描述"
-                 placeholder="描述你的作品..."
-                 minRows={4}
-                 value={uploadForm.description}
-                 onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
-               />
+      <Modal
+        isOpen={isUploadOpen}
+        onClose={onUploadClose}
+        size="2xl"
+        className="bg-gray-900 text-white"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <h2 className="text-xl font-bold">上传新作品</h2>
+          </ModalHeader>
+          <ModalBody>
+            <div className="space-y-4">
+              <Input
+                label="作品标题"
+                placeholder="输入作品标题..."
+                value={uploadForm.title}
+                onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+              />
 
-               <Select
-                 label="作品分类"
-                 placeholder="选择分类"
-                 selectedKeys={uploadForm.category ? [uploadForm.category] : []}
-                 onSelectionChange={(keys) => setUploadForm({...uploadForm, category: Array.from(keys)[0]})}
-               >
-                 {categories.map((category) => (
-                   <SelectItem key={category.key} value={category.key}>
-                     {category.label}
-                   </SelectItem>
-                 ))}
-               </Select>
+              <Textarea
+                label="作品描述"
+                placeholder="描述你的作品..."
+                minRows={4}
+                value={uploadForm.description}
+                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
+              />
 
-               <Input
-                 label="作品价格"
-                 placeholder="设置价格（元）"
-                 type="number"
-                 value={uploadForm.price}
-                 onChange={(e) => setUploadForm({...uploadForm, price: e.target.value})}
-               />
+              <Select
+                label="作品分类"
+                placeholder="选择分类"
+                selectedKeys={uploadForm.category ? [uploadForm.category] : []}
+                onSelectionChange={(keys) => setUploadForm({ ...uploadForm, category: Array.from(keys)[0] })}
+              >
+                {categories.map((category) => (
+                  <SelectItem key={category.key} value={category.key}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+              </Select>
 
-               <Input
-                 label="标签"
-                 placeholder="输入标签，用逗号分隔"
-                 value={uploadForm.tags}
-                 onChange={(e) => setUploadForm({...uploadForm, tags: e.target.value})}
-               />
+              <Input
+                label="作品价格"
+                placeholder="设置价格（元）"
+                type="number"
+                value={uploadForm.price}
+                onChange={(e) => setUploadForm({ ...uploadForm, price: e.target.value })}
+              />
 
-               <div>
-                 <label className="block text-sm font-medium mb-2">上传文件</label>
-                 <FileUpload
-                   onUploadComplete={handleUploadComplete}
-                   acceptedTypes={['image/*', 'video/*', 'audio/*', '.zip', '.rar', '.pdf']}
-                   maxSize={100 * 1024 * 1024} // 100MB
-                   bucket="works"
-                 />
-               </div>
-             </div>
-           </ModalBody>
-           <ModalFooter>
-             <Button variant="light" onPress={onUploadClose}>
-               取消
-             </Button>
-             <Button 
-               color="primary"
-               onPress={handleSubmitWork}
-               isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category || !uploadForm.fileUrl}
-             >
-               上传作品
-             </Button>
-           </ModalFooter>
-         </ModalContent>
-       </Modal>
+              <Input
+                label="标签"
+                placeholder="输入标签，用逗号分隔"
+                value={uploadForm.tags}
+                onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
+              />
+
+              <div>
+                <label className="block text-sm font-medium mb-2">上传文件</label>
+                <FileUpload
+                  onUploadComplete={handleUploadComplete}
+                  acceptedTypes={['image/*', 'video/*', 'audio/*', '.zip', '.rar', '.pdf']}
+                  maxSize={100 * 1024 * 1024} // 100MB
+                  bucket="data"
+                />
+
+                {/* 显示当前选择的文件信息 */}
+                {uploadForm.fileUrl && (
+                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                      <span className="text-sm font-medium text-green-800">
+                        文件已选择: {uploadForm.fileName || '未知文件'}
+                      </span>
+                    </div>
+                    <a
+                      href={uploadForm.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline mt-1 block"
+                    >
+                      预览文件
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onUploadClose}>
+              取消
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleSubmitWork}
+              isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category || !uploadForm.fileUrl}
+            >
+              上传作品
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }
