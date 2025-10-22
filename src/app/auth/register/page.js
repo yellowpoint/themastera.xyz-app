@@ -1,12 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardHeader, Input, Button, Link, Divider, Checkbox, Select, SelectItem } from '@heroui/react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { signUp, loading } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -28,9 +34,88 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleRegister = () => {
-    console.log('Register attempt:', formData);
-    // 这里可以添加实际的注册逻辑
+  const handleRegister = async () => {
+    // 清除之前的错误
+    setError('');
+    
+    // 表单验证
+    if (!formData.username.trim()) {
+      setError('请输入用户名');
+      return;
+    }
+    
+    if (!formData.email.trim()) {
+      setError('请输入邮箱地址');
+      return;
+    }
+    
+    if (!formData.password) {
+      setError('请输入密码');
+      return;
+    }
+    
+    if (formData.password.length < 6) {
+      setError('密码长度至少为6位');
+      return;
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('两次输入的密码不一致');
+      return;
+    }
+    
+    if (!formData.agreeTerms) {
+      setError('请同意服务条款和隐私政策');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const result = await signUp(
+        formData.email, 
+        formData.password, 
+        {
+          username: formData.username,
+          user_type: formData.userType,
+          referral_code: formData.referralCode || null,
+          agree_marketing: formData.agreeMarketing
+        }
+      );
+      
+      if (result.error) {
+        setError(getErrorMessage(result.error.message));
+      } else {
+        // 注册成功，显示成功消息
+        setError('注册成功！请检查您的邮箱并点击验证链接来激活账户。');
+        // 可以选择重定向到登录页面或其他页面
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 3000);
+      }
+    } catch (err) {
+      setError('注册失败，请稍后重试');
+      console.error('Registration error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 错误信息映射
+  const getErrorMessage = (error) => {
+    if (error.includes('User already registered')) {
+      return '该邮箱已被注册，请使用其他邮箱或直接登录';
+    }
+    if (error.includes('Invalid email')) {
+      return '请输入有效的邮箱地址';
+    }
+    if (error.includes('Password should be at least 6 characters')) {
+      return '密码长度至少为6位';
+    }
+    if (error.includes('Email not confirmed')) {
+      return '请先验证您的邮箱地址';
+    }
+    return error || '注册失败，请稍后重试';
   };
 
   const userTypes = [
@@ -187,13 +272,25 @@ export default function RegisterPage() {
               </Checkbox>
             </div>
             
+            {/* 错误信息显示 */}
+            {error && (
+              <div className={`text-sm p-3 rounded-lg ${
+                error.includes('注册成功') 
+                  ? 'bg-green-900/50 text-green-400 border border-green-700' 
+                  : 'bg-red-900/50 text-red-400 border border-red-700'
+              }`}>
+                {error}
+              </div>
+            )}
+            
             <Button
               className="w-full bg-gradient-to-r from-lime-400 to-green-400 text-black font-semibold"
               size="lg"
               onPress={handleRegister}
-              isDisabled={!formData.agreeTerms}
+              isDisabled={!formData.agreeTerms || isSubmitting || loading}
+              isLoading={isSubmitting || loading}
             >
-              创建账户
+              {isSubmitting || loading ? '创建中...' : '创建账户'}
             </Button>
             
             <Divider className="my-4" />

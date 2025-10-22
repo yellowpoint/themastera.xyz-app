@@ -34,10 +34,12 @@ import {
   Settings,
   LogOut
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
-export default function Header({ userProfile, isLoggedIn = false }) {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
+  const { user, signOut, loading } = useAuth()
 
   const menuItems = [
     { name: '首页', href: '/', icon: Home },
@@ -57,169 +59,240 @@ export default function Header({ userProfile, isLoggedIn = false }) {
     { name: '设置', href: '/settings', icon: Settings },
   ]
 
-  return (
-    <Navbar 
-      onMenuOpenChange={setIsMenuOpen}
-      className="bg-black/90 backdrop-blur-md border-b border-gray-800"
-      maxWidth="full"
-    >
-      <NavbarContent>
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden text-white"
-        />
-        <NavbarBrand>
-          <Button
-            variant="light"
-            className="text-2xl font-bold text-white"
-            onPress={() => router.push('/')}
-          >
-            Mastera
-          </Button>
-        </NavbarBrand>
-      </NavbarContent>
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
+  }
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        {menuItems.map((item) => (
-          <NavbarItem key={item.name}>
+  if (loading) {
+    return (
+      <Navbar className="bg-black/90 backdrop-blur-md border-b border-gray-800" maxWidth="full">
+        <NavbarContent>
+          <NavbarBrand>
             <Button
               variant="light"
-              className="text-gray-300 hover:text-lime-400 flex items-center gap-2"
-              onPress={() => router.push(item.href)}
+              className="text-2xl font-bold text-white"
+              onPress={() => router.push('/')}
             >
-              <item.icon size={16} />
-              {item.name}
+              Mastera
             </Button>
-          </NavbarItem>
-        ))}
-      </NavbarContent>
+          </NavbarBrand>
+        </NavbarContent>
+      </Navbar>
+    )
+  }
 
-      <NavbarContent justify="end">
-        {isLoggedIn ? (
-          <>
-            <NavbarItem>
-              <Badge content="3" color="danger" size="sm">
+  return (
+    <>
+      <Navbar 
+        onMenuOpenChange={setIsMenuOpen}
+        className="bg-black/90 backdrop-blur-md border-b border-gray-800"
+        maxWidth="full"
+      >
+        <NavbarContent>
+          <NavbarMenuToggle
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            className="sm:hidden text-white"
+          />
+          <NavbarBrand>
+            <Button
+              variant="light"
+              className="text-2xl font-bold text-white"
+              onPress={() => router.push('/')}
+            >
+              Mastera
+            </Button>
+          </NavbarBrand>
+        </NavbarContent>
+
+        <NavbarContent className="hidden sm:flex gap-4" justify="center">
+          {menuItems.map((item) => (
+            <NavbarItem key={item.name}>
+              <Button
+                variant="light"
+                className="text-gray-300 hover:text-lime-400 flex items-center gap-2"
+                onPress={() => router.push(item.href)}
+              >
+                <item.icon size={16} />
+                {item.name}
+              </Button>
+            </NavbarItem>
+          ))}
+        </NavbarContent>
+
+        <NavbarContent justify="end">
+          {user ? (
+            <>
+              <NavbarItem>
+                <Badge content="3" color="danger" size="sm">
+                  <Button
+                    variant="light"
+                    className="text-gray-300 hover:text-lime-400"
+                    onPress={() => router.push('/notifications')}
+                  >
+                    <Bell size={20} />
+                  </Button>
+                </Badge>
+              </NavbarItem>
+              
+              <NavbarItem>
+                <Chip 
+                  color="primary" 
+                  variant="flat"
+                  className="cursor-pointer"
+                  onClick={() => router.push('/points')}
+                >
+                  {user?.user_metadata?.points || 0} 积分
+                </Chip>
+              </NavbarItem>
+
+              <Dropdown placement="bottom-end">
+                <DropdownTrigger>
+                  <Avatar
+                    isBordered
+                    as="button"
+                    className="transition-transform"
+                    color="primary"
+                    name={user?.user_metadata?.name || user?.email?.charAt(0).toUpperCase() || "用户"}
+                    size="sm"
+                    src={user?.user_metadata?.avatar}
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Profile Actions" variant="flat">
+                  <DropdownItem key="profile" className="h-14 gap-2">
+                    <p className="font-semibold">登录身份</p>
+                    <p className="font-semibold">{user?.email}</p>
+                  </DropdownItem>
+                  {userMenuItems.map((item) => (
+                    <DropdownItem 
+                      key={item.name}
+                      onPress={() => router.push(item.href)}
+                      startContent={<item.icon size={16} />}
+                    >
+                      {item.name}
+                    </DropdownItem>
+                  ))}
+                  <DropdownItem 
+                    key="logout" 
+                    color="danger"
+                    startContent={<LogOut size={16} />}
+                    onPress={handleSignOut}
+                  >
+                    退出登录
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </>
+          ) : (
+            <>
+              <NavbarItem>
                 <Button
                   variant="light"
                   className="text-gray-300 hover:text-lime-400"
-                  onPress={() => router.push('/notifications')}
+                  onPress={() => router.push('/auth/login')}
                 >
-                  <Bell size={20} />
+                  登录
                 </Button>
-              </Badge>
-            </NavbarItem>
-            
-            <NavbarItem>
-              <Chip 
-                color="primary" 
-                variant="flat"
-                className="cursor-pointer"
-                onClick={() => router.push('/points')}
-              >
-                {userProfile?.points || 0} 积分
-              </Chip>
-            </NavbarItem>
-
-            <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <Avatar
-                  isBordered
-                  as="button"
-                  className="transition-transform"
+              </NavbarItem>
+              <NavbarItem>
+                <Button
                   color="primary"
-                  name={userProfile?.name || "用户"}
-                  size="sm"
-                  src={userProfile?.avatar}
-                />
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Profile Actions" variant="flat">
-                <DropdownItem key="profile" className="h-14 gap-2">
-                  <p className="font-semibold">登录身份</p>
-                  <p className="font-semibold">{userProfile?.email}</p>
-                </DropdownItem>
-                {userMenuItems.map((item) => (
-                  <DropdownItem 
-                    key={item.name}
-                    onPress={() => router.push(item.href)}
-                    startContent={<item.icon size={16} />}
-                  >
-                    {item.name}
-                  </DropdownItem>
-                ))}
-                <DropdownItem 
-                  key="logout" 
-                  color="danger"
-                  startContent={<LogOut size={16} />}
+                  variant="flat"
+                  onPress={() => router.push('/auth/register')}
                 >
-                  退出登录
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </>
-        ) : (
-          <>
-            <NavbarItem>
+                  注册
+                </Button>
+              </NavbarItem>
+            </>
+          )}
+        </NavbarContent>
+
+        <NavbarMenu className="bg-black/95 backdrop-blur-md">
+          {menuItems.map((item, index) => (
+            <NavbarMenuItem key={`${item.name}-${index}`}>
               <Button
                 variant="light"
-                className="text-gray-300 hover:text-lime-400"
-                onPress={() => router.push('/auth/login')}
+                className="w-full justify-start text-gray-300 hover:text-lime-400 flex items-center gap-3"
+                onPress={() => {
+                  router.push(item.href)
+                  setIsMenuOpen(false)
+                }}
               >
-                登录
+                <item.icon size={18} />
+                {item.name}
               </Button>
-            </NavbarItem>
-            <NavbarItem>
-              <Button
-                color="primary"
-                variant="flat"
-                onPress={() => router.push('/auth/register')}
-              >
-                注册
-              </Button>
-            </NavbarItem>
-          </>
-        )}
-      </NavbarContent>
-
-      <NavbarMenu className="bg-black/95 backdrop-blur-md">
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.name}-${index}`}>
-            <Button
-              variant="light"
-              className="w-full justify-start text-gray-300 hover:text-lime-400 flex items-center gap-3"
-              onPress={() => {
-                router.push(item.href)
-                setIsMenuOpen(false)
-              }}
-            >
-              <item.icon size={18} />
-              {item.name}
-            </Button>
-          </NavbarMenuItem>
-        ))}
-        
-        {isLoggedIn && (
-          <>
-            <NavbarMenuItem>
-              <div className="w-full h-px bg-gray-700 my-2" />
             </NavbarMenuItem>
-            {userMenuItems.map((item, index) => (
-              <NavbarMenuItem key={`user-${item.name}-${index}`}>
+          ))}
+          
+          {user && (
+            <>
+              <NavbarMenuItem>
+                <div className="w-full h-px bg-gray-700 my-2" />
+              </NavbarMenuItem>
+              {userMenuItems.map((item, index) => (
+                <NavbarMenuItem key={`user-${item.name}-${index}`}>
+                  <Button
+                    variant="light"
+                    className="w-full justify-start text-gray-400 hover:text-lime-400 flex items-center gap-3"
+                    onPress={() => {
+                      router.push(item.href)
+                      setIsMenuOpen(false)
+                    }}
+                  >
+                    <item.icon size={18} />
+                    {item.name}
+                  </Button>
+                </NavbarMenuItem>
+              ))}
+              <NavbarMenuItem>
                 <Button
                   variant="light"
-                  className="w-full justify-start text-gray-400 hover:text-lime-400 flex items-center gap-3"
+                  className="w-full justify-start text-red-400 hover:text-red-300 flex items-center gap-3"
                   onPress={() => {
-                    router.push(item.href)
+                    handleSignOut()
                     setIsMenuOpen(false)
                   }}
                 >
-                  <item.icon size={18} />
-                  {item.name}
+                  <LogOut size={18} />
+                  退出登录
                 </Button>
               </NavbarMenuItem>
-            ))}
-          </>
-        )}
-      </NavbarMenu>
-    </Navbar>
+            </>
+          )}
+          
+          {!user && (
+            <>
+              <NavbarMenuItem>
+                <div className="w-full h-px bg-gray-700 my-2" />
+              </NavbarMenuItem>
+              <NavbarMenuItem>
+                <Button
+                  variant="light"
+                  className="w-full justify-start text-gray-300 hover:text-lime-400"
+                  onPress={() => {
+                    router.push('/auth/login')
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  登录
+                </Button>
+              </NavbarMenuItem>
+              <NavbarMenuItem>
+                <Button
+                  variant="light"
+                  className="w-full justify-start text-gray-300 hover:text-lime-400"
+                  onPress={() => {
+                    router.push('/auth/register')
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  注册
+                </Button>
+              </NavbarMenuItem>
+            </>
+          )}
+        </NavbarMenu>
+      </Navbar>
+    </>
   )
 }

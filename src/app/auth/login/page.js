@@ -1,11 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardHeader, Input, Button, Link, Divider, Checkbox } from '@heroui/react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { signIn, loading } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,9 +27,55 @@ export default function LoginPage() {
     }));
   };
 
-  const handleLogin = () => {
-    console.log('Login attempt:', formData);
-    // 这里可以添加实际的登录逻辑
+  const handleLogin = async () => {
+    // 清除之前的错误
+    setError('');
+    
+    // 表单验证
+    if (!formData.email.trim()) {
+      setError('请输入邮箱地址');
+      return;
+    }
+    
+    if (!formData.password) {
+      setError('请输入密码');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const result = await signIn(formData.email, formData.password);
+      
+      if (result.error) {
+        setError(getErrorMessage(result.error.message));
+      } else {
+        // 登录成功，跳转到首页或用户指定页面
+        router.push('/');
+      }
+    } catch (err) {
+      setError('登录失败，请稍后重试');
+      console.error('Login error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 错误信息映射
+  const getErrorMessage = (error) => {
+    if (error.includes('Invalid login credentials')) {
+      return '邮箱或密码错误，请检查后重试';
+    }
+    if (error.includes('Email not confirmed')) {
+      return '请先验证您的邮箱地址';
+    }
+    if (error.includes('Invalid email')) {
+      return '请输入有效的邮箱地址';
+    }
+    if (error.includes('Too many requests')) {
+      return '登录尝试次数过多，请稍后再试';
+    }
+    return error || '登录失败，请稍后重试';
   };
 
   return (
@@ -93,12 +145,21 @@ export default function LoginPage() {
               </Link>
             </div>
             
+            {/* 错误信息显示 */}
+            {error && (
+              <div className="text-sm p-3 rounded-lg bg-red-900/50 text-red-400 border border-red-700">
+                {error}
+              </div>
+            )}
+            
             <Button
               className="w-full bg-gradient-to-r from-lime-400 to-green-400 text-black font-semibold"
               size="lg"
               onPress={handleLogin}
+              isDisabled={isSubmitting || loading}
+              isLoading={isSubmitting || loading}
             >
-              登录
+              {isSubmitting || loading ? '登录中...' : '登录'}
             </Button>
             
             <Divider className="my-4" />

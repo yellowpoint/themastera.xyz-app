@@ -29,6 +29,24 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const { signIn, signUp } = useAuth()
 
+  // 错误信息映射
+  const getErrorMessage = (error) => {
+    if (!error) return ''
+    
+    const errorMessages = {
+      'Invalid login credentials': '邮箱或密码错误',
+      'Email not confirmed': '请先验证您的邮箱',
+      'User already registered': '该邮箱已被注册',
+      'Password should be at least 6 characters': '密码至少需要6位字符',
+      'Invalid email': '请输入有效的邮箱地址',
+      'Signup requires a valid password': '请输入有效的密码',
+      'Email rate limit exceeded': '邮件发送频率过高，请稍后再试',
+      'Too many requests': '请求过于频繁，请稍后再试'
+    }
+    
+    return errorMessages[error.message] || error.message || '操作失败，请重试'
+  }
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     if (errors[field]) {
@@ -68,6 +86,8 @@ export default function AuthModal({ isOpen, onClose }) {
     if (!validateForm()) return
 
     setLoading(true)
+    setErrors({}) // 清除之前的错误
+    
     try {
       let result
       if (activeTab === 'login') {
@@ -79,25 +99,46 @@ export default function AuthModal({ isOpen, onClose }) {
       }
 
       if (result.error) {
-        setErrors({ submit: result.error.message })
+        setErrors({ submit: getErrorMessage(result.error) })
       } else {
-        onClose()
-        setFormData({
-          email: '',
-          password: '',
-          confirmPassword: '',
-          name: ''
-        })
+        // 注册成功的特殊处理
+        if (activeTab === 'register' && result.data?.user && !result.data?.session) {
+          setErrors({ 
+            submit: '注册成功！请检查您的邮箱并点击验证链接来激活账户。' 
+          })
+        } else {
+          // 登录成功或注册后自动登录成功
+          onClose()
+          setFormData({
+            email: '',
+            password: '',
+            confirmPassword: '',
+            name: ''
+          })
+          setErrors({})
+        }
       }
     } catch (error) {
-      setErrors({ submit: '操作失败，请重试' })
+      console.error('Auth error:', error)
+      setErrors({ submit: '网络错误，请检查网络连接后重试' })
     } finally {
       setLoading(false)
     }
   }
 
+  const handleClose = () => {
+    onClose()
+    setFormData({
+      email: '',
+      password: '',
+      confirmPassword: '',
+      name: ''
+    })
+    setErrors({})
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={handleClose} size="md">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           用户认证
@@ -169,13 +210,15 @@ export default function AuthModal({ isOpen, onClose }) {
             </Tab>
           </Tabs>
           {errors.submit && (
-            <div className="text-red-500 text-sm text-center">
+            <div className={`text-sm text-center ${
+              errors.submit.includes('注册成功') ? 'text-green-600' : 'text-red-500'
+            }`}>
               {errors.submit}
             </div>
           )}
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" variant="light" onPress={onClose}>
+          <Button color="danger" variant="light" onPress={handleClose}>
             取消
           </Button>
           <Button 
