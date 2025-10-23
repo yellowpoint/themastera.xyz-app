@@ -31,7 +31,13 @@ import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
-  DropdownItem
+  DropdownItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  toast
 } from '@heroui/react'
 import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText, TrendingUp, Star, Calendar, Clock, Heart, Download, MessageSquare } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -43,9 +49,10 @@ export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
   const { isOpen: isAuthOpen, onOpen: onAuthOpen, onClose: onAuthClose } = useDisclosure()
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 
   const { user, loading: authLoading } = useAuth()
-  const { works, loading: worksLoading, createWork, getWorkStats } = useWorks(user?.id)
+  const { works, loading: worksLoading, createWork, getWorkStats, deleteWork } = useWorks(user?.id)
 
   const [uploadForm, setUploadForm] = useState({
     title: '',
@@ -54,6 +61,8 @@ export default function CreatorPage() {
     price: '',
     tags: ''
   })
+
+  const [workToDelete, setWorkToDelete] = useState(null)
 
   const [creatorStats, setCreatorStats] = useState({
     totalWorks: 0,
@@ -125,7 +134,7 @@ export default function CreatorPage() {
   // 提交新作品
   const handleSubmitWork = async () => {
     if (!uploadForm.title || !uploadForm.category || !uploadForm.price) {
-      alert('请填写必要信息')
+      toast.error('请填写必要信息')
       return
     }
 
@@ -139,7 +148,7 @@ export default function CreatorPage() {
         userId: user.id,
         fileUrl: uploadForm.fileUrl,
         thumbnailUrl: uploadForm.thumbnailUrl,
-        status: 'reviewing'
+        status: 'published'
       }
 
       await createWork(workData)
@@ -156,10 +165,10 @@ export default function CreatorPage() {
       })
 
       onUploadClose()
-      alert('作品提交成功，正在审核中')
+      toast.success('作品发布成功！')
     } catch (error) {
       console.error('Error submitting work:', error)
-      alert('提交失败，请重试')
+      toast.error('提交失败，请重试')
     }
   }
 
@@ -226,6 +235,27 @@ export default function CreatorPage() {
       case 'comment': return <MessageSquare size={16} />
       case 'like': return <Heart size={16} />
       default: return <FileText size={16} />
+    }
+  }
+
+  // 处理删除作品
+  const handleDeleteWork = (work) => {
+    setWorkToDelete(work)
+    onDeleteOpen()
+  }
+
+  // 确认删除作品
+  const confirmDeleteWork = async () => {
+    if (!workToDelete || !deleteWork) return
+
+    try {
+      await deleteWork(workToDelete.id)
+      onDeleteClose()
+      setWorkToDelete(null)
+      toast.success('作品删除成功！')
+    } catch (error) {
+      console.error('Error deleting work:', error)
+      toast.error('删除失败，请重试')
     }
   }
 
@@ -493,7 +523,14 @@ export default function CreatorPage() {
                                 <MoreVertical size={16} />
                               </Button>
                             </DropdownTrigger>
-                            <DropdownMenu aria-label="操作选项">
+                            <DropdownMenu 
+                              aria-label="操作选项"
+                              onAction={(key) => {
+                                if (key === 'delete') {
+                                  handleDeleteWork(work)
+                                }
+                              }}
+                            >
                               <DropdownItem key="edit" startContent={<Edit size={16} />}>编辑</DropdownItem>
                               <DropdownItem key="stats" startContent={<BarChart size={16} />}>统计</DropdownItem>
                               <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Trash size={16} />}>删除</DropdownItem>
@@ -739,6 +776,44 @@ export default function CreatorPage() {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* 删除确认模态框 */}
+      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="md">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h3 className="text-lg font-semibold">确认删除作品</h3>
+          </ModalHeader>
+          <ModalBody>
+            <div className="space-y-4">
+              <p className="text-gray-600 dark:text-gray-400">
+                您确定要删除作品 <span className="font-semibold text-gray-900 dark:text-gray-100">"{workToDelete?.title}"</span> 吗？
+              </p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                <p className="text-red-700 dark:text-red-400 text-sm">
+                  ⚠️ 此操作不可撤销，删除后将无法恢复该作品的所有数据，包括：
+                </p>
+                <ul className="text-red-600 dark:text-red-400 text-sm mt-2 ml-4 list-disc">
+                  <li>作品文件和缩略图</li>
+                  <li>所有评论和评分</li>
+                  <li>下载记录和收益数据</li>
+                </ul>
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onDeleteClose}>
+              取消
+            </Button>
+            <Button 
+              color="danger" 
+              onPress={confirmDeleteWork}
+              startContent={<Trash size={16} />}
+            >
+              确认删除
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

@@ -45,11 +45,11 @@ export default function Header() {
 
   const menuItems = [
     { name: '首页', href: '/', icon: Home },
-    { name: '内容中心', href: '/content', icon: FileText },
-    { name: '社区圈子', href: '/community', icon: Users },
+    // { name: '内容中心', href: '/content', icon: FileText },
+    // { name: '社区圈子', href: '/community', icon: Users },
     { name: '创作者中心', href: '/creator', icon: PenTool },
-    { name: '积分商城', href: '/points', icon: ShoppingBag },
-    { name: '个性化推荐', href: '/recommendations', icon: Target },
+    // { name: '积分商城', href: '/points', icon: ShoppingBag },
+    // { name: '个性化推荐', href: '/recommendations', icon: Target },
   ]
 
   const userMenuItems = [
@@ -129,15 +129,17 @@ export default function Header() {
           {user ? (
             <>
               <NavbarItem>
-                <Badge content="3" color="danger" size="sm">
-                  <Button
-                    variant="light"
-                    className="text-gray-300 hover:text-lime-400"
-                    onPress={() => router.push('/notifications')}
-                  >
+
+                <Button
+                  variant="light"
+                  size="sm"
+                  className="text-gray-300 hover:text-lime-400"
+                  onPress={() => router.push('/notifications')}
+                >
+                  <Badge content="3" color="danger" size="sm">
                     <Bell size={20} />
-                  </Button>
-                </Badge>
+                  </Badge>
+                </Button>
               </NavbarItem>
 
               <NavbarItem>

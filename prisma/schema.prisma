@@ -28,6 +28,8 @@ model User {
   works         Work[]
   purchases     Purchase[]
   reviews       Review[]
+  followers     Follow[]   @relation("UserFollowers")
+  following     Follow[]   @relation("UserFollowing")
 
   @@unique([email])
   @@map("user")
@@ -136,4 +138,18 @@ model Review {
 
   @@unique([userId, workId])
   @@map("reviews")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+
+  // 关联
+  followerId  String
+  followingId String
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }

@@ -10,7 +10,7 @@ export default function Footer() {
     {
       title: '平台功能',
       links: [
-        { name: '内容中心', href: '/content' },
+        { name: '内容中心', href: '/' },
         { name: '社区圈子', href: '/community' },
         { name: '创作者中心', href: '/creator' },
         { name: '积分系统', href: '/points' },
