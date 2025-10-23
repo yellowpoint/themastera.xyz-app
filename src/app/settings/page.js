@@ -24,6 +24,7 @@ import {
   Avatar,
   Textarea
 } from '@heroui/react'
+import { AlertTriangle } from 'lucide-react'
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('account')
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -1101,7 +1102,10 @@ export default function SettingsPage() {
           <ModalBody>
             <div className="space-y-4">
               <div className="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
-                <h3 className="font-semibold text-red-400 mb-2">⚠️ 警告</h3>
+                <h3 className="font-semibold text-red-400 mb-2 flex items-center gap-2">
+                  <AlertTriangle size={16} />
+                  警告
+                </h3>
                 <p className="text-sm text-gray-300">
                   删除账户是不可逆的操作。您将失去：
                 </p>

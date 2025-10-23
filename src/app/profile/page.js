@@ -24,6 +24,19 @@ import {
   Divider,
   Badge
 } from '@heroui/react'
+import { 
+  Star, 
+  Heart, 
+  Handshake, 
+  Palette, 
+  TrendingUp, 
+  MapPin, 
+  Globe, 
+  MessageSquare, 
+  Eye,
+  Calendar,
+  Check
+} from 'lucide-react'
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isEditing, setIsEditing] = useState(false)
@@ -99,7 +112,7 @@ export default function ProfilePage() {
       id: 1,
       title: "创作新星",
       description: "发布第一个作品",
-      icon: "🌟",
+      icon: <Star size={20} className="text-yellow-400" />,
       unlocked: true,
       date: "2023-06-20"
     },
@@ -107,7 +120,7 @@ export default function ProfilePage() {
       id: 2,
       title: "人气创作者",
       description: "获得1000个点赞",
-      icon: "❤️",
+      icon: <Heart size={20} className="text-red-400" />,
       unlocked: true,
       date: "2023-08-15"
     },
@@ -115,7 +128,7 @@ export default function ProfilePage() {
       id: 3,
       title: "社区贡献者",
       description: "帮助100位新用户",
-      icon: "🤝",
+      icon: <Handshake size={20} className="text-blue-400" />,
       unlocked: true,
       date: "2023-10-22"
     },
@@ -123,7 +136,7 @@ export default function ProfilePage() {
       id: 4,
       title: "创作大师",
       description: "发布100个作品",
-      icon: "🎨",
+      icon: <Palette size={20} className="text-purple-400" />,
       unlocked: true,
       date: "2023-12-10"
     },
@@ -131,7 +144,7 @@ export default function ProfilePage() {
       id: 5,
       title: "影响力达人",
       description: "获得10000个关注者",
-      icon: "📈",
+      icon: <TrendingUp size={20} className="text-green-400" />,
       unlocked: true,
       date: "2024-01-01"
     },
@@ -139,7 +152,7 @@ export default function ProfilePage() {
       id: 6,
       title: "平台之星",
       description: "获得50000浏览量",
-      icon: "⭐",
+      icon: <Star size={20} className="text-yellow-400" />,
       unlocked: false,
       progress: 46.8
     }
@@ -150,34 +163,23 @@ export default function ProfilePage() {
     {
       id: 1,
       type: "work",
-      action: "发布了新作品",
-      target: "AI未来城市",
-      time: "2小时前",
-      icon: "🎨"
+      title: "发布了新作品《数字艺术探索》",
+      icon: <Palette size={16} className="text-gray-400" />,
+      time: "2小时前"
     },
     {
       id: 2,
       type: "like",
-      action: "点赞了作品",
-      target: "数字艺术合集",
-      time: "4小时前",
-      icon: "❤️"
+      title: "点赞了《城市夜景摄影》",
+      icon: <Heart size={16} className="text-gray-400" />,
+      time: "5小时前"
     },
     {
       id: 3,
-      type: "follow",
-      action: "关注了创作者",
-      target: "设计师小王",
-      time: "6小时前",
-      icon: "👤"
-    },
-    {
-      id: 4,
       type: "comment",
-      action: "评论了作品",
-      target: "摄影作品集",
-      time: "1天前",
-      icon: "💬"
+      title: "评论了《UI设计趋势》",
+      icon: <MessageSquare size={16} className="text-gray-400" />,
+      time: "1天前"
     }
   ]
 
@@ -252,11 +254,18 @@ export default function ProfilePage() {
                     <h1 className="text-3xl font-bold mb-2">{userProfile.name}</h1>
                     <p className="text-gray-300 mb-2">{userProfile.bio}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <span>📍 {userProfile.location}</span>
-                      <span>📅 加入于 {userProfile.joinDate}</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin size={16} className="text-gray-400" />
+                        {userProfile.location}
+                      </span>
+                      <span className="flex items-center gap-1">
+                         <Calendar size={16} className="text-gray-400" />
+                         加入于 {userProfile.joinDate}
+                       </span>
                       {userProfile.website && (
-                        <a href={userProfile.website} className="text-lime-400 hover:underline">
-                          🌐 个人网站
+                        <a href={userProfile.website} className="text-lime-400 hover:underline flex items-center gap-1">
+                          <Globe size={16} className="text-lime-400" />
+                          个人网站
                         </a>
                       )}
                     </div>
@@ -454,7 +463,8 @@ export default function ProfilePage() {
                   {work.featured && (
                     <div className="absolute top-2 left-2">
                       <Chip color="warning" size="sm" variant="solid">
-                        ⭐ 精选
+                        <Star size={12} className="text-yellow-400 mr-1" />
+                        精选
                       </Chip>
                     </div>
                   )}
@@ -465,8 +475,14 @@ export default function ProfilePage() {
                   
                   <div className="flex justify-between items-center text-sm text-gray-400">
                     <div className="flex items-center gap-4">
-                      <span>❤️ {work.likes}</span>
-                      <span>👁️ {work.views}</span>
+                      <span className="flex items-center gap-1">
+                        <Heart size={16} className="text-gray-400" />
+                        {work.likes}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye size={16} className="text-gray-400" />
+                        {work.views}
+                      </span>
                     </div>
                     <span>{work.date}</span>
                   </div>
@@ -496,7 +512,8 @@ export default function ProfilePage() {
                   {achievement.unlocked ? (
                     <div>
                       <Chip color="success" variant="flat" size="sm">
-                        ✓ 已解锁
+                        <Check size={12} className="text-green-400 mr-1" />
+                        已解锁
                       </Chip>
                       <p className="text-xs text-gray-500 mt-2">{achievement.date}</p>
                     </div>

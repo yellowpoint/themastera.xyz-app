@@ -11,11 +11,6 @@ import {
   Chip,
   Avatar,
   Progress,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   useDisclosure,
   Input,
   Textarea,
@@ -27,8 +22,18 @@ import {
   TableColumn,
   TableBody,
   TableRow,
-  TableCell
+  TableCell,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem
 } from '@heroui/react'
+import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText, TrendingUp, Star, Calendar, Clock, Heart, Download, MessageSquare } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import FileUpload from '@/components/FileUpload'
@@ -216,47 +221,50 @@ export default function CreatorPage() {
 
   const getInteractionIcon = (type) => {
     switch (type) {
-      case 'follow': return '👤'
-      case 'purchase': return '💰'
-      case 'comment': return '💬'
-      case 'like': return '❤️'
-      default: return '📝'
+      case 'follow': return <Users size={16} />
+      case 'purchase': return <DollarSign size={16} />
+      case 'comment': return <MessageSquare size={16} />
+      case 'like': return <Heart size={16} />
+      default: return <FileText size={16} />
     }
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-6">
         {/* 页面标题 */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">
             创作者中心 <span className="text-lime-400">Creator Hub</span>
           </h1>
-          <p className="text-gray-300 text-lg">
+          <p className="text-gray-400 text-base">
             管理你的作品，追踪收益，与粉丝互动
           </p>
         </div>
 
         {/* 快速操作 */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex flex-wrap gap-3 mb-6">
           <Button
             color="primary"
             onPress={onUploadOpen}
-            startContent={<span>📤</span>}
+            startContent={<Plus size={16} />}
+            size="sm"
           >
             上传新作品
           </Button>
           <Button
-            variant="bordered"
-            className="border-lime-400 text-lime-400"
-            startContent={<span>📊</span>}
+            variant="flat"
+            color="secondary"
+            size="sm"
+            startContent={<BarChart size={16} />}
           >
             查看分析
           </Button>
           <Button
-            variant="bordered"
-            className="border-gray-600 text-gray-300"
-            startContent={<span>💰</span>}
+            variant="flat"
+            color="success"
+            size="sm"
+            startContent={<DollarSign size={16} />}
           >
             提现收益
           </Button>
@@ -266,8 +274,10 @@ export default function CreatorPage() {
         <Tabs
           selectedKey={activeTab}
           onSelectionChange={setActiveTab}
-          className="mb-8"
+          className="mb-6"
           color="primary"
+          variant="underlined"
+          size="md"
         >
           <Tab key="dashboard" title="数据概览" />
           <Tab key="works" title="作品管理" />
@@ -280,50 +290,58 @@ export default function CreatorPage() {
           <div className="space-y-8">
             {/* 统计卡片 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-blue-300 text-sm">总作品数</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">总作品数</p>
                       <p className="text-2xl font-bold">{creatorStats.totalWorks}</p>
                     </div>
-                    <div className="text-3xl">🎨</div>
+                    <div className="text-gray-400">
+                      <FileText size={24} />
+                    </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-green-300 text-sm">总收益</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">总收益</p>
                       <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
                     </div>
-                    <div className="text-3xl">💰</div>
+                    <div className="text-gray-400">
+                      <DollarSign size={24} />
+                    </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-purple-300 text-sm">粉丝数量</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">粉丝数量</p>
                       <p className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</p>
                     </div>
-                    <div className="text-3xl">👥</div>
+                    <div className="text-gray-400">
+                      <Users size={24} />
+                    </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gradient-to-br from-orange-900/50 to-orange-800/30 border-orange-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-orange-300 text-sm">总浏览量</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">总浏览量</p>
                       <p className="text-2xl font-bold">{creatorStats.totalViews.toLocaleString()}</p>
                     </div>
-                    <div className="text-3xl">👁️</div>
+                    <div className="text-gray-400">
+                      <Eye size={24} />
+                    </div>
                   </div>
                 </CardBody>
               </Card>
@@ -350,8 +368,8 @@ export default function CreatorPage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">平均评分</span>
-                    <span className="text-lg font-semibold text-yellow-400">
-                      ⭐ {creatorStats.averageRating}
+                    <span className="text-lg font-semibold text-yellow-400 flex items-center gap-1">
+                      <Star size={16} /> {creatorStats.averageRating}
                     </span>
                   </div>
                   <div>
@@ -399,68 +417,95 @@ export default function CreatorPage() {
         {/* 作品管理 */}
         {activeTab === 'works' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {works.map((work) => (
-                <Card
-                  key={work.id}
-                  className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
+            <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <CardHeader className="flex justify-between items-center py-3">
+                <h3 className="text-lg font-medium">作品管理</h3>
+                <Button
+                  color="default"
+                  size="sm"
+                  onPress={onUploadOpen}
+                  startContent={<Plus size={16} />}
                 >
-                  <CardHeader className="p-0">
-                    <img
-                      src={work.thumbnailUrl}
-                      alt={work.title}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                  </CardHeader>
-                  <CardBody className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold line-clamp-1">{work.title}</h3>
-                      <Chip
-                        size="sm"
-                        color={getStatusColor(work.status)}
-                        variant="flat"
-                      >
-                        {work.status}
-                      </Chip>
-                    </div>
-
-                    <p className="text-gray-400 text-sm mb-3">{work.category}</p>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">价格</span>
-                        <span className="font-semibold">¥{work.price}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">下载量</span>
-                        <span>{work.downloads}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">收益</span>
-                        <span className="text-green-400 font-semibold">
-                          ¥{work.earnings.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">评分</span>
-                        <span className="text-yellow-400">⭐ {work.rating}</span>
-                      </div>
-                    </div>
-
-                    <Divider className="my-3" />
-
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="bordered" className="flex-1">
-                        编辑
-                      </Button>
-                      <Button size="sm" variant="bordered" className="flex-1">
-                        统计
-                      </Button>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
-            </div>
+                  添加作品
+                </Button>
+              </CardHeader>
+              <CardBody className="p-0">
+                <Table
+                  aria-label="作品管理表格"
+                  className="w-full"
+                  removeWrapper
+                  shadow="none"
+                >
+                  <TableHeader>
+                    <TableColumn>封面</TableColumn>
+                    <TableColumn>作品名称</TableColumn>
+                    <TableColumn>分类</TableColumn>
+                    <TableColumn>价格</TableColumn>
+                    <TableColumn>下载量</TableColumn>
+                    <TableColumn>收益</TableColumn>
+                    <TableColumn>评分</TableColumn>
+                    <TableColumn>状态</TableColumn>
+                    <TableColumn>操作</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    {works.map((work) => (
+                      <TableRow key={work.id} className="hover:bg-gray-100 dark:hover:bg-gray-800/50">
+                        <TableCell>
+                          <img
+                            src={work.thumbnailUrl}
+                            alt={work.title}
+                            className="w-10 h-10 object-cover rounded"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-medium line-clamp-1">{work.title}</p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">{work.category}</p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-medium">¥{work.price}</p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm">{work.downloads}</p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="font-medium">
+                            ¥{work.earnings.toLocaleString()}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm">{work.rating}</p>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            size="sm"
+                            color="default"
+                            variant="flat"
+                          >
+                            {work.status}
+                          </Chip>
+                        </TableCell>
+                        <TableCell>
+                          <Dropdown>
+                            <DropdownTrigger>
+                              <Button size="sm" variant="light" isIconOnly>
+                                <MoreVertical size={16} />
+                              </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="操作选项">
+                              <DropdownItem key="edit" startContent={<Edit size={16} />}>编辑</DropdownItem>
+                              <DropdownItem key="stats" startContent={<BarChart size={16} />}>统计</DropdownItem>
+                              <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Trash size={16} />}>删除</DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardBody>
+            </Card>
           </div>
         )}
 
@@ -468,26 +513,32 @@ export default function CreatorPage() {
         {activeTab === 'earnings' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6 text-center">
-                  <div className="text-3xl mb-2">💰</div>
-                  <p className="text-green-300 text-sm">本月收益</p>
+                  <div className="text-gray-400 mb-2">
+                    <DollarSign size={24} />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">本月收益</p>
                   <p className="text-2xl font-bold">¥{creatorStats.monthlyEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6 text-center">
-                  <div className="text-3xl mb-2">📈</div>
-                  <p className="text-blue-300 text-sm">总收益</p>
+                  <div className="text-gray-400 mb-2">
+                    <TrendingUp size={24} />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">总收益</p>
                   <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700">
+              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6 text-center">
-                  <div className="text-3xl mb-2">🎯</div>
-                  <p className="text-purple-300 text-sm">可提现</p>
+                  <div className="text-gray-400 mb-2">
+                    <Star size={24} />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">可提现</p>
                   <p className="text-2xl font-bold">¥{(creatorStats.monthlyEarnings * 0.8).toLocaleString()}</p>
                 </CardBody>
               </Card>
@@ -597,7 +648,7 @@ export default function CreatorPage() {
                           </p>
                         )}
                       </div>
-                      <div className="text-2xl">
+                      <div className="text-gray-400">
                         {getInteractionIcon(interaction.type)}
                       </div>
                     </div>
@@ -609,18 +660,19 @@ export default function CreatorPage() {
         )}
       </main>
 
-      <Modal
+      <Drawer
         isOpen={isUploadOpen}
         onClose={onUploadClose}
-        size="2xl"
+        placement="right"
+        size="md"
         className="bg-gray-900 text-white"
       >
-        <ModalContent>
-          <ModalHeader>
+        <DrawerContent>
+          <DrawerHeader className="border-b border-gray-800">
             <h2 className="text-xl font-bold">上传新作品</h2>
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
+          </DrawerHeader>
+          <DrawerBody>
+            <div className="space-y-4 py-4">
               <Input
                 label="作品标题"
                 placeholder="输入作品标题..."
@@ -672,8 +724,8 @@ export default function CreatorPage() {
                 />
               </div>
             </div>
-          </ModalBody>
-          <ModalFooter>
+          </DrawerBody>
+          <DrawerFooter className="border-t border-gray-800">
             <Button variant="light" onPress={onUploadClose}>
               取消
             </Button>
@@ -684,9 +736,9 @@ export default function CreatorPage() {
             >
               上传作品
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }

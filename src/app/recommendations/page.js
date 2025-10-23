@@ -2,10 +2,26 @@
 
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Button, Chip, Avatar, Progress, Divider, Tabs, Tab } from '@heroui/react';
-import { Sparkles, Heart, Eye, Share, Bookmark, Users, TrendingUp, Clock } from 'lucide-react';
+import { Sparkles, Heart, Eye, Share, Bookmark, Users, TrendingUp, Clock, Camera, Music, Palette, Film } from 'lucide-react';
 
 export default function RecommendationsPage() {
   const [activeTab, setActiveTab] = useState('for-you');
+  
+  // 根据类别返回对应的图标
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case '摄影':
+        return <Camera size={24} className="text-gray-400" />;
+      case '音乐':
+        return <Music size={24} className="text-gray-400" />;
+      case '设计':
+        return <Palette size={24} className="text-gray-400" />;
+      case '动画':
+        return <Film size={24} className="text-gray-400" />;
+      default:
+        return <Palette size={24} className="text-gray-400" />;
+    }
+  };
   
   const recommendedContent = [
     {
@@ -123,8 +139,8 @@ export default function RecommendationsPage() {
     <Card key={content.id} className="bg-gray-800/50 border border-gray-700 hover:border-lime-400 transition-colors">
       <CardBody className="p-4">
         <div className="flex gap-3">
-          <div className="w-24 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">
-            {content.thumbnail}
+          <div className="w-24 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
+            {getCategoryIcon(content.category)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">

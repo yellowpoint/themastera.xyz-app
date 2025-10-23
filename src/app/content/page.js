@@ -22,6 +22,7 @@ import {
   Select,
   SelectItem
 } from '@heroui/react'
+import { Search, Star } from 'lucide-react'
 export default function ContentPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -171,7 +172,7 @@ export default function ContentPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1"
-            startContent={<span>🔍</span>}
+            startContent={<Search size={16} className="text-gray-400" />}
           />
           <Select
             placeholder="选择分类"
@@ -238,7 +239,7 @@ export default function ContentPage() {
                     {content.title}
                   </h3>
                   <div className="flex items-center gap-1 text-yellow-400">
-                    <span>⭐</span>
+                    <Star size={16} className="text-yellow-400" />
                     <span className="text-sm">{content.rating}</span>
                   </div>
                 </div>
@@ -285,7 +286,9 @@ export default function ContentPage() {
 
         {filteredContent.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
+            <div className="text-6xl mb-4">
+                  <Search size={64} className="text-gray-400 mx-auto" />
+                </div>
             <h3 className="text-xl font-semibold mb-2">没有找到相关内容</h3>
             <p className="text-gray-400">尝试调整搜索条件或浏览其他分类</p>
           </div>
@@ -347,7 +350,10 @@ export default function ContentPage() {
                   </div>
                   <div>
                     <span className="text-gray-400">评分：</span>
-                    <span className="text-yellow-400">⭐ {selectedContent.rating}</span>
+                    <span className="text-yellow-400 flex items-center gap-1">
+                      <Star size={16} className="text-yellow-400" />
+                      {selectedContent.rating}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-400">价格：</span>

@@ -22,6 +22,7 @@ import {
   Textarea,
   Divider
 } from '@heroui/react'
+import { PenTool, Search, ThumbsUp, MessageSquare, Eye, Share2, Video } from 'lucide-react'
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState('circles')
   const [selectedCircle, setSelectedCircle] = useState(null)
@@ -176,21 +177,21 @@ export default function CommunityPage() {
           <Button 
             color="primary" 
             onPress={onPostOpen}
-            startContent={<span>✏️</span>}
+            startContent={<PenTool size={16} />}
           >
             发布新帖
           </Button>
           <Button 
             variant="bordered"
             className="border-lime-400 text-lime-400"
-            startContent={<span>📺</span>}
+            startContent={<Video size={16} />}
           >
             开始直播
           </Button>
           <Button 
             variant="bordered"
             className="border-gray-600 text-gray-300"
-            startContent={<span>🔍</span>}
+            startContent={<Search size={16} />}
           >
             发现圈子
           </Button>
@@ -355,19 +356,19 @@ export default function CommunityPage() {
 
                       <div className="flex items-center gap-6 text-sm text-gray-400">
                         <button className="flex items-center gap-1 hover:text-lime-400">
-                          <span>👍</span>
+                          <ThumbsUp size={16} />
                           <span>{post.likes}</span>
                         </button>
                         <button className="flex items-center gap-1 hover:text-lime-400">
-                          <span>💬</span>
+                          <MessageSquare size={16} />
                           <span>{post.comments}</span>
                         </button>
                         <button className="flex items-center gap-1 hover:text-lime-400">
-                          <span>👁️</span>
+                          <Eye size={16} />
                           <span>{post.views}</span>
                         </button>
                         <button className="flex items-center gap-1 hover:text-lime-400">
-                          <span>🔗</span>
+                          <Share2 size={16} />
                           <span>分享</span>
                         </button>
                       </div>

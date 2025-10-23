@@ -23,6 +23,7 @@ import {
   Select,
   SelectItem
 } from '@heroui/react'
+import { Search } from 'lucide-react'
 export default function HelpPage() {
   const [activeTab, setActiveTab] = useState('faq')
   const [searchQuery, setSearchQuery] = useState('')
@@ -263,7 +264,7 @@ export default function HelpPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               size="lg"
-              startContent="🔍"
+              startContent={<Search size={16} className="text-gray-400" />}
               className="mb-6"
             />
           </div>

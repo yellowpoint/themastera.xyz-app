@@ -18,6 +18,7 @@ import {
   TableCell,
   Pagination
 } from '@heroui/react'
+import { TrendingUp, TrendingDown, Target, DollarSign, Lightbulb } from 'lucide-react'
 export default function PointsHistoryPage() {
   const [filterType, setFilterType] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -123,7 +124,9 @@ export default function PointsHistoryPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700">
             <CardBody className="p-6 text-center">
-              <div className="text-3xl mb-2">📈</div>
+              <div className="text-3xl mb-2 text-green-400">
+                <TrendingUp size={32} />
+              </div>
               <p className="text-green-300 text-sm">累计获得</p>
               <p className="text-2xl font-bold">{stats.totalEarned.toLocaleString()}</p>
             </CardBody>
@@ -131,7 +134,9 @@ export default function PointsHistoryPage() {
 
           <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border-red-700">
             <CardBody className="p-6 text-center">
-              <div className="text-3xl mb-2">📉</div>
+              <div className="text-3xl mb-2 text-red-400">
+                <TrendingDown size={32} />
+              </div>
               <p className="text-red-300 text-sm">累计消费</p>
               <p className="text-2xl font-bold">{stats.totalSpent.toLocaleString()}</p>
             </CardBody>
@@ -139,7 +144,9 @@ export default function PointsHistoryPage() {
 
           <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700">
             <CardBody className="p-6 text-center">
-              <div className="text-3xl mb-2">🎯</div>
+              <div className="text-3xl mb-2 text-blue-400">
+                <Target size={32} />
+              </div>
               <p className="text-blue-300 text-sm">本月获得</p>
               <p className="text-2xl font-bold">{stats.thisMonthEarned.toLocaleString()}</p>
             </CardBody>
@@ -147,7 +154,9 @@ export default function PointsHistoryPage() {
 
           <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700">
             <CardBody className="p-6 text-center">
-              <div className="text-3xl mb-2">💸</div>
+              <div className="text-3xl mb-2 text-purple-400">
+                <DollarSign size={32} />
+              </div>
               <p className="text-purple-300 text-sm">本月消费</p>
               <p className="text-2xl font-bold">{stats.thisMonthSpent.toLocaleString()}</p>
             </CardBody>
@@ -245,7 +254,9 @@ export default function PointsHistoryPage() {
         <Card className="bg-gradient-to-r from-lime-900/30 to-green-900/30 border-lime-700 mt-8">
           <CardBody className="p-6">
             <div className="flex items-center gap-4">
-              <div className="text-4xl">💡</div>
+              <div className="text-4xl text-lime-400">
+                <Lightbulb size={48} />
+              </div>
               <div>
                 <h3 className="text-xl font-semibold mb-2">获得更多积分</h3>
                 <p className="text-gray-300 mb-4">

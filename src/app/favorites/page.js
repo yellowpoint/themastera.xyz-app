@@ -25,6 +25,7 @@ import {
   DropdownItem,
   Checkbox
 } from '@heroui/react'
+import { Search } from 'lucide-react'
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState('content')
   const [sortBy, setSortBy] = useState('recent')
@@ -317,7 +318,7 @@ export default function FavoritesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="md:w-80"
-                startContent="🔍"
+                startContent={<Search size={16} className="text-gray-400" />}
               />
               
               <Select

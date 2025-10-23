@@ -26,6 +26,7 @@ import {
   TableRow,
   TableCell
 } from '@heroui/react'
+import { Gem, Crown, Gift, Flame, Check } from 'lucide-react'
 export default function PointsPage() {
   const [activeTab, setActiveTab] = useState('shop')
   const [selectedItem, setSelectedItem] = useState(null)
@@ -231,7 +232,9 @@ export default function PointsPage() {
                   <p className="text-lime-300 text-sm">当前积分</p>
                   <p className="text-3xl font-bold">{userProfile.points.toLocaleString()}</p>
                 </div>
-                <div className="text-4xl">💎</div>
+                <div className="text-4xl text-lime-400">
+                  <Gem size={48} />
+                </div>
               </div>
               <p className="text-lime-200 text-sm">
                 累计获得: {userProfile.totalEarned.toLocaleString()} 积分
@@ -246,7 +249,9 @@ export default function PointsPage() {
                   <p className="text-purple-300 text-sm">当前等级</p>
                   <p className="text-xl font-bold">{levelInfo.current}</p>
                 </div>
-                <div className="text-4xl">👑</div>
+                <div className="text-4xl text-purple-400">
+                  <Crown size={48} />
+                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -269,7 +274,9 @@ export default function PointsPage() {
                   <p className="text-blue-300 text-sm">会员特权</p>
                   <p className="text-xl font-bold">专享福利</p>
                 </div>
-                <div className="text-4xl">🎁</div>
+                <div className="text-4xl text-blue-400">
+                  <Gift size={48} />
+                </div>
               </div>
               <div className="space-y-1">
                 {levelInfo.benefits.slice(0, 2).map((benefit, index) => (
@@ -329,7 +336,8 @@ export default function PointsPage() {
                     {item.hot && (
                       <div className="absolute top-2 left-2">
                         <Chip color="danger" size="sm" variant="solid">
-                          🔥 热门
+                          <Flame size={16} className="mr-1" />
+                          热门
                         </Chip>
                       </div>
                     )}
@@ -458,7 +466,8 @@ export default function PointsPage() {
                         </div>
                         {task.completed && (
                           <Chip color="success" size="sm" variant="flat">
-                            ✓ 已完成
+                            <Check size={16} className="mr-1" />
+                            已完成
                           </Chip>
                         )}
                       </div>
@@ -504,7 +513,9 @@ export default function PointsPage() {
               </CardHeader>
               <CardBody className="space-y-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="text-4xl">👑</div>
+                  <div className="text-4xl text-purple-400">
+                    <Crown size={48} />
+                  </div>
                   <div>
                     <h4 className="text-2xl font-bold">{levelInfo.current}</h4>
                     <p className="text-purple-300">等级 {levelInfo.currentLevel}</p>
@@ -514,7 +525,7 @@ export default function PointsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {levelInfo.benefits.map((benefit, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <span className="text-lime-400">✓</span>
+                      <Check size={16} className="text-lime-400" />
                       <span>{benefit}</span>
                     </div>
                   ))}

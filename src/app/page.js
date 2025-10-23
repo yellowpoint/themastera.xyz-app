@@ -20,7 +20,23 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/react";
-import { Search, Upload, Filter, Grid, List, Play, Eye, Heart, Share2 } from "lucide-react";
+import { 
+  Search, 
+  Upload, 
+  Filter, 
+  Grid, 
+  List, 
+  Play, 
+  Eye, 
+  Heart, 
+  Share2,
+  Palette,
+  Music,
+  Film,
+  Camera,
+  Monitor,
+  PenTool
+} from "lucide-react";
 
 // 模拟作品数据
 const works = [
@@ -146,13 +162,13 @@ export default function HomePage() {
     <div className="group cursor-pointer">
       <div className="relative mb-3">
         <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl overflow-hidden">
-          <div className="w-full h-full flex items-center justify-center text-4xl">
-            {work.category === '视觉艺术' && '🎨'}
-            {work.category === '音乐' && '🎵'}
-            {work.category === '动画' && '🎬'}
-            {work.category === '摄影' && '📸'}
-            {work.category === '设计' && '💻'}
-            {work.category === '插画' && '✏️'}
+          <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
+            {work.category === '视觉艺术' && <Palette size={48} />}
+            {work.category === '音乐' && <Music size={48} />}
+            {work.category === '动画' && <Film size={48} />}
+            {work.category === '摄影' && <Camera size={48} />}
+            {work.category === '设计' && <Monitor size={48} />}
+            {work.category === '插画' && <PenTool size={48} />}
           </div>
           {/* 悬停播放按钮 */}
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -278,13 +294,13 @@ export default function HomePage() {
                 <CardBody className="p-4">
                   <div className="flex gap-4">
                     <div className="relative w-48 aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex-shrink-0">
-                      <div className="w-full h-full flex items-center justify-center text-2xl">
-                        {work.category === '视觉艺术' && '🎨'}
-                        {work.category === '音乐' && '🎵'}
-                        {work.category === '动画' && '🎬'}
-                        {work.category === '摄影' && '📸'}
-                        {work.category === '设计' && '💻'}
-                        {work.category === '插画' && '✏️'}
+                      <div className="w-full h-full flex items-center justify-center text-2xl text-gray-400">
+                        {work.category === '视觉艺术' && <Palette size={32} />}
+                        {work.category === '音乐' && <Music size={32} />}
+                        {work.category === '动画' && <Film size={32} />}
+                        {work.category === '摄影' && <Camera size={32} />}
+                        {work.category === '设计' && <Monitor size={32} />}
+                        {work.category === '插画' && <PenTool size={32} />}
                       </div>
                       <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
                         {work.duration}
