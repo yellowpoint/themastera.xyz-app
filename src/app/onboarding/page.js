@@ -7,7 +7,7 @@ import { Check, Gift, Star, Users, Camera, Music } from 'lucide-react';
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedTasks, setCompletedTasks] = useState([]);
-  
+
   const onboardingSteps = [
     {
       id: 'welcome',
@@ -155,8 +155,8 @@ export default function OnboardingPage() {
   };
 
   const toggleInterest = (interestId) => {
-    setSelectedInterests(prev => 
-      prev.includes(interestId) 
+    setSelectedInterests(prev =>
+      prev.includes(interestId)
         ? prev.filter(id => id !== interestId)
         : [...prev, interestId]
     );
@@ -176,7 +176,7 @@ export default function OnboardingPage() {
 
   const renderStepContent = () => {
     const step = onboardingSteps[currentStep];
-    
+
     switch (step.id) {
       case 'welcome':
         return (
@@ -185,27 +185,27 @@ export default function OnboardingPage() {
               <span className="text-black font-bold text-3xl">M</span>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-4">欢迎来到 Mastera Platform</h2>
+              <h2 className="text-3xl font-bold mb-4">欢迎来到 Mastera Platform</h2>
               <p className="text-gray-400 text-lg">连接创作者与粉丝的创意平台</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
               <div className="text-center space-y-2">
                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto">
-                  <Camera className="w-6 h-6 text-white" />
+                  <Camera className="w-6 h-6" />
                 </div>
                 <h3 className="text-white font-semibold">发现内容</h3>
                 <p className="text-gray-400 text-sm">探索高质量的创意作品</p>
               </div>
               <div className="text-center space-y-2">
                 <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto">
-                  <Users className="w-6 h-6 text-white" />
+                  <Users className="w-6 h-6" />
                 </div>
                 <h3 className="text-white font-semibold">社区互动</h3>
                 <p className="text-gray-400 text-sm">与创作者和粉丝交流</p>
               </div>
               <div className="text-center space-y-2">
                 <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto">
-                  <Gift className="w-6 h-6 text-white" />
+                  <Gift className="w-6 h-6" />
                 </div>
                 <h3 className="text-white font-semibold">获得奖励</h3>
                 <p className="text-gray-400 text-sm">通过互动获得积分奖励</p>
@@ -213,12 +213,12 @@ export default function OnboardingPage() {
             </div>
           </div>
         );
-        
+
       case 'interests':
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">选择您的兴趣</h2>
+              <h2 className="text-2xl font-bold mb-2">选择您的兴趣</h2>
               <p className="text-gray-400">选择至少 3 个兴趣标签，我们将为您推荐相关内容</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -226,11 +226,10 @@ export default function OnboardingPage() {
                 <Button
                   key={category.id}
                   variant={selectedInterests.includes(category.id) ? "solid" : "bordered"}
-                  className={`h-20 flex-col gap-2 ${
-                    selectedInterests.includes(category.id)
-                      ? 'bg-lime-400 text-black border-lime-400'
-                      : 'border-gray-600 text-white hover:border-lime-400'
-                  }`}
+                  className={`h-20 flex-col gap-2 ${selectedInterests.includes(category.id)
+                    ? 'bg-lime-400 text-black border-lime-400'
+                    : 'border-gray-600 hover:border-lime-400'
+                    }`}
                   onPress={() => toggleInterest(category.id)}
                 >
                   <span className="text-2xl">{typeof category.icon === 'string' ? category.icon : category.icon}</span>
@@ -245,17 +244,17 @@ export default function OnboardingPage() {
             </div>
           </div>
         );
-        
+
       case 'follow':
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">关注推荐创作者</h2>
+              <h2 className="text-2xl font-bold mb-2">关注推荐创作者</h2>
               <p className="text-gray-400">关注您感兴趣的创作者，获取最新作品更新</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {featuredCreators.map((creator) => (
-                <Card key={creator.id} className="bg-gray-800/50 border border-gray-700">
+                <Card key={creator.id} className="bg-content1 border-divider">
                   <CardBody className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -282,11 +281,11 @@ export default function OnboardingPage() {
             </div>
           </div>
         );
-        
+
       default:
         return (
           <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-white">{step.title}</h2>
+            <h2 className="text-2xl font-bold">{step.title}</h2>
             <p className="text-gray-400">{step.description}</p>
             <div className="w-16 h-16 bg-lime-400 rounded-full flex items-center justify-center mx-auto">
               <Check className="w-8 h-8 text-black" />
@@ -297,12 +296,12 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Progress Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-white">新手引导</h1>
+            <h1 className="text-2xl font-bold">新手引导</h1>
             <Chip className="bg-lime-400 text-black">
               步骤 {currentStep + 1} / {onboardingSteps.length}
             </Chip>
@@ -331,7 +330,7 @@ export default function OnboardingPage() {
         <div className="flex justify-between items-center mb-8">
           <Button
             variant="bordered"
-            className="border-gray-600 text-white"
+            className="border-gray-600"
             onPress={prevStep}
             isDisabled={currentStep === 0}
           >
@@ -352,21 +351,20 @@ export default function OnboardingPage() {
         {/* New User Tasks */}
         <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
           <CardBody className="p-6">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Gift className="w-6 h-6 text-lime-400" />
               新手任务包
             </h2>
             <p className="text-gray-400 mb-6">完成以下任务获得额外奖励，总计可获得 1500 积分</p>
-            
+
             <div className="space-y-3">
               {newUserTasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${
-                    completedTasks.includes(task.id)
-                      ? 'bg-green-500/20 border-green-500'
-                      : 'bg-gray-800/50 border-gray-700'
-                  }`}
+                  className={`flex items-center justify-between p-4 rounded-lg border ${completedTasks.includes(task.id)
+                    ? 'bg-green-500/20 border-green-500'
+                    : 'bg-gray-800/50 border-gray-700'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{task.icon}</span>
@@ -384,7 +382,7 @@ export default function OnboardingPage() {
                     </Chip>
                     {completedTasks.includes(task.id) ? (
                       <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="w-5 h-5 text-white" />
+                        <Check className="w-5 h-5" />
                       </div>
                     ) : (
                       <Button
@@ -400,9 +398,9 @@ export default function OnboardingPage() {
                 </div>
               ))}
             </div>
-            
+
             <Divider className="my-6" />
-            
+
             <div className="text-center">
               <p className="text-gray-400 mb-4">
                 已完成 {completedTasks.length} / {newUserTasks.length} 个任务

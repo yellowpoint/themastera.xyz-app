@@ -230,7 +230,7 @@ export default function CreatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* 页面标题 */}
         <div className="mb-6">
@@ -349,7 +349,7 @@ export default function CreatorPage() {
 
             {/* 月度统计 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">本月表现</h3>
                 </CardHeader>
@@ -386,7 +386,7 @@ export default function CreatorPage() {
                 </CardBody>
               </Card>
 
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">最新互动</h3>
                 </CardHeader>
@@ -544,7 +544,7 @@ export default function CreatorPage() {
               </Card>
             </div>
 
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-content1 border-divider">
               <CardHeader>
                 <h3 className="text-xl font-semibold">收益记录</h3>
               </CardHeader>
@@ -586,7 +586,7 @@ export default function CreatorPage() {
         {activeTab === 'fans' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">粉丝统计</h3>
                 </CardHeader>
@@ -606,7 +606,7 @@ export default function CreatorPage() {
                 </CardBody>
               </Card>
 
-              <Card className="bg-gray-900 border-gray-800">
+              <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">互动统计</h3>
                 </CardHeader>
@@ -627,7 +627,7 @@ export default function CreatorPage() {
               </Card>
             </div>
 
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-content1 border-divider">
               <CardHeader>
                 <h3 className="text-xl font-semibold">最新互动</h3>
               </CardHeader>
@@ -665,7 +665,7 @@ export default function CreatorPage() {
         onClose={onUploadClose}
         placement="right"
         size="md"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <DrawerContent>
           <DrawerHeader className="border-b border-gray-800">

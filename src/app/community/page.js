@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -160,7 +160,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -174,21 +174,21 @@ export default function CommunityPage() {
 
         {/* 快速操作 */}
         <div className="flex flex-wrap gap-4 mb-8">
-          <Button 
-            color="primary" 
+          <Button
+            color="primary"
             onPress={onPostOpen}
             startContent={<PenTool size={16} />}
           >
             发布新帖
           </Button>
-          <Button 
+          <Button
             variant="bordered"
             className="border-lime-400 text-lime-400"
             startContent={<Video size={16} />}
           >
             开始直播
           </Button>
-          <Button 
+          <Button
             variant="bordered"
             className="border-gray-600 text-gray-300"
             startContent={<Search size={16} />}
@@ -198,8 +198,8 @@ export default function CommunityPage() {
         </div>
 
         {/* 内容标签页 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -214,9 +214,9 @@ export default function CommunityPage() {
         {activeTab === 'circles' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {circles.map((circle) => (
-              <Card 
-                key={circle.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
+              <Card
+                key={circle.id}
+                className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
                 isPressable
                 onPress={() => handleCircleClick(circle)}
               >
@@ -242,7 +242,7 @@ export default function CommunityPage() {
                       </Chip>
                     ))}
                   </div>
-                  
+
                   <div className="flex justify-between items-center text-sm text-gray-400 mb-4">
                     <span>{circle.members.toLocaleString()} 成员</span>
                     <span>{circle.posts} 帖子</span>
@@ -270,15 +270,15 @@ export default function CommunityPage() {
         {activeTab === 'live' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {liveStreams.map((stream) => (
-              <Card 
-                key={stream.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
+              <Card
+                key={stream.id}
+                className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
                 isPressable
               >
                 <CardHeader className="p-0">
                   <div className="relative w-full h-48">
-                    <img 
-                      src={stream.thumbnail} 
+                    <img
+                      src={stream.thumbnail}
                       alt={stream.title}
                       className="w-full h-full object-cover rounded-t-lg"
                     />
@@ -298,7 +298,7 @@ export default function CommunityPage() {
                   <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                     {stream.title}
                   </h3>
-                  
+
                   <div className="flex items-center gap-2 mb-3">
                     <Avatar size="sm" />
                     <span className="text-gray-400 text-sm">{stream.creator}</span>
@@ -322,11 +322,11 @@ export default function CommunityPage() {
         {activeTab === 'hot' && (
           <div className="space-y-6">
             {hotPosts.map((post) => (
-              <Card 
-                key={post.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
-                isPressable
-              >
+              <Card
+                 key={post.id}
+                 className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
+                 isPressable
+               >
                 <CardBody className="p-6">
                   <div className="flex items-start gap-4">
                     <Avatar size="md" />
@@ -339,9 +339,9 @@ export default function CommunityPage() {
                         </Chip>
                         <span className="text-gray-400 text-sm">{post.timeAgo}</span>
                       </div>
-                      
+
                       <h3 className="text-xl font-semibold mb-3">{post.title}</h3>
-                      
+
                       <p className="text-gray-300 mb-4 line-clamp-3">
                         {post.content}
                       </p>
@@ -391,12 +391,12 @@ export default function CommunityPage() {
         )}
       </main>
 
-      <Modal 
-        isOpen={isCircleOpen} 
-        onClose={onCircleClose}
-        size="2xl"
-        className="bg-gray-900 text-white"
-      >
+      <Modal
+         isOpen={isCircleOpen}
+         onClose={onCircleClose}
+         size="2xl"
+         className="bg-content1"
+       >
         <ModalContent>
           <ModalHeader>
             <div className="flex items-center gap-3">
@@ -411,7 +411,7 @@ export default function CommunityPage() {
             {selectedCircle && (
               <div className="space-y-4">
                 <p className="text-gray-300">{selectedCircle.description}</p>
-                
+
                 <div className="flex flex-wrap gap-2">
                   {selectedCircle.tags.map((tag, index) => (
                     <Chip key={index} size="sm" variant="flat" color="primary">
@@ -448,7 +448,7 @@ export default function CommunityPage() {
             <Button variant="light" onPress={onCircleClose}>
               关闭
             </Button>
-            <Button 
+            <Button
               color="primary"
               onPress={() => {
                 handleJoinCircle(selectedCircle?.id)
@@ -462,12 +462,12 @@ export default function CommunityPage() {
       </Modal>
 
       {/* 发布帖子模态框 */}
-      <Modal 
-        isOpen={isPostOpen} 
-        onClose={onPostClose}
-        size="2xl"
-        className="bg-gray-900 text-white"
-      >
+      <Modal
+         isOpen={isPostOpen}
+         onClose={onPostClose}
+         size="2xl"
+         className="bg-content1"
+       >
         <ModalContent>
           <ModalHeader>
             <h2 className="text-xl font-bold">发布新帖</h2>
@@ -478,14 +478,14 @@ export default function CommunityPage() {
                 label="帖子标题"
                 placeholder="输入帖子标题..."
                 value={newPost.title}
-                onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
               />
               <Textarea
                 label="帖子内容"
                 placeholder="分享你的想法..."
                 minRows={6}
                 value={newPost.content}
-                onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
               />
             </div>
           </ModalBody>
@@ -493,7 +493,7 @@ export default function CommunityPage() {
             <Button variant="light" onPress={onPostClose}>
               取消
             </Button>
-            <Button 
+            <Button
               color="primary"
               onPress={handleCreatePost}
               isDisabled={!newPost.title || !newPost.content}

@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Chip,
@@ -26,7 +26,7 @@ export default function AccessibilityPage() {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure()
   const { isOpen: isFeedbackOpen, onOpen: onFeedbackOpen, onClose: onFeedbackClose } = useDisclosure()
   const { isOpen: isSupportOpen, onOpen: onSupportOpen, onClose: onSupportClose } = useDisclosure()
-  
+
   const [accessibilitySettings, setAccessibilitySettings] = useState({
     highContrast: false,
     largeText: false,
@@ -255,7 +255,7 @@ export default function AccessibilityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -264,7 +264,7 @@ export default function AccessibilityPage() {
           <p className="text-xl text-gray-400 mb-6">
             我们致力于为所有用户提供平等、便利的数字体验
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400 mb-6">
             <div className="flex items-center gap-2">
               <Chip color="success" variant="flat" size="sm">WCAG 2.1</Chip>
@@ -328,7 +328,7 @@ export default function AccessibilityPage() {
         </Card>
 
         {/* 无障碍功能详情 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">🛠️ 无障碍功能</h2>
           </CardHeader>
@@ -352,10 +352,10 @@ export default function AccessibilityPage() {
                     {category.features.map((feature, index) => (
                       <div key={index} className="bg-gray-700/50 p-4 rounded-lg">
                         <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold text-white">{feature.name}</h4>
+                          <h4 className="font-semibold">{feature.name}</h4>
                           <div className="flex gap-2">
-                            <Chip 
-                              size="sm" 
+                            <Chip
+                              size="sm"
                               color={getStatusColor(feature.status)}
                               variant="flat"
                             >
@@ -377,7 +377,7 @@ export default function AccessibilityPage() {
         </Card>
 
         {/* 屏幕阅读器支持 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">📱 屏幕阅读器支持</h2>
           </CardHeader>
@@ -385,14 +385,14 @@ export default function AccessibilityPage() {
             <p className="text-gray-400 mb-4">
               我们测试并支持以下主流屏幕阅读器：
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {screenReaderSupport.map((reader, index) => (
                 <div key={index} className="bg-gray-800 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold">{reader.name}</h4>
-                    <Chip 
-                      size="sm" 
+                    <Chip
+                      size="sm"
                       color={reader.compatibility === '完全支持' ? 'success' : 'warning'}
                       variant="flat"
                     >
@@ -408,7 +408,7 @@ export default function AccessibilityPage() {
         </Card>
 
         {/* 键盘快捷键 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">⌨️ 键盘快捷键</h2>
           </CardHeader>
@@ -416,7 +416,7 @@ export default function AccessibilityPage() {
             <p className="text-gray-400 mb-4">
               以下是平台支持的键盘快捷键，帮助您更高效地导航：
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {keyboardShortcuts.map((shortcut, index) => (
                 <div key={index} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
@@ -487,20 +487,20 @@ export default function AccessibilityPage() {
               <p className="text-gray-300">
                 我们持续努力改进平台的无障碍性，包括：
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-gray-800 p-4 rounded-lg text-center">
                   <div className="text-2xl mb-2">🔍</div>
                   <h4 className="font-semibold mb-2">定期审计</h4>
                   <p className="text-sm text-gray-400">每季度进行无障碍审计</p>
                 </div>
-                
+
                 <div className="bg-gray-800 p-4 rounded-lg text-center">
                   <div className="text-2xl mb-2">👥</div>
                   <h4 className="font-semibold mb-2">用户反馈</h4>
                   <p className="text-sm text-gray-400">收集并响应用户建议</p>
                 </div>
-                
+
                 <div className="bg-gray-800 p-4 rounded-lg text-center">
                   <div className="text-2xl mb-2">📚</div>
                   <h4 className="font-semibold mb-2">团队培训</h4>
@@ -512,7 +512,7 @@ export default function AccessibilityPage() {
         </Card>
 
         {/* 联系支持 */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-content1 border-divider">
           <CardHeader>
             <h2 className="text-xl font-bold">📞 获取支持</h2>
           </CardHeader>
@@ -520,20 +520,20 @@ export default function AccessibilityPage() {
             <p className="text-gray-300 mb-4">
               如果您在使用过程中遇到无障碍问题，请联系我们：
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">📧</div>
                 <h4 className="font-semibold mb-1">邮箱支持</h4>
                 <p className="text-sm text-gray-400">accessibility@mastera.xyz</p>
               </div>
-              
+
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">💬</div>
                 <h4 className="font-semibold mb-1">在线客服</h4>
                 <p className="text-sm text-gray-400">24/7 无障碍支持</p>
               </div>
-              
+
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">📱</div>
                 <h4 className="font-semibold mb-1">专线电话</h4>
@@ -544,11 +544,11 @@ export default function AccessibilityPage() {
         </Card>
       </main>
 
-      <Modal 
-        isOpen={isSettingsOpen} 
+      <Modal
+        isOpen={isSettingsOpen}
         onClose={onSettingsClose}
         size="3xl"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <ModalContent>
           <ModalHeader>
@@ -567,7 +567,7 @@ export default function AccessibilityPage() {
                 {/* 视觉设置 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-purple-400">👁️ 视觉设置</h3>
-                  
+
                   <div className="bg-gray-800 p-4 rounded-lg space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -624,7 +624,7 @@ export default function AccessibilityPage() {
                 {/* 运动设置 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-green-400">⌨️ 运动设置</h3>
-                  
+
                   <div className="bg-gray-800 p-4 rounded-lg space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -653,7 +653,7 @@ export default function AccessibilityPage() {
                 {/* 辅助技术 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-orange-400">🔊 辅助技术</h3>
-                  
+
                   <div className="bg-gray-800 p-4 rounded-lg space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -693,11 +693,11 @@ export default function AccessibilityPage() {
       </Modal>
 
       {/* 反馈建议模态框 */}
-      <Modal 
-        isOpen={isFeedbackOpen} 
+      <Modal
+        isOpen={isFeedbackOpen}
         onClose={onFeedbackClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <ModalContent>
           <ModalHeader>
@@ -745,7 +745,7 @@ export default function AccessibilityPage() {
                 <SelectItem key="keyboard" value="keyboard">仅键盘导航</SelectItem>
                 <SelectItem key="other" value="other">其他</SelectItem>
               </Select>
-              
+
               <Textarea
                 label="详细描述"
                 placeholder="请详细描述您遇到的问题或建议"
@@ -765,11 +765,11 @@ export default function AccessibilityPage() {
       </Modal>
 
       {/* 获取支持模态框 */}
-      <Modal 
-        isOpen={isSupportOpen} 
+      <Modal
+        isOpen={isSupportOpen}
         onClose={onSupportClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <ModalContent>
           <ModalHeader>
@@ -813,7 +813,7 @@ export default function AccessibilityPage() {
                 <SelectItem key="training" value="training">使用培训</SelectItem>
                 <SelectItem key="consultation" value="consultation">无障碍咨询</SelectItem>
               </Select>
-              
+
               <Textarea
                 label="详细说明"
                 placeholder="请详细说明您需要的支持或遇到的问题"

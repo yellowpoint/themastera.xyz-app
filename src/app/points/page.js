@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -182,8 +182,8 @@ export default function PointsPage() {
   const categories = ["全部", "会员", "工具", "素材", "教育", "礼品", "道具"]
   const [selectedCategory, setSelectedCategory] = useState("全部")
 
-  const filteredItems = selectedCategory === "全部" 
-    ? shopItems 
+  const filteredItems = selectedCategory === "全部"
+    ? shopItems
     : shopItems.filter(item => item.category === selectedCategory)
 
   const handleExchange = (item) => {
@@ -211,7 +211,7 @@ export default function PointsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -258,8 +258,8 @@ export default function PointsPage() {
                   <span>升级进度</span>
                   <span>{userProfile.points}/{userProfile.nextLevelPoints}</span>
                 </div>
-                <Progress 
-                  value={levelInfo.progress} 
+                <Progress
+                  value={levelInfo.progress}
                   color="secondary"
                   className="w-full"
                 />
@@ -290,8 +290,8 @@ export default function PointsPage() {
         </div>
 
         {/* 内容标签页 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -323,13 +323,13 @@ export default function PointsPage() {
             {/* 商品网格 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item) => (
-                <Card 
-                  key={item.id} 
-                  className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
+                <Card
+                  key={item.id}
+                  className="bg-content1 border-divider hover:border-lime-400/50 transition-all"
                 >
                   <CardHeader className="p-0 relative">
-                    <img 
-                      src={item.image} 
+                    <img
+                      src={item.image}
                       alt={item.name}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -342,9 +342,9 @@ export default function PointsPage() {
                       </div>
                     )}
                     <div className="absolute top-2 right-2">
-                      <Chip 
-                        color={getCategoryColor(item.category)} 
-                        size="sm" 
+                      <Chip
+                        color={getCategoryColor(item.category)}
+                        size="sm"
                         variant="flat"
                       >
                         {item.category}
@@ -355,7 +355,7 @@ export default function PointsPage() {
                     <h3 className="text-lg font-semibold mb-2 line-clamp-1">
                       {item.name}
                     </h3>
-                    
+
                     <p className="text-gray-400 text-sm mb-3 line-clamp-2">
                       {item.description}
                     </p>
@@ -391,8 +391,8 @@ export default function PointsPage() {
                       onPress={() => handleExchange(item)}
                       isDisabled={userProfile.points < item.points || item.stock === 0}
                     >
-                      {userProfile.points < item.points ? "积分不足" : 
-                       item.stock === 0 ? "已售罄" : "立即兑换"}
+                      {userProfile.points < item.points ? "积分不足" :
+                        item.stock === 0 ? "已售罄" : "立即兑换"}
                     </Button>
                   </CardBody>
                 </Card>
@@ -404,10 +404,10 @@ export default function PointsPage() {
         {/* 积分记录 */}
         {activeTab === 'history' && (
           <div className="space-y-6">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <h3 className="text-xl font-semibold">积分记录</h3>
-              </CardHeader>
+            <Card className="bg-content1 border-divider">
+               <CardHeader>
+                 <h3 className="text-xl font-semibold">积分记录</h3>
+               </CardHeader>
               <CardBody>
                 <Table aria-label="积分记录表格">
                   <TableHeader>
@@ -427,8 +427,8 @@ export default function PointsPage() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            size="sm" 
+                          <Chip
+                            size="sm"
                             color={record.type === 'earn' ? 'success' : 'danger'}
                             variant="flat"
                           >
@@ -449,9 +449,9 @@ export default function PointsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {dailyTasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className={`border-gray-800 ${task.completed ? 'bg-green-900/20 border-green-700' : 'bg-gray-900'}`}
+                <Card
+                  key={task.id}
+                  className={`border-divider ${task.completed ? 'bg-green-900/20 border-green-700' : 'bg-content1'}`}
                 >
                   <CardBody className="p-6">
                     <div className="flex items-start justify-between mb-4">
@@ -479,8 +479,8 @@ export default function PointsPage() {
                           <span>进度</span>
                           <span>{task.progress}/{task.total}</span>
                         </div>
-                        <Progress 
-                          value={(task.progress / task.total) * 100} 
+                        <Progress
+                          value={(task.progress / task.total) * 100}
                           color="primary"
                           className="w-full"
                         />
@@ -533,10 +533,10 @@ export default function PointsPage() {
               </CardBody>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <h3 className="text-xl font-semibold">升级进度</h3>
-              </CardHeader>
+            <Card className="bg-content1 border-divider">
+               <CardHeader>
+                 <h3 className="text-xl font-semibold">升级进度</h3>
+               </CardHeader>
               <CardBody className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span>距离下一等级</span>
@@ -544,9 +544,9 @@ export default function PointsPage() {
                     {userProfile.nextLevelPoints - userProfile.points} 积分
                   </span>
                 </div>
-                
-                <Progress 
-                  value={levelInfo.progress} 
+
+                <Progress
+                  value={levelInfo.progress}
                   color="secondary"
                   className="w-full"
                 />
@@ -565,10 +565,10 @@ export default function PointsPage() {
         )}
       </main>
 
-      <Modal 
-        isOpen={isExchangeOpen} 
+      <Modal
+        isOpen={isExchangeOpen}
         onClose={onExchangeClose}
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -578,8 +578,8 @@ export default function PointsPage() {
             {selectedItem && (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <img 
-                    src={selectedItem.image} 
+                  <img
+                    src={selectedItem.image}
                     alt={selectedItem.name}
                     className="w-20 h-20 object-cover rounded-lg"
                   />
@@ -618,7 +618,7 @@ export default function PointsPage() {
             <Button variant="light" onPress={onExchangeClose}>
               取消
             </Button>
-            <Button 
+            <Button
               color="primary"
               onPress={confirmExchange}
               isDisabled={!selectedItem || userProfile.points < selectedItem.points}

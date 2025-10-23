@@ -30,14 +30,38 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN" className="dark">
-      {/* <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="format-detection" content="telephone=no" />
-      </head> */}
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function getInitialTheme() {
+                  const savedTheme = localStorage.getItem('theme');
+                  if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+                    return savedTheme;
+                  }
+                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  return systemPrefersDark ? 'dark' : 'light';
+                }
+                
+                const theme = getInitialTheme();
+                const root = document.documentElement;
+                root.classList.remove('light', 'dark');
+                
+                if (theme === 'system') {
+                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  root.classList.add(systemPrefersDark ? 'dark' : 'light');
+                } else {
+                  root.classList.add(theme);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased">
         <Providers>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col bg-background text-foreground">
             <Header />
             <main className="flex-1">
               {children}

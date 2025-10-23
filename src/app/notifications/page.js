@@ -122,25 +122,25 @@ export default function NotificationsPage() {
         );
       case 'view_content':
         return (
-          <Button size="sm" variant="bordered" className="border-gray-600 text-white">
+          <Button size="sm" variant="bordered" className="border-gray-600">
             查看作品
           </Button>
         );
       case 'reply':
         return (
-          <Button size="sm" variant="bordered" className="border-gray-600 text-white">
+          <Button size="sm" variant="bordered" className="border-gray-600">
             回复
           </Button>
         );
       case 'view_rewards':
         return (
-          <Button size="sm" className="bg-green-500 text-white">
+          <Button size="sm" className="bg-green-500">
             查看奖励
           </Button>
         );
       case 'join_event':
         return (
-          <Button size="sm" className="bg-purple-500 text-white">
+          <Button size="sm" className="bg-purple-500">
             参与活动
           </Button>
         );
@@ -150,27 +150,27 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-white mb-4">通知中心</h1>
+          <h1 className="text-4xl font-bold mb-4">通知中心</h1>
           <p className="text-gray-400 text-lg">管理您的通知偏好和查看最新消息</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Notifications List */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+            <Card className="bg-content1 border-divider">
               <CardHeader className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-xl font-bold flex items-center gap-2">
                   <Bell className="w-6 h-6 text-lime-400" />
                   最新通知
                 </h2>
                 <Button
                   size="sm"
                   variant="bordered"
-                  className="border-gray-600 text-white"
+                  className="border-gray-600"
                 >
                   全部标记为已读
                 </Button>
@@ -179,11 +179,11 @@ export default function NotificationsPage() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`flex items-start gap-3 p-4 rounded-lg border ${
-                      notification.read
-                        ? 'bg-gray-800/30 border-gray-700'
-                        : 'bg-blue-500/10 border-blue-500/30'
-                    }`}
+                    className={`flex items-start gap-3 p-4 rounded-lg border hover:border-lime-400/50 transition-colors cursor-pointer ${notification.read
+                      ? 'bg-content2 border-divider'
+                      : 'bg-blue-500/10 border-blue-500/30'
+                      }`}
+
                   >
                     <div className="flex-shrink-0">
                       {notification.avatar ? (
@@ -205,7 +205,7 @@ export default function NotificationsPage() {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
@@ -233,7 +233,7 @@ export default function NotificationsPage() {
             {/* Email Notifications */}
             <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2">
                   <Mail className="w-5 h-5 text-lime-400" />
                   邮件通知
                 </h3>
@@ -252,7 +252,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">新评论</p>
@@ -266,7 +266,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">周报摘要</p>
@@ -280,7 +280,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">营销推广</p>
@@ -300,7 +300,7 @@ export default function NotificationsPage() {
             {/* Push Notifications */}
             <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2">
                   <Smartphone className="w-5 h-5 text-lime-400" />
                   推送通知
                 </h3>
@@ -319,7 +319,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">每日任务</p>
@@ -333,7 +333,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">新关注者</p>
@@ -353,7 +353,7 @@ export default function NotificationsPage() {
             {/* In-App Notifications */}
             <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2">
                   <Monitor className="w-5 h-5 text-lime-400" />
                   站内通知
                 </h3>
@@ -372,7 +372,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">系统公告</p>
@@ -386,7 +386,7 @@ export default function NotificationsPage() {
                     }}
                   />
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-white text-sm">私信消息</p>
@@ -411,13 +411,13 @@ export default function NotificationsPage() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Button
                 variant="bordered"
-                className="border-gray-600 text-white hover:border-lime-400"
+                className="border-gray-600 hover:border-lime-400"
               >
                 测试邮件通知
               </Button>
               <Button
                 variant="bordered"
-                className="border-gray-600 text-white hover:border-lime-400"
+                className="border-gray-600 hover:border-lime-400"
               >
                 测试推送通知
               </Button>

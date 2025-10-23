@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -112,7 +112,7 @@ export default function ContentPage() {
     return contentData[activeTab] || []
   }
 
-  const filteredContent = getAllContent().filter(item => 
+  const filteredContent = getAllContent().filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -153,7 +153,7 @@ export default function ContentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -189,8 +189,8 @@ export default function ContentPage() {
         </div>
 
         {/* 内容标签页 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -204,21 +204,21 @@ export default function ContentPage() {
         {/* 内容网格 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredContent.map((content) => (
-            <Card 
-              key={content.id} 
-              className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
+            <Card
+              key={content.id}
+              className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
               isPressable
               onPress={() => handleContentClick(content)}
             >
               <CardHeader className="p-0">
                 <div className="relative w-full h-48">
-                  <img 
-                    src={content.thumbnail} 
+                  <img
+                    src={content.thumbnail}
                     alt={content.title}
                     className="w-full h-full object-cover rounded-t-lg"
                   />
                   <div className="absolute top-2 right-2">
-                    <Chip 
+                    <Chip
                       color={getLevelColor(content.requiredLevel)}
                       size="sm"
                       variant="flat"
@@ -235,7 +235,7 @@ export default function ContentPage() {
               </CardHeader>
               <CardBody className="p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-white line-clamp-2">
+                  <h3 className="text-lg font-semibold text-foreground line-clamp-2">
                     {content.title}
                   </h3>
                   <div className="flex items-center gap-1 text-yellow-400">
@@ -243,7 +243,7 @@ export default function ContentPage() {
                     <span className="text-sm">{content.rating}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mb-3">
                   <Avatar size="sm" />
                   <span className="text-gray-400 text-sm">{content.creator}</span>
@@ -287,25 +287,25 @@ export default function ContentPage() {
         {filteredContent.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">
-                  <Search size={64} className="text-gray-400 mx-auto" />
-                </div>
+              <Search size={64} className="text-gray-400 mx-auto" />
+            </div>
             <h3 className="text-xl font-semibold mb-2">没有找到相关内容</h3>
             <p className="text-gray-400">尝试调整搜索条件或浏览其他分类</p>
           </div>
         )}
       </main>
 
-      <Modal 
-        isOpen={isContentOpen} 
+      <Modal
+        isOpen={isContentOpen}
         onClose={onContentClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-content1 text-foreground"
       >
         <ModalContent>
           <ModalHeader>
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-bold">{selectedContent?.title}</h2>
-              <Chip 
+              <Chip
                 color={getLevelColor(selectedContent?.requiredLevel)}
                 size="sm"
                 variant="flat"
@@ -317,12 +317,12 @@ export default function ContentPage() {
           <ModalBody>
             {selectedContent && (
               <div className="space-y-4">
-                <img 
-                  src={selectedContent.thumbnail} 
+                <img
+                  src={selectedContent.thumbnail}
                   alt={selectedContent.title}
                   className="w-full h-64 object-cover rounded-lg"
                 />
-                
+
                 <div className="flex items-center gap-3">
                   <Avatar size="md" />
                   <div>
@@ -361,13 +361,13 @@ export default function ContentPage() {
                   </div>
                 </div>
 
-                <div className="bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2">内容描述</h4>
-                  <p className="text-gray-300 text-sm">
-                    这是一个高质量的{selectedContent.type}，由专业{selectedContent.creator}精心制作。
-                    包含多种风格和用途，适合各种创意项目使用。
-                  </p>
-                </div>
+                <div className="bg-content2 p-4 rounded-lg">
+                   <h4 className="font-semibold mb-2">内容描述</h4>
+                   <p className="text-gray-300 text-sm">
+                     这是一个高质量的{selectedContent.type}，由专业{selectedContent.creator}精心制作。
+                     包含多种风格和用途，适合各种创意项目使用。
+                   </p>
+                 </div>
               </div>
             )}
           </ModalBody>
@@ -375,7 +375,7 @@ export default function ContentPage() {
             <Button variant="light" onPress={onContentClose}>
               关闭
             </Button>
-            <Button 
+            <Button
               color="primary"
               isDisabled={!canAccess(selectedContent?.requiredLevel)}
               onPress={() => {

@@ -7,7 +7,7 @@ import { Share, Gift, UserPlus, Clipboard } from 'lucide-react';
 export default function ReferralPage() {
   const [referralCode] = useState('MASTERA2024XYZ');
   const [copied, setCopied] = useState(false);
-  
+
   const referralStats = {
     totalInvites: 12,
     successfulSignups: 8,
@@ -43,11 +43,11 @@ export default function ReferralPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-white mb-4">邀请好友，共享收益</h1>
+          <h1 className="text-4xl font-bold mb-4">邀请好友，共享收益</h1>
           <p className="text-gray-400 text-lg">每成功邀请一位好友注册，您和好友都将获得 500 Mastera Points</p>
         </div>
 
@@ -59,21 +59,21 @@ export default function ReferralPage() {
               <div className="text-gray-400 text-sm">总邀请数</div>
             </CardBody>
           </Card>
-          
+
           <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
             <CardBody className="text-center p-6">
               <div className="text-3xl font-bold text-blue-400">{referralStats.successfulSignups}</div>
               <div className="text-gray-400 text-sm">成功注册</div>
             </CardBody>
           </Card>
-          
+
           <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
             <CardBody className="text-center p-6">
               <div className="text-3xl font-bold text-green-400">{referralStats.totalEarned}</div>
               <div className="text-gray-400 text-sm">已获得积分</div>
             </CardBody>
           </Card>
-          
+
           <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
             <CardBody className="text-center p-6">
               <div className="text-3xl font-bold text-yellow-400">{referralStats.pendingRewards}</div>
@@ -86,7 +86,7 @@ export default function ReferralPage() {
           {/* Referral Code & Sharing */}
           <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
             <CardHeader>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold flex items-center gap-2">
                 <Share className="w-6 h-6 text-lime-400" />
                 分享您的邀请码
               </h2>
@@ -113,9 +113,9 @@ export default function ReferralPage() {
                 </div>
                 {copied && <p className="text-green-400 text-sm">链接已复制到剪贴板！</p>}
               </div>
-              
+
               <Divider />
-              
+
               <div className="space-y-3">
                 <h3 className="text-white font-semibold">快速分享到</h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -123,7 +123,7 @@ export default function ReferralPage() {
                     <Button
                       key={option.name}
                       variant="bordered"
-                      className="border-gray-700 text-white hover:border-lime-400"
+                      className="border-gray-700 hover:border-lime-400"
                       startContent={<span className="text-lg">{option.icon}</span>}
                     >
                       {option.name}
@@ -137,7 +137,7 @@ export default function ReferralPage() {
           {/* Reward Tiers */}
           <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
             <CardHeader>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold flex items-center gap-2">
                 <Gift className="w-6 h-6 text-lime-400" />
                 奖励等级
               </h2>
@@ -149,7 +149,7 @@ export default function ReferralPage() {
                     <span className="text-white font-medium">{tier.invites} 位好友</span>
                     <Chip
                       size="sm"
-                      className={tier.achieved ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-300'}
+                      className={tier.achieved ? 'bg-green-500' : 'bg-gray-700 text-gray-300'}
                     >
                       {tier.achieved ? '已达成' : '未达成'}
                     </Chip>
@@ -173,7 +173,7 @@ export default function ReferralPage() {
         {/* Referral History */}
         <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
           <CardHeader>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold flex items-center gap-2">
               <UserPlus className="w-6 h-6 text-lime-400" />
               邀请记录
             </h2>
@@ -196,8 +196,8 @@ export default function ReferralPage() {
                     <Chip
                       size="sm"
                       className={
-                        referral.status === 'active' 
-                          ? 'bg-green-500 text-white' 
+                        referral.status === 'active'
+                          ? 'bg-green-500'
                           : 'bg-yellow-500 text-black'
                       }
                     >
@@ -214,7 +214,7 @@ export default function ReferralPage() {
         {/* How it Works */}
         <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
           <CardHeader>
-            <h2 className="text-xl font-bold text-white">邀请机制说明</h2>
+            <h2 className="text-xl font-bold">邀请机制说明</h2>
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -225,7 +225,7 @@ export default function ReferralPage() {
                 <h3 className="text-white font-semibold">分享邀请链接</h3>
                 <p className="text-gray-400 text-sm">将您的专属邀请链接分享给好友</p>
               </div>
-              
+
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 bg-lime-400 rounded-full flex items-center justify-center mx-auto">
                   <span className="text-black font-bold text-xl">2</span>
@@ -233,7 +233,7 @@ export default function ReferralPage() {
                 <h3 className="text-white font-semibold">好友注册激活</h3>
                 <p className="text-gray-400 text-sm">好友通过链接注册并完成账户激活</p>
               </div>
-              
+
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 bg-lime-400 rounded-full flex items-center justify-center mx-auto">
                   <span className="text-black font-bold text-xl">3</span>

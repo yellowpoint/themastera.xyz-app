@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Chip,
@@ -28,7 +28,7 @@ import {
 export default function CookiesPage() {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure()
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure()
-  
+
   const [cookieSettings, setCookieSettings] = useState({
     necessary: true, // 必要Cookie不能关闭
     functional: true,
@@ -130,7 +130,7 @@ export default function CookiesPage() {
 
   const handleCookieToggle = (type) => {
     if (type === 'necessary') return // 必要Cookie不能关闭
-    
+
     setCookieSettings(prev => ({
       ...prev,
       [type]: !prev[type]
@@ -148,7 +148,7 @@ export default function CookiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -157,7 +157,7 @@ export default function CookiesPage() {
           <p className="text-xl text-gray-400 mb-6">
             了解我们如何使用Cookie来改善您的浏览体验
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400 mb-6">
             <div className="flex items-center gap-2">
               <Chip color="primary" variant="flat" size="sm">最后更新</Chip>
@@ -206,7 +206,7 @@ export default function CookiesPage() {
         </Card>
 
         {/* Cookie类型详情 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">🍪 Cookie类型详情</h2>
           </CardHeader>
@@ -241,7 +241,7 @@ export default function CookiesPage() {
                 >
                   <div className="pb-4 space-y-4">
                     <p className="text-gray-300">{type.description}</p>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="font-semibold text-blue-400 mb-2">🎯 用途</h4>
@@ -271,7 +271,7 @@ export default function CookiesPage() {
         </Card>
 
         {/* 第三方Cookie */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">🌐 第三方Cookie</h2>
           </CardHeader>
@@ -279,8 +279,8 @@ export default function CookiesPage() {
             <p className="text-gray-400 mb-4">
               我们使用以下第三方服务，它们可能会设置自己的Cookie：
             </p>
-            
-            <Table 
+
+            <Table
               aria-label="第三方Cookie表格"
               className="bg-gray-800"
               removeWrapper
@@ -395,7 +395,7 @@ export default function CookiesPage() {
         </Card>
 
         {/* 联系信息 */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-content1 border-divider">
           <CardHeader>
             <h2 className="text-xl font-bold">📞 联系我们</h2>
           </CardHeader>
@@ -403,20 +403,20 @@ export default function CookiesPage() {
             <p className="text-gray-300 mb-4">
               如果您对我们的Cookie政策有任何疑问，请随时联系我们：
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">📧</div>
                 <h4 className="font-semibold mb-1">邮箱咨询</h4>
                 <p className="text-sm text-gray-400">privacy@mastera.xyz</p>
               </div>
-              
+
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">💬</div>
                 <h4 className="font-semibold mb-1">在线客服</h4>
                 <p className="text-sm text-gray-400">工作日 9:00-18:00</p>
               </div>
-              
+
               <div className="bg-gray-800 p-4 rounded-lg text-center">
                 <div className="text-2xl mb-2">📱</div>
                 <h4 className="font-semibold mb-1">客服热线</h4>
@@ -427,11 +427,11 @@ export default function CookiesPage() {
         </Card>
       </main>
 
-      <Modal 
-        isOpen={isSettingsOpen} 
+      <Modal
+        isOpen={isSettingsOpen}
         onClose={onSettingsClose}
         size="3xl"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <ModalContent>
           <ModalHeader>
@@ -491,11 +491,11 @@ export default function CookiesPage() {
       </Modal>
 
       {/* 联系咨询模态框 */}
-      <Modal 
-        isOpen={isContactOpen} 
+      <Modal
+        isOpen={isContactOpen}
         onClose={onContactClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-gray-900"
       >
         <ModalContent>
           <ModalHeader>
@@ -524,12 +524,12 @@ export default function CookiesPage() {
                   type="email"
                 />
               </div>
-              
+
               <Input
                 label="咨询主题"
                 placeholder="请简要描述您的Cookie相关问题"
               />
-              
+
               <Textarea
                 label="详细描述"
                 placeholder="请详细描述您的问题或需要了解的内容"

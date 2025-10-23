@@ -20,15 +20,15 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/react";
-import { 
-  Search, 
-  Upload, 
-  Filter, 
-  Grid, 
-  List, 
-  Play, 
-  Eye, 
-  Heart, 
+import {
+  Search,
+  Upload,
+  Filter,
+  Grid,
+  List,
+  Play,
+  Eye,
+  Heart,
   Share2,
   Palette,
   Music,
@@ -171,13 +171,13 @@ export default function HomePage() {
             {work.category === '插画' && <PenTool size={48} />}
           </div>
           {/* 悬停播放按钮 */}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Button isIconOnly size="lg" className="bg-white/20 backdrop-blur-sm">
+          <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Button isIconOnly size="lg" className="bg-background/20 backdrop-blur-sm">
               <Play className="w-6 h-6" />
             </Button>
           </div>
           {/* 时长标签 */}
-          <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+          <div className="absolute bottom-2 right-2 bg-background/80 text-foreground text-xs px-2 py-1 rounded">
             {work.duration}
           </div>
           {/* Premium标签 */}
@@ -302,7 +302,7 @@ export default function HomePage() {
                         {work.category === '设计' && <Monitor size={32} />}
                         {work.category === '插画' && <PenTool size={32} />}
                       </div>
-                      <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
+                      <div className="absolute bottom-1 right-1 bg-background/80 text-foreground text-xs px-1 py-0.5 rounded">
                         {work.duration}
                       </div>
                     </div>

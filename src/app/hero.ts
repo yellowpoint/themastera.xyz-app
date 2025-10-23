@@ -7,8 +7,21 @@ export default heroui({
     radius: {},
   },
   themes: {
+    light: {
+      colors: {
+        background: "#ffffff",
+        foreground: "#11181C",
+        primary: {
+          DEFAULT: "#BEF264",
+          foreground: "#000000",
+        },
+        focus: "#BEF264",
+      },
+    },
     dark: {
       colors: {
+        background: "#000000",
+        foreground: "#ECEDEE",
         primary: {
           DEFAULT: "#BEF264",
           foreground: "#000000",

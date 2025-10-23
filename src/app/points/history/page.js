@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Chip,
@@ -108,7 +108,7 @@ export default function PointsHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="mb-8">
@@ -164,7 +164,7 @@ export default function PointsHistoryPage() {
         </div>
 
         {/* 筛选控件 */}
-        <Card className="bg-gray-900 border-gray-800 mb-6">
+        <Card className="bg-content1 border-divider mb-6">
           <CardBody className="p-6">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-48">
@@ -180,7 +180,7 @@ export default function PointsHistoryPage() {
                   ))}
                 </Select>
               </div>
-              
+
               <Button color="primary" variant="bordered">
                 导出记录
               </Button>
@@ -189,7 +189,7 @@ export default function PointsHistoryPage() {
         </Card>
 
         {/* 积分记录表格 */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-content1 border-divider">
           <CardHeader>
             <h3 className="text-xl font-semibold">积分记录详情</h3>
           </CardHeader>
@@ -215,8 +215,8 @@ export default function PointsHistoryPage() {
                       <div className="font-medium">{record.action}</div>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        size="sm" 
+                      <Chip
+                        size="sm"
                         color={getCategoryColor(record.category)}
                         variant="flat"
                       >
@@ -276,6 +276,6 @@ export default function PointsHistoryPage() {
         </Card>
       </main>
 
-      </div>
+    </div>
   )
 }

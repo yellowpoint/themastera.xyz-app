@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -208,8 +208,8 @@ export default function HelpPage() {
   // 筛选FAQ
   const filteredFaqs = faqs.filter(faq => {
     const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         faq.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory
     return matchesSearch && matchesCategory
   })
@@ -248,7 +248,7 @@ export default function HelpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -256,7 +256,7 @@ export default function HelpPage() {
           <p className="text-xl text-gray-400 mb-8">
             我们随时为您提供帮助和支持
           </p>
-          
+
           {/* 快速搜索 */}
           <div className="max-w-2xl mx-auto">
             <Input
@@ -271,8 +271,8 @@ export default function HelpPage() {
         </div>
 
         {/* 标签页导航 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -307,9 +307,9 @@ export default function HelpPage() {
                   key={faq.id}
                   title={
                     <div className="flex items-center gap-3">
-                      <Chip 
-                        color={getCategoryColor(faq.category)} 
-                        variant="flat" 
+                      <Chip
+                        color={getCategoryColor(faq.category)}
+                        variant="flat"
                         size="sm"
                       >
                         {getCategoryName(faq.category)}
@@ -317,8 +317,7 @@ export default function HelpPage() {
                       <span className="font-medium">{faq.question}</span>
                     </div>
                   }
-                  className="bg-gray-900 border-gray-800"
-                >
+                  className="bg-content1 border-divider">
                   <div className="pb-4">
                     <p className="text-gray-300 mb-4">{faq.answer}</p>
                     <div className="flex flex-wrap gap-2">
@@ -352,10 +351,10 @@ export default function HelpPage() {
         {activeTab === 'guides' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {guides.map((guide) => (
-              <Card 
-                key={guide.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
-              >
+               <Card
+                 key={guide.id}
+                 className="bg-content1 border-divider hover:border-lime-400/50 transition-all"
+               >
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{guide.icon}</div>
@@ -365,15 +364,15 @@ export default function HelpPage() {
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardBody className="pt-2">
                   <div className="flex gap-4 mb-4 text-sm">
                     <Chip color="primary" variant="flat" size="sm">
                       ⏱️ {guide.duration}
                     </Chip>
-                    <Chip 
-                      color={guide.difficulty === '简单' ? 'success' : 'warning'} 
-                      variant="flat" 
+                    <Chip
+                      color={guide.difficulty === '简单' ? 'success' : 'warning'}
+                      variant="flat"
                       size="sm"
                     >
                       📊 {guide.difficulty}
@@ -405,20 +404,19 @@ export default function HelpPage() {
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {contactMethods.map((method) => (
-                <Card 
-                  key={method.id} 
-                  className={`bg-gray-900 border-gray-800 transition-all ${
-                    method.available ? 'hover:border-lime-400/50 cursor-pointer' : 'opacity-50'
-                  }`}
-                  isPressable={method.available}
-                >
+                <Card
+                   key={method.id}
+                   className={`bg-content1 border-divider transition-all ${method.available ? 'hover:border-lime-400/50 cursor-pointer' : 'opacity-50'
+                     }`}
+                   isPressable={method.available}
+                 >
                   <CardBody className="text-center p-6">
                     <div className="text-4xl mb-3">{method.icon}</div>
                     <h3 className="text-lg font-semibold mb-2">{method.name}</h3>
                     <p className="text-gray-400 text-sm mb-4">{method.description}</p>
-                    <Button 
-                      color="primary" 
-                      size="sm" 
+                    <Button
+                      color="primary"
+                      size="sm"
                       disabled={!method.available}
                       onPress={method.id === 1 ? onContactOpen : undefined}
                     >
@@ -430,10 +428,10 @@ export default function HelpPage() {
             </div>
 
             {/* 反馈建议 */}
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <h2 className="text-xl font-bold">💡 意见反馈</h2>
-              </CardHeader>
+             <Card className="bg-content1 border-divider">
+               <CardHeader>
+                 <h2 className="text-xl font-bold">💡 意见反馈</h2>
+               </CardHeader>
               <CardBody>
                 <p className="text-gray-400 mb-4">
                   您的建议对我们非常重要，帮助我们不断改进产品和服务
@@ -447,12 +445,12 @@ export default function HelpPage() {
         )}
       </main>
 
-      <Modal 
-        isOpen={isContactOpen} 
-        onClose={onContactClose}
-        size="2xl"
-        className="bg-gray-900 text-white"
-      >
+      <Modal
+         isOpen={isContactOpen}
+         onClose={onContactClose}
+         size="2xl"
+         className="bg-content1"
+       >
         <ModalContent>
           <ModalHeader>
             <h2 className="text-xl font-bold">联系客服</h2>
@@ -470,7 +468,7 @@ export default function HelpPage() {
                   type="email"
                 />
               </div>
-              
+
               <Select
                 label="问题类型"
                 placeholder="请选择问题类型"
@@ -486,21 +484,21 @@ export default function HelpPage() {
                 label="问题标题"
                 placeholder="简要描述您的问题"
               />
-              
+
               <Textarea
                 label="详细描述"
                 placeholder="请详细描述您遇到的问题，我们会尽快为您解决"
                 minRows={4}
               />
 
-              <div className="bg-gray-800 p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">📋 提交前请确认：</h4>
-                <ul className="text-sm text-gray-400 space-y-1">
-                  <li>• 已尝试在常见问题中寻找答案</li>
-                  <li>• 提供了详细的问题描述</li>
-                  <li>• 留下了有效的联系方式</li>
-                </ul>
-              </div>
+              <div className="bg-content2 p-4 rounded-lg">
+                 <h4 className="font-semibold mb-2">📋 提交前请确认：</h4>
+                 <ul className="text-sm text-gray-400 space-y-1">
+                   <li>• 已尝试在常见问题中寻找答案</li>
+                   <li>• 提供了详细的问题描述</li>
+                   <li>• 留下了有效的联系方式</li>
+                 </ul>
+               </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -515,12 +513,12 @@ export default function HelpPage() {
       </Modal>
 
       {/* 反馈建议模态框 */}
-      <Modal 
-        isOpen={isFeedbackOpen} 
-        onClose={onFeedbackClose}
-        size="2xl"
-        className="bg-gray-900 text-white"
-      >
+       <Modal
+         isOpen={isFeedbackOpen}
+         onClose={onFeedbackClose}
+         size="2xl"
+         className="bg-content1"
+       >
         <ModalContent>
           <ModalHeader>
             <h2 className="text-xl font-bold">💡 意见反馈</h2>
@@ -542,7 +540,7 @@ export default function HelpPage() {
                 label="反馈标题"
                 placeholder="简要概括您的建议"
               />
-              
+
               <Textarea
                 label="详细内容"
                 placeholder="请详细描述您的建议或遇到的问题"

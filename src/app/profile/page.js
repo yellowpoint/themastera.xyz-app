@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -24,15 +24,15 @@ import {
   Divider,
   Badge
 } from '@heroui/react'
-import { 
-  Star, 
-  Heart, 
-  Handshake, 
-  Palette, 
-  TrendingUp, 
-  MapPin, 
-  Globe, 
-  MessageSquare, 
+import {
+  Star,
+  Heart,
+  Handshake,
+  Palette,
+  TrendingUp,
+  MapPin,
+  Globe,
+  MessageSquare,
   Eye,
   Calendar,
   Check
@@ -41,7 +41,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isEditing, setIsEditing] = useState(false)
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
-  
+
   // 模拟用户数据
   const [userProfile, setUserProfile] = useState({
     name: "创作大师",
@@ -208,17 +208,17 @@ export default function ProfilePage() {
       "MasterCreator": 15000,
       "LegendCreator": 50000
     }
-    
+
     const currentThreshold = levelThresholds[userProfile.level] || 0
-    const nextLevel = Object.keys(levelThresholds).find(level => 
+    const nextLevel = Object.keys(levelThresholds).find(level =>
       levelThresholds[level] > currentThreshold
     )
-    
+
     if (!nextLevel) return { progress: 100, nextLevel: "Max Level", needed: 0 }
-    
+
     const nextThreshold = levelThresholds[nextLevel]
     const progress = ((userProfile.points - currentThreshold) / (nextThreshold - currentThreshold)) * 100
-    
+
     return {
       progress: Math.min(progress, 100),
       nextLevel,
@@ -229,25 +229,25 @@ export default function ProfilePage() {
   const levelProgress = getProgressToNextLevel()
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 用户头部信息 */}
         <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700 mb-8">
           <CardBody className="p-8">
             <div className="flex flex-col md:flex-row items-start gap-6">
               <div className="relative">
-                <Avatar 
-                  src={userProfile.avatar} 
+                <Avatar
+                  src={userProfile.avatar}
                   className="w-32 h-32"
                 />
-                <Badge 
-                  content={userProfile.level} 
+                <Badge
+                  content={userProfile.level}
                   color={getLevelColor(userProfile.level)}
                   placement="bottom-right"
                   className="text-xs"
                 />
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <div>
@@ -259,9 +259,9 @@ export default function ProfilePage() {
                         {userProfile.location}
                       </span>
                       <span className="flex items-center gap-1">
-                         <Calendar size={16} className="text-gray-400" />
-                         加入于 {userProfile.joinDate}
-                       </span>
+                        <Calendar size={16} className="text-gray-400" />
+                        加入于 {userProfile.joinDate}
+                      </span>
                       {userProfile.website && (
                         <a href={userProfile.website} className="text-lime-400 hover:underline flex items-center gap-1">
                           <Globe size={16} className="text-lime-400" />
@@ -270,9 +270,9 @@ export default function ProfilePage() {
                       )}
                     </div>
                   </div>
-                  
-                  <Button 
-                    color="primary" 
+
+                  <Button
+                    color="primary"
                     variant="bordered"
                     onPress={onEditOpen}
                   >
@@ -305,16 +305,16 @@ export default function ProfilePage() {
                 </div>
 
                 {/* 等级进度 */}
-                <div className="bg-gray-800/50 rounded-lg p-4">
+                <div className="bg-content2/50 rounded-lg p-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm text-gray-400">等级进度</span>
                     <span className="text-sm">
-                      {levelProgress.nextLevel === "Max Level" ? "已达最高等级" : 
-                       `距离 ${levelProgress.nextLevel} 还需 ${levelProgress.needed} 积分`}
+                      {levelProgress.nextLevel === "Max Level" ? "已达最高等级" :
+                        `距离 ${levelProgress.nextLevel} 还需 ${levelProgress.needed} 积分`}
                     </span>
                   </div>
-                  <Progress 
-                    value={levelProgress.progress} 
+                  <Progress
+                    value={levelProgress.progress}
                     color="primary"
                     className="w-full"
                   />
@@ -325,8 +325,8 @@ export default function ProfilePage() {
         </Card>
 
         {/* 内容标签页 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-8"
           color="primary"
@@ -342,39 +342,39 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* 技能标签 */}
-              <Card className="bg-gray-900 border-gray-800">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">专业技能</h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="flex flex-wrap gap-2">
-                    {userProfile.skills.map((skill, index) => (
-                      <Chip key={index} color="primary" variant="flat">
-                        {skill}
-                      </Chip>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
+               <Card className="bg-content1 border-divider">
+                 <CardHeader>
+                   <h3 className="text-xl font-semibold">专业技能</h3>
+                 </CardHeader>
+                 <CardBody>
+                   <div className="flex flex-wrap gap-2">
+                     {userProfile.skills.map((skill, index) => (
+                       <Chip key={index} color="primary" variant="flat">
+                         {skill}
+                       </Chip>
+                     ))}
+                   </div>
+                 </CardBody>
+               </Card>
 
-              {/* 兴趣爱好 */}
-              <Card className="bg-gray-900 border-gray-800">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">兴趣爱好</h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="flex flex-wrap gap-2">
-                    {userProfile.interests.map((interest, index) => (
-                      <Chip key={index} color="secondary" variant="flat">
-                        {interest}
-                      </Chip>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
+               {/* 兴趣爱好 */}
+               <Card className="bg-content1 border-divider">
+                 <CardHeader>
+                   <h3 className="text-xl font-semibold">兴趣爱好</h3>
+                 </CardHeader>
+                 <CardBody>
+                   <div className="flex flex-wrap gap-2">
+                     {userProfile.interests.map((interest, index) => (
+                       <Chip key={index} color="secondary" variant="flat">
+                         {interest}
+                       </Chip>
+                     ))}
+                   </div>
+                 </CardBody>
+               </Card>
 
-              {/* 精选作品 */}
-              <Card className="bg-gray-900 border-gray-800">
+               {/* 精选作品 */}
+               <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">精选作品</h3>
                 </CardHeader>
@@ -382,8 +382,8 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userWorks.filter(work => work.featured).map((work) => (
                       <div key={work.id} className="relative group cursor-pointer">
-                        <img 
-                          src={work.thumbnail} 
+                        <img
+                          src={work.thumbnail}
                           alt={work.title}
                           className="w-full h-40 object-cover rounded-lg"
                         />
@@ -401,28 +401,28 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-6">
-              {/* 最新成就 */}
-              <Card className="bg-gray-900 border-gray-800">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">最新成就</h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="space-y-3">
-                    {achievements.filter(a => a.unlocked).slice(0, 3).map((achievement) => (
-                      <div key={achievement.id} className="flex items-center gap-3">
-                        <div className="text-2xl">{achievement.icon}</div>
-                        <div>
-                          <p className="font-semibold text-sm">{achievement.title}</p>
-                          <p className="text-xs text-gray-400">{achievement.date}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
+               {/* 最新成就 */}
+               <Card className="bg-content1 border-divider">
+                 <CardHeader>
+                   <h3 className="text-xl font-semibold">最新成就</h3>
+                 </CardHeader>
+                 <CardBody>
+                   <div className="space-y-3">
+                     {achievements.filter(a => a.unlocked).slice(0, 3).map((achievement) => (
+                       <div key={achievement.id} className="flex items-center gap-3">
+                         <div className="text-2xl">{achievement.icon}</div>
+                         <div>
+                           <p className="font-semibold text-sm">{achievement.title}</p>
+                           <p className="text-xs text-gray-400">{achievement.date}</p>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </CardBody>
+               </Card>
 
-              {/* 最近活动 */}
-              <Card className="bg-gray-900 border-gray-800">
+               {/* 最近活动 */}
+               <Card className="bg-content1 border-divider">
                 <CardHeader>
                   <h3 className="text-xl font-semibold">最近活动</h3>
                 </CardHeader>
@@ -450,13 +450,13 @@ export default function ProfilePage() {
         {activeTab === 'works' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userWorks.map((work) => (
-              <Card 
-                key={work.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
-              >
+              <Card
+                 key={work.id}
+                 className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
+               >
                 <CardHeader className="p-0 relative">
-                  <img 
-                    src={work.thumbnail} 
+                  <img
+                    src={work.thumbnail}
                     alt={work.title}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                 <CardBody className="p-4">
                   <h3 className="text-lg font-semibold mb-2">{work.title}</h3>
                   <p className="text-gray-400 text-sm mb-3">{work.category}</p>
-                  
+
                   <div className="flex justify-between items-center text-sm text-gray-400">
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1">
@@ -496,19 +496,18 @@ export default function ProfilePage() {
         {activeTab === 'achievements' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {achievements.map((achievement) => (
-              <Card 
-                key={achievement.id} 
-                className={`border-gray-800 ${
-                  achievement.unlocked 
-                    ? 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-700/50' 
-                    : 'bg-gray-900 opacity-60'
-                }`}
+              <Card
+                key={achievement.id}
+                className={`border-gray-800 ${achievement.unlocked
+                   ? 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-700/50'
+                   : 'bg-content1 opacity-60'
+                   }`}
               >
                 <CardBody className="p-6 text-center">
                   <div className="text-4xl mb-3">{achievement.icon}</div>
                   <h3 className="text-lg font-semibold mb-2">{achievement.title}</h3>
                   <p className="text-gray-400 text-sm mb-4">{achievement.description}</p>
-                  
+
                   {achievement.unlocked ? (
                     <div>
                       <Chip color="success" variant="flat" size="sm">
@@ -519,8 +518,8 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div>
-                      <Progress 
-                        value={achievement.progress || 0} 
+                      <Progress
+                        value={achievement.progress || 0}
                         color="warning"
                         className="w-full mb-2"
                       />
@@ -539,7 +538,7 @@ export default function ProfilePage() {
         {activeTab === 'activities' && (
           <div className="space-y-4">
             {activities.map((activity) => (
-              <Card key={activity.id} className="bg-gray-900 border-gray-800">
+              <Card key={activity.id} className="bg-content1 border-divider">
                 <CardBody className="p-4">
                   <div className="flex items-center gap-4">
                     <div className="text-2xl">{activity.icon}</div>
@@ -557,11 +556,11 @@ export default function ProfilePage() {
         )}
       </main>
 
-      <Modal 
-        isOpen={isEditOpen} 
+      <Modal
+        isOpen={isEditOpen}
         onClose={onEditClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -572,26 +571,26 @@ export default function ProfilePage() {
               <Input
                 label="用户名"
                 value={userProfile.name}
-                onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
               />
-              
+
               <Textarea
                 label="个人简介"
                 value={userProfile.bio}
-                onChange={(e) => setUserProfile({...userProfile, bio: e.target.value})}
+                onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
                 minRows={3}
               />
 
               <Input
                 label="所在地"
                 value={userProfile.location}
-                onChange={(e) => setUserProfile({...userProfile, location: e.target.value})}
+                onChange={(e) => setUserProfile({ ...userProfile, location: e.target.value })}
               />
 
               <Input
                 label="个人网站"
                 value={userProfile.website}
-                onChange={(e) => setUserProfile({...userProfile, website: e.target.value})}
+                onChange={(e) => setUserProfile({ ...userProfile, website: e.target.value })}
               />
             </div>
           </ModalBody>

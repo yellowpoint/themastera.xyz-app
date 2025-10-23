@@ -46,21 +46,21 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-black border-t border-gray-800 mt-20">
+    <footer className="bg-content1 border-t border-divider mt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* 主要内容区域 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* 品牌信息 */}
           <div className="lg:col-span-1">
-            <h3 className="text-2xl font-bold text-white mb-4">Mastera</h3>
-            <p className="text-gray-400 text-sm mb-6">
+            <h3 className="text-2xl font-bold text-foreground mb-4">Mastera</h3>
+            <p className="text-foreground-500 text-sm mb-6">
               连接创作者与粉丝的创意平台，让每个人都能发现和分享精彩内容。
             </p>
             <div className="flex space-x-4">
               <Button
                 isIconOnly
                 variant="light"
-                className="text-gray-400 hover:text-lime-400"
+                className="text-foreground-500 hover:text-lime-400"
                 aria-label="Twitter"
               >
                 <Twitter size={20} />
@@ -68,7 +68,7 @@ export default function Footer() {
               <Button
                 isIconOnly
                 variant="light"
-                className="text-gray-400 hover:text-lime-400"
+                className="text-foreground-500 hover:text-lime-400"
                 aria-label="Discord"
               >
                 <MessageCircle size={20} />
@@ -76,7 +76,7 @@ export default function Footer() {
               <Button
                 isIconOnly
                 variant="light"
-                className="text-gray-400 hover:text-lime-400"
+                className="text-foreground-500 hover:text-lime-400"
                 aria-label="Telegram"
               >
                 <Send size={20} />
@@ -84,7 +84,7 @@ export default function Footer() {
               <Button
                 isIconOnly
                 variant="light"
-                className="text-gray-400 hover:text-lime-400"
+                className="text-foreground-500 hover:text-lime-400"
                 aria-label="Instagram"
               >
                 <Instagram size={20} />
@@ -95,13 +95,13 @@ export default function Footer() {
           {/* 链接区域 */}
           {footerSections.map((section) => (
             <div key={section.title}>
-              <h4 className="text-white font-semibold mb-4">{section.title}</h4>
+              <h4 className="text-foreground font-semibold mb-4">{section.title}</h4>
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-gray-400 hover:text-lime-400 text-sm transition-colors"
+                      className="text-foreground-500 hover:text-lime-400 text-sm transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -112,25 +112,25 @@ export default function Footer() {
           ))}
         </div>
 
-        <Divider className="my-8 bg-gray-800" />
+        <Divider className="my-8 bg-divider" />
 
         {/* 底部信息 */}
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="text-gray-400 text-sm mb-4 md:mb-0">
+          <div className="text-foreground-500 text-sm mb-4 md:mb-0">
             © {currentYear} Mastera Platform. 保留所有权利。
           </div>
 
           <div className="flex flex-wrap gap-6 text-sm">
-            <Link href="/privacy" className="text-gray-400 hover:text-lime-400">
+            <Link href="/privacy" className="text-foreground-500 hover:text-lime-400">
               隐私政策
             </Link>
-            <Link href="/terms" className="text-gray-400 hover:text-lime-400">
+            <Link href="/terms" className="text-foreground-500 hover:text-lime-400">
               服务条款
             </Link>
-            <Link href="/cookies" className="text-gray-400 hover:text-lime-400">
+            <Link href="/cookies" className="text-foreground-500 hover:text-lime-400">
               Cookie 政策
             </Link>
-            <Link href="/accessibility" className="text-gray-400 hover:text-lime-400">
+            <Link href="/accessibility" className="text-foreground-500 hover:text-lime-400">
               无障碍声明
             </Link>
           </div>

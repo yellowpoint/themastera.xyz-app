@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Tabs,
@@ -247,7 +247,7 @@ export default function FavoritesPage() {
 
   const filteredContent = favoriteContent.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.creator.toLowerCase().includes(searchQuery.toLowerCase())
+      item.creator.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = filterCategory === 'all' || item.category === filterCategory
     return matchesSearch && matchesCategory
   })
@@ -268,24 +268,24 @@ export default function FavoritesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">我的收藏</h1>
             <p className="text-gray-400">管理您收藏的内容、创作者和圈子</p>
           </div>
-          
+
           <div className="flex gap-2 mt-4 md:mt-0">
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               onPress={onCreateOpen}
             >
               创建收藏夹
             </Button>
             {selectedItems.size > 0 && (
-              <Button 
-                color="danger" 
+              <Button
+                color="danger"
                 variant="bordered"
                 onPress={onDeleteOpen}
               >
@@ -296,8 +296,8 @@ export default function FavoritesPage() {
         </div>
 
         {/* 标签页导航 */}
-        <Tabs 
-          selectedKey={activeTab} 
+        <Tabs
+          selectedKey={activeTab}
           onSelectionChange={setActiveTab}
           className="mb-6"
           color="primary"
@@ -320,7 +320,7 @@ export default function FavoritesPage() {
                 className="md:w-80"
                 startContent={<Search size={16} className="text-gray-400" />}
               />
-              
+
               <Select
                 label="分类筛选"
                 selectedKeys={[filterCategory]}
@@ -349,20 +349,20 @@ export default function FavoritesPage() {
             {/* 内容网格 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedContent.map((item) => (
-                <Card 
-                  key={item.id} 
-                  className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
-                >
+                <Card
+                   key={item.id}
+                   className="bg-content1 border-divider hover:border-lime-400/50 transition-all"
+                 >
                   <CardHeader className="p-0 relative">
-                    <img 
-                      src={item.thumbnail} 
+                    <img
+                      src={item.thumbnail}
                       alt={item.title}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
                     <div className="absolute top-2 left-2">
-                      <Chip 
-                        color={getCategoryColor(item.category)} 
-                        size="sm" 
+                      <Chip
+                        color={getCategoryColor(item.category)}
+                        size="sm"
                         variant="solid"
                       >
                         {getTypeIcon(item.type)} {item.category}
@@ -391,11 +391,11 @@ export default function FavoritesPage() {
                       </div>
                     )}
                   </CardHeader>
-                  
+
                   <CardBody className="p-4">
                     <h3 className="text-lg font-semibold mb-2 line-clamp-2">{item.title}</h3>
                     <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.description}</p>
-                    
+
                     <div className="flex items-center gap-2 mb-3">
                       <Avatar src={item.creatorAvatar} size="sm" />
                       <span className="text-sm text-gray-300">{item.creator}</span>
@@ -430,8 +430,8 @@ export default function FavoritesPage() {
                         <DropdownMenu>
                           <DropdownItem key="share">分享</DropdownItem>
                           <DropdownItem key="collection">添加到收藏夹</DropdownItem>
-                          <DropdownItem 
-                            key="remove" 
+                          <DropdownItem
+                            key="remove"
                             className="text-danger"
                             onPress={() => handleRemoveFromFavorites('content', item.id)}
                           >
@@ -462,33 +462,33 @@ export default function FavoritesPage() {
         {activeTab === 'creators' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favoriteCreators.map((creator) => (
-              <Card 
-                key={creator.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
+              <Card
+                key={creator.id}
+                className="bg-content1 border-divider hover:border-lime-400/50 transition-all"
               >
                 <CardBody className="p-6 text-center">
-                  <Avatar 
-                    src={creator.avatar} 
+                  <Avatar
+                    src={creator.avatar}
                     className="w-20 h-20 mx-auto mb-4"
                   />
-                  
+
                   <h3 className="text-lg font-semibold mb-2">{creator.name}</h3>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">{creator.bio}</p>
-                  
+
                   <div className="flex justify-center gap-4 mb-4 text-sm text-gray-400">
                     <div>
-                      <p className="font-semibold text-white">{creator.followers.toLocaleString()}</p>
+                      <p className="font-semibold">{creator.followers.toLocaleString()}</p>
                       <p>关注者</p>
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{creator.works}</p>
+                      <p className="font-semibold">{creator.works}</p>
                       <p>作品</p>
                     </div>
                   </div>
 
-                  <Chip 
-                    color={getCategoryColor(creator.category)} 
-                    variant="flat" 
+                  <Chip
+                    color={getCategoryColor(creator.category)}
+                    variant="flat"
                     size="sm"
                     className="mb-4"
                   >
@@ -500,10 +500,10 @@ export default function FavoritesPage() {
                   </p>
 
                   <div className="flex gap-2">
-                    <Button 
-                      color={creator.isFollowing ? "default" : "primary"} 
+                    <Button
+                      color={creator.isFollowing ? "default" : "primary"}
                       variant={creator.isFollowing ? "bordered" : "solid"}
-                      size="sm" 
+                      size="sm"
                       className="flex-1"
                     >
                       {creator.isFollowing ? "已关注" : "关注"}
@@ -526,14 +526,14 @@ export default function FavoritesPage() {
         {activeTab === 'circles' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favoriteCircles.map((circle) => (
-              <Card 
-                key={circle.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all"
+              <Card
+                key={circle.id}
+                className="bg-content1 border-divider hover:border-lime-400/50 transition-all"
               >
                 <CardBody className="p-6">
                   <div className="flex items-start gap-4 mb-4">
-                    <Avatar 
-                      src={circle.avatar} 
+                    <Avatar
+                      src={circle.avatar}
                       className="w-16 h-16"
                     />
                     <div className="flex-1">
@@ -541,21 +541,21 @@ export default function FavoritesPage() {
                       <p className="text-gray-400 text-sm line-clamp-2">{circle.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between mb-4 text-sm text-gray-400">
                     <div>
-                      <p className="font-semibold text-white">{circle.members.toLocaleString()}</p>
+                      <p className="font-semibold">{circle.members.toLocaleString()}</p>
                       <p>成员</p>
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{circle.posts.toLocaleString()}</p>
+                      <p className="font-semibold">{circle.posts.toLocaleString()}</p>
                       <p>帖子</p>
                     </div>
                   </div>
 
-                  <Chip 
-                    color={getCategoryColor(circle.category)} 
-                    variant="flat" 
+                  <Chip
+                    color={getCategoryColor(circle.category)}
+                    variant="flat"
                     size="sm"
                     className="mb-4"
                   >
@@ -567,10 +567,10 @@ export default function FavoritesPage() {
                   </p>
 
                   <div className="flex gap-2">
-                    <Button 
-                      color={circle.isJoined ? "default" : "primary"} 
+                    <Button
+                      color={circle.isJoined ? "default" : "primary"}
                       variant={circle.isJoined ? "bordered" : "solid"}
-                      size="sm" 
+                      size="sm"
                       className="flex-1"
                     >
                       {circle.isJoined ? "已加入" : "加入圈子"}
@@ -593,34 +593,34 @@ export default function FavoritesPage() {
         {activeTab === 'collections' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => (
-              <Card 
-                key={collection.id} 
-                className="bg-gray-900 border-gray-800 hover:border-lime-400/50 transition-all cursor-pointer"
-              >
+              <Card
+                 key={collection.id}
+                 className="bg-content1 border-divider hover:border-lime-400/50 transition-all cursor-pointer"
+               >
                 <CardHeader className="p-0">
-                  <img 
-                    src={collection.thumbnail} 
+                  <img
+                    src={collection.thumbnail}
                     alt={collection.name}
                     className="w-full h-40 object-cover rounded-t-lg"
                   />
                 </CardHeader>
-                
+
                 <CardBody className="p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold">{collection.name}</h3>
-                    <Chip 
-                      color={collection.isPublic ? "success" : "default"} 
-                      variant="flat" 
+                    <Chip
+                      color={collection.isPublic ? "success" : "default"}
+                      variant="flat"
                       size="sm"
                     >
                       {collection.isPublic ? "公开" : "私有"}
                     </Chip>
                   </div>
-                  
+
                   <p className="text-gray-400 text-sm mb-3 line-clamp-2">
                     {collection.description}
                   </p>
-                  
+
                   <div className="flex justify-between items-center text-sm text-gray-400 mb-4">
                     <span>{collection.itemCount} 个项目</span>
                     <span>创建于 {collection.createdDate}</span>
@@ -651,11 +651,11 @@ export default function FavoritesPage() {
             ))}
 
             {/* 创建新收藏夹卡片 */}
-            <Card 
-              className="bg-gray-900 border-gray-800 border-dashed hover:border-lime-400/50 transition-all cursor-pointer"
-              isPressable
-              onPress={onCreateOpen}
-            >
+            <Card
+               className="bg-content1 border-divider border-dashed hover:border-lime-400/50 transition-all cursor-pointer"
+               isPressable
+               onPress={onCreateOpen}
+             >
               <CardBody className="p-6 text-center">
                 <div className="text-4xl mb-4">➕</div>
                 <h3 className="text-lg font-semibold mb-2">创建新收藏夹</h3>
@@ -668,10 +668,10 @@ export default function FavoritesPage() {
         )}
       </main>
 
-      <Modal 
-        isOpen={isCreateOpen} 
+      <Modal
+        isOpen={isCreateOpen}
         onClose={onCreateClose}
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -683,7 +683,7 @@ export default function FavoritesPage() {
                 label="收藏夹名称"
                 placeholder="请输入收藏夹名称"
               />
-              
+
               <Input
                 label="描述"
                 placeholder="简单描述这个收藏夹的用途"
@@ -712,11 +712,11 @@ export default function FavoritesPage() {
       </Modal>
 
       {/* 批量删除确认模态框 */}
-      <Modal 
-        isOpen={isDeleteOpen} 
-        onClose={onDeleteClose}
-        className="bg-gray-900 text-white"
-      >
+      <Modal
+         isOpen={isDeleteOpen}
+         onClose={onDeleteClose}
+         className="bg-content1"
+       >
         <ModalContent>
           <ModalHeader>
             <h2 className="text-xl font-bold text-red-400">确认删除</h2>

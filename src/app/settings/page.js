@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Switch,
@@ -29,7 +29,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('account')
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const { isOpen: isPasswordOpen, onOpen: onPasswordOpen, onClose: onPasswordClose } = useDisclosure()
-  
+
   // 账户设置
   const [accountSettings, setAccountSettings] = useState({
     username: "创作大师",
@@ -130,7 +130,7 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">设置</h1>
@@ -140,10 +140,10 @@ export default function SettingsPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* 侧边栏导航 */}
           <div className="lg:w-64">
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-content1 border-divider">
               <CardBody className="p-0">
-                <Tabs 
-                  selectedKey={activeTab} 
+                <Tabs
+                  selectedKey={activeTab}
                   onSelectionChange={setActiveTab}
                   orientation="vertical"
                   className="w-full"
@@ -164,14 +164,14 @@ export default function SettingsPage() {
             {/* 账户设置 */}
             {activeTab === 'account' && (
               <div className="space-y-6">
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold">基本信息</h2>
-                  </CardHeader>
+                <Card className="bg-content1 border-divider">
+                   <CardHeader>
+                     <h2 className="text-xl font-semibold">基本信息</h2>
+                   </CardHeader>
                   <CardBody className="space-y-4">
                     <div className="flex items-center gap-4 mb-6">
-                      <Avatar 
-                        src="/api/placeholder/80/80" 
+                      <Avatar
+                        src="/api/placeholder/80/80"
                         className="w-20 h-20"
                       />
                       <div>
@@ -189,17 +189,17 @@ export default function SettingsPage() {
                         label="用户名"
                         value={accountSettings.username}
                         onChange={(e) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           username: e.target.value
                         })}
                       />
-                      
+
                       <Input
                         label="邮箱地址"
                         type="email"
                         value={accountSettings.email}
                         onChange={(e) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           email: e.target.value
                         })}
                       />
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                         label="手机号码"
                         value={accountSettings.phone}
                         onChange={(e) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           phone: e.target.value
                         })}
                       />
@@ -217,7 +217,7 @@ export default function SettingsPage() {
                         label="所在地"
                         value={accountSettings.location}
                         onChange={(e) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           location: e.target.value
                         })}
                       />
@@ -226,7 +226,7 @@ export default function SettingsPage() {
                         label="个人网站"
                         value={accountSettings.website}
                         onChange={(e) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           website: e.target.value
                         })}
                       />
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                         label="语言"
                         selectedKeys={[accountSettings.language]}
                         onSelectionChange={(keys) => setAccountSettings({
-                          ...accountSettings, 
+                          ...accountSettings,
                           language: Array.from(keys)[0]
                         })}
                       >
@@ -251,15 +251,15 @@ export default function SettingsPage() {
                       label="个人简介"
                       value={accountSettings.bio}
                       onChange={(e) => setAccountSettings({
-                        ...accountSettings, 
+                        ...accountSettings,
                         bio: e.target.value
                       })}
                       minRows={3}
                     />
 
                     <div className="flex justify-end">
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         onPress={() => handleSaveSettings('account')}
                       >
                         保存更改
@@ -268,62 +268,62 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold">账户操作</h2>
-                  </CardHeader>
-                  <CardBody className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">修改密码</h3>
-                        <p className="text-sm text-gray-400">定期更新密码以保护账户安全</p>
-                      </div>
-                      <Button 
-                        color="primary" 
-                        variant="bordered"
-                        onPress={onPasswordOpen}
-                      >
-                        修改密码
-                      </Button>
-                    </div>
+                <Card className="bg-content1 border-divider">
+                   <CardHeader>
+                     <h2 className="text-xl font-semibold">账户操作</h2>
+                   </CardHeader>
+                   <CardBody className="space-y-4">
+                     <div className="flex justify-between items-center">
+                       <div>
+                         <h3 className="font-semibold">修改密码</h3>
+                         <p className="text-sm text-gray-400">定期更新密码以保护账户安全</p>
+                       </div>
+                       <Button
+                         color="primary"
+                         variant="bordered"
+                         onPress={onPasswordOpen}
+                       >
+                         修改密码
+                       </Button>
+                     </div>
 
-                    <Divider />
+                     <Divider />
 
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold text-red-400">删除账户</h3>
-                        <p className="text-sm text-gray-400">永久删除您的账户和所有数据</p>
-                      </div>
-                      <Button 
-                        color="danger" 
-                        variant="bordered"
-                        onPress={onDeleteOpen}
-                      >
-                        删除账户
-                      </Button>
-                    </div>
-                  </CardBody>
-                </Card>
-              </div>
-            )}
+                     <div className="flex justify-between items-center">
+                       <div>
+                         <h3 className="font-semibold text-red-400">删除账户</h3>
+                         <p className="text-sm text-gray-400">永久删除您的账户和所有数据</p>
+                       </div>
+                       <Button
+                         color="danger"
+                         variant="bordered"
+                         onPress={onDeleteOpen}
+                       >
+                         删除账户
+                       </Button>
+                     </div>
+                   </CardBody>
+                 </Card>
+               </div>
+             )}
 
-            {/* 隐私设置 */}
-            {activeTab === 'privacy' && (
-              <div className="space-y-6">
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold">个人资料隐私</h2>
-                  </CardHeader>
+             {/* 隐私设置 */}
+             {activeTab === 'privacy' && (
+               <div className="space-y-6">
+                 <Card className="bg-content1 border-divider">
+                   <CardHeader>
+                     <h2 className="text-xl font-semibold">个人资料隐私</h2>
+                   </CardHeader>
                   <CardBody className="space-y-4">
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="font-semibold">公开个人资料</h3>
                         <p className="text-sm text-gray-400">允许其他用户查看您的个人资料</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.profilePublic}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           profilePublic: value
                         })}
                       />
@@ -334,10 +334,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">显示邮箱地址</h3>
                         <p className="text-sm text-gray-400">在个人资料中显示邮箱地址</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.showEmail}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           showEmail: value
                         })}
                       />
@@ -348,10 +348,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">显示手机号码</h3>
                         <p className="text-sm text-gray-400">在个人资料中显示手机号码</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.showPhone}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           showPhone: value
                         })}
                       />
@@ -362,10 +362,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">显示在线状态</h3>
                         <p className="text-sm text-gray-400">让其他用户看到您的在线状态</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.showOnlineStatus}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           showOnlineStatus: value
                         })}
                       />
@@ -373,42 +373,42 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold">互动权限</h2>
-                  </CardHeader>
-                  <CardBody className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">允许私信</h3>
-                        <p className="text-sm text-gray-400">允许其他用户向您发送私信</p>
-                      </div>
-                      <Switch 
-                        isSelected={privacySettings.allowMessages}
-                        onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
-                          allowMessages: value
-                        })}
-                      />
-                    </div>
+                <Card className="bg-content1 border-divider">
+                   <CardHeader>
+                     <h2 className="text-xl font-semibold">互动权限</h2>
+                   </CardHeader>
+                   <CardBody className="space-y-4">
+                     <div className="flex justify-between items-center">
+                       <div>
+                         <h3 className="font-semibold">允许私信</h3>
+                         <p className="text-sm text-gray-400">允许其他用户向您发送私信</p>
+                       </div>
+                       <Switch
+                         isSelected={privacySettings.allowMessages}
+                         onValueChange={(value) => setPrivacySettings({
+                           ...privacySettings,
+                           allowMessages: value
+                         })}
+                       />
+                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">允许关注</h3>
-                        <p className="text-sm text-gray-400">允许其他用户关注您</p>
-                      </div>
-                      <Switch 
-                        isSelected={privacySettings.allowFollows}
-                        onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
-                          allowFollows: value
-                        })}
-                      />
-                    </div>
-                  </CardBody>
-                </Card>
+                     <div className="flex justify-between items-center">
+                       <div>
+                         <h3 className="font-semibold">允许关注</h3>
+                         <p className="text-sm text-gray-400">允许其他用户关注您</p>
+                       </div>
+                       <Switch
+                         isSelected={privacySettings.allowFollows}
+                         onValueChange={(value) => setPrivacySettings({
+                           ...privacySettings,
+                           allowFollows: value
+                         })}
+                       />
+                     </div>
+                   </CardBody>
+                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                 <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">数据使用</h2>
                   </CardHeader>
@@ -418,10 +418,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">数据收集</h3>
                         <p className="text-sm text-gray-400">允许收集使用数据以改善服务</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.dataCollection}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           dataCollection: value
                         })}
                       />
@@ -432,10 +432,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">分析追踪</h3>
                         <p className="text-sm text-gray-400">允许使用分析工具追踪使用情况</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.analyticsTracking}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           analyticsTracking: value
                         })}
                       />
@@ -446,18 +446,18 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">第三方共享</h3>
                         <p className="text-sm text-gray-400">允许与合作伙伴共享匿名数据</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={privacySettings.thirdPartySharing}
                         onValueChange={(value) => setPrivacySettings({
-                          ...privacySettings, 
+                          ...privacySettings,
                           thirdPartySharing: value
                         })}
                       />
                     </div>
 
                     <div className="flex justify-end">
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         onPress={() => handleSaveSettings('privacy')}
                       >
                         保存更改
@@ -471,7 +471,7 @@ export default function SettingsPage() {
             {/* 通知设置 */}
             {activeTab === 'notifications' && (
               <div className="space-y-6">
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">通知方式</h2>
                   </CardHeader>
@@ -481,10 +481,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">邮件通知</h3>
                         <p className="text-sm text-gray-400">通过邮件接收通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.emailNotifications}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           emailNotifications: value
                         })}
                       />
@@ -495,10 +495,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">推送通知</h3>
                         <p className="text-sm text-gray-400">通过浏览器推送接收通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.pushNotifications}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           pushNotifications: value
                         })}
                       />
@@ -509,10 +509,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">短信通知</h3>
                         <p className="text-sm text-gray-400">通过短信接收重要通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.smsNotifications}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           smsNotifications: value
                         })}
                       />
@@ -520,7 +520,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">通知内容</h2>
                   </CardHeader>
@@ -530,10 +530,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">新关注者</h3>
                         <p className="text-sm text-gray-400">有人关注您时通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.newFollowers}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           newFollowers: value
                         })}
                       />
@@ -544,10 +544,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">新点赞</h3>
                         <p className="text-sm text-gray-400">作品被点赞时通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.newLikes}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           newLikes: value
                         })}
                       />
@@ -558,10 +558,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">新评论</h3>
                         <p className="text-sm text-gray-400">作品被评论时通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.newComments}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           newComments: value
                         })}
                       />
@@ -572,10 +572,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">新消息</h3>
                         <p className="text-sm text-gray-400">收到私信时通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.newMessages}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           newMessages: value
                         })}
                       />
@@ -586,10 +586,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">系统更新</h3>
                         <p className="text-sm text-gray-400">系统更新和维护通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.systemUpdates}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           systemUpdates: value
                         })}
                       />
@@ -600,10 +600,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">营销邮件</h3>
                         <p className="text-sm text-gray-400">接收产品更新和优惠信息</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.marketingEmails}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           marketingEmails: value
                         })}
                       />
@@ -614,10 +614,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">每周摘要</h3>
                         <p className="text-sm text-gray-400">每周发送活动摘要邮件</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.weeklyDigest}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           weeklyDigest: value
                         })}
                       />
@@ -625,7 +625,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">免打扰设置</h2>
                   </CardHeader>
@@ -635,10 +635,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">通知声音</h3>
                         <p className="text-sm text-gray-400">播放通知提示音</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.notificationSound}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           notificationSound: value
                         })}
                       />
@@ -649,10 +649,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">免打扰时间</h3>
                         <p className="text-sm text-gray-400">在指定时间段内不接收通知</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={notificationSettings.quietHours}
                         onValueChange={(value) => setNotificationSettings({
-                          ...notificationSettings, 
+                          ...notificationSettings,
                           quietHours: value
                         })}
                       />
@@ -665,7 +665,7 @@ export default function SettingsPage() {
                           type="time"
                           value={notificationSettings.quietStart}
                           onChange={(e) => setNotificationSettings({
-                            ...notificationSettings, 
+                            ...notificationSettings,
                             quietStart: e.target.value
                           })}
                         />
@@ -674,7 +674,7 @@ export default function SettingsPage() {
                           type="time"
                           value={notificationSettings.quietEnd}
                           onChange={(e) => setNotificationSettings({
-                            ...notificationSettings, 
+                            ...notificationSettings,
                             quietEnd: e.target.value
                           })}
                         />
@@ -682,8 +682,8 @@ export default function SettingsPage() {
                     )}
 
                     <div className="flex justify-end">
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         onPress={() => handleSaveSettings('notifications')}
                       >
                         保存更改
@@ -697,7 +697,7 @@ export default function SettingsPage() {
             {/* 显示设置 */}
             {activeTab === 'display' && (
               <div className="space-y-6">
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">外观设置</h2>
                   </CardHeader>
@@ -705,21 +705,21 @@ export default function SettingsPage() {
                     <div>
                       <h3 className="font-semibold mb-2">主题</h3>
                       <div className="flex gap-4">
-                        <Button 
+                        <Button
                           variant={displaySettings.theme === 'light' ? 'solid' : 'bordered'}
-                          onPress={() => setDisplaySettings({...displaySettings, theme: 'light'})}
+                          onPress={() => setDisplaySettings({ ...displaySettings, theme: 'light' })}
                         >
                           浅色主题
                         </Button>
-                        <Button 
+                        <Button
                           variant={displaySettings.theme === 'dark' ? 'solid' : 'bordered'}
-                          onPress={() => setDisplaySettings({...displaySettings, theme: 'dark'})}
+                          onPress={() => setDisplaySettings({ ...displaySettings, theme: 'dark' })}
                         >
                           深色主题
                         </Button>
-                        <Button 
+                        <Button
                           variant={displaySettings.theme === 'auto' ? 'solid' : 'bordered'}
-                          onPress={() => setDisplaySettings({...displaySettings, theme: 'auto'})}
+                          onPress={() => setDisplaySettings({ ...displaySettings, theme: 'auto' })}
                         >
                           跟随系统
                         </Button>
@@ -730,7 +730,7 @@ export default function SettingsPage() {
                       <h3 className="font-semibold mb-4">字体大小: {displaySettings.fontSize}px</h3>
                       <Slider
                         value={displaySettings.fontSize}
-                        onChange={(value) => setDisplaySettings({...displaySettings, fontSize: value})}
+                        onChange={(value) => setDisplaySettings({ ...displaySettings, fontSize: value })}
                         minValue={12}
                         maxValue={24}
                         step={1}
@@ -742,7 +742,7 @@ export default function SettingsPage() {
                       label="界面语言"
                       selectedKeys={[displaySettings.language]}
                       onSelectionChange={(keys) => setDisplaySettings({
-                        ...displaySettings, 
+                        ...displaySettings,
                         language: Array.from(keys)[0]
                       })}
                     >
@@ -755,7 +755,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">内容显示</h2>
                   </CardHeader>
@@ -765,10 +765,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">自动播放视频</h3>
                         <p className="text-sm text-gray-400">在浏览时自动播放视频内容</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={displaySettings.autoPlay}
                         onValueChange={(value) => setDisplaySettings({
-                          ...displaySettings, 
+                          ...displaySettings,
                           autoPlay: value
                         })}
                       />
@@ -779,10 +779,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">高质量图片</h3>
                         <p className="text-sm text-gray-400">优先加载高质量图片</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={displaySettings.highQuality}
                         onValueChange={(value) => setDisplaySettings({
-                          ...displaySettings, 
+                          ...displaySettings,
                           highQuality: value
                         })}
                       />
@@ -793,10 +793,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">紧凑模式</h3>
                         <p className="text-sm text-gray-400">使用更紧凑的界面布局</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={displaySettings.compactMode}
                         onValueChange={(value) => setDisplaySettings({
-                          ...displaySettings, 
+                          ...displaySettings,
                           compactMode: value
                         })}
                       />
@@ -804,7 +804,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">无障碍设置</h2>
                   </CardHeader>
@@ -814,10 +814,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">减少动画</h3>
                         <p className="text-sm text-gray-400">减少界面动画效果</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={displaySettings.reducedMotion}
                         onValueChange={(value) => setDisplaySettings({
-                          ...displaySettings, 
+                          ...displaySettings,
                           reducedMotion: value
                         })}
                       />
@@ -828,18 +828,18 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">色盲友好模式</h3>
                         <p className="text-sm text-gray-400">启用色盲友好的颜色方案</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={displaySettings.colorBlindMode}
                         onValueChange={(value) => setDisplaySettings({
-                          ...displaySettings, 
+                          ...displaySettings,
                           colorBlindMode: value
                         })}
                       />
                     </div>
 
                     <div className="flex justify-end">
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         onPress={() => handleSaveSettings('display')}
                       >
                         保存更改
@@ -853,7 +853,7 @@ export default function SettingsPage() {
             {/* 安全设置 */}
             {activeTab === 'security' && (
               <div className="space-y-6">
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">账户安全</h2>
                   </CardHeader>
@@ -864,16 +864,16 @@ export default function SettingsPage() {
                         <p className="text-sm text-gray-400">为账户添加额外的安全保护</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Chip 
+                        <Chip
                           color={securitySettings.twoFactorAuth ? "success" : "default"}
                           variant="flat"
                           size="sm"
                         >
                           {securitySettings.twoFactorAuth ? "已启用" : "未启用"}
                         </Chip>
-                        <Button 
-                          color="primary" 
-                          variant="bordered" 
+                        <Button
+                          color="primary"
+                          variant="bordered"
                           size="sm"
                         >
                           {securitySettings.twoFactorAuth ? "管理" : "启用"}
@@ -886,10 +886,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">登录提醒</h3>
                         <p className="text-sm text-gray-400">新设备登录时发送提醒</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={securitySettings.loginAlerts}
                         onValueChange={(value) => setSecuritySettings({
-                          ...securitySettings, 
+                          ...securitySettings,
                           loginAlerts: value
                         })}
                       />
@@ -900,10 +900,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">设备追踪</h3>
                         <p className="text-sm text-gray-400">记录登录设备信息</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={securitySettings.deviceTracking}
                         onValueChange={(value) => setSecuritySettings({
-                          ...securitySettings, 
+                          ...securitySettings,
                           deviceTracking: value
                         })}
                       />
@@ -914,10 +914,10 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">异常活动监控</h3>
                         <p className="text-sm text-gray-400">监控并提醒异常登录活动</p>
                       </div>
-                      <Switch 
+                      <Switch
                         isSelected={securitySettings.suspiciousActivity}
                         onValueChange={(value) => setSecuritySettings({
-                          ...securitySettings, 
+                          ...securitySettings,
                           suspiciousActivity: value
                         })}
                       />
@@ -928,7 +928,7 @@ export default function SettingsPage() {
                       <Select
                         selectedKeys={[securitySettings.sessionTimeout.toString()]}
                         onSelectionChange={(keys) => setSecuritySettings({
-                          ...securitySettings, 
+                          ...securitySettings,
                           sessionTimeout: parseInt(Array.from(keys)[0])
                         })}
                       >
@@ -942,7 +942,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">密码安全</h2>
                   </CardHeader>
@@ -952,7 +952,7 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">密码强度</h3>
                         <p className="text-sm text-gray-400">当前密码安全等级</p>
                       </div>
-                      <Chip 
+                      <Chip
                         color={securitySettings.passwordStrength === 'strong' ? 'success' : 'warning'}
                         variant="flat"
                       >
@@ -965,8 +965,8 @@ export default function SettingsPage() {
                         <h3 className="font-semibold">上次修改密码</h3>
                         <p className="text-sm text-gray-400">{securitySettings.lastPasswordChange}</p>
                       </div>
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         variant="bordered"
                         onPress={onPasswordOpen}
                       >
@@ -976,7 +976,7 @@ export default function SettingsPage() {
                   </CardBody>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-800">
+                <Card className="bg-content1 border-divider">
                   <CardHeader>
                     <h2 className="text-xl font-semibold">活跃会话</h2>
                   </CardHeader>
@@ -989,9 +989,9 @@ export default function SettingsPage() {
                         终止所有会话
                       </Button>
                     </div>
-                    
+
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                      <div className="flex justify-between items-center p-3 bg-content2 rounded-lg">
                         <div>
                           <p className="font-semibold">当前设备 (Windows)</p>
                           <p className="text-sm text-gray-400">上海, 中国 • 刚刚活跃</p>
@@ -1000,8 +1000,8 @@ export default function SettingsPage() {
                           当前
                         </Chip>
                       </div>
-                      
-                      <div className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+
+                      <div className="flex justify-between items-center p-3 bg-content2 rounded-lg">
                         <div>
                           <p className="font-semibold">iPhone</p>
                           <p className="text-sm text-gray-400">上海, 中国 • 2小时前</p>
@@ -1010,8 +1010,8 @@ export default function SettingsPage() {
                           终止
                         </Button>
                       </div>
-                      
-                      <div className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+
+                      <div className="flex justify-between items-center p-3 bg-content2 rounded-lg">
                         <div>
                           <p className="font-semibold">Chrome (Mac)</p>
                           <p className="text-sm text-gray-400">北京, 中国 • 1天前</p>
@@ -1023,8 +1023,8 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="flex justify-end mt-4">
-                      <Button 
-                        color="primary" 
+                      <Button
+                        color="primary"
                         onPress={() => handleSaveSettings('security')}
                       >
                         保存更改
@@ -1038,10 +1038,10 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      <Modal 
-        isOpen={isPasswordOpen} 
+      <Modal
+        isOpen={isPasswordOpen}
         onClose={onPasswordClose}
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -1054,7 +1054,7 @@ export default function SettingsPage() {
                 type="password"
                 placeholder="请输入当前密码"
               />
-              
+
               <Input
                 label="新密码"
                 type="password"
@@ -1090,10 +1090,10 @@ export default function SettingsPage() {
       </Modal>
 
       {/* 删除账户模态框 */}
-      <Modal 
-        isOpen={isDeleteOpen} 
+      <Modal
+        isOpen={isDeleteOpen}
         onClose={onDeleteClose}
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>

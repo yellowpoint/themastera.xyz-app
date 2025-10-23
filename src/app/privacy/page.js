@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Chip,
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
       title: '隐私政策概述',
       icon: '🛡️',
       content: `
-        欢迎使用Mastera平台！我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。
+        欢迎使用Mastera平台！我们深知个人信息对您的重要性，并会尽力保护您的个人信息安全可靠。
         我们致力于维持您对我们的信任，恪守以下原则，保护您的个人信息：权责一致原则、目的明确原则、
         选择同意原则、最少够用原则、确保安全原则、主体参与原则、公开透明原则等。
         
@@ -217,7 +217,7 @@ export default function PrivacyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -226,7 +226,7 @@ export default function PrivacyPage() {
           <p className="text-xl text-gray-400 mb-6">
             我们承诺保护您的隐私和个人信息安全
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <Chip color="success" variant="flat" size="sm">生效日期</Chip>
@@ -240,7 +240,7 @@ export default function PrivacyPage() {
         </div>
 
         {/* 快速操作 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">⚡ 快速操作</h2>
           </CardHeader>
@@ -249,7 +249,7 @@ export default function PrivacyPage() {
               {quickActions.map((action) => (
                 <div
                   key={action.id}
-                  className="bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
+                  className="bg-content2 p-4 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
                   onClick={() => handleQuickAction(action.id)}
                 >
                   <div className="text-2xl mb-2">{action.icon}</div>
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
         </Card>
 
         {/* 政策内容 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">📋 政策详情</h2>
           </CardHeader>
@@ -280,7 +280,7 @@ export default function PrivacyPage() {
                       <span className="font-semibold">{section.title}</span>
                     </div>
                   }
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-content2 border-divider"
                 >
                   <div className="pb-4">
                     <div className="prose prose-invert max-w-none">
@@ -318,7 +318,7 @@ export default function PrivacyPage() {
         </Card>
 
         {/* 联系信息 */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-content1 border-divider">
           <CardHeader>
             <h2 className="text-xl font-bold">📞 联系我们</h2>
           </CardHeader>
@@ -330,7 +330,7 @@ export default function PrivacyPage() {
                 <p className="text-gray-400 text-sm mb-2">privacy@mastera.xyz</p>
                 <p className="text-xs text-gray-500">24小时内回复</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-3xl mb-2">💬</div>
                 <h3 className="font-semibold mb-1">在线客服</h3>
@@ -339,7 +339,7 @@ export default function PrivacyPage() {
                   立即咨询
                 </Button>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-3xl mb-2">📍</div>
                 <h3 className="font-semibold mb-1">公司地址</h3>
@@ -351,11 +351,11 @@ export default function PrivacyPage() {
         </Card>
       </main>
 
-      <Modal 
-        isOpen={isContactOpen} 
+      <Modal
+        isOpen={isContactOpen}
         onClose={onContactClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -384,19 +384,19 @@ export default function PrivacyPage() {
                   type="email"
                 />
               </div>
-              
+
               <Input
                 label="咨询主题"
                 placeholder="请简要描述您的隐私问题"
               />
-              
+
               <Textarea
                 label="详细描述"
                 placeholder="请详细描述您的隐私相关问题或需求"
                 minRows={4}
               />
 
-              <div className="bg-gray-800 p-4 rounded-lg">
+              <div className="bg-content2 p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">⏰ 响应时间</h4>
                 <p className="text-sm text-gray-400">
                   我们承诺在收到您的隐私咨询后24小时内给予回复，复杂问题可能需要3-5个工作日。

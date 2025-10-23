@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Card, 
-  CardBody, 
+import {
+  Card,
+  CardBody,
   CardHeader,
   Button,
   Chip,
@@ -222,7 +222,7 @@ export default function TermsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* 页面头部 */}
         <div className="text-center mb-12">
@@ -231,7 +231,7 @@ export default function TermsPage() {
           <p className="text-xl text-gray-400 mb-6">
             使用Mastera平台前，请仔细阅读并理解以下条款
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <Chip color="success" variant="flat" size="sm">生效日期</Chip>
@@ -245,7 +245,7 @@ export default function TermsPage() {
         </div>
 
         {/* 核心要点 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">🎯 核心要点</h2>
           </CardHeader>
@@ -265,7 +265,7 @@ export default function TermsPage() {
         </Card>
 
         {/* 条款详情 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+        <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">📋 详细条款</h2>
           </CardHeader>
@@ -280,7 +280,7 @@ export default function TermsPage() {
                       <span className="font-semibold">{section.title}</span>
                     </div>
                   }
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-content2 border-divider"
                 >
                   <div className="pb-4">
                     <div className="prose prose-invert max-w-none">
@@ -335,7 +335,7 @@ export default function TermsPage() {
         </div>
 
         {/* 争议解决 */}
-        <Card className="bg-gray-900 border-gray-800 mb-8">
+         <Card className="bg-content1 border-divider mb-8">
           <CardHeader>
             <h2 className="text-xl font-bold">⚖️ 争议解决</h2>
           </CardHeader>
@@ -344,21 +344,21 @@ export default function TermsPage() {
               <p className="text-gray-300">
                 如果您对我们的服务有任何争议或投诉，我们建议按以下步骤解决：
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <div className="bg-content2 p-4 rounded-lg text-center">
                   <div className="text-2xl mb-2">1️⃣</div>
                   <h4 className="font-semibold mb-2">友好协商</h4>
                   <p className="text-sm text-gray-400">首先通过客服渠道进行沟通</p>
                 </div>
-                
-                <div className="bg-gray-800 p-4 rounded-lg text-center">
-                  <div className="text-2xl mb-2">2️⃣</div>
-                  <h4 className="font-semibold mb-2">调解处理</h4>
-                  <p className="text-sm text-gray-400">通过第三方调解机构处理</p>
-                </div>
-                
-                <div className="bg-gray-800 p-4 rounded-lg text-center">
+
+                <div className="bg-content2 p-4 rounded-lg text-center">
+                   <div className="text-2xl mb-2">2️⃣</div>
+                   <h4 className="font-semibold mb-2">调解处理</h4>
+                   <p className="text-sm text-gray-400">通过第三方调解机构处理</p>
+                 </div>
+ 
+                 <div className="bg-content2 p-4 rounded-lg text-center">
                   <div className="text-2xl mb-2">3️⃣</div>
                   <h4 className="font-semibold mb-2">法律途径</h4>
                   <p className="text-sm text-gray-400">通过法院诉讼解决争议</p>
@@ -393,14 +393,14 @@ export default function TermsPage() {
                       我已仔细阅读并完全理解上述服务条款，同意受其约束
                     </span>
                   </Checkbox>
-                  
+
                   <p className="text-sm text-gray-400">
                     继续使用Mastera平台即表示您接受这些条款。如有疑问，请联系我们的客服团队。
                   </p>
-                  
+
                   <div className="flex gap-3 mt-4">
-                    <Button 
-                      color="primary" 
+                    <Button
+                      color="primary"
                       disabled={!acceptedTerms}
                       className={!acceptedTerms ? 'opacity-50' : ''}
                     >
@@ -417,11 +417,11 @@ export default function TermsPage() {
         </Card>
       </main>
 
-      <Modal 
-        isOpen={isContactOpen} 
+      <Modal
+        isOpen={isContactOpen}
         onClose={onContactClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -450,19 +450,19 @@ export default function TermsPage() {
                   type="email"
                 />
               </div>
-              
+
               <Input
                 label="咨询主题"
                 placeholder="请简要描述您的法律问题"
               />
-              
+
               <Textarea
                 label="详细描述"
                 placeholder="请详细描述您遇到的法律问题或需要咨询的条款"
                 minRows={4}
               />
 
-              <div className="bg-gray-800 p-4 rounded-lg">
+              <div className="bg-content2 p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">⚠️ 重要提醒</h4>
                 <p className="text-sm text-gray-400">
                   我们的客服团队会为您提供基本的条款解释，复杂的法律问题建议咨询专业律师。
@@ -482,11 +482,11 @@ export default function TermsPage() {
       </Modal>
 
       {/* 违规举报模态框 */}
-      <Modal 
-        isOpen={isReportOpen} 
+      <Modal
+        isOpen={isReportOpen}
         onClose={onReportClose}
         size="2xl"
-        className="bg-gray-900 text-white"
+        className="bg-content1"
       >
         <ModalContent>
           <ModalHeader>
@@ -509,12 +509,12 @@ export default function TermsPage() {
                 label="举报对象"
                 placeholder="请输入被举报的用户名或内容链接"
               />
-              
+
               <Input
                 label="违规类型"
                 placeholder="请选择或描述违规类型"
               />
-              
+
               <Textarea
                 label="详细说明"
                 placeholder="请详细描述违规行为，并提供相关证据"
@@ -526,7 +526,7 @@ export default function TermsPage() {
                 placeholder="请留下您的联系方式以便后续沟通"
               />
 
-              <div className="bg-gray-800 p-4 rounded-lg">
+              <div className="bg-content2 p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">📋 处理流程</h4>
                 <p className="text-sm text-gray-400">
                   我们会在24小时内审核您的举报，并在3-5个工作日内给出处理结果。

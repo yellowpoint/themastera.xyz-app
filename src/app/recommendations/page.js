@@ -6,7 +6,7 @@ import { Sparkles, Heart, Eye, Share, Bookmark, Users, TrendingUp, Clock, Camera
 
 export default function RecommendationsPage() {
   const [activeTab, setActiveTab] = useState('for-you');
-  
+
   // 根据类别返回对应的图标
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -22,7 +22,7 @@ export default function RecommendationsPage() {
         return <Palette size={24} className="text-gray-400" />;
     }
   };
-  
+
   const recommendedContent = [
     {
       id: 1,
@@ -136,10 +136,10 @@ export default function RecommendationsPage() {
   ];
 
   const renderContentCard = (content) => (
-    <Card key={content.id} className="bg-gray-800/50 border border-gray-700 hover:border-lime-400 transition-colors">
+    <Card key={content.id} className="bg-content2/50 border border-divider hover:border-lime-400 transition-colors">
       <CardBody className="p-4">
         <div className="flex gap-3">
-          <div className="w-24 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
+          <div className="w-24 h-16 bg-content2 rounded-lg flex items-center justify-center">
             {getCategoryIcon(content.category)}
           </div>
           <div className="flex-1 min-w-0">
@@ -185,10 +185,10 @@ export default function RecommendationsPage() {
               <Button size="sm" className="bg-lime-400 text-black flex-1">
                 观看
               </Button>
-              <Button size="sm" variant="bordered" className="border-gray-600 text-white" isIconOnly>
+              <Button size="sm" variant="bordered" className="border-gray-600" isIconOnly>
                 <Bookmark className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="bordered" className="border-gray-600 text-white" isIconOnly>
+              <Button size="sm" variant="bordered" className="border-gray-600" isIconOnly>
                 <Share className="w-4 h-4" />
               </Button>
             </div>
@@ -199,11 +199,11 @@ export default function RecommendationsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
             <Sparkles className="w-10 h-10 text-lime-400" />
             个性化推荐
           </h1>
@@ -216,7 +216,7 @@ export default function RecommendationsPage() {
             selectedKey={activeTab}
             onSelectionChange={setActiveTab}
             classNames={{
-              tabList: "bg-gray-800/50 border border-gray-700",
+              tabList: "bg-content2/50 border border-divider",
               tab: "text-gray-400 data-[selected=true]:text-lime-400",
               cursor: "bg-lime-400"
             }}
@@ -233,9 +233,9 @@ export default function RecommendationsPage() {
           <div className="lg:col-span-3 space-y-6">
             {activeTab === 'for-you' && (
               <>
-                <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+                <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
                   <CardHeader>
-                    <h2 className="text-xl font-bold text-white">为您精选</h2>
+                    <h2 className="text-xl font-bold">为您精选</h2>
                   </CardHeader>
                   <CardBody className="space-y-4">
                     {recommendedContent.map(renderContentCard)}
@@ -245,9 +245,9 @@ export default function RecommendationsPage() {
             )}
 
             {activeTab === 'trending' && (
-              <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+              <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
                 <CardHeader>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
                     <TrendingUp className="w-6 h-6 text-lime-400" />
                     热门趋势
                   </h2>
@@ -258,7 +258,7 @@ export default function RecommendationsPage() {
                       <h3 className="text-white font-semibold mb-3">{section.title}</h3>
                       <div className="space-y-2">
                         {section.items.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
+                          <div key={itemIndex} className="flex justify-between items-center p-3 bg-content2/50 rounded-lg">
                             <span className="text-white">{item.name}</span>
                             <Chip size="sm" className="bg-lime-400 text-black">
                               {item.engagement || item.growth}
@@ -274,9 +274,9 @@ export default function RecommendationsPage() {
             )}
 
             {activeTab === 'following' && (
-              <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+              <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
                 <CardHeader>
-                  <h2 className="text-xl font-bold text-white">关注动态</h2>
+                  <h2 className="text-xl font-bold">关注动态</h2>
                 </CardHeader>
                 <CardBody>
                   <div className="text-center py-8">
@@ -291,9 +291,9 @@ export default function RecommendationsPage() {
             )}
 
             {activeTab === 'discover' && (
-              <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+              <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
                 <CardHeader>
-                  <h2 className="text-xl font-bold text-white">发现新内容</h2>
+                  <h2 className="text-xl font-bold">发现新内容</h2>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   {recommendedContent.slice().reverse().map(renderContentCard)}
@@ -305,9 +305,9 @@ export default function RecommendationsPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Interest Profile */}
-            <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+            <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white">兴趣画像</h3>
+                <h3 className="text-lg font-bold">兴趣画像</h3>
               </CardHeader>
               <CardBody className="space-y-4">
                 {personalizedTags.map((tag, index) => (
@@ -328,7 +328,7 @@ export default function RecommendationsPage() {
                 <Button
                   size="sm"
                   variant="bordered"
-                  className="w-full border-gray-600 text-white hover:border-lime-400"
+                  className="w-full border-gray-600 hover:border-lime-400"
                 >
                   调整兴趣偏好
                 </Button>
@@ -336,9 +336,9 @@ export default function RecommendationsPage() {
             </Card>
 
             {/* Trending Creators */}
-            <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+            <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white">热门创作者</h3>
+                <h3 className="text-lg font-bold">热门创作者</h3>
               </CardHeader>
               <CardBody className="space-y-4">
                 {trendingCreators.map((creator) => (
@@ -358,7 +358,7 @@ export default function RecommendationsPage() {
                     <div className="text-right">
                       <Chip
                         size="sm"
-                        className="bg-green-500 text-white mb-1"
+                        className="bg-green-500 mb-1"
                       >
                         {creator.growth}
                       </Chip>
@@ -372,22 +372,22 @@ export default function RecommendationsPage() {
             </Card>
 
             {/* Recommendation Settings */}
-            <Card className="bg-gray-900/80 backdrop-blur-sm border border-gray-800">
+            <Card className="bg-content1/80 backdrop-blur-sm border border-divider">
               <CardHeader>
-                <h3 className="text-lg font-bold text-white">推荐设置</h3>
+                <h3 className="text-lg font-bold">推荐设置</h3>
               </CardHeader>
               <CardBody className="space-y-3">
                 <Button
                   size="sm"
                   variant="bordered"
-                  className="w-full border-gray-600 text-white hover:border-lime-400"
+                  className="w-full border-gray-600 hover:border-lime-400"
                 >
                   重置推荐算法
                 </Button>
                 <Button
                   size="sm"
                   variant="bordered"
-                  className="w-full border-gray-600 text-white hover:border-lime-400"
+                  className="w-full border-gray-600 hover:border-lime-400"
                 >
                   导出数据
                 </Button>
