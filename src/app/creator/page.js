@@ -107,13 +107,13 @@ export default function CreatorPage() {
     console.log('Upload results:', uploadResults) // 添加调试日志
     if (uploadResults && uploadResults.length > 0) {
       const firstFile = uploadResults[0]
+      // 使用fileUrls字段，支持逗号分隔的多文件URL
+      const fileUrls = uploadResults.map(file => file.fileUrl).join(',')
       setUploadForm(prev => ({
         ...prev,
-        fileUrl: firstFile.publicUrl,
-        thumbnail: firstFile.publicUrl,
-        fileName: firstFile.originalName || firstFile.fileName
+        fileUrl: fileUrls, // 使用可能包含多个URL的字段
+        thumbnailUrl: firstFile.fileUrl, // 缩略图仍使用第一个文件
       }))
-      console.log('Updated uploadForm with:', firstFile) // 添加调试日志
     }
   }
 
@@ -133,7 +133,7 @@ export default function CreatorPage() {
         tags: uploadForm.tags,
         userId: user.id,
         fileUrl: uploadForm.fileUrl,
-        thumbnail: uploadForm.thumbnail,
+        thumbnailUrl: uploadForm.thumbnailUrl,
         status: 'reviewing'
       }
 
@@ -147,7 +147,7 @@ export default function CreatorPage() {
         price: '',
         tags: '',
         fileUrl: '',
-        thumbnail: ''
+        thumbnailUrl: ''
       })
 
       onUploadClose()
@@ -407,7 +407,7 @@ export default function CreatorPage() {
                 >
                   <CardHeader className="p-0">
                     <img
-                      src={work.thumbnail}
+                      src={work.thumbnailUrl}
                       alt={work.title}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -669,31 +669,7 @@ export default function CreatorPage() {
                 <FileUpload
                   onUploadComplete={handleUploadComplete}
                   acceptedTypes={['image/*', 'video/*', 'audio/*', '.zip', '.rar', '.pdf']}
-                  maxSize={100 * 1024 * 1024} // 100MB
-                  bucket="data"
                 />
-
-                {/* 显示当前选择的文件信息 */}
-                {uploadForm.fileUrl && (
-                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                      <span className="text-sm font-medium text-green-800">
-                        文件已选择: {uploadForm.fileName || '未知文件'}
-                      </span>
-                    </div>
-                    <a
-                      href={uploadForm.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline mt-1 block"
-                    >
-                      预览文件
-                    </a>
-                  </div>
-                )}
               </div>
             </div>
           </ModalBody>

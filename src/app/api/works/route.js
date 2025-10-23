@@ -89,7 +89,7 @@ export async function POST(request) {
     const body = await request.json()
 
     // 验证必需字段
-    const { title, description, category, userId, fileUrl } = body
+    const { title, description, category, userId } = body
 
     if (!title || !description || !category || !userId) {
       return NextResponse.json(
@@ -104,18 +104,7 @@ export async function POST(request) {
 
     // 创建作品
     const work = await prisma.work.create({
-      data: {
-        title,
-        description,
-        category,
-        userId,
-        fileUrl,
-        price: parseFloat(body.price || 0),
-        tags: body.tags,
-        status: body.status || 'draft',
-        downloads: 0,
-        earnings: 0
-      },
+      data: body,
       include: {
         user: {
           select: {

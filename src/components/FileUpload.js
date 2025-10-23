@@ -3,29 +3,128 @@
 import { useState, useRef } from 'react'
 import { Button, Progress, Card, CardBody } from '@heroui/react'
 import { Upload, X, File, Image, Check } from 'lucide-react'
-import { useFileUpload } from '@/hooks/useFileUpload'
+import { supabase, getStorageUrl } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function FileUpload({
   onUploadComplete,
   acceptedTypes = ['*'],
-  maxSize = 10 * 1024 * 1024, // 10MB
-  multiple = false,
+  maxSize = 50 * 1024 * 1024, // 50MB
   bucket = 'data',
   folder = ''
 }) {
-  const { uploadFile, uploadMultipleFiles, uploading, progress } = useFileUpload()
-  const [selectedFiles, setSelectedFiles] = useState([])
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [dragActive, setDragActive] = useState(false)
   const [error, setError] = useState('')
   const [uploadedFiles, setUploadedFiles] = useState([])
   const fileInputRef = useRef(null)
+  const { user } = useAuth()
+
+  // 确保 bucket 和 folder 参数有效
+  const storageBucket = bucket || 'data'
+  const storageFolder = folder ? `${folder}/` : ''
 
   // 处理 acceptedTypes 参数，支持数组和字符串格式
   const acceptedTypesString = Array.isArray(acceptedTypes)
     ? acceptedTypes.join(',')
     : acceptedTypes
 
-  const handleFileSelect = (files) => {
+  // 上传单个文件
+  const uploadFile = async (file) => {
+    if (!file) {
+      throw new Error('No file provided')
+    }
+
+    // 检查用户认证状态
+    if (!user) {
+      throw new Error('请先登录后再上传文件')
+    }
+
+    try {
+      // 生成唯一文件名，包含用户ID以确保权限
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = storageFolder ? `${storageFolder}${user.id}/${fileName}` : `${user.id}/${fileName}`
+
+      // 模拟上传进度 - Supabase不提供进度回调，所以我们模拟进度
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return prev
+          }
+          return prev + 10
+        })
+      }, 200)
+
+      // 使用Supabase上传文件
+      const { data, error } = await supabase
+        .storage
+        .from(storageBucket)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      clearInterval(progressInterval)
+
+      if (error) {
+        throw new Error(`上传失败: ${error.message || '未知错误'}`)
+      }
+
+      // 获取文件的公共URL
+      const publicUrl = getStorageUrl(storageBucket, filePath)
+      setProgress(100)
+
+      return {
+        fileUrl: publicUrl,
+        fullPath: filePath,
+        fileName: fileName,
+        originalName: file.name,
+        size: file.size,
+        type: file.type
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error
+    } finally {
+      setTimeout(() => setProgress(0), 1000)
+    }
+  }
+
+  // 上传多个文件
+  const uploadFiles = async (files) => {
+    if (!files || files.length === 0) {
+      throw new Error('No files provided')
+    }
+
+    setUploading(true)
+    const results = []
+    const errors = []
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        try {
+          const result = await uploadFile(files[i])
+          results.push(result)
+        } catch (error) {
+          errors.push({ file: files[i].name, error: error.message })
+        }
+      }
+
+      return {
+        results,
+        errors,
+        success: errors.length === 0
+      }
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleFileSelect = async (files) => {
     setError('') // 清除之前的错误
     const fileArray = Array.from(files)
     const validFiles = fileArray.filter(file => {
@@ -36,10 +135,26 @@ export default function FileUpload({
       return true
     })
 
-    if (multiple) {
-      setSelectedFiles(prev => [...prev, ...validFiles])
-    } else {
-      setSelectedFiles(validFiles.slice(0, 1))
+    if (validFiles.length === 0) return
+
+    // 自动开始上传
+    try {
+      setUploading(true)
+      const uploadResult = await uploadFiles(validFiles)
+
+      if (uploadResult && uploadResult.results) {
+        const newUploadedFiles = [...uploadedFiles, ...uploadResult.results];
+        setUploadedFiles(newUploadedFiles); // 保存已上传的文件
+        onUploadComplete?.(newUploadedFiles); // 传递所有已上传的文件
+        setError(''); // 清除错误信息
+      } else {
+        setError('上传失败：未收到有效的上传结果')
+      }
+    } catch (error) {
+      console.error('Upload failed:', error)
+      setError(error.message || '上传失败，请重试')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -60,6 +175,7 @@ export default function FileUpload({
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files)
+      // No need to call handleUpload here as handleFileSelect now automatically uploads files
     }
   }
 
@@ -70,42 +186,8 @@ export default function FileUpload({
   }
 
   const removeFile = (index) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) return
-
-    setError('') // 清除之前的错误
-
-    try {
-      let results
-      if (multiple && selectedFiles.length > 1) {
-        results = await uploadMultipleFiles(selectedFiles, bucket, folder)
-      } else {
-        const result = await uploadFile(selectedFiles[0], bucket, folder)
-        results = [result]
-      }
-
-      if (results && results.length > 0) {
-        setUploadedFiles(prev => [...prev, ...results]) // 保存已上传的文件
-        onUploadComplete?.(results)
-        setSelectedFiles([])
-        setError('') // 清除错误信息
-      } else {
-        setError('上传失败：未收到有效的上传结果')
-      }
-    } catch (error) {
-      console.error('Upload failed:', error)
-      setError(error.message || '上传失败，请重试')
-    }
-  }
-
-  const getFileIcon = (file) => {
-    if (file.type.startsWith('image/')) {
-      return <Image className="w-6 h-6" />
-    }
-    return <File className="w-6 h-6" />
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+    onUploadComplete?.(uploadedFiles.filter((_, i) => i !== index))
   }
 
   const formatFileSize = (bytes) => {
@@ -142,7 +224,7 @@ export default function FileUpload({
           ref={fileInputRef}
           type="file"
           accept={acceptedTypesString}
-          multiple={multiple}
+          // multiple={multiple}
           onChange={handleInputChange}
           className="hidden"
         />
@@ -152,37 +234,6 @@ export default function FileUpload({
       {error && (
         <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
-        </div>
-      )}
-
-      {/* 已选择的文件列表 */}
-      {selectedFiles.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="font-medium">已选择的文件:</h4>
-          {selectedFiles.map((file, index) => (
-            <Card key={index}>
-              <CardBody className="flex flex-row items-center justify-between p-3">
-                <div className="flex items-center space-x-3">
-                  {getFileIcon(file)}
-                  <div>
-                    <p className="font-medium">{file.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {formatFileSize(file.size)}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="light"
-                  color="danger"
-                  onPress={() => removeFile(index)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </CardBody>
-            </Card>
-          ))}
         </div>
       )}
 
@@ -197,17 +248,7 @@ export default function FileUpload({
         </div>
       )}
 
-      {/* 上传按钮 */}
-      {selectedFiles.length > 0 && (
-        <Button
-          color="primary"
-          onPress={handleUpload}
-          isLoading={uploading}
-          className="w-full"
-        >
-          {uploading ? '上传中...' : `上传 ${selectedFiles.length} 个文件`}
-        </Button>
-      )}
+      {/* 自动上传，不再需要上传按钮 */}
 
       {/* 已上传文件列表 */}
       {uploadedFiles.length > 0 && (
@@ -242,7 +283,7 @@ export default function FileUpload({
                   size="sm"
                   variant="light"
                   color="danger"
-                  onPress={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
+                  onPress={() => removeFile(index)}
                 >
                   <X className="w-4 h-4" />
                 </Button>
