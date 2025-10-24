@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // GET /api/works/[id] - 获取单个作品
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const work = await prisma.work.findUnique({
       where: { id },
@@ -67,7 +67,7 @@ export async function GET(request, { params }) {
 // PUT /api/works/[id] - 更新作品
 export async function PUT(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // 检查作品是否存在
@@ -129,7 +129,7 @@ export async function PUT(request, { params }) {
 // DELETE /api/works/[id] - 删除作品
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     // 检查作品是否存在
     const existingWork = await prisma.work.findUnique({

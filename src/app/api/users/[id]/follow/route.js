@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // POST /api/users/[id]/follow - 关注/取消关注用户
 export async function POST(request, { params }) {
   try {
-    const { id: targetUserId } = params
+    const { id: targetUserId } = await params
     const body = await request.json()
     const { userId, action } = body // action: 'follow' or 'unfollow'
 
@@ -163,7 +163,7 @@ export async function POST(request, { params }) {
 // GET /api/users/[id]/follow - 获取关注状态和统计
 export async function GET(request, { params }) {
   try {
-    const { id: targetUserId } = params
+    const { id: targetUserId } = await params
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 

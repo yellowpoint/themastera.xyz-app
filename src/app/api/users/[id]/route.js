@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // GET /api/users/[id] - 获取单个用户信息
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -89,7 +89,7 @@ export async function GET(request, { params }) {
 // PUT /api/users/[id] - 更新用户信息
 export async function PUT(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // 检查用户是否存在
@@ -148,7 +148,7 @@ export async function PUT(request, { params }) {
 // DELETE /api/users/[id] - 删除用户（软删除或硬删除）
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     const { searchParams } = new URL(request.url)
     const force = searchParams.get('force') === 'true'
 

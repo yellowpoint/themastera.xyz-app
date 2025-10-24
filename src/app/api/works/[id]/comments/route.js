@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // GET /api/works/[id]/comments - 获取作品评论
 export async function GET(request, { params }) {
   try {
-    const { id: workId } = params
+    const { id: workId } = await params
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
@@ -138,7 +138,7 @@ export async function GET(request, { params }) {
 // POST /api/works/[id]/comments - 添加评论
 export async function POST(request, { params }) {
   try {
-    const { id: workId } = params
+    const { id: workId } = await params
     const body = await request.json()
     const { userId, rating, comment } = body
 

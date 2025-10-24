@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import VideoPlayer from "@/components/VideoPlayer";
 
 export default function ContentDetailPage() {
   const params = useParams();
@@ -91,9 +92,9 @@ export default function ContentDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/works/${workId}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('作品不存在或已被删除');
@@ -103,9 +104,9 @@ export default function ContentDetailPage() {
           throw new Error('获取作品详情失败');
         }
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setWork(data.data);
         setDuration(parseDuration(data.data.duration || '0:00'));
@@ -123,15 +124,15 @@ export default function ContentDetailPage() {
   const fetchComments = async () => {
     try {
       setCommentsLoading(true);
-      
+
       const response = await fetch(`/api/works/${workId}/comments?limit=20&sort=newest`);
-      
+
       if (!response.ok) {
         throw new Error('获取评论失败');
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setComments(data.data.comments || []);
       } else {
@@ -147,13 +148,13 @@ export default function ContentDetailPage() {
   const fetchRelatedWorks = async () => {
     try {
       const response = await fetch(`/api/works/trending?limit=8&exclude=${workId}`);
-      
+
       if (!response.ok) {
         throw new Error('获取相关作品失败');
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setRelatedWorks(data.data || []);
       } else {
@@ -330,7 +331,7 @@ export default function ContentDetailPage() {
                 浏览其他作品
               </Button>
             </Link>
-            
+
             <Link href="/">
               <Button color="default" variant="light">
                 返回首页
@@ -348,98 +349,14 @@ export default function ContentDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 主内容区域 */}
           <div className="lg:col-span-2">
-            {/* 播放器 */}
-            <div className="relative aspect-video bg-black rounded-xl overflow-hidden mb-4">
-              {work.fileUrl ? (
-                <video 
-                  ref={setVideoRef}
-                  src={work.fileUrl} 
-                  poster={work.thumbnailUrl}
-                  className="w-full h-full object-cover"
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                />
-              ) : work.thumbnailUrl ? (
-                <img 
-                  src={work.thumbnailUrl} 
-                  alt={work.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">🎨</div>
-                    <p className="text-lg">预览图片</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 播放控制层 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                {/* 中央播放按钮 */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button
-                    isIconOnly
-                    size="lg"
-                    className="bg-white/20 backdrop-blur-sm hover:bg-white/30 w-16 h-16"
-                    onPress={handlePlayPause}
-                  >
-                    {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-                  </Button>
-                </div>
-
-                {/* 底部控制栏 */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-3 text-white">
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                      onPress={handlePlayPause}
-                    >
-                      {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                    </Button>
-
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                      onPress={handleMute}
-                    >
-                      {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                    </Button>
-
-                    <div className="flex-1">
-                      <Progress 
-                        value={(currentTime / duration) * 100} 
-                        className="h-1 cursor-pointer"
-                        color="primary"
-                        onClick={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const percent = (e.clientX - rect.left) / rect.width;
-                          const newTime = percent * duration;
-                          handleSeek(newTime);
-                        }}
-                      />
-                    </div>
-
-                    <span className="text-sm">
-                      {formatTime(currentTime)} / {formatTime(duration)}
-                    </span>
-
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                    >
-                      <Maximize size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <VideoPlayer
+              videoUrl={work.fileUrl}
+              thumbnailUrl={work.thumbnailUrl}
+              title={work.title}
+              isPremium={work.premium}
+              userMembership="VIP" // TODO: 从用户状态获取
+              className="mb-4"
+            />
 
             {/* 作品信息 */}
             <div className="space-y-4">
