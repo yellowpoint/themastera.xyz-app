@@ -521,9 +521,6 @@ export default function ContentDetailPage() {
                         {work.user.name}
                       </h3>
                     </Link>
-                    {work.user.isCreator && (
-                      <Chip size="sm" color="primary" variant="flat">创作者</Chip>
-                    )}
                   </div>
 
                   <p className="text-sm text-gray-500 mb-2">

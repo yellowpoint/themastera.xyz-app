@@ -296,9 +296,6 @@ export default function CreatorProfilePage() {
                 <div>
                   <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
                     {creator.name}
-                    {creator.isCreator && (
-                      <Chip color="primary" variant="flat">认证创作者</Chip>
-                    )}
                   </h1>
                   
                   <div className="flex items-center gap-4 text-gray-500 mb-2">
@@ -564,7 +561,7 @@ export default function CreatorProfilePage() {
                       <div className="flex-1">
                         <h4 className="font-semibold">{follower.name}</h4>
                         <p className="text-sm text-gray-500">
-                          {follower.isCreator ? "创作者" : "用户"}
+                          用户
                         </p>
                       </div>
                       <Button size="sm" variant="flat">

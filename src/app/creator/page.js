@@ -43,13 +43,13 @@ import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, File
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import FileUpload from '@/components/FileUpload'
-import AuthModal from '@/components/AuthModal'
+import { useRouter } from 'next/navigation'
 
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
-  const { isOpen: isAuthOpen, onOpen: onAuthOpen, onClose: onAuthClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+  const router = useRouter()
 
   const { user, loading: authLoading } = useAuth()
   const { works, loading: worksLoading, createWork, getWorkStats, deleteWork } = useWorks(user?.id)
@@ -104,14 +104,13 @@ export default function CreatorPage() {
             <Button
               color="primary"
               size="lg"
-              onPress={onAuthOpen}
+              onPress={() => router.push('/auth/login')}
               className="w-full"
             >
               登录 / 注册
             </Button>
           </CardBody>
         </Card>
-        <AuthModal isOpen={isAuthOpen} onClose={onAuthClose} />
       </div>
     )
   }

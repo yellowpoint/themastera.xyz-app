@@ -108,10 +108,9 @@ export async function PUT(request, { params }) {
     const updateData = {}
     
     if (body.name !== undefined) updateData.name = body.name
-    if (body.avatar !== undefined) updateData.avatar = body.avatar
+    if (body.image !== undefined) updateData.image = body.image
     if (body.level !== undefined) updateData.level = body.level
     if (body.points !== undefined) updateData.points = parseInt(body.points)
-    if (body.isCreator !== undefined) updateData.isCreator = body.isCreator
 
     // 更新用户
     const user = await prisma.user.update({

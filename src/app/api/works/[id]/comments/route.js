@@ -46,8 +46,7 @@ export async function GET(request, { params }) {
             id: true,
             name: true,
             image: true,
-            level: true,
-            isCreator: true
+            level: true
           }
         }
       },
@@ -89,8 +88,7 @@ export async function GET(request, { params }) {
         id: comment.user.id,
         name: comment.user.name,
         image: comment.user.image || `/api/placeholder/36/36`,
-        level: comment.user.level,
-        isCreator: comment.user.isCreator
+        level: comment.user.level
       },
       timeAgo: formatTimeAgo(comment.createdAt),
       likes: Math.floor(Math.random() * 50), // 模拟点赞数
@@ -213,8 +211,7 @@ export async function POST(request, { params }) {
             id: true,
             name: true,
             image: true,
-            level: true,
-            isCreator: true
+            level: true
           }
         }
       }
@@ -246,8 +243,7 @@ export async function POST(request, { params }) {
         id: newComment.user.id,
         name: newComment.user.name,
         image: newComment.user.image || `/api/placeholder/36/36`,
-        level: newComment.user.level,
-        isCreator: newComment.user.isCreator
+        level: newComment.user.level
       },
       timeAgo: formatTimeAgo(newComment.createdAt),
       likes: 0,

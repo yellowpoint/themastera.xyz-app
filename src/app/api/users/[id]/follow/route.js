@@ -210,8 +210,7 @@ export async function GET(request, { params }) {
             id: true,
             name: true,
             image: true,
-            level: true,
-            isCreator: true
+            level: true
           }
         }
       },
@@ -224,7 +223,6 @@ export async function GET(request, { params }) {
       name: follow.follower.name,
       image: follow.follower.image || `/api/placeholder/36/36`,
       level: follow.follower.level,
-      isCreator: follow.follower.isCreator,
       followedAt: follow.createdAt
     }))
 

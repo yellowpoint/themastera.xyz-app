@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardBody, CardHeader, Input, Button, Link, Divider, Checkbox, Select, SelectItem } from '@heroui/react';
+import { Card, CardBody, CardHeader, Input, Button, Link, Divider, Checkbox } from '@heroui/react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -18,7 +18,6 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'creator',
     referralCode: '',
     agreeTerms: false,
     agreeMarketing: false
@@ -77,21 +76,19 @@ export default function RegisterPage() {
         formData.password,
         {
           name: formData.username,
-          user_type: formData.userType,
           referral_code: formData.referralCode || null,
-          agree_marketing: formData.agreeMarketing
+          agree_marketing: formData.agreeMarketing,
+          callbackURL: window.location.origin + "/auth/verify-email/" + encodeURIComponent(encodeURIComponent(formData.email)) // 添加验证成功后的重定向URL
         }
       );
 
       if (result.error) {
         setError(getErrorMessage(result.error));
       } else {
-        // 注册成功，显示成功消息
+
+        // 显示成功消息
         setError('注册成功！请检查您的邮箱并点击验证链接来激活账户。');
-        // 可以选择重定向到登录页面或其他页面
-        setTimeout(() => {
-          router.push('/auth/login');
-        }, 3000);
+
       }
     } catch (err) {
       setError('注册失败，请稍后重试');
@@ -101,28 +98,11 @@ export default function RegisterPage() {
     }
   };
 
-  // 错误信息映射
+  // 错误信息处理 - 直接返回 Better Auth 的原始错误信息
   const getErrorMessage = (error) => {
-    if (error.includes('User already registered')) {
-      return '该邮箱已被注册，请使用其他邮箱或直接登录';
-    }
-    if (error.includes('Invalid email')) {
-      return '请输入有效的邮箱地址';
-    }
-    if (error.includes('Password should be at least 6 characters')) {
-      return '密码长度至少为6位';
-    }
-    if (error.includes('Email not confirmed')) {
-      return '请先验证您的邮箱地址';
-    }
-    return error || '注册失败，请稍后重试';
+    const errorString = typeof error === 'string' ? error : error?.message || '';
+    return errorString || '注册失败，请稍后重试';
   };
-
-  const userTypes = [
-    { key: 'creator', label: '创作者 (Creator)' },
-    { key: 'fan', label: '粉丝 (Fan)' },
-    { key: 'collector', label: '收藏家 (Collector)' }
-  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -166,24 +146,6 @@ export default function RegisterPage() {
                 inputWrapper: "bg-gray-800 border-gray-700 hover:border-lime-400 focus-within:border-lime-400"
               }}
             />
-
-            <Select
-              label="用户类型"
-              placeholder="选择您的用户类型"
-              selectedKeys={[formData.userType]}
-              onSelectionChange={(keys) => handleInputChange('userType', Array.from(keys)[0])}
-              classNames={{
-                trigger: "bg-gray-800 border-gray-700 hover:border-lime-400 data-[focus=true]:border-lime-400",
-                label: "text-gray-300",
-                value: "text-white"
-              }}
-            >
-              {userTypes.map((type) => (
-                <SelectItem key={type.key} value={type.key} className="text-white">
-                  {type.label}
-                </SelectItem>
-              ))}
-            </Select>
 
             <Input
               label="密码"

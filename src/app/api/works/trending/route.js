@@ -41,8 +41,7 @@ export async function GET(request) {
           select: {
             id: true,
             name: true,
-            image: true,
-            isCreator: true
+            image: true
           }
         },
         reviews: {
@@ -91,8 +90,7 @@ export async function GET(request) {
         user: {
           id: work.user.id,
           name: work.user.name,
-          image: work.user.image || `/api/placeholder/36/36`,
-          isCreator: work.user.isCreator
+          image: work.user.image || `/api/placeholder/36/36`
         },
         tags: work.tags,
         // tags: work.tags ? work.tags.split(',').map(tag => tag.trim()) : [],

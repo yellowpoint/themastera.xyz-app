@@ -21,7 +21,6 @@ model User {
   updatedAt     DateTime   @updatedAt
   level         String     @default("User")
   points        Int        @default(0)
-  isCreator     Boolean    @default(false)
   earnings      Float      @default(0)
   sessions      Session[]
   accounts      Account[]
@@ -141,14 +140,14 @@ model Review {
 }
 
 model Follow {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
   // 关联
   followerId  String
   followingId String
-  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User   @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User   @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@map("follows")

@@ -53,7 +53,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [viewMode, setViewMode] = useState("grid");
-  
+
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onOpenChange: onUploadOpenChange } = useDisclosure();
 
   useEffect(() => {
@@ -64,11 +64,11 @@ export default function HomePage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const category = selectedCategory === "全部" ? "" : selectedCategory;
       const response = await fetch(`/api/works/trending?category=${encodeURIComponent(category)}&limit=20`);
       const data = await response.json();
-      
+
       if (data.success) {
         setWorks(data.data);
       } else {
@@ -93,12 +93,12 @@ export default function HomePage() {
   const filteredWorks = works.filter(work => {
     // 将tags字符串转换为数组
     const tagsArray = work.tags ? work.tags.split(',').map(tag => tag.trim()) : [];
-    
-    const matchesSearch = !searchQuery || 
+
+    const matchesSearch = !searchQuery ||
       work.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       work.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tagsArray.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     return matchesSearch;
   });
 
@@ -113,8 +113,8 @@ export default function HomePage() {
       <div className="relative mb-3">
         <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl overflow-hidden">
           {work.thumbnailUrl ? (
-            <img 
-              src={work.thumbnailUrl} 
+            <img
+              src={work.thumbnailUrl}
               alt={work.title}
               className="w-full h-full object-cover"
             />
@@ -128,23 +128,23 @@ export default function HomePage() {
               {work.category === "插画" && <PenTool />}
             </div>
           )}
-          
+
           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Button isIconOnly size="lg" className="bg-background/20 backdrop-blur-sm">
               <Play className="w-6 h-6" />
             </Button>
           </div>
-          
+
           <div className="absolute bottom-2 right-2 bg-background/80 text-foreground text-xs px-2 py-1 rounded">
             {work.duration}
           </div>
-          
+
           {work.premium && (
             <div className="absolute top-2 left-2">
               <Chip size="sm" color="warning">Premium</Chip>
             </div>
           )}
-          
+
           {work.trendingScore > 50 && (
             <div className="absolute top-2 right-2">
               <Chip size="sm" color="danger" startContent={<TrendingUp size={12} />}>
@@ -155,27 +155,18 @@ export default function HomePage() {
         </div>
 
         <div className="flex gap-3">
-          <Avatar 
-            src={work.user.image} 
-            size="sm" 
+          <Avatar
+            src={work.user.image}
+            size="sm"
             className="flex-shrink-0"
             showFallback
           />
-          
+
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
               {work.title}
             </h3>
-            
-            <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-              <span>{work.user.name}</span>
-              {work.user.isCreator && (
-                <Chip size="sm" color="primary" variant="flat" className="text-xs h-4">
-                  创作者
-                </Chip>
-              )}
-            </div>
-            
+
             <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
               <span className="flex items-center gap-1">
                 <Eye size={12} />
@@ -245,7 +236,7 @@ export default function HomePage() {
               size="lg"
             />
           </div>
-          
+
           <div className="flex gap-2">
             <Dropdown>
               <DropdownTrigger>
@@ -259,7 +250,7 @@ export default function HomePage() {
                 <DropdownItem key="rating">高评分</DropdownItem>
               </DropdownMenu>
             </Dropdown>
-            
+
             <Button
               isIconOnly
               variant={viewMode === "grid" ? "solid" : "flat"}
@@ -267,7 +258,7 @@ export default function HomePage() {
             >
               <Grid size={16} />
             </Button>
-            
+
             <Button
               isIconOnly
               variant={viewMode === "list" ? "solid" : "flat"}
@@ -297,10 +288,10 @@ export default function HomePage() {
         {error && (
           <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-6">
             <p className="text-danger">{error}</p>
-            <Button 
-              size="sm" 
-              color="danger" 
-              variant="flat" 
+            <Button
+              size="sm"
+              color="danger"
+              variant="flat"
               onPress={fetchTrendingWorks}
               className="mt-2"
             >
@@ -311,16 +302,16 @@ export default function HomePage() {
 
         {/* 作品网格 */}
         {loading ? (
-          <div className={`grid ${viewMode === "grid" 
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+          <div className={`grid ${viewMode === "grid"
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             : "grid-cols-1"} gap-6`}>
             {Array.from({ length: 8 }).map((_, index) => (
               <WorkCardSkeleton key={index} />
             ))}
           </div>
         ) : (
-          <div className={`grid ${viewMode === "grid" 
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+          <div className={`grid ${viewMode === "grid"
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             : "grid-cols-1"} gap-6`}>
             {filteredWorks.map((work) => (
               <WorkCard key={work.id} work={work} />

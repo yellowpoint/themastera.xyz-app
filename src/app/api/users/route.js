@@ -8,7 +8,6 @@ export async function GET(request) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const search = searchParams.get('search')
-    const isCreator = searchParams.get('isCreator')
 
     const skip = (page - 1) * limit
 
@@ -22,30 +21,25 @@ export async function GET(request) {
       ]
     }
 
-    if (isCreator !== null && isCreator !== undefined) {
-      where.isCreator = isCreator === 'true'
-    }
-
     // 获取用户列表
     const users = await prisma.user.findMany({
       where,
       select: {
-        id: true,
-        email: true,
-        name: true,
-        avatar: true,
-        level: true,
-        points: true,
-        isCreator: true,
-        createdAt: true,
-        _count: {
-          select: {
-            works: true,
-            purchases: true,
-            reviews: true
+          id: true,
+          email: true,
+          name: true,
+          image: true,
+          level: true,
+          points: true,
+          createdAt: true,
+          _count: {
+            select: {
+              works: true,
+              purchases: true,
+              reviews: true
+            }
           }
-        }
-      },
+        },
       orderBy: {
         createdAt: 'desc'
       },
@@ -85,7 +79,7 @@ export async function POST(request) {
   try {
     const body = await request.json()
     
-    const { id, email, name, avatar } = body
+    const { id, email, name, image } = body
     
     if (!id || !email) {
       return NextResponse.json(
@@ -118,10 +112,9 @@ export async function POST(request) {
         id,
         email,
         name: name || null,
-        avatar: avatar || null,
+        image: image || null,
         level: 'User',
-        points: 0,
-        isCreator: false
+        points: 0
       }
     })
 

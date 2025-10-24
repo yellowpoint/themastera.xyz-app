@@ -12,7 +12,6 @@ async function main() {
       name: '创意大师',
       email: 'creator@example.com',
       image: '/api/placeholder/100/100',
-      isCreator: true,
       level: 'Creator',
       points: 1500
     }
@@ -26,7 +25,6 @@ async function main() {
       name: '普通用户',
       email: 'user@example.com',
       image: '/api/placeholder/100/100',
-      isCreator: false,
       level: 'User',
       points: 500
     }

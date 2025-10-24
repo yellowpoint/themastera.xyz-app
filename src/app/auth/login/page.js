@@ -61,21 +61,10 @@ export default function LoginPage() {
     }
   };
 
-  // 错误信息映射
+  // 错误信息处理 - 直接返回 Better Auth 的原始错误信息
   const getErrorMessage = (error) => {
-    if (error.includes('Invalid login credentials')) {
-      return '邮箱或密码错误，请检查后重试';
-    }
-    if (error.includes('Email not confirmed')) {
-      return '请先验证您的邮箱地址';
-    }
-    if (error.includes('Invalid email')) {
-      return '请输入有效的邮箱地址';
-    }
-    if (error.includes('Too many requests')) {
-      return '登录尝试次数过多，请稍后再试';
-    }
-    return error || '登录失败，请稍后重试';
+    const errorString = typeof error === 'string' ? error : error?.message || '';
+    return errorString || '登录失败，请稍后重试';
   };
 
   return (
