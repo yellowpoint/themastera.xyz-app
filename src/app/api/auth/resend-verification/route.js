@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { generateVerifyEmailCallbackURL } from '@/utils/auth'
 
 export async function POST(request) {
   try {
@@ -18,7 +19,7 @@ export async function POST(request) {
     const result = await auth.api.sendVerificationEmail({
       body: {
         email,
-        callbackURL: `/auth/verify-email/${encodeURIComponent(encodeURIComponent(email))}` // 验证成功后重定向到验证页面
+        callbackURL: generateVerifyEmailCallbackURL(email) // 使用公共方法生成验证回调URL
       }
     })
 

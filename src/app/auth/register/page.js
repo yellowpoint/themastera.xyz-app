@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardHeader, Input, Button, Link, Divider, Checkbox } from '@heroui/react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { generateVerifyEmailCallbackURL } from '@/utils/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -78,7 +79,7 @@ export default function RegisterPage() {
           name: formData.username,
           referral_code: formData.referralCode || null,
           agree_marketing: formData.agreeMarketing,
-          callbackURL: window.location.origin + "/auth/verify-email/" + encodeURIComponent(encodeURIComponent(formData.email)) // 添加验证成功后的重定向URL
+          callbackURL: generateVerifyEmailCallbackURL(formData.email) // 使用公共方法生成验证回调URL
         }
       );
 

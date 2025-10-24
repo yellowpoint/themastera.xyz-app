@@ -7,6 +7,8 @@ Mastera Platform
 │ │ ├── 活跃记录 (Activity Log)
 │ │ └── 等级徽章 (Badge Level)
 │ ├── 登录与注册
+│ │ ├── 邮箱验证路由: /auth/verify-email/[email]
+│ │ └── 注意: email 参数需要双重编码 encodeURIComponent(encodeURIComponent(email))
 │ └── 邀请与推荐机制 (Referral Program)
 │
 ├── 2️⃣ 内容体系 (Content System)

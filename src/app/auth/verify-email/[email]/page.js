@@ -1,64 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { Card, CardBody, Button, Spinner } from '@heroui/react'
 import { CheckCircle, XCircle } from 'lucide-react'
-import { createAuthClient } from "better-auth/react"
-
-const auth = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-})
 
 export default function VerifyEmailPage() {
   const [status, setStatus] = useState('verifying') // 'verifying', 'success', 'error'
   const [message, setMessage] = useState('')
-  const searchParams = useSearchParams()
   const router = useRouter()
   const params = useParams()
   
-  // 从路由参数获取 email，从查询参数获取 token
+  // 从路由参数获取 email
   const email = decodeURIComponent(params.email)
-  const token = searchParams.get('token')
 
   useEffect(() => {
-    if (token) {
-      // 如果有token，说明是从邮件链接过来的，需要验证token
-      verifyEmailToken(token)
-    } else if (email) {
-      // 如果只有email参数，检查该邮箱是否已经验证
+    if (email) {
+      // 检查该邮箱是否已经验证
       checkEmailVerificationStatus(email)
     } else {
       setStatus('error')
       setMessage('缺少验证参数')
     }
-  }, [token, email])
-
-  const verifyEmailToken = async (token) => {
-    try {
-      const result = await auth.verifyEmail({
-        query: {
-          token: token
-        }
-      })
-
-      if (result.error) {
-        setStatus('error')
-        setMessage(result.error.message || '验证失败')
-      } else {
-        setStatus('success')
-        setMessage('您的邮箱已经验证成功！您现在可以正常使用所有功能。')
-        // 3秒后跳转到登录页面
-        setTimeout(() => {
-          router.push('/auth/login')
-        }, 3000)
-      }
-    } catch (error) {
-      console.error('验证邮箱token时出错:', error)
-      setStatus('error')
-      setMessage('验证失败，请重试')
-    }
-  }
+  }, [email])
 
   const checkEmailVerificationStatus = async (email) => {
     try {
