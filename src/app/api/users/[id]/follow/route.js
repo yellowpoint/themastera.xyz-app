@@ -221,7 +221,7 @@ export async function GET(request, { params }) {
     const formattedFollowers = recentFollowers.map(follow => ({
       id: follow.follower.id,
       name: follow.follower.name,
-      image: follow.follower.image || `/api/placeholder/36/36`,
+      image: follow.follower.image,
       level: follow.follower.level,
       followedAt: follow.createdAt
     }))

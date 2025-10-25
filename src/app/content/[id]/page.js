@@ -62,7 +62,7 @@ export default function ContentDetailPage() {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 播放器状态
+  // Player state
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(100);
@@ -70,7 +70,7 @@ export default function ContentDetailPage() {
   const [duration, setDuration] = useState(0);
   const [videoRef, setVideoRef] = useState(null);
 
-  // 交互状态
+  // Interaction state
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -97,11 +97,11 @@ export default function ContentDetailPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('作品不存在或已被删除');
+          throw new Error('Work not found or has been deleted');
         } else if (response.status >= 500) {
-          throw new Error('服务器错误，请稍后重试');
+          throw new Error('Server error, please try again later');
         } else {
-          throw new Error('获取作品详情失败');
+          throw new Error('Failed to fetch work details');
         }
       }
 
@@ -111,11 +111,11 @@ export default function ContentDetailPage() {
         setWork(data.data);
         setDuration(parseDuration(data.data.duration || '0:00'));
       } else {
-        throw new Error(data.error || '获取作品详情失败');
+        throw new Error(data.error || 'Failed to fetch work details');
       }
     } catch (err) {
       console.error('Error fetching work details:', err);
-      setError(err.message || '网络错误，请稍后重试');
+      setError(err.message || 'Network error, please try again later');
     } finally {
       setLoading(false);
     }
@@ -128,7 +128,7 @@ export default function ContentDetailPage() {
       const response = await fetch(`/api/works/${workId}/comments?limit=20&sort=newest`);
 
       if (!response.ok) {
-        throw new Error('获取评论失败');
+        throw new Error('Failed to fetch comments');
       }
 
       const data = await response.json();
@@ -136,7 +136,7 @@ export default function ContentDetailPage() {
       if (data.success) {
         setComments(data.data.comments || []);
       } else {
-        throw new Error(data.error || '获取评论失败');
+        throw new Error(data.error || 'Failed to fetch comments');
       }
     } catch (err) {
       console.error('Error fetching comments:', err);
@@ -150,7 +150,7 @@ export default function ContentDetailPage() {
       const response = await fetch(`/api/works/trending?limit=8&exclude=${workId}`);
 
       if (!response.ok) {
-        throw new Error('获取相关作品失败');
+        throw new Error('Failed to fetch related works');
       }
 
       const data = await response.json();
@@ -158,7 +158,7 @@ export default function ContentDetailPage() {
       if (data.success) {
         setRelatedWorks(data.data || []);
       } else {
-        throw new Error(data.error || '获取相关作品失败');
+        throw new Error(data.error || 'Failed to fetch related works');
       }
     } catch (err) {
       console.error('Error fetching related works:', err);
@@ -316,25 +316,25 @@ export default function ContentDetailPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">
-            {error?.includes('不存在') || error?.includes('删除') ? '😕' : '⚠️'}
+            {error?.includes('not found') || error?.includes('deleted') ? '😕' : '⚠️'}
           </div>
           <h2 className="text-2xl font-bold mb-2">
-            {error?.includes('不存在') || error?.includes('删除') ? '作品不存在' : '加载失败'}
+            {error?.includes('not found') || error?.includes('deleted') ? 'Work Not Found' : 'Failed to Load'}
           </h2>
           <p className="text-gray-500 mb-6">
-            {error || '找不到该作品'}
+            {error || 'Could not find the requested work'}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/content">
               <Button color="primary" variant="solid">
-                浏览其他作品
+                Browse Other Works
               </Button>
             </Link>
 
             <Link href="/">
               <Button color="default" variant="light">
-                返回首页
+                Back to Home
               </Button>
             </Link>
           </div>
@@ -347,18 +347,18 @@ export default function ContentDetailPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 主内容区域 */}
+          {/* Main Content Area */}
           <div className="lg:col-span-2">
             <VideoPlayer
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
               isPremium={work.premium}
-              userMembership="VIP" // TODO: 从用户状态获取
+              userMembership="VIP" // TODO: Get from user status
               className="mb-4"
             />
 
-            {/* 作品信息 */}
+            {/* Work Information */}
             <div className="space-y-4">
               <h1 className="text-2xl font-bold">{work.title}</h1>
 
@@ -366,7 +366,7 @@ export default function ContentDetailPage() {
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <Eye size={16} />
-                    {formatViews(work.downloads)} 次观看
+                    {formatViews(work.downloads)} views
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock size={16} />
@@ -395,7 +395,7 @@ export default function ContentDetailPage() {
                     size="sm"
                     onPress={handleDislike}
                   >
-                    不喜欢
+                    Dislike
                   </Button>
 
                   <Button
@@ -404,7 +404,7 @@ export default function ContentDetailPage() {
                     size="sm"
                     onPress={onShareOpen}
                   >
-                    分享
+                    Share
                   </Button>
 
                   <Button
@@ -413,14 +413,14 @@ export default function ContentDetailPage() {
                     size="sm"
                     color="primary"
                   >
-                    下载
+                    Download
                   </Button>
                 </div>
               </div>
 
               <Divider />
 
-              {/* 创作者信息 */}
+              {/* Creator Information */}
               <div className="flex items-start gap-4">
                 <Link href={`/creator/${work.user.id}`}>
                   <Avatar
@@ -441,7 +441,7 @@ export default function ContentDetailPage() {
                   </div>
 
                   <p className="text-sm text-gray-500 mb-2">
-                    {work.user.followers || 0} 位关注者
+                    {work.user.followers || 0} followers
                   </p>
 
                   <div className="flex items-center gap-2">
@@ -452,29 +452,28 @@ export default function ContentDetailPage() {
                       startContent={isFollowing ? <BellRing size={16} /> : <Bell size={16} />}
                       onPress={handleFollow}
                     >
-                      {isFollowing ? "已关注" : "关注"}
+                      {isFollowing ? "Following" : "Follow"}
                     </Button>
                   </div>
                 </div>
               </div>
 
-              {/* 作品描述 */}
+              {/* Work Description */}
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">作品描述</h4>
+                  <h4 className="font-semibold">Description</h4>
                   <Button
                     variant="light"
                     size="sm"
                     endContent={showDescription ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     onPress={() => setShowDescription(!showDescription)}
                   >
-                    {showDescription ? "收起" : "展开"}
+                    {showDescription ? "Collapse" : "Expand"}
                   </Button>
                 </div>
 
-                <p className={`text-sm text-gray-600 dark:text-gray-400 ${showDescription ? "" : "line-clamp-3"
-                  }`}>
-                  {work.description || "创作者暂未添加描述..."}
+                <p className={`text-sm text-gray-600 dark:text-gray-400 ${showDescription ? "" : "line-clamp-3"}`}>
+                  {work.description || "The creator has not added a description yet..."}
                 </p>
 
                 {work.tags && (
@@ -490,32 +489,32 @@ export default function ContentDetailPage() {
 
               <Divider />
 
-              {/* 评论区 */}
+              {/* Comments Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <MessageCircle size={20} />
-                    评论 ({comments.length})
+                    Comments ({comments.length})
                   </h3>
 
                   <Dropdown>
                     <DropdownTrigger>
                       <Button variant="flat" size="sm">
-                        排序方式
+                        Sort by
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu>
-                      <DropdownItem key="newest">最新</DropdownItem>
-                      <DropdownItem key="oldest">最早</DropdownItem>
-                      <DropdownItem key="rating">评分</DropdownItem>
+                      <DropdownItem key="newest">Newest</DropdownItem>
+                      <DropdownItem key="oldest">Oldest</DropdownItem>
+                      <DropdownItem key="rating">Rating</DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
                 </div>
 
-                {/* 添加评论 */}
+                {/* Add Comment */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">评分:</span>
+                    <span className="text-sm">Rating:</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Button
@@ -535,7 +534,7 @@ export default function ContentDetailPage() {
                   </div>
 
                   <Textarea
-                    placeholder="写下你的评论..."
+                    placeholder="Write your comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     minRows={3}
@@ -547,14 +546,14 @@ export default function ContentDetailPage() {
                       onPress={handleCommentSubmit}
                       isDisabled={!newComment.trim()}
                     >
-                      发表评论
+                      Post Comment
                     </Button>
                   </div>
                 </div>
 
                 <Divider />
 
-                {/* 评论列表 */}
+                {/* Comment List */}
                 <div className="space-y-4">
                   {commentsLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
@@ -597,7 +596,7 @@ export default function ContentDetailPage() {
                               {comment.likes}
                             </Button>
                             <Button variant="light" size="sm">
-                              回复
+                              Reply
                             </Button>
                           </div>
                         </div>
@@ -609,9 +608,9 @@ export default function ContentDetailPage() {
             </div>
           </div>
 
-          {/* 侧边栏 - 相关推荐 */}
+          {/* Sidebar - Related Recommendations */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">相关推荐</h3>
+            <h3 className="text-lg font-semibold">Related</h3>
 
             <div className="space-y-3">
               {relatedWorks.map((relatedWork) => (
@@ -639,7 +638,7 @@ export default function ContentDetailPage() {
                         {relatedWork.user.name}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <span>{formatViews(relatedWork.downloads)} 观看</span>
+                        <span>{formatViews(relatedWork.downloads)} views</span>
                         <span>•</span>
                         <span>{relatedWork.uploadTime}</span>
                       </div>
@@ -652,35 +651,35 @@ export default function ContentDetailPage() {
         </div>
       </div>
 
-      {/* 分享模态框 */}
+      {/* Share Modal */}
       <Modal isOpen={isShareOpen} onOpenChange={onShareOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>分享作品</ModalHeader>
+              <ModalHeader>Share Work</ModalHeader>
               <ModalBody>
                 <div className="space-y-4">
                   <Input
-                    label="分享链接"
+                    label="Share Link"
                     value={`${window.location.origin}/content/${workId}`}
                     readOnly
                     endContent={
                       <Button size="sm" variant="flat">
-                        复制
+                        Copy
                       </Button>
                     }
                   />
 
                   <div className="flex gap-2">
-                    <Button color="primary" variant="flat">微信</Button>
-                    <Button color="primary" variant="flat">微博</Button>
+                    <Button color="primary" variant="flat">WeChat</Button>
+                    <Button color="primary" variant="flat">Weibo</Button>
                     <Button color="primary" variant="flat">QQ</Button>
                   </div>
                 </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>
-                  关闭
+                  Close
                 </Button>
               </ModalFooter>
             </>

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/works/[id] - 获取单个作品
+// GET /api/works/[id] - Get single work
 export async function GET(request, { params }) {
   try {
     const { id } = await params
@@ -64,13 +64,13 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT /api/works/[id] - 更新作品
+// PUT /api/works/[id] - Update work
 export async function PUT(request, { params }) {
   try {
     const { id } = await params
     const body = await request.json()
 
-    // 检查作品是否存在
+    // Check if the work exists
     const existingWork = await prisma.work.findUnique({
       where: { id }
     })
@@ -82,7 +82,7 @@ export async function PUT(request, { params }) {
       )
     }
 
-    // 准备更新数据
+    // Prepare update data
     const updateData = {}
     
     if (body.title !== undefined) updateData.title = body.title
@@ -94,7 +94,7 @@ export async function PUT(request, { params }) {
     if (body.fileUrl !== undefined) updateData.fileUrl = body.fileUrl
     if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl
 
-    // 更新作品
+    // Update work
     const work = await prisma.work.update({
       where: { id },
       data: updateData,
@@ -127,12 +127,12 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE /api/works/[id] - 删除作品
+// DELETE /api/works/[id] - Delete work
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params
 
-    // 检查作品是否存在
+    // Check if the work exists
     const existingWork = await prisma.work.findUnique({
       where: { id }
     })
@@ -144,7 +144,7 @@ export async function DELETE(request, { params }) {
       )
     }
 
-    // 删除作品（注意：这会级联删除相关的reviews和purchases）
+    // Delete the work (Note: this will cascade delete related reviews and purchases)
     await prisma.work.delete({
       where: { id }
     })

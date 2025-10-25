@@ -87,7 +87,7 @@ export async function GET(request, { params }) {
       user: {
         id: comment.user.id,
         name: comment.user.name,
-        image: comment.user.image || `/api/placeholder/36/36`,
+        image: comment.user.image,
         level: comment.user.level
       },
       timeAgo: formatTimeAgo(comment.createdAt),
@@ -242,7 +242,7 @@ export async function POST(request, { params }) {
       user: {
         id: newComment.user.id,
         name: newComment.user.name,
-        image: newComment.user.image || `/api/placeholder/36/36`,
+        image: newComment.user.image,
         level: newComment.user.level
       },
       timeAgo: formatTimeAgo(newComment.createdAt),
@@ -273,19 +273,19 @@ function formatTimeAgo(date) {
   const now = new Date()
   const created = new Date(date)
   const diffInMinutes = Math.floor((now - created) / (1000 * 60))
-  
+
   if (diffInMinutes < 1) return '刚刚'
   if (diffInMinutes < 60) return `${diffInMinutes}分钟前`
-  
+
   const diffInHours = Math.floor(diffInMinutes / 60)
   if (diffInHours < 24) return `${diffInHours}小时前`
-  
+
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays < 7) return `${diffInDays}天前`
-  
+
   const diffInWeeks = Math.floor(diffInDays / 7)
   if (diffInWeeks < 4) return `${diffInWeeks}周前`
-  
+
   const diffInMonths = Math.floor(diffInDays / 30)
   return `${diffInMonths}个月前`
 }

@@ -11,7 +11,7 @@ export default function ImgUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   bucket = 'data',
   folder = '',
-  required = true // 是否必传
+  required = true // Whether it is required
 }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -42,7 +42,7 @@ export default function ImgUpload({
         })
 
       if (error) {
-        throw new Error(`封面上传失败: ${error.message}`)
+        throw new Error(`Cover upload failed: ${error.message}`)
       }
 
       const publicUrl = getStorageUrl(storageBucket, filePath)
@@ -66,15 +66,15 @@ export default function ImgUpload({
 
     const file = files[0]
 
-    // 验证文件类型
+    // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('封面必须是图片文件')
+      setError('Cover must be an image file')
       return
     }
 
-    // 验证文件大小
+    // Validate file size
     if (file.size > maxSize) {
-      setError(`图片文件超过大小限制 (${maxSize / 1024 / 1024}MB)`)
+      setError(`Image file exceeds size limit (${maxSize / 1024 / 1024}MB)`)
       return
     }
 
@@ -84,11 +84,11 @@ export default function ImgUpload({
       const result = await uploadCoverImage(file)
       setCoverImage(result)
 
-      // 通知父组件
+      // Notify parent component
       onUploadComplete?.(result);
     } catch (error) {
       console.error('Cover upload failed:', error)
-      setError(error.message || '封面上传失败')
+      setError(error.message || 'Cover upload failed')
     } finally {
       setUploading(false)
     }
@@ -135,11 +135,11 @@ export default function ImgUpload({
 
   return (
     <div className="w-full space-y-4">
-      {/* 标题区域 */}
+      {/* Title area */}
       <div className="flex items-center justify-between">
         <h4 className="font-medium flex items-center gap-2">
           <Camera className="w-4 h-4" />
-          作品封面 {required && <span className="text-red-500">*</span>}
+          Work Cover {required && <span className="text-red-500">*</span>}
         </h4>
         {!coverImage && (
           <Button
@@ -150,12 +150,12 @@ export default function ImgUpload({
             startContent={<ImageIcon className="w-4 h-4" />}
             isLoading={uploading}
           >
-            选择封面
+            Select Cover
           </Button>
         )}
       </div>
 
-      {/* 上传区域 */}
+      {/* Upload area */}
       {!coverImage ? (
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${dragActive
@@ -170,26 +170,26 @@ export default function ImgUpload({
         >
           <Upload className="w-8 h-8 mx-auto mb-3 text-gray-400" />
           <p className="text-sm font-medium mb-1">
-            点击或拖拽图片到此处上传
+            Click or drag an image here to upload
           </p>
           <p className="text-xs text-gray-500">
-            支持 JPG, PNG, GIF 格式 | 最大 {maxSize / 1024 / 1024}MB
+            Supports JPG, PNG, GIF formats | Max {maxSize / 1024 / 1024}MB
           </p>
         </div>
       ) : (
-        /* 封面预览 */
+        /* Cover preview */
         <Card className="border-green-200">
           <CardBody className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center space-x-3">
               <Image
                 src={coverImage.fileUrl}
-                alt="封面预览"
+                alt="Cover preview"
                 className="w-16 h-16 object-cover rounded"
               />
               <div>
                 <p className="font-medium text-green-800">{coverImage.originalName}</p>
                 <p className="text-sm text-green-600">
-                  封面图片 • {formatFileSize(coverImage.size)}
+                  Cover Image • {formatFileSize(coverImage.size)}
                 </p>
                 <a
                   href={coverImage.fileUrl}
@@ -197,7 +197,7 @@ export default function ImgUpload({
                   rel="noopener noreferrer"
                   className="text-xs text-blue-600 hover:underline"
                 >
-                  查看原图
+                  View Original
                 </a>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function ImgUpload({
                 startContent={<ImageIcon className="w-4 h-4" />}
                 isLoading={uploading}
               >
-                更换
+                Change
               </Button>
               <Button
                 isIconOnly
@@ -226,24 +226,24 @@ export default function ImgUpload({
         </Card>
       )}
 
-      {/* 错误提示 */}
+      {/* Error message */}
       {error && (
         <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
           {error}
         </div>
       )}
 
-      {/* 必填提示 */}
+      {/* Required prompt */}
       {required && !coverImage && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm">
           <p className="flex items-center gap-2">
             <Camera className="w-4 h-4" />
-            封面图片是必需的，请选择一张图片作为作品封面
+            Cover image is required, please select an image as the work cover
           </p>
         </div>
       )}
 
-      {/* 隐藏的文件输入 */}
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"

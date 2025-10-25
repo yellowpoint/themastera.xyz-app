@@ -11,16 +11,16 @@ export default function VerifyEmailPage() {
   const router = useRouter()
   const params = useParams()
   
-  // 从路由参数获取 email
+  // Get email from route parameters
   const email = decodeURIComponent(params.email)
 
   useEffect(() => {
     if (email) {
-      // 检查该邮箱是否已经验证
+      // Check if the email has been verified
       checkEmailVerificationStatus(email)
     } else {
       setStatus('error')
-      setMessage('缺少验证参数')
+      setMessage('Missing verification parameters')
     }
   }, [email])
 
@@ -39,30 +39,30 @@ export default function VerifyEmailPage() {
       if (response.ok) {
         if (data.verified) {
           setStatus('success')
-          setMessage('您的邮箱已经验证成功！您现在可以正常使用所有功能。')
-          // 3秒后跳转到登录页面
+          setMessage('Your email has been successfully verified! You can now use all features.')
+          // Redirect to the login page after 3 seconds
           setTimeout(() => {
             router.push('/auth/login')
           }, 3000)
         } else {
           setStatus('error')
-          setMessage('邮箱尚未验证，请检查您的邮箱并点击验证链接。')
+          setMessage('Email not verified yet, please check your inbox and click the verification link.')
         }
       } else {
         setStatus('error')
-        setMessage(data.error || '检查验证状态失败')
+        setMessage(data.error || 'Failed to check verification status')
       }
     } catch (error) {
-      console.error('检查邮箱验证状态时出错:', error)
+      console.error('Error checking email verification status:', error)
       setStatus('error')
-      setMessage('网络错误，请稍后重试')
+      setMessage('Network error, please try again later')
     }
   }
 
   const resendVerification = async () => {
     try {
       if (!email) {
-        setMessage('无法获取邮箱地址，请重新注册')
+        setMessage('Unable to get email address, please register again')
         return
       }
 
@@ -75,13 +75,13 @@ export default function VerifyEmailPage() {
       })
 
       if (response.ok) {
-        setMessage('验证邮件已重新发送，请检查您的邮箱')
+        setMessage('Verification email has been resent, please check your inbox')
       } else {
         const data = await response.json()
-        setMessage(data.error || '重发失败，请稍后重试')
+        setMessage(data.error || 'Resend failed, please try again later')
       }
     } catch (error) {
-      setMessage('网络错误，请稍后重试')
+      setMessage('Network error, please try again later')
     }
   }
 
@@ -92,9 +92,9 @@ export default function VerifyEmailPage() {
           {status === 'verifying' && (
             <>
               <Spinner size="lg" className="mb-4" />
-              <h1 className="text-2xl font-bold mb-4">验证邮箱中...</h1>
+              <h1 className="text-2xl font-bold mb-4">Verifying Email...</h1>
               <p className="text-gray-600 dark:text-gray-400">
-                正在验证您的邮箱地址，请稍候...
+                Verifying your email address, please wait...
               </p>
             </>
           )}
@@ -102,12 +102,12 @@ export default function VerifyEmailPage() {
           {status === 'success' && (
             <>
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-green-600 mb-4">验证成功！</h1>
+              <h1 className="text-2xl font-bold text-green-600 mb-4">Verification Successful!</h1>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 {message}
               </p>
               <p className="text-sm text-gray-500">
-                3秒后自动跳转到登录页面...
+                Redirecting to the login page in 3 seconds...
               </p>
             </>
           )}
@@ -115,7 +115,7 @@ export default function VerifyEmailPage() {
           {status === 'error' && (
             <>
               <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-red-600 mb-4">验证失败</h1>
+              <h1 className="text-2xl font-bold text-red-600 mb-4">Verification Failed</h1>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 {message}
               </p>
@@ -126,7 +126,7 @@ export default function VerifyEmailPage() {
                   onPress={resendVerification}
                   className="w-full"
                 >
-                  重新发送验证邮件
+                  Resend Verification Email
                 </Button>
                 <Button
                   color="default"
@@ -134,7 +134,7 @@ export default function VerifyEmailPage() {
                   onPress={() => router.push('/auth/login')}
                   className="w-full"
                 >
-                  返回登录页面
+                  Return to Login
                 </Button>
               </div>
             </>

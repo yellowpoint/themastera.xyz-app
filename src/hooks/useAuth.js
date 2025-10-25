@@ -3,7 +3,7 @@ import { createAuthClient } from "better-auth/react"
 
 const AuthContext = createContext({})
 
-// Better Auth 客户端配置
+// Better Auth client configuration
 const auth = createAuthClient()
 
 export const AuthProvider = ({ children }) => {
@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 获取初始会话
+    // Get initial session
     const getInitialSession = async () => {
       try {
         const session = await auth.getSession()
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
     getInitialSession()
 
-    // // 监听认证状态变化
+    // // Listen for authentication state changes
     // const unsubscribe = auth.onSessionChange((session) => {
     //   setUser(session?.user || null)
     //   setLoading(false)
@@ -43,8 +43,8 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         name: additionalData.name,
-        image: additionalData.image, // 支持头像URL
-        callbackURL: additionalData.callbackURL, // 支持回调URL
+        image: additionalData.image, // Support avatar URL
+        callbackURL: additionalData.callbackURL, // Support callback URL
         ...additionalData
       })
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         return { error: result.error }
       }
 
-      // 注册成功后如果有会话，立即更新用户状态
+      // If there is a session after successful registration, update the user status immediately
       if (result.data?.session) {
         try {
           const session = await auth.getSession()
@@ -74,14 +74,14 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         callbackURL: options.callbackURL,
-        rememberMe: options.rememberMe !== false, // 默认为 true
+        rememberMe: options.rememberMe !== false, // Defaults to true
       })
 
       if (result.error) {
         return { error: result.error }
       }
 
-      // 登录成功后立即获取最新的会话信息
+      // Immediately fetch the latest session information after successful login
       if (result.data) {
         try {
           const session = await auth.getSession()
@@ -102,10 +102,10 @@ export const AuthProvider = ({ children }) => {
       await auth.signOut({
         fetchOptions: {
           onSuccess: () => {
-            // 清理本地状态
+            // Clean up local state
             setUser(null)
             setLoading(false)
-            // 如果提供了成功回调，执行它
+            // If a success callback is provided, execute it
             if (options.onSuccess) {
               options.onSuccess()
             }

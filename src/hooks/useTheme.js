@@ -4,19 +4,19 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext()
 
-// 获取初始主题的函数
+// Function to get initial theme
 function getInitialTheme() {
   if (typeof window === 'undefined') {
-    return 'dark' // 服务端渲染时的默认值
+    return 'dark' // Default value for server-side rendering
   }
   
-  // 从localStorage读取保存的主题设置
+  // Read theme setting from localStorage
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
     return savedTheme
   }
   
-  // 默认使用深色模式，不再检查系统偏好
+  // Default to dark mode, no longer checking system preference
   return 'dark'
 }
 
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     setMounted(true)
     
-    // 确保主题正确应用到DOM
+    // Ensure theme is correctly applied to DOM
     const root = document.documentElement
     root.classList.remove('light', 'dark')
     
@@ -44,10 +44,10 @@ export function ThemeProvider({ children }) {
 
     const root = document.documentElement
     
-    // 移除之前的主题类
+    // Remove previous theme class
     root.classList.remove('light', 'dark')
     
-    // 添加新的主题类
+    // Add new theme class
     if (theme === 'system') {
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
       root.classList.add(systemPrefersDark ? 'dark' : 'light')
@@ -55,7 +55,7 @@ export function ThemeProvider({ children }) {
       root.classList.add(theme)
     }
 
-    // 保存到localStorage
+    // Save to localStorage
     localStorage.setItem('theme', theme)
   }, [theme, mounted])
 

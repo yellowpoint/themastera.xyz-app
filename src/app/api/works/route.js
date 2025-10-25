@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/works - 获取作品列表
+// GET /api/works - Get works list
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -12,7 +12,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
 
-    // 构建查询条件
+    // Build query conditions
     const where = {}
 
     if (userId) {
@@ -83,12 +83,12 @@ export async function GET(request) {
   }
 }
 
-// POST /api/works - 创建新作品
+// POST /api/works - Create new work
 export async function POST(request) {
   try {
     const body = await request.json()
 
-    // 验证必需字段
+    // Validate required fields
     const { title, description, category, userId } = body
 
     if (!title || !description || !category || !userId) {

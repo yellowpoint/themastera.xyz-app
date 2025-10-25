@@ -45,15 +45,15 @@ import {
 import Link from "next/link";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
 
-const categories = ["全部", ...MUSIC_CATEGORIES];
+const categories = ["All", ...MUSIC_CATEGORIES];
 
 export default function HomePage() {
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("全部");
-  const [selectedLanguage, setSelectedLanguage] = useState("全部");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [viewMode, setViewMode] = useState("grid");
 
 
@@ -66,19 +66,19 @@ export default function HomePage() {
       setLoading(true);
       setError(null);
 
-      const category = selectedCategory === "全部" ? "" : selectedCategory;
-      const language = selectedLanguage === "全部" ? "" : selectedLanguage;
+      const category = selectedCategory === "All" ? "" : selectedCategory;
+      const language = selectedLanguage === "All" ? "" : selectedLanguage;
       const response = await fetch(`/api/works/trending?category=${encodeURIComponent(category)}&language=${encodeURIComponent(language)}&limit=20`);
       const data = await response.json();
 
       if (data.success) {
         setWorks(data.data);
       } else {
-        setError(data.error || '获取作品失败');
+        setError(data.error || 'Failed to fetch works');
       }
     } catch (err) {
       console.error('Error fetching trending works:', err);
-      setError('网络错误，请稍后重试');
+      setError('Network error, please try again later');
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function HomePage() {
   };
 
   const filteredWorks = works.filter(work => {
-    // 将tags字符串转换为数组
+    // Convert the tags string to an array
     const tagsArray = work.tags ? work.tags.split(',').map(tag => tag.trim()) : [];
 
     const matchesSearch = !searchQuery ||
@@ -142,7 +142,7 @@ export default function HomePage() {
           {work.trendingScore > 50 && (
             <div className="absolute top-2 right-2">
               <Chip size="sm" color="danger" startContent={<TrendingUp size={12} />}>
-                热门
+                Trending
               </Chip>
             </div>
           )}
@@ -164,7 +164,7 @@ export default function HomePage() {
             <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
               <span className="flex items-center gap-1">
                 <Eye size={12} />
-                {formatViews(work.downloads)} 次观看
+                {formatViews(work.downloads)} views
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
@@ -178,7 +178,7 @@ export default function HomePage() {
               </span>
             </div>
 
-            {/* 标签 */}
+            {/* Tags */}
             <div className="flex flex-wrap gap-1 mt-2">
               {(work.tags ? work.tags.split(',').map(tag => tag.trim()) : []).slice(0, 2).map((tag, index) => (
                 <Chip key={index} size="sm" variant="flat" color="default" className="text-xs">
@@ -209,21 +209,21 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 页面标题 */}
+        {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
-            发现精彩内容 <span className="text-lime-400">Discover</span>
+            Discover Amazing Content <span className="text-lime-400">Discover</span>
           </h1>
           <p className="text-gray-300 text-lg">
-            探索来自全球创作者的优质作品，发现你的下一个灵感源泉
+            Explore quality works from global creators, find your next source of inspiration
           </p>
         </div>
 
-        {/* 搜索和筛选 */}
+        {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <Input
-              placeholder="搜索作品、创作者或标签..."
+              placeholder="Search works, creators or tags..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               startContent={<Search size={16} className="text-gray-400" />}
@@ -235,13 +235,13 @@ export default function HomePage() {
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="flat" startContent={<Filter size={16} />}>
-                  筛选
+                  Filter
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem key="trending">热门</DropdownItem>
-                <DropdownItem key="newest">最新</DropdownItem>
-                <DropdownItem key="rating">高评分</DropdownItem>
+                <DropdownItem key="trending">Trending</DropdownItem>
+                <DropdownItem key="newest">Newest</DropdownItem>
+                <DropdownItem key="rating">Top Rated</DropdownItem>
               </DropdownMenu>
             </Dropdown>
 
@@ -263,9 +263,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 分类标签 */}
+        {/* Category Tags */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className="flex items-center text-sm text-gray-400 mr-2">风格:</span>
+          <span className="flex items-center text-sm text-gray-400 mr-2">Style:</span>
           {categories.map((category) => (
             <Button
               key={category}
@@ -279,17 +279,17 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* 语言筛选 */}
+        {/* Language Filter */}
         <div className="flex flex-wrap gap-2 mb-8">
-          <span className="flex items-center text-sm text-gray-400 mr-2">语言:</span>
+          <span className="flex items-center text-sm text-gray-400 mr-2">Language:</span>
           <Button
-            key="全部"
-            variant={selectedLanguage === "全部" ? "solid" : "flat"}
-            color={selectedLanguage === "全部" ? "primary" : "default"}
+            key="All"
+            variant={selectedLanguage === "All" ? "solid" : "flat"}
+            color={selectedLanguage === "All" ? "primary" : "default"}
             size="sm"
-            onPress={() => handleLanguageChange("全部")}
+            onPress={() => handleLanguageChange("All")}
           >
-            全部
+            All
           </Button>
           {LANGUAGE_CATEGORIES.map((language) => (
             <Button
@@ -304,7 +304,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* 错误提示 */}
+        {/* Error Message */}
         {error && (
           <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-6">
             <p className="text-danger">{error}</p>
@@ -315,12 +315,12 @@ export default function HomePage() {
               onPress={fetchTrendingWorks}
               className="mt-2"
             >
-              重试
+              Retry
             </Button>
           </div>
         )}
 
-        {/* 作品网格 */}
+        {/* Works Grid */}
         {loading ? (
           <div className={`grid ${viewMode === "grid"
             ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
@@ -339,27 +339,27 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* 空状态 */}
+        {/* Empty State */}
         {!loading && filteredWorks.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🎨</div>
-            <h3 className="text-xl font-semibold mb-2">暂无作品</h3>
+            <h3 className="text-xl font-semibold mb-2">No Works Found</h3>
             <p className="text-gray-500 mb-4">
-              {searchQuery ? "没有找到匹配的作品，试试其他关键词" : "该分类下暂无作品"}
+              {searchQuery ? "No matching works found, try different keywords" : "No works in this category yet"}
             </p>
             {searchQuery && (
               <Button onPress={() => setSearchQuery("")}>
-                清除搜索
+                Clear Search
               </Button>
             )}
           </div>
         )}
 
-        {/* 加载更多 */}
+        {/* Load More */}
         {!loading && filteredWorks.length > 0 && (
           <div className="text-center mt-12">
             <Button size="lg" variant="flat">
-              加载更多
+              Load More
             </Button>
           </div>
         )}

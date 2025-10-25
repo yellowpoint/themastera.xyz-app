@@ -5,13 +5,13 @@ export const useWorks = (userId = null) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // 获取作品列表
+  // Fetch works list
   const fetchWorks = useCallback(async (filters = {}) => {
     setLoading(true)
     setError(null)
     
     try {
-      // 构建查询参数
+      // Build query parameters
       const params = new URLSearchParams()
       
       if (userId) {
@@ -58,7 +58,7 @@ export const useWorks = (userId = null) => {
     }
   }, [userId])
 
-  // 创建新作品
+  // Create new work
   const createWork = async (workData) => {
     setLoading(true)
     setError(null)
@@ -93,7 +93,7 @@ export const useWorks = (userId = null) => {
     }
   }
 
-  // 更新作品
+  // Update work
   const updateWork = async (workId, updates) => {
     setLoading(true)
     setError(null)
@@ -133,7 +133,7 @@ export const useWorks = (userId = null) => {
     }
   }
 
-  // 删除作品
+  // Delete work
   const deleteWork = async (workId) => {
     setLoading(true)
     setError(null)
@@ -163,7 +163,7 @@ export const useWorks = (userId = null) => {
     }
   }
 
-  // 获取作品统计数据
+  // Fetch work statistics
   const getWorkStats = useCallback(async (userId) => {
     try {
       const response = await fetch(`/api/works/stats?userId=${userId}`)
@@ -193,7 +193,7 @@ export const useWorks = (userId = null) => {
     }
   }, [])
 
-  // 初始加载
+  // Initial load
   useEffect(() => {
     fetchWorks()
   }, [userId])

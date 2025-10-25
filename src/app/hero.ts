@@ -1,6 +1,6 @@
 // hero.ts
 import { heroui } from "@heroui/react";
-// Tailwind v4 默认不再读取 tailwind.config.js ，改动需要在 CSS 配置或插件入口（这里是 hero.ts ）进行。
+// Tailwind v4 no longer reads tailwind.config.js by default. Changes must be made in the CSS configuration or the plugin entry point (in this case, hero.ts).
 
 export default heroui({
   layout: {

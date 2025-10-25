@@ -30,7 +30,7 @@ export default function UploadPage() {
   const [tags, setTags] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 处理视频上传完成
+  // Handle video upload completion
   const handleVideoUploadComplete = (uploadedFiles) => {
     console.log('Video upload results:', uploadedFiles)
 
@@ -43,7 +43,7 @@ export default function UploadPage() {
     }
   }
 
-  // 处理封面上传完成
+  // Handle cover upload completion
   const handleCoverUploadComplete = (coverImage) => {
     console.log('Cover upload result:', coverImage)
 
@@ -53,13 +53,13 @@ export default function UploadPage() {
     }))
   }
 
-  // 发布作品
+  // Publish work
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!user) {
       addToast({
-        description: '请先登录',
+        description: 'Please login first',
         color: "danger"
       })
       return
@@ -67,7 +67,7 @@ export default function UploadPage() {
 
     if (!uploadForm.title || !uploadForm.description || !uploadForm.category) {
       addToast({
-        description: '请填写必要信息',
+        description: 'Please fill in required information',
         color: "danger"
       })
       return
@@ -75,7 +75,7 @@ export default function UploadPage() {
 
     if (!uploadForm.fileUrl) {
       addToast({
-        description: '请上传视频文件',
+        description: 'Please upload video file',
         color: "danger"
       })
       return
@@ -83,7 +83,7 @@ export default function UploadPage() {
 
     if (!uploadForm.thumbnailUrl) {
       addToast({
-        description: '请上传封面图片',
+        description: 'Please upload cover image',
         color: "danger"
       })
       return
@@ -102,14 +102,14 @@ export default function UploadPage() {
 
       await createWork(workData)
       addToast({
-        description: '作品发布成功！',
+        description: 'Work published successfully!',
         color: "success"
       })
       router.push('/creator')
     } catch (error) {
-      console.error('发布失败:', error)
+      console.error('Publish failed:', error)
       addToast({
-        description: '发布失败，请重试',
+        description: 'Publish failed, please try again',
         color: "danger"
       })
     } finally {
@@ -117,11 +117,11 @@ export default function UploadPage() {
     }
   }
 
-  // 保存草稿
+  // Save draft
   const handleSaveDraft = async () => {
     if (!user) {
       addToast({
-        description: '请先登录',
+        description: 'Please login first',
         color: "danger"
       })
       return
@@ -140,14 +140,14 @@ export default function UploadPage() {
 
       await createWork(workData)
       addToast({
-        description: '草稿保存成功！',
+        description: 'Draft saved successfully!',
         color: "success"
       })
       router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
       addToast({
-        description: '保存失败，请重试',
+        description: 'Save failed, please try again',
         color: "danger"
       })
     } finally {
@@ -162,7 +162,7 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* 头部导航 */}
+      {/* Header navigation */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -174,7 +174,7 @@ export default function UploadPage() {
               >
                 <ArrowLeft size={20} />
               </Button>
-              <h1 className="text-xl font-semibold">发布视频</h1>
+              <h1 className="text-xl font-semibold">Publish Video</h1>
             </div>
 
           </div>
@@ -183,11 +183,11 @@ export default function UploadPage() {
 
       <Form onSubmit={handleSubmit} className="max-w-4xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 左侧：视频上传区域 */}
+          {/* Left: Video upload area */}
           <div className="space-y-6">
             <Card>
               <CardBody className="p-6">
-                <h2 className="text-lg font-medium mb-4">上传视频</h2>
+                <h2 className="text-lg font-medium mb-4">Upload Video</h2>
                 <VideoUpload
                   onUploadComplete={handleVideoUploadComplete}
                 />
@@ -196,7 +196,7 @@ export default function UploadPage() {
 
             <Card>
               <CardBody className="p-6">
-                <h2 className="text-lg font-medium mb-4">上传封面</h2>
+                <h2 className="text-lg font-medium mb-4">Upload Cover</h2>
                 <ImgUpload
                   onUploadComplete={handleCoverUploadComplete}
                   required={true}
@@ -205,19 +205,19 @@ export default function UploadPage() {
             </Card>
           </div>
 
-          {/* 右侧：基本设置 */}
+          {/* Right: Basic settings */}
           <div className="space-y-6">
             <Card>
               <CardBody className="p-6">
-                <h3 className="text-lg font-medium mb-4">基本设置</h3>
+                <h3 className="text-lg font-medium mb-4">Basic Settings</h3>
 
-                {/* 标题 */}
+                {/* Title */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> 标题
+                    <span className="text-red-500">*</span> Title
                   </label>
                   <Input
-                    placeholder="请输入标题"
+                    placeholder="Enter a title for your work"
                     value={uploadForm.title}
                     onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
                     endContent={
@@ -228,13 +228,13 @@ export default function UploadPage() {
                   />
                 </div>
 
-                {/* 风格 */}
+                {/* Style */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> 风格
+                    <span className="text-red-500">*</span> Style
                   </label>
                   <Select
-                    placeholder="请选择风格"
+                    placeholder="Select a style"
                     selectedKeys={uploadForm.category ? [uploadForm.category] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0]
@@ -249,13 +249,13 @@ export default function UploadPage() {
                   </Select>
                 </div>
 
-                {/* 语言 */}
+                {/* Language */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> 语言
+                    <span className="text-red-500">*</span> Language
                   </label>
                   <Select
-                    placeholder="请选择语言"
+                    placeholder="Select a language"
                     selectedKeys={uploadForm.language ? [uploadForm.language] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0]
@@ -270,38 +270,38 @@ export default function UploadPage() {
                   </Select>
                 </div>
 
-                {/* 标签 */}
+                {/* Tags */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> 标签
+                    <span className="text-red-500">*</span> Tags
                   </label>
                   <Input
-                    placeholder="请用逗号分隔多个标签，例如：教程,编程,前端"
+                    placeholder="Separate tags with commas, e.g., tutorial,programming,frontend"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
                   />
                 </div>
 
-                {/* 价格 */}
+                {/* Price */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">价格</label>
+                  <label className="block text-sm font-medium mb-2">Price</label>
                   <Input
                     type="number"
                     placeholder="0"
                     value={uploadForm.price}
                     onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
-                    startContent={<span className="text-sm">¥</span>}
+                    startContent={<span className="text-sm">$</span>}
                   />
                 </div>
               </CardBody>
             </Card>
 
-            {/* 简介 */}
+            {/* Description */}
             <Card>
               <CardBody className="p-6">
-                <h3 className="text-lg font-medium mb-4">简介</h3>
+                <h3 className="text-lg font-medium mb-4">Description</h3>
                 <Textarea
-                  placeholder="填写更全面的相关信息，让更多的人能够找到你的视频吧"
+                  placeholder="Provide more details to help people discover your video"
                   value={uploadForm.description}
                   onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
                   minRows={6}
@@ -316,7 +316,7 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {/* 底部按钮区域 */}
+        {/* Bottom button area */}
         <div className="mt-8 flex justify-end gap-4">
           {/* <Button
             variant="bordered"
@@ -324,7 +324,7 @@ export default function UploadPage() {
             isLoading={isSubmitting}
             size="lg"
           >
-            存草稿
+            Save Draft
           </Button> */}
           <Button
             color="primary"
@@ -332,7 +332,7 @@ export default function UploadPage() {
             isLoading={isSubmitting}
             size="lg"
           >
-            立即投稿
+            Submit Now
           </Button>
         </div>
       </Form>

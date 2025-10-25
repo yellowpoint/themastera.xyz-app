@@ -76,11 +76,11 @@ export default function CreatorProfilePage() {
         setCreator(data.data);
         setStats(data.data.stats);
       } else {
-        setError(data.error || '获取创作者信息失败');
+        setError(data.error || 'Failed to fetch creator information');
       }
     } catch (err) {
       console.error('Error fetching creator profile:', err);
-      setError('网络错误，请稍后重试');
+      setError('Network error, please try again later');
     } finally {
       setLoading(false);
     }
@@ -194,7 +194,7 @@ export default function CreatorProfilePage() {
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="flex items-center gap-1">
               <Eye size={12} />
-              {formatViews(work.downloads)} 次观看
+              {formatViews(work.downloads)} views
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
@@ -249,11 +249,22 @@ export default function CreatorProfilePage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold mb-2">创作者不存在</h2>
-          <p className="text-gray-500 mb-4">{error || '找不到该创作者'}</p>
-          <Link href="/">
-            <Button color="primary">返回首页</Button>
-          </Link>
+          <h2 className="text-2xl font-bold mb-2">Creator Not Found</h2>
+          <p className="text-gray-500 mb-6">
+            The creator you're looking for doesn't exist or has been removed
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/creator">
+              <Button color="primary" variant="solid">
+                Browse Other Creators
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button color="default" variant="light">
+                Back to Home
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -262,9 +273,9 @@ export default function CreatorProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* 创作者头部信息 */}
+        {/* Creator Header */}
         <div className="relative mb-8">
-          {/* 背景横幅 */}
+          {/* Banner */}
           <div className="h-48 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 rounded-xl mb-6 overflow-hidden">
             {creator.bannerUrl ? (
               <img 
@@ -276,13 +287,13 @@ export default function CreatorProfilePage() {
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center text-white/80">
                   <div className="text-4xl mb-2">🎨</div>
-                  <p className="text-lg">创作者横幅</p>
+                  <p className="text-lg">Creator Banner</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* 创作者信息 */}
+          {/* Creator Info */}
           <div className="flex flex-col md:flex-row items-start gap-6">
             <Avatar 
               src={creator.image} 
@@ -301,10 +312,10 @@ export default function CreatorProfilePage() {
                   <div className="flex items-center gap-4 text-gray-500 mb-2">
                     <span className="flex items-center gap-1">
                       <Users size={16} />
-                      {formatNumber(creator.followerCount || 0)} 关注者
+                      {formatNumber(creator.followerCount || 0)} Followers
                     </span>
                     <span>•</span>
-                    <span>{works.length} 个作品</span>
+                    <span>{works.length} Works</span>
                     {creator.location && (
                       <>
                         <span>•</span>
@@ -337,7 +348,7 @@ export default function CreatorProfilePage() {
                     startContent={isFollowing ? <BellRing size={20} /> : <Bell size={20} />}
                     onPress={handleFollow}
                   >
-                    {isFollowing ? "已关注" : "关注"}
+                    {isFollowing ? "Following" : "Follow"}
                   </Button>
                   
                   <Button
@@ -358,31 +369,31 @@ export default function CreatorProfilePage() {
                 </div>
               </div>
 
-              {/* 创作者简介 */}
+              {/* Creator Bio */}
               {creator.bio && (
                 <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-2xl">
                   {creator.bio}
                 </p>
               )}
 
-              {/* 统计数据 */}
+              {/* Statistics */}
               {stats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-2xl font-bold text-primary">{formatNumber(stats.totalViews || 0)}</div>
-                    <div className="text-sm text-gray-500">总观看量</div>
+                    <div className="text-sm text-gray-500">Total Views</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-2xl font-bold text-success">{formatNumber(stats.totalLikes || 0)}</div>
-                    <div className="text-sm text-gray-500">总点赞数</div>
+                    <div className="text-sm text-gray-500">Total Likes</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-2xl font-bold text-warning">{stats.averageRating || 0}</div>
-                    <div className="text-sm text-gray-500">平均评分</div>
+                    <div className="text-sm text-gray-500">Average Rating</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-2xl font-bold text-secondary">{formatNumber(stats.totalEarnings || 0)}</div>
-                    <div className="text-sm text-gray-500">总收益</div>
+                    <div className="text-sm text-gray-500">Total Earnings</div>
                   </div>
                 </div>
               )}
@@ -392,7 +403,7 @@ export default function CreatorProfilePage() {
 
         <Divider className="mb-8" />
 
-        {/* 内容标签页 */}
+        {/* Content Tabs */}
         <div className="mb-6">
           <Tabs 
             selectedKey={activeTab} 
@@ -400,22 +411,22 @@ export default function CreatorProfilePage() {
             size="lg"
             color="primary"
           >
-            <Tab key="works" title={`作品 (${works.length})`} />
-            <Tab key="about" title="关于" />
-            <Tab key="followers" title={`关注者 (${formatNumber(creator.followerCount || 0)})`} />
+            <Tab key="works" title={`Works (${works.length})`} />
+            <Tab key="about" title="About" />
+            <Tab key="followers" title={`Followers (${formatNumber(creator.followerCount || 0)})`} />
           </Tabs>
         </div>
 
-        {/* 标签页内容 */}
+        {/* Tab Content */}
         {activeTab === "works" && (
           <div>
-            {/* 作品筛选和视图控制 */}
+            {/* Work Filters and View Controls */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">排序方式:</span>
-                <Button variant="flat" size="sm">最新</Button>
-                <Button variant="light" size="sm">最热门</Button>
-                <Button variant="light" size="sm">评分最高</Button>
+                <span className="text-sm text-gray-500">Sort by:</span>
+                <Button variant="flat" size="sm">Newest</Button>
+                <Button variant="light" size="sm">Most Popular</Button>
+                <Button variant="light" size="sm">Highest Rated</Button>
               </div>
               
               <div className="flex gap-2">
@@ -438,7 +449,7 @@ export default function CreatorProfilePage() {
               </div>
             </div>
 
-            {/* 作品网格 */}
+            {/* Works Grid */}
             {worksLoading ? (
               <div className={`grid ${viewMode === "grid" 
                 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
@@ -462,8 +473,8 @@ export default function CreatorProfilePage() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📝</div>
-                <h3 className="text-xl font-semibold mb-2">暂无作品</h3>
-                <p className="text-gray-500">该创作者还没有发布任何作品</p>
+                <h3 className="text-xl font-semibold mb-2">No Works Yet</h3>
+                <p className="text-gray-500">This creator hasn't published any works yet</p>
               </div>
             )}
           </div>
@@ -474,28 +485,28 @@ export default function CreatorProfilePage() {
             <Card>
               <CardBody className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">个人简介</h3>
+                  <h3 className="text-lg font-semibold mb-3">Bio</h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {creator.bio || "该创作者还没有添加个人简介..."}
+                    {creator.bio || "This creator hasn't added a bio yet..."}
                   </p>
                 </div>
                 
                 <Divider />
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">详细信息</h3>
+                  <h3 className="text-lg font-semibold mb-3">Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Calendar size={16} className="text-gray-400" />
                       <span className="text-sm">
-                        加入时间: {new Date(creator.createdAt).toLocaleDateString()}
+                        Joined: {new Date(creator.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     
                     {creator.location && (
                       <div className="flex items-center gap-2">
                         <MapPin size={16} className="text-gray-400" />
-                        <span className="text-sm">位置: {creator.location}</span>
+                        <span className="text-sm">Location: {creator.location}</span>
                       </div>
                     )}
                     
@@ -520,11 +531,11 @@ export default function CreatorProfilePage() {
                     <Divider />
                     
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">创作统计</h3>
+                      <h3 className="text-lg font-semibold mb-3">Creation Stats</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm">总观看量</span>
+                            <span className="text-sm">Total Views</span>
                             <span className="font-semibold">{formatNumber(stats.totalViews || 0)}</span>
                           </div>
                           <Progress value={75} color="primary" />
@@ -532,7 +543,7 @@ export default function CreatorProfilePage() {
                         
                         <div>
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm">平均评分</span>
+                            <span className="text-sm">Average Rating</span>
                             <span className="font-semibold">{stats.averageRating || 0}/5</span>
                           </div>
                           <Progress value={(stats.averageRating || 0) * 20} color="warning" />
@@ -561,11 +572,11 @@ export default function CreatorProfilePage() {
                       <div className="flex-1">
                         <h4 className="font-semibold">{follower.name}</h4>
                         <p className="text-sm text-gray-500">
-                          用户
+                          User
                         </p>
                       </div>
                       <Button size="sm" variant="flat">
-                        查看
+                        View
                       </Button>
                     </div>
                   </CardBody>
@@ -576,8 +587,8 @@ export default function CreatorProfilePage() {
             {followers.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">👥</div>
-                <h3 className="text-xl font-semibold mb-2">暂无关注者</h3>
-                <p className="text-gray-500">还没有人关注该创作者</p>
+                <h3 className="text-xl font-semibold mb-2">No Followers Yet</h3>
+                <p className="text-gray-500">This creator doesn't have any followers yet</p>
               </div>
             )}
           </div>
@@ -589,27 +600,27 @@ export default function CreatorProfilePage() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>分享创作者</ModalHeader>
+              <ModalHeader>Share Creator</ModalHeader>
               <ModalBody>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <Avatar src={creator.image} size="sm" showFallback />
                     <div>
                       <h4 className="font-semibold">{creator.name}</h4>
-                      <p className="text-sm text-gray-500">{formatNumber(creator.followerCount || 0)} 关注者</p>
+                      <p className="text-sm text-gray-500">{formatNumber(creator.followerCount || 0)} followers</p>
                     </div>
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button color="primary" variant="flat">微信</Button>
-                    <Button color="primary" variant="flat">微博</Button>
+                    <Button color="primary" variant="flat">WeChat</Button>
+                    <Button color="primary" variant="flat">Weibo</Button>
                     <Button color="primary" variant="flat">QQ</Button>
                   </div>
                 </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>
-                  关闭
+                  Close
                 </Button>
               </ModalFooter>
             </>

@@ -12,7 +12,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true, // 启用邮箱验证
+    requireEmailVerification: true, // Enable email verification
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
@@ -20,38 +20,38 @@ export const auth = betterAuth({
         await resend.emails.send({
           from: 'noreply@themastera.xyz',
           to: user.email,
-          subject: '验证您的邮箱地址',
+          subject: 'Verify Your Email Address',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2>欢迎注册 TheMastera！</h2>
-              <p>您好 ${user.name}，</p>
-              <p>感谢您注册我们的平台。请点击下面的链接来验证您的邮箱地址：</p>
+              <h2>Welcome to TheMastera!</h2>
+              <p>Hello ${user.name},</p>
+              <p>Thank you for registering on our platform. Please click the link below to verify your email address:</p>
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${url}" 
                    style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                  验证邮箱
+                  Verify Email
                 </a>
               </div>
-              <p>如果按钮无法点击，请复制以下链接到浏览器地址栏：</p>
+              <p>If the button doesn't work, please copy and paste the following link into your browser's address bar:</p>
               <p style="word-break: break-all; color: #666;">${url}</p>
-              <p>此链接将在24小时后过期。</p>
+              <p>This link will expire in 24 hours.</p>
               <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
               <p style="color: #666; font-size: 12px;">
-                如果您没有注册我们的服务，请忽略此邮件。
+                If you did not register for our service, please ignore this email.
               </p>
             </div>
           `,
-          text: `欢迎注册 TheMastera！请点击以下链接验证您的邮箱地址：${url}`
+          text: `Welcome to TheMastera! Please click the following link to verify your email address: ${url}`
         })
-        console.log('验证邮件已发送至:', user.email)
+        console.log('Verification email sent to:', user.email)
       } catch (error) {
-        console.error('发送验证邮件失败:', error)
+        console.error('Failed to send verification email:', error)
         throw error
       }
     },
   },
   socialProviders: {
-    // 可以根据需要添加社交登录提供商
+    // Social login providers can be added as needed
     // github: {
     //   clientId: process.env.GITHUB_CLIENT_ID,
     //   clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -81,5 +81,5 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()], // 添加 nextCookies 插件来自动处理 cookies
+  plugins: [nextCookies()], // Add the nextCookies plugin to automatically handle cookies
 })

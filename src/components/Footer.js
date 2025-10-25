@@ -8,39 +8,39 @@ export default function Footer() {
 
   const footerSections = [
     {
-      title: '平台功能',
+      title: 'Platform Features',
       links: [
-        { name: '内容中心', href: '/' },
-        { name: '社区圈子', href: '/community' },
-        { name: '创作者中心', href: '/creator' },
-        { name: '积分系统', href: '/points' },
+        { name: 'Content Center', href: '/' },
+        { name: 'Community', href: '/community' },
+        { name: 'Creator Center', href: '/creator' },
+        { name: 'Points System', href: '/points' },
       ]
     },
     {
-      title: '用户服务',
+      title: 'User Services',
       links: [
-        { name: '新手引导', href: '/onboarding' },
-        { name: '邀请好友', href: '/referral' },
-        { name: '个性化推荐', href: '/recommendations' },
-        { name: '通知中心', href: '/notifications' },
+        { name: 'Getting Started', href: '/onboarding' },
+        { name: 'Invite Friends', href: '/referral' },
+        { name: 'Recommendations', href: '/recommendations' },
+        { name: 'Notifications', href: '/notifications' },
       ]
     },
     {
-      title: '帮助支持',
+      title: 'Help & Support',
       links: [
-        { name: '使用帮助', href: '/help' },
-        { name: '联系我们', href: '/contact' },
-        { name: '意见反馈', href: '/feedback' },
-        { name: '常见问题', href: '/faq' },
+        { name: 'Help Center', href: '/help' },
+        { name: 'Contact Us', href: '/contact' },
+        { name: 'Feedback', href: '/feedback' },
+        { name: 'FAQ', href: '/faq' },
       ]
     },
     {
-      title: '关于我们',
+      title: 'About Us',
       links: [
-        { name: '平台介绍', href: '/about' },
-        { name: '隐私政策', href: '/privacy' },
-        { name: '服务条款', href: '/terms' },
-        { name: '加入我们', href: '/careers' },
+        { name: 'About Platform', href: '/about' },
+        { name: 'Privacy Policy', href: '/privacy' },
+        { name: 'Terms of Service', href: '/terms' },
+        { name: 'Careers', href: '/careers' },
       ]
     }
   ]
@@ -48,13 +48,13 @@ export default function Footer() {
   return (
     <footer className="bg-content1 border-t border-divider mt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* 主要内容区域 */}
+        {/* Main content area */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* 品牌信息 */}
+          {/* Brand information */}
           <div className="lg:col-span-1">
             <h3 className="text-2xl font-bold text-foreground mb-4">Mastera</h3>
             <p className="text-foreground-500 text-sm mb-6">
-              连接创作者与粉丝的创意平台，让每个人都能发现和分享精彩内容。
+              A creative platform connecting creators and fans, allowing everyone to discover and share amazing content.
             </p>
             <div className="flex space-x-4">
               <Button
@@ -92,7 +92,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 链接区域 */}
+          {/* Links area */}
           {footerSections.map((section) => (
             <div key={section.title}>
               <h4 className="text-foreground font-semibold mb-4">{section.title}</h4>
@@ -114,24 +114,24 @@ export default function Footer() {
 
         <Divider className="my-8 bg-divider" />
 
-        {/* 底部信息 */}
+        {/* Footer information */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="text-foreground-500 text-sm mb-4 md:mb-0">
-            © {currentYear} Mastera Platform. 保留所有权利。
+            © {currentYear} Mastera Platform. All rights reserved.
           </div>
 
           <div className="flex flex-wrap gap-6 text-sm">
             <Link href="/privacy" className="text-foreground-500 hover:text-lime-400">
-              隐私政策
+              Privacy Policy
             </Link>
             <Link href="/terms" className="text-foreground-500 hover:text-lime-400">
-              服务条款
+              Terms of Service
             </Link>
             <Link href="/cookies" className="text-foreground-500 hover:text-lime-400">
-              Cookie 政策
+              Cookie Policy
             </Link>
             <Link href="/accessibility" className="text-foreground-500 hover:text-lime-400">
-              无障碍声明
+              Accessibility Statement
             </Link>
           </div>
         </div>

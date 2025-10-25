@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/works/trending - 获取热门作品
+// GET /api/works/trending - Get trending works
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -9,7 +9,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const timeframe = searchParams.get('timeframe') || '7d' // 7d, 30d, all
 
-    // 计算时间范围
+    // Calculate time range
     let dateFilter = {}
     if (timeframe !== 'all') {
       const days = timeframe === '7d' ? 7 : 30
@@ -22,7 +22,7 @@ export async function GET(request) {
       }
     }
 
-    // 构建查询条件
+    // Build query conditions
     const where = {
       status: 'published',
       isActive: true,
@@ -33,7 +33,7 @@ export async function GET(request) {
       where.category = category
     }
 
-    // 获取热门作品（基于下载量、评分和最近活跃度）
+    // Get trending works (based on downloads, ratings and recent activity)
     const works = await prisma.work.findMany({
       where,
       include: {
@@ -90,7 +90,7 @@ export async function GET(request) {
         user: {
           id: work.user.id,
           name: work.user.name,
-          image: work.user.image || `/api/placeholder/36/36`
+          image: work.user.image,
         },
         tags: work.tags,
         // tags: work.tags ? work.tags.split(',').map(tag => tag.trim()) : [],

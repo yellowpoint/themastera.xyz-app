@@ -20,28 +20,28 @@ export default function VideoUpload({
   const fileInputRef = useRef(null)
   const { user } = useAuth()
 
-  // 确保 bucket 和 folder 参数有效
+  // Ensure bucket and folder parameters are valid
   const storageBucket = bucket || 'data'
   const storageFolder = folder ? `${folder}/` : ''
 
-  // 上传单个文件
+  // Upload a single file
   const uploadFile = async (file) => {
     if (!file) {
       throw new Error('No file provided')
     }
 
-    // 检查用户认证状态
+    // Check user authentication status
     if (!user) {
-      throw new Error('请先登录后再上传文件')
+      throw new Error('Please log in before uploading files')
     }
 
     try {
-      // 生成唯一文件名，包含用户ID以确保权限
+      // Generate a unique file name, including the user ID to ensure permissions
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = storageFolder ? `${storageFolder}${user.id}/${fileName}` : `${user.id}/${fileName}`
 
-      // 模拟上传进度
+      // Simulate upload progress
       const progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
@@ -52,7 +52,7 @@ export default function VideoUpload({
         })
       }, 200)
 
-      // 使用Supabase上传文件
+      // Upload file using Supabase
       const { data, error } = await supabase
         .storage
         .from(storageBucket)
@@ -64,10 +64,10 @@ export default function VideoUpload({
       clearInterval(progressInterval)
 
       if (error) {
-        throw new Error(`上传失败: ${error.message || '未知错误'}`)
+        throw new Error(`Upload failed: ${error.message || 'Unknown error'}`)
       }
 
-      // 获取文件的公共URL
+      // Get the public URL of the file
       const publicUrl = getStorageUrl(storageBucket, filePath)
       setProgress(100)
 
@@ -88,7 +88,7 @@ export default function VideoUpload({
     }
   }
 
-  // 上传多个文件
+  // Upload multiple files
   const uploadFiles = async (files) => {
     if (!files || files.length === 0) {
       throw new Error('No files provided')
@@ -119,17 +119,17 @@ export default function VideoUpload({
   }
 
   const handleFileSelect = async (files) => {
-    setError('') // 清除之前的错误
+    setError('') // Clear previous errors
     const fileArray = Array.from(files)
     
-    // 验证文件类型（只允许视频文件）
+    // Validate file type (only allow video files)
     const validFiles = fileArray.filter(file => {
       if (!file.type.startsWith('video/')) {
-        setError(`文件 ${file.name} 不是视频文件`)
+        setError(`File ${file.name} is not a video file`)
         return false
       }
       if (file.size > maxSize) {
-        setError(`文件 ${file.name} 超过大小限制 (${maxSize / 1024 / 1024}MB)`)
+        setError(`File ${file.name} exceeds size limit (${maxSize / 1024 / 1024}MB)`)
         return false
       }
       return true
@@ -137,7 +137,7 @@ export default function VideoUpload({
 
     if (validFiles.length === 0) return
 
-    // 自动开始上传
+    // Start uploading automatically
     try {
       setUploading(true)
       const uploadResult = await uploadFiles(validFiles)
@@ -146,15 +146,15 @@ export default function VideoUpload({
         const newUploadedFiles = [...uploadedFiles, ...uploadResult.results];
         setUploadedFiles(newUploadedFiles);
         
-        // 传递文件信息
+        // Pass file information
         onUploadComplete?.(newUploadedFiles);
         setError('');
       } else {
-        setError('上传失败：未收到有效的上传结果')
+        setError('Upload failed: No valid upload result received')
       }
     } catch (error) {
       console.error('Upload failed:', error)
-      setError(error.message || '上传失败，请重试')
+      setError(error.message || 'Upload failed, please try again')
     } finally {
       setUploading(false)
     }
@@ -202,7 +202,7 @@ export default function VideoUpload({
 
   return (
     <div className="w-full space-y-4">
-      {/* 视频文件上传区域 */}
+      {/* Video file upload area */}
       <div
         className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
           ? 'border-primary bg-primary/10'
@@ -216,10 +216,10 @@ export default function VideoUpload({
       >
         <Video className="w-12 h-12 mx-auto mb-4 text-gray-400" />
         <p className="text-lg font-medium mb-2">
-          点击或拖拽视频文件到此处上传
+          Click or drag video files here to upload
         </p>
         <p className="text-sm text-gray-500">
-          支持的格式: MP4, MOV, AVI, MKV | 最大大小: {maxSize / 1024 / 1024}MB
+          Supported formats: MP4, MOV, AVI, MKV | Max size: {maxSize / 1024 / 1024}MB
         </p>
 
         <input
@@ -232,28 +232,28 @@ export default function VideoUpload({
         />
       </div>
 
-      {/* 错误提示 */}
+      {/* Error message */}
       {error && (
         <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
         </div>
       )}
 
-      {/* 上传进度 */}
+      {/* Upload progress */}
       {uploading && (
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>上传中...</span>
+            <span>Uploading...</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="w-full" />
         </div>
       )}
 
-      {/* 已上传视频列表 */}
+      {/* List of uploaded videos */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-2">
-          <h4 className="font-medium text-green-600">已上传的视频:</h4>
+          <h4 className="font-medium text-green-600">Uploaded videos:</h4>
           {uploadedFiles.map((file, index) => (
             <Card key={index} className="border-green-200">
               <CardBody className="flex flex-row items-center justify-between p-3">
@@ -264,7 +264,7 @@ export default function VideoUpload({
                   <div>
                     <p className="font-medium text-green-800">{file.originalName || file.fileName}</p>
                     <p className="text-sm text-green-600">
-                      上传成功 • {formatFileSize(file.size)}
+                      Upload successful • {formatFileSize(file.size)}
                     </p>
                     {file.fileUrl && (
                       <a
@@ -273,7 +273,7 @@ export default function VideoUpload({
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:underline"
                       >
-                        查看视频
+                        View Video
                       </a>
                     )}
                   </div>

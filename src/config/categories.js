@@ -1,9 +1,9 @@
 /**
- * 作品分类配置文件
- * 包含音乐类别和语言分类
+ * Work categories configuration file
+ * Contains music categories and language classifications
  */
 
-// 音乐类别
+// Music categories
 export const MUSIC_CATEGORIES = [
   'Pop',
   'Hip-Hop/Rap',
@@ -23,7 +23,7 @@ export const MUSIC_CATEGORIES = [
   'Original'
 ];
 
-// 语言分类
+// Language classifications
 export const LANGUAGE_CATEGORIES = [
   "None",
   'English',
@@ -38,22 +38,22 @@ export const LANGUAGE_CATEGORIES = [
   'Cantonese'
 ];
 
-// 获取所有分类
+// Get all categories
 export const getAllCategories = () => {
   return MUSIC_CATEGORIES;
 };
 
-// 获取所有语言
+// Get all languages
 export const getAllLanguages = () => {
   return LANGUAGE_CATEGORIES;
 };
 
-// 验证分类是否有效
+// Validate if category is valid
 export const isValidCategory = (category) => {
   return MUSIC_CATEGORIES.includes(category);
 };
 
-// 验证语言是否有效
+// Validate if language is valid
 export const isValidLanguage = (language) => {
   return LANGUAGE_CATEGORIES.includes(language);
 };

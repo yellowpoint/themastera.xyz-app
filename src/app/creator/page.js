@@ -60,7 +60,7 @@ export default function CreatorPage() {
     completionRate: 96
   })
 
-  // 获取创作者统计数据
+  // Get creator statistics
   useEffect(() => {
     if (user?.id && getWorkStats) {
       getWorkStats(user.id).then(stats => {
@@ -76,15 +76,15 @@ export default function CreatorPage() {
     }
   }, [user?.id, getWorkStats])
 
-  // 如果用户未登录，显示登录提示
+  // If user is not logged in, show login prompt
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
         <Card className="max-w-md w-full mx-4">
           <CardBody className="text-center p-8">
-            <h2 className="text-2xl font-bold mb-4">创作者中心</h2>
+            <h2 className="text-2xl font-bold mb-4">Creator Center</h2>
             <p className="text-gray-600 mb-6">
-              请先登录以访问创作者功能
+              Please login to access creator features
             </p>
             <Button
               color="primary"
@@ -92,7 +92,7 @@ export default function CreatorPage() {
               onPress={() => router.push('/auth/login')}
               className="w-full"
             >
-              登录 / 注册
+              Login / Register
             </Button>
           </CardBody>
         </Card>
@@ -100,58 +100,58 @@ export default function CreatorPage() {
     )
   }
 
-  // 收益记录
+  // Earnings history
   const earningsHistory = [
-    { date: "2024-01-20", work: "AI艺术作品集", amount: 299, type: "销售" },
-    { date: "2024-01-19", work: "摄影后期预设包", amount: 199, type: "销售" },
-    { date: "2024-01-18", work: "音乐制作模板", amount: 399, type: "销售" },
-    { date: "2024-01-17", work: "创作者奖励", amount: 500, type: "奖励" },
-    { date: "2024-01-16", work: "AI艺术作品集", amount: 299, type: "销售" }
+    { date: "2024-01-20", work: "AI Art Collection", amount: 299, type: "Sale" },
+    { date: "2024-01-19", work: "Photography Preset Pack", amount: 199, type: "Sale" },
+    { date: "2024-01-18", work: "Music Production Template", amount: 399, type: "Sale" },
+    { date: "2024-01-17", work: "Creator Reward", amount: 500, type: "Reward" },
+    { date: "2024-01-16", work: "AI Art Collection", amount: 299, type: "Sale" }
   ]
 
-  // 粉丝互动数据
+  // Fan interaction data
   const fanInteractions = [
     {
       id: 1,
-      user: "艺术爱好者",
+      user: "Art Enthusiast",
       avatar: "/api/placeholder/40/40",
-      action: "关注了你",
-      time: "2小时前",
+      action: "followed you",
+      time: "2 hours ago",
       type: "follow"
     },
     {
       id: 2,
-      user: "设计师小王",
+      user: "Designer Li",
       avatar: "/api/placeholder/40/40",
-      action: "购买了《AI艺术作品集》",
-      time: "4小时前",
+      action: "purchased 'AI Art Collection'",
+      time: "4 hours ago",
       type: "purchase"
     },
     {
       id: 3,
-      user: "摄影新手",
+      user: "Photo Novice",
       avatar: "/api/placeholder/40/40",
-      action: "评论了《摄影后期预设包》",
-      time: "6小时前",
+      action: "commented on 'Photography Preset Pack'",
+      time: "6 hours ago",
       type: "comment",
-      comment: "非常实用的预设包，效果很棒！"
+      comment: "This preset pack is very useful, the effects are great!"
     }
   ]
 
   const categories = [
-    { key: "visual", label: "视觉艺术" },
-    { key: "photography", label: "摄影" },
-    { key: "audio", label: "音频" },
-    { key: "video", label: "视频" },
-    { key: "design", label: "设计" },
-    { key: "other", label: "其他" }
+    { key: "visual", label: "Visual Arts" },
+    { key: "photography", label: "Photography" },
+    { key: "audio", label: "Audio" },
+    { key: "video", label: "Video" },
+    { key: "design", label: "Design" },
+    { key: "other", label: "Other" }
   ]
 
   const getStatusColor = (status) => {
     switch (status) {
-      case '已发布': return 'success'
-      case '审核中': return 'warning'
-      case '已下架': return 'danger'
+      case 'Published': return 'success'
+      case 'Under Review': return 'warning'
+      case 'Removed': return 'danger'
       default: return 'default'
     }
   }
@@ -166,13 +166,13 @@ export default function CreatorPage() {
     }
   }
 
-  // 处理删除作品
+  // Handle work deletion
   const handleDeleteWork = (work) => {
     setWorkToDelete(work)
     onDeleteOpen()
   }
 
-  // 确认删除作品
+  // Confirm work deletion
   const confirmDeleteWork = async () => {
     if (!workToDelete || !deleteWork) return
 
@@ -181,13 +181,13 @@ export default function CreatorPage() {
       onDeleteClose()
       setWorkToDelete(null)
       addToast({
-        description: '作品删除成功！',
+        description: 'Work deleted successfully!',
         color: "success"
       })
     } catch (error) {
       console.error('Error deleting work:', error)
       addToast({
-        description: '删除失败，请重试',
+        description: 'Deletion failed, please try again',
         color: "danger"
       })
     }
@@ -196,17 +196,17 @@ export default function CreatorPage() {
   return (
     <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* 页面标题 */}
+        {/* Page title */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">
-            创作者中心 <span className="text-lime-400">Creator Hub</span>
+            Creator Center <span className="text-lime-400">Creator Hub</span>
           </h1>
           <p className="text-gray-400 text-base">
-            管理你的作品，追踪收益，与粉丝互动
+            Manage your works, track earnings, interact with fans
           </p>
         </div>
 
-        {/* 快速操作 */}
+        {/* Quick actions */}
         <div className="flex flex-wrap gap-3 mb-6">
           <Button
             color="primary"
@@ -214,7 +214,7 @@ export default function CreatorPage() {
             startContent={<Plus size={16} />}
             size="sm"
           >
-            上传新作品
+            Upload New Work
           </Button>
           <Button
             variant="flat"
@@ -222,7 +222,7 @@ export default function CreatorPage() {
             size="sm"
             startContent={<BarChart size={16} />}
           >
-            查看分析
+            View Analytics
           </Button>
           <Button
             variant="flat"
@@ -230,11 +230,11 @@ export default function CreatorPage() {
             size="sm"
             startContent={<DollarSign size={16} />}
           >
-            提现收益
+            Withdraw Earnings
           </Button>
         </div>
 
-        {/* 内容标签页 */}
+        {/* Content tabs */}
         <Tabs
           selectedKey={activeTab}
           onSelectionChange={setActiveTab}
@@ -243,22 +243,22 @@ export default function CreatorPage() {
           variant="underlined"
           size="md"
         >
-          <Tab key="dashboard" title="数据概览" />
-          <Tab key="works" title="作品管理" />
-          <Tab key="earnings" title="收益统计" />
-          <Tab key="fans" title="粉丝互动" />
+          <Tab key="dashboard" title="Dashboard" />
+          <Tab key="works" title="Works Management" />
+          <Tab key="earnings" title="Earnings" />
+          <Tab key="fans" title="Fan Interactions" />
         </Tabs>
 
-        {/* 数据概览 */}
+        {/* Dashboard */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
-            {/* 统计卡片 */}
+            {/* Statistics cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">总作品数</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Works</p>
                       <p className="text-2xl font-bold">{creatorStats.totalWorks}</p>
                     </div>
                     <div className="text-gray-400">
@@ -272,8 +272,8 @@ export default function CreatorPage() {
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">总收益</p>
-                      <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Earnings</p>
+                      <p className="text-2xl font-bold">${creatorStats.totalEarnings.toLocaleString()}</p>
                     </div>
                     <div className="text-gray-400">
                       <DollarSign size={24} />
@@ -286,7 +286,7 @@ export default function CreatorPage() {
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">粉丝数量</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Followers</p>
                       <p className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</p>
                     </div>
                     <div className="text-gray-400">
@@ -300,7 +300,7 @@ export default function CreatorPage() {
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">总浏览量</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Views</p>
                       <p className="text-2xl font-bold">{creatorStats.totalViews.toLocaleString()}</p>
                     </div>
                     <div className="text-gray-400">
@@ -311,34 +311,34 @@ export default function CreatorPage() {
               </Card>
             </div>
 
-            {/* 月度统计 */}
+            {/* Monthly statistics */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="bg-content1 border-divider">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold">本月表现</h3>
+                  <h3 className="text-xl font-semibold">Monthly Performance</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">月收益</span>
+                    <span className="text-gray-400">Monthly Earnings</span>
                     <span className="text-lg font-semibold text-green-400">
-                      ¥{creatorStats.monthlyEarnings.toLocaleString()}
+                      ${creatorStats.monthlyEarnings.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">月浏览量</span>
+                    <span className="text-gray-400">Monthly Views</span>
                     <span className="text-lg font-semibold">
                       {creatorStats.monthlyViews.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">平均评分</span>
+                    <span className="text-gray-400">Average Rating</span>
                     <span className="text-lg font-semibold text-yellow-400 flex items-center gap-1">
                       <Star size={16} /> {creatorStats.averageRating}
                     </span>
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-400">完成率</span>
+                      <span className="text-gray-400">Completion Rate</span>
                       <span className="text-lg font-semibold">{creatorStats.completionRate}%</span>
                     </div>
                     <Progress
@@ -352,7 +352,7 @@ export default function CreatorPage() {
 
               <Card className="bg-content1 border-divider">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold">最新互动</h3>
+                  <h3 className="text-xl font-semibold">Recent Interactions</h3>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-4">
@@ -378,38 +378,38 @@ export default function CreatorPage() {
           </div>
         )}
 
-        {/* 作品管理 */}
+        {/* Works Management */}
         {activeTab === 'works' && (
           <div className="space-y-6">
             <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardHeader className="flex justify-between items-center py-3">
-                <h3 className="text-lg font-medium">作品管理</h3>
+                <h3 className="text-lg font-medium">Works Management</h3>
                 <Button
                   color="default"
                   size="sm"
                   onPress={() => router.push('/creator/upload')}
                   startContent={<Plus size={16} />}
                 >
-                  添加作品
+                  Add Work
                 </Button>
               </CardHeader>
               <CardBody className="p-0">
                 <Table
-                  aria-label="作品管理表格"
+                  aria-label="Works management table"
                   className="w-full"
                   removeWrapper
                   shadow="none"
                 >
                   <TableHeader>
-                    <TableColumn>封面</TableColumn>
-                    <TableColumn>作品名称</TableColumn>
-                    <TableColumn>分类</TableColumn>
-                    <TableColumn>价格</TableColumn>
-                    <TableColumn>下载量</TableColumn>
-                    <TableColumn>收益</TableColumn>
-                    <TableColumn>评分</TableColumn>
-                    <TableColumn>状态</TableColumn>
-                    <TableColumn>操作</TableColumn>
+                    <TableColumn>Cover</TableColumn>
+                    <TableColumn>Title</TableColumn>
+                    <TableColumn>Category</TableColumn>
+                    <TableColumn>Price</TableColumn>
+                    <TableColumn>Downloads</TableColumn>
+                    <TableColumn>Earnings</TableColumn>
+                    <TableColumn>Rating</TableColumn>
+                    <TableColumn>Status</TableColumn>
+                    <TableColumn>Actions</TableColumn>
                   </TableHeader>
                   <TableBody>
                     {works.map((work) => (
@@ -428,14 +428,14 @@ export default function CreatorPage() {
                           <p className="text-gray-500 dark:text-gray-400 text-sm">{work.category}</p>
                         </TableCell>
                         <TableCell>
-                          <p className="font-medium">¥{work.price}</p>
+                          <p className="font-medium">${work.price}</p>
                         </TableCell>
                         <TableCell>
                           <p className="text-sm">{work.downloads}</p>
                         </TableCell>
                         <TableCell>
                           <p className="font-medium">
-                            ¥{work.earnings.toLocaleString()}
+                            ${work.earnings.toLocaleString()}
                           </p>
                         </TableCell>
                         <TableCell>
@@ -458,16 +458,16 @@ export default function CreatorPage() {
                               </Button>
                             </DropdownTrigger>
                             <DropdownMenu
-                              aria-label="操作选项"
+                              aria-label="Action options"
                               onAction={(key) => {
                                 if (key === 'delete') {
                                   handleDeleteWork(work)
                                 }
                               }}
                             >
-                              <DropdownItem key="edit" startContent={<Edit size={16} />}>编辑</DropdownItem>
-                              <DropdownItem key="stats" startContent={<BarChart size={16} />}>统计</DropdownItem>
-                              <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Trash size={16} />}>删除</DropdownItem>
+                              <DropdownItem key="edit" startContent={<Edit size={16} />}>Edit</DropdownItem>
+                              <DropdownItem key="stats" startContent={<BarChart size={16} />}>Statistics</DropdownItem>
+                              <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Trash size={16} />}>Delete</DropdownItem>
                             </DropdownMenu>
                           </Dropdown>
                         </TableCell>
@@ -480,7 +480,7 @@ export default function CreatorPage() {
           </div>
         )}
 
-        {/* 收益统计 */}
+        {/* Earnings Statistics */}
         {activeTab === 'earnings' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -489,8 +489,8 @@ export default function CreatorPage() {
                   <div className="text-gray-400 mb-2">
                     <DollarSign size={24} />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">本月收益</p>
-                  <p className="text-2xl font-bold">¥{creatorStats.monthlyEarnings.toLocaleString()}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Monthly Earnings</p>
+                  <p className="text-2xl font-bold">${creatorStats.monthlyEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
 
@@ -499,7 +499,7 @@ export default function CreatorPage() {
                   <div className="text-gray-400 mb-2">
                     <TrendingUp size={24} />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">总收益</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Total Earnings</p>
                   <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
                 </CardBody>
               </Card>
@@ -509,7 +509,7 @@ export default function CreatorPage() {
                   <div className="text-gray-400 mb-2">
                     <Star size={24} />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">可提现</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Available for Withdrawal</p>
                   <p className="text-2xl font-bold">¥{(creatorStats.monthlyEarnings * 0.8).toLocaleString()}</p>
                 </CardBody>
               </Card>
@@ -517,15 +517,15 @@ export default function CreatorPage() {
 
             <Card className="bg-content1 border-divider">
               <CardHeader>
-                <h3 className="text-xl font-semibold">收益记录</h3>
+                <h3 className="text-xl font-semibold">Earnings History</h3>
               </CardHeader>
               <CardBody>
-                <Table aria-label="收益记录表格">
+                <Table aria-label="Earnings history table">
                   <TableHeader>
-                    <TableColumn>日期</TableColumn>
-                    <TableColumn>作品/项目</TableColumn>
-                    <TableColumn>类型</TableColumn>
-                    <TableColumn>金额</TableColumn>
+                    <TableColumn>Date</TableColumn>
+                    <TableColumn>Work/Project</TableColumn>
+                    <TableColumn>Type</TableColumn>
+                    <TableColumn>Amount</TableColumn>
                   </TableHeader>
                   <TableBody>
                     {earningsHistory.map((record, index) => (
@@ -553,25 +553,25 @@ export default function CreatorPage() {
           </div>
         )}
 
-        {/* 粉丝互动 */}
+        {/* Fan Interactions */}
         {activeTab === 'fans' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <Card className="bg-content1 border-divider">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold">粉丝统计</h3>
+                  <h3 className="text-xl font-semibold">Fan Statistics</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">总粉丝数</span>
+                    <span className="text-gray-400">Total Followers</span>
                     <span className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">本月新增</span>
+                    <span className="text-gray-400">New This Month</span>
                     <span className="text-lg font-semibold text-green-400">+234</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">活跃粉丝</span>
+                    <span className="text-gray-400">Active Fans</span>
                     <span className="text-lg font-semibold">8,765</span>
                   </div>
                 </CardBody>
@@ -579,19 +579,19 @@ export default function CreatorPage() {
 
               <Card className="bg-content1 border-divider">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold">互动统计</h3>
+                  <h3 className="text-xl font-semibold">Interaction Statistics</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">总点赞数</span>
+                    <span className="text-gray-400">Total Likes</span>
                     <span className="text-lg font-semibold">45,678</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">总评论数</span>
+                    <span className="text-gray-400">Total Comments</span>
                     <span className="text-lg font-semibold">12,345</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">分享次数</span>
+                    <span className="text-gray-400">Shares</span>
                     <span className="text-lg font-semibold">3,456</span>
                   </div>
                 </CardBody>
@@ -600,7 +600,7 @@ export default function CreatorPage() {
 
             <Card className="bg-content1 border-divider">
               <CardHeader>
-                <h3 className="text-xl font-semibold">最新互动</h3>
+                <h3 className="text-xl font-semibold">Recent Interactions</h3>
               </CardHeader>
               <CardBody>
                 <div className="space-y-4">
@@ -631,39 +631,39 @@ export default function CreatorPage() {
         )}
       </main>
 
-      {/* 删除确认模态框 */}
+      {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="md">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <h3 className="text-lg font-semibold">确认删除作品</h3>
+            <h3 className="text-lg font-semibold">Confirm Work Deletion</h3>
           </ModalHeader>
           <ModalBody>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-400">
-                您确定要删除作品 <span className="font-semibold text-gray-900 dark:text-gray-100">"{workToDelete?.title}"</span> 吗？
+                Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-gray-100">"{workToDelete?.title}"</span>?
               </p>
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                 <p className="text-red-700 dark:text-red-400 text-sm">
-                  ⚠️ 此操作不可撤销，删除后将无法恢复该作品的所有数据，包括：
+                  ⚠️ This action cannot be undone. All data related to this work will be permanently deleted, including:
                 </p>
                 <ul className="text-red-600 dark:text-red-400 text-sm mt-2 ml-4 list-disc">
-                  <li>作品文件和缩略图</li>
-                  <li>所有评论和评分</li>
-                  <li>下载记录和收益数据</li>
+                  <li>Work files and thumbnails</li>
+                  <li>All comments and ratings</li>
+                  <li>Download records and earnings data</li>
                 </ul>
               </div>
             </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={onDeleteClose}>
-              取消
+              Cancel
             </Button>
             <Button
               color="danger"
               onPress={confirmDeleteWork}
               startContent={<Trash size={16} />}
             >
-              确认删除
+              Confirm Delete
             </Button>
           </ModalFooter>
         </ModalContent>

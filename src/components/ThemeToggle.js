@@ -35,13 +35,13 @@ export default function ThemeToggle() {
   const getThemeLabel = () => {
     switch (theme) {
       case 'light':
-        return '浅色主题'
+        return 'Light Mode'
       case 'dark':
-        return '深色主题'
+        return 'Dark Mode'
       case 'system':
-        return '跟随系统'
+        return 'System Mode'
       default:
-        return '深色主题'
+        return 'Dark Mode'
     }
   }
 
@@ -52,13 +52,13 @@ export default function ThemeToggle() {
           variant="light"
           isIconOnly
           className="text-foreground-500 hover:text-lime-400 transition-colors"
-          aria-label={`当前主题: ${getThemeLabel()}`}
+          aria-label={`Current theme: ${getThemeLabel()}`}
         >
           {getThemeIcon()}
         </Button>
       </DropdownTrigger>
       <DropdownMenu 
-        aria-label="主题选择"
+        aria-label="Theme Selection"
         selectedKeys={[theme]}
         selectionMode="single"
         onSelectionChange={(keys) => {
@@ -70,19 +70,19 @@ export default function ThemeToggle() {
           key="light" 
           startContent={<Sun size={16} />}
         >
-          浅色主题
+          Light Mode
         </DropdownItem>
         <DropdownItem 
           key="dark" 
           startContent={<Moon size={16} />}
         >
-          深色主题
+          Dark Mode
         </DropdownItem>
         <DropdownItem 
           key="system" 
           startContent={<Monitor size={16} />}
         >
-          跟随系统
+          System Mode
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>

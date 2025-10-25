@@ -16,7 +16,7 @@ import {
 import { Play, Lock, Crown, Star, Zap } from "lucide-react";
 
 const MEMBERSHIP_LEVELS = {
-  Free: { name: "免费用户", icon: null, color: "default" },
+  Free: { name: "Free User", icon: null, color: "default" },
   "Creator+": { name: "Creator+", icon: Crown, color: "warning" },
   ArtCircle: { name: "ArtCircle", icon: Star, color: "secondary" },
   VIP: { name: "VIP", icon: Zap, color: "success" }
@@ -25,7 +25,7 @@ const MEMBERSHIP_LEVELS = {
 export default function VideoPlayer({
   videoUrl,
   thumbnailUrl,
-  title = "视频内容",
+  title = "Video Content",
   description,
   isPremium = false,
   requiredLevel = "Free",
@@ -44,7 +44,7 @@ export default function VideoPlayer({
   const [hasAccess, setHasAccess] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // 检查用户访问权限
+  // Check user access
   useEffect(() => {
     const checkAccess = () => {
       if (!isPremium) {
@@ -62,7 +62,7 @@ export default function VideoPlayer({
     checkAccess();
   }, [isPremium, userLevel, requiredLevel]);
 
-  // 直接返回视频URL（已经是完整链接）
+  // Directly return the video URL (already a full link)
   const getVideoUrl = () => {
     if (!videoUrl) {
       return null;
@@ -70,7 +70,7 @@ export default function VideoPlayer({
     return videoUrl;
   };
 
-  // 处理播放事件
+  // Handle play event
   const handlePlay = () => {
     onPlay && onPlay();
   };
@@ -84,23 +84,23 @@ export default function VideoPlayer({
   };
 
   const handleError = (error) => {
-    console.log('视频URL:', videoUrl);
-    console.log('错误详情:', error);
-    setError('视频加载失败，请稍后重试');
+    console.log('Video URL:', videoUrl);
+    console.log('Error details:', error);
+    setError('Video failed to load, please try again later');
   };
 
   const handleReady = () => {
-    // ReactPlayer已准备就绪
+    // ReactPlayer is ready
   };
 
-  // 升级会员提示
+  // Upgrade membership prompt
   const UpgradePrompt = () => {
     const requiredMembership = MEMBERSHIP_LEVELS[requiredLevel];
     const RequiredIcon = requiredMembership.icon;
 
     return (
       <div className="relative">
-        {/* 缩略图背景 */}
+        {/* Thumbnail background */}
         {thumbnailUrl && (
           <img
             src={thumbnailUrl}
@@ -109,7 +109,7 @@ export default function VideoPlayer({
           />
         )}
 
-        {/* 遮罩层 */}
+        {/* Mask layer */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center p-6">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center w-16 h-16 bg-white/10 rounded-full mb-4">
@@ -123,7 +123,7 @@ export default function VideoPlayer({
             )}
 
             <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-white/80">需要</span>
+              <span className="text-white/80">Requires</span>
               <Chip
                 color={requiredMembership.color}
                 variant="flat"
@@ -131,7 +131,7 @@ export default function VideoPlayer({
               >
                 {requiredMembership.name}
               </Chip>
-              <span className="text-white/80">及以上会员</span>
+              <span className="text-white/80">and above</span>
             </div>
 
             <Button
@@ -140,7 +140,7 @@ export default function VideoPlayer({
               onPress={onOpen}
               className="font-semibold"
             >
-              升级会员观看
+              Upgrade to Watch
             </Button>
           </div>
         </div>
@@ -148,15 +148,15 @@ export default function VideoPlayer({
     );
   };
 
-  // 如果没有视频URL，显示错误信息
+  // If there is no video URL, display an error message
   if (!videoUrl) {
     return (
       <Card className={className}>
         <CardBody className="p-0">
           <div style={{ width, height }} className="flex items-center justify-center bg-gray-100 rounded-lg">
             <div className="text-center">
-              <p className="text-gray-500 mb-2">视频文件不存在</p>
-              <p className="text-sm text-gray-400">请检查视频文件是否已上传</p>
+              <p className="text-gray-500 mb-2">Video file does not exist</p>
+              <p className="text-sm text-gray-400">Please check if the video file has been uploaded</p>
             </div>
           </div>
         </CardBody>
@@ -164,7 +164,7 @@ export default function VideoPlayer({
     );
   }
 
-  // 如果没有访问权限，显示升级提示
+  // If there is no access, display the upgrade prompt
   if (!hasAccess) {
     return (
       <Card className={className}>
@@ -174,28 +174,28 @@ export default function VideoPlayer({
           </div>
         </CardBody>
 
-        {/* 升级会员模态框 */}
+        {/* Upgrade membership modal */}
         <Modal isOpen={isOpen} onClose={onClose} size="md">
           <ModalContent>
-            <ModalHeader>升级会员</ModalHeader>
+            <ModalHeader>Upgrade Membership</ModalHeader>
             <ModalBody>
-              <p>升级到 {MEMBERSHIP_LEVELS[requiredLevel].name} 会员即可观看此内容</p>
+              <p>Upgrade to {MEMBERSHIP_LEVELS[requiredLevel].name} to watch this content</p>
               <div className="space-y-2 mt-4">
-                <p className="text-sm text-gray-600">会员特权：</p>
+                <p className="text-sm text-gray-600">Membership privileges:</p>
                 <ul className="text-sm space-y-1 ml-4">
-                  <li>• 观看高清视频内容</li>
-                  <li>• 下载优质素材</li>
-                  <li>• 参与专属活动</li>
-                  <li>• 获得更多积分奖励</li>
+                  <li>• Watch HD video content</li>
+                  <li>• Download high-quality materials</li>
+                  <li>• Participate in exclusive events</li>
+                  <li>• Get more points rewards</li>
                 </ul>
               </div>
             </ModalBody>
             <ModalFooter>
               <Button variant="light" onPress={onClose}>
-                取消
+                Cancel
               </Button>
               <Button color="primary" onPress={onClose}>
-                立即升级
+                Upgrade Now
               </Button>
             </ModalFooter>
           </ModalContent>
@@ -204,7 +204,7 @@ export default function VideoPlayer({
     );
   }
 
-  // 有权限时显示视频播放器
+  // Show video player when there is access
   return (
     <Card className='rounded-none'>
       <CardBody className="p-0 bg-black ">
@@ -221,7 +221,7 @@ export default function VideoPlayer({
                     setError(null);
                   }}
                 >
-                  重试
+                  Retry
                 </Button>
               </div>
             </div>
@@ -239,10 +239,10 @@ export default function VideoPlayer({
               onError={handleError}
               onReady={handleReady}
               onLoadStart={() => {
-                // ReactPlayer开始加载
+                // ReactPlayer starts loading
               }}
               onProgress={(progress) => {
-                // 可以在这里处理播放进度
+                // You can handle playback progress here
               }}
               config={{
                 file: {
@@ -250,7 +250,7 @@ export default function VideoPlayer({
                     preload: 'metadata',
                     controlsList: 'nodownload',
                     disablePictureInPicture: false,
-                    crossOrigin: 'anonymous' // 添加CORS支持
+                    crossOrigin: 'anonymous' // Add CORS support
                   },
                   forceVideo: true
                 }

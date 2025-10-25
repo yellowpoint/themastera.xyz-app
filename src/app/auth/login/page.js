@@ -28,17 +28,17 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
-    // 清除之前的错误
+    // Clear previous errors
     setError('');
 
-    // 表单验证
+    // Form validation
     if (!formData.email.trim()) {
-      setError('请输入邮箱地址');
+      setError('Please enter your email address');
       return;
     }
 
     if (!formData.password) {
-      setError('请输入密码');
+      setError('Please enter your password');
       return;
     }
 
@@ -50,21 +50,21 @@ export default function LoginPage() {
       if (result.error) {
         setError(getErrorMessage(result.error));
       } else {
-        // 登录成功，跳转到首页或用户指定页面
+        // Login successful, redirect to home page or user-specified page
         router.push('/');
       }
     } catch (err) {
-      setError('登录失败，请稍后重试');
+      setError('Login failed, please try again later');
       console.error('Login error:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 错误信息处理 - 直接返回 Better Auth 的原始错误信息
+  // Error message handling - directly return the original error message from Better Auth
   const getErrorMessage = (error) => {
     const errorString = typeof error === 'string' ? error : error?.message || '';
-    return errorString || '登录失败，请稍后重试';
+    return errorString || 'Login failed, please try again later';
   };
 
   return (
@@ -78,16 +78,16 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="text-center">
-              <h1 className="text-2xl font-bold">欢迎回到 Mastera</h1>
-              <p className="text-gray-400 text-sm">登录您的创作者账户</p>
+              <h1 className="text-2xl font-bold">Welcome back to Mastera</h1>
+              <p className="text-gray-400 text-sm">Log in to your creator account</p>
             </div>
           </CardHeader>
 
           <CardBody className="gap-4">
             <Input
               type="email"
-              label="邮箱地址"
-              placeholder="输入您的邮箱"
+              label="Email Address"
+              placeholder="Enter your email"
               value={formData.email}
               onValueChange={(value) => handleInputChange('email', value)}
               classNames={{
@@ -98,8 +98,8 @@ export default function LoginPage() {
             />
 
             <Input
-              label="密码"
-              placeholder="输入您的密码"
+              label="Password"
+              placeholder="Enter your password"
               value={formData.password}
               onValueChange={(value) => handleInputChange('password', value)}
               endContent={
@@ -127,14 +127,14 @@ export default function LoginPage() {
                   label: "text-gray-300 text-sm"
                 }}
               >
-                记住我
+                Remember me
               </Checkbox>
               <Link href="#" className="text-lime-400 text-sm hover:text-lime-300">
-                忘记密码？
+                Forgot password?
               </Link>
             </div>
 
-            {/* 错误信息显示 */}
+            {/* Error message display */}
             {error && (
               <div className="text-sm p-3 rounded-lg bg-red-900/50 text-red-400 border border-red-700">
                 {error}
@@ -148,7 +148,7 @@ export default function LoginPage() {
               isDisabled={isSubmitting || loading}
               isLoading={isSubmitting || loading}
             >
-              {isSubmitting || loading ? '登录中...' : '登录'}
+              {isSubmitting || loading ? 'Logging in...' : 'Log in'}
             </Button>
 
             <Divider className="my-4" />
@@ -166,7 +166,7 @@ export default function LoginPage() {
                   </svg>
                 }
               >
-                使用 Google 登录
+                Sign in with Google
               </Button>
 
               <Button
@@ -178,15 +178,15 @@ export default function LoginPage() {
                   </svg>
                 }
               >
-                使用 Twitter 登录
+                Sign in with Twitter
               </Button>
             </div>
 
             <div className="text-center mt-6">
               <p className="text-gray-400 text-sm">
-                还没有账户？{' '}
+                Don't have an account?{' '}
                 <Link href="/auth/register" className="text-lime-400 hover:text-lime-300">
-                  立即注册
+                  Sign up now
                 </Link>
               </p>
             </div>

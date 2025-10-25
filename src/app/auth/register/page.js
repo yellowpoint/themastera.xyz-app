@@ -35,37 +35,37 @@ export default function RegisterPage() {
   };
 
   const handleRegister = async () => {
-    // 清除之前的错误
+    // Clear previous errors
     setError('');
 
-    // 表单验证
+    // Form validation
     if (!formData.username.trim()) {
-      setError('请输入用户名');
+      setError('Please enter your username');
       return;
     }
 
     if (!formData.email.trim()) {
-      setError('请输入邮箱地址');
+      setError('Please enter your email address');
       return;
     }
 
     if (!formData.password) {
-      setError('请输入密码');
+      setError('Please enter your password');
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('密码长度至少为6位');
+      setError('Password must be at least 6 characters long');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('两次输入的密码不一致');
+      setError('Passwords do not match');
       return;
     }
 
     if (!formData.agreeTerms) {
-      setError('请同意服务条款和隐私政策');
+      setError('Please agree to the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -79,7 +79,7 @@ export default function RegisterPage() {
           name: formData.username,
           referral_code: formData.referralCode || null,
           agree_marketing: formData.agreeMarketing,
-          callbackURL: generateVerifyEmailCallbackURL(formData.email) // 使用公共方法生成验证回调URL
+          callbackURL: generateVerifyEmailCallbackURL(formData.email) // Use a common method to generate the verification callback URL
         }
       );
 
@@ -87,22 +87,22 @@ export default function RegisterPage() {
         setError(getErrorMessage(result.error));
       } else {
 
-        // 显示成功消息
-        setError('注册成功！请检查您的邮箱并点击验证链接来激活账户。');
+        // Show success message
+        setError('Registration successful! Please check your email and click the verification link to activate your account.');
 
       }
     } catch (err) {
-      setError('注册失败，请稍后重试');
+      setError('Registration failed, please try again later');
       console.error('Registration error:', err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 错误信息处理 - 直接返回 Better Auth 的原始错误信息
+  // Error message handling - directly return the original error message from Better Auth
   const getErrorMessage = (error) => {
     const errorString = typeof error === 'string' ? error : error?.message || '';
-    return errorString || '注册失败，请稍后重试';
+    return errorString || 'Registration failed, please try again later';
   };
 
   return (
@@ -116,16 +116,16 @@ export default function RegisterPage() {
               </div>
             </div>
             <div className="text-center">
-              <h1 className="text-2xl font-bold">加入 Mastera</h1>
-              <p className="text-gray-400 text-sm">开启您的创作之旅</p>
+              <h1 className="text-2xl font-bold">Join Mastera</h1>
+              <p className="text-gray-400 text-sm">Start your creative journey</p>
             </div>
           </CardHeader>
 
           <CardBody className="gap-4">
             <Input
               type="text"
-              label="用户名"
-              placeholder="输入您的用户名"
+              label="Username"
+              placeholder="Enter your username"
               value={formData.username}
               onValueChange={(value) => handleInputChange('username', value)}
               classNames={{
@@ -137,8 +137,8 @@ export default function RegisterPage() {
 
             <Input
               type="email"
-              label="邮箱地址"
-              placeholder="输入您的邮箱"
+              label="Email Address"
+              placeholder="Enter your email"
               value={formData.email}
               onValueChange={(value) => handleInputChange('email', value)}
               classNames={{
@@ -149,8 +149,8 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="密码"
-              placeholder="输入您的密码"
+              label="Password"
+              placeholder="Enter your password"
               value={formData.password}
               onValueChange={(value) => handleInputChange('password', value)}
               endContent={
@@ -171,8 +171,8 @@ export default function RegisterPage() {
             />
 
             <Input
-              label="确认密码"
-              placeholder="再次输入密码"
+              label="Confirm Password"
+              placeholder="Enter password again"
               value={formData.confirmPassword}
               onValueChange={(value) => handleInputChange('confirmPassword', value)}
               endContent={
@@ -194,8 +194,8 @@ export default function RegisterPage() {
 
             <Input
               type="text"
-              label="邀请码 (可选)"
-              placeholder="输入邀请码获得额外奖励"
+              label="Referral Code (Optional)"
+              placeholder="Enter referral code for extra rewards"
               value={formData.referralCode}
               onValueChange={(value) => handleInputChange('referralCode', value)}
               classNames={{
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                 label: "text-gray-300",
                 inputWrapper: "bg-gray-800 border-gray-700 hover:border-lime-400 focus-within:border-lime-400"
               }}
-              description="使用邀请码注册可获得 500 Mastera Points"
+              description="Get 500 Mastera Points by registering with a referral code"
             />
 
             <div className="space-y-2">
@@ -214,13 +214,13 @@ export default function RegisterPage() {
                   label: "text-gray-300 text-sm"
                 }}
               >
-                我同意{' '}
+                I agree to the{' '}
                 <Link href="#" className="text-lime-400 hover:text-lime-300">
-                  服务条款
+                  Terms of Service
                 </Link>
-                {' '}和{' '}
+                {' '}and{' '}
                 <Link href="#" className="text-lime-400 hover:text-lime-300">
-                  隐私政策
+                  Privacy Policy
                 </Link>
               </Checkbox>
 
@@ -231,13 +231,13 @@ export default function RegisterPage() {
                   label: "text-gray-300 text-sm"
                 }}
               >
-                接收产品更新和营销信息
+                Receive product updates and marketing information
               </Checkbox>
             </div>
 
-            {/* 错误信息显示 */}
+            {/* Error message display */}
             {error && (
-              <div className={`text-sm p-3 rounded-lg ${error.includes('注册成功')
+              <div className={`text-sm p-3 rounded-lg ${error.includes('Registration successful')
                 ? 'bg-green-900/50 text-green-400 border border-green-700'
                 : 'bg-red-900/50 text-red-400 border border-red-700'
                 }`}>
@@ -252,7 +252,7 @@ export default function RegisterPage() {
               isDisabled={!formData.agreeTerms || isSubmitting || loading}
               isLoading={isSubmitting || loading}
             >
-              {isSubmitting || loading ? '创建中...' : '创建账户'}
+              {isSubmitting || loading ? 'Creating...' : 'Create Account'}
             </Button>
 
             <Divider className="my-4" />
@@ -270,7 +270,7 @@ export default function RegisterPage() {
                   </svg>
                 }
               >
-                使用 Google 注册
+                Sign up with Google
               </Button>
 
               <Button
@@ -282,15 +282,15 @@ export default function RegisterPage() {
                   </svg>
                 }
               >
-                使用 Twitter 注册
+                Sign up with Twitter
               </Button>
             </div>
 
             <div className="text-center mt-6">
               <p className="text-gray-400 text-sm">
-                已有账户？{' '}
+                Already have an account?{' '}
                 <Link href="/auth/login" className="text-lime-400 hover:text-lime-300">
-                  立即登录
+                  Log in now
                 </Link>
               </p>
             </div>
