@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form } from '@heroui/react'
+import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form, toast } from '@heroui/react'
 import { ArrowLeft, Plus, X } from 'lucide-react'
-import { toast } from 'react-hot-toast'
 import VideoUpload from '@/components/VideoUpload'
 import ImgUpload from '@/components/ImgUpload'
 import { useAuth } from '@/hooks/useAuth'
