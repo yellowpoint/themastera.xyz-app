@@ -9,10 +9,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <HeroUIProvider>
-        <ToastProvider
-          placement="top-center"
-          toastProps={{ radius: "full" }}
-        ></ToastProvider>
+        <ToastProvider placement="top-center"></ToastProvider>
         <AuthProvider>{children}</AuthProvider>
       </HeroUIProvider>
     </ThemeProvider>
