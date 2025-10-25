@@ -5,7 +5,7 @@ const AuthContext = createContext({})
 
 // Better Auth 客户端配置
 const auth = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 })
 
 export const AuthProvider = ({ children }) => {
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         callbackURL: options.callbackURL,
         rememberMe: options.rememberMe !== false, // 默认为 true
       })
-      
+
       if (result.error) {
         return { error: result.error }
       }
