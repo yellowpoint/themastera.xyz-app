@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-export const useWorks = (userId = null) => {
+export const useWorks = () => {
   const [works, setWorks] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -9,39 +9,35 @@ export const useWorks = (userId = null) => {
   const fetchWorks = useCallback(async (filters = {}) => {
     setLoading(true)
     setError(null)
-    
+
     try {
       // Build query parameters
       const params = new URLSearchParams()
-      
-      if (userId) {
-        params.append('userId', userId)
-      }
-      
+
       if (filters.category) {
         params.append('category', filters.category)
       }
-      
+
       if (filters.status) {
         params.append('status', filters.status)
       }
-      
+
       if (filters.page) {
         params.append('page', filters.page.toString())
       }
-      
+
       if (filters.limit) {
         params.append('limit', filters.limit.toString())
       }
 
       const response = await fetch(`/api/works?${params.toString()}`)
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const result = await response.json()
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch works')
       }
@@ -56,7 +52,7 @@ export const useWorks = (userId = null) => {
     } finally {
       setLoading(false)
     }
-  }, [userId])
+  }, [])
 
   // Create new work
   const createWork = async (workData) => {
@@ -117,12 +113,12 @@ export const useWorks = (userId = null) => {
         throw new Error(result.error || 'Failed to update work')
       }
 
-      setWorks(prev => 
-        prev.map(work => 
+      setWorks(prev =>
+        prev.map(work =>
           work.id === workId ? { ...work, ...result.data } : work
         )
       )
-      
+
       return result.data
     } catch (err) {
       setError(err.message)
@@ -164,16 +160,16 @@ export const useWorks = (userId = null) => {
   }
 
   // Fetch work statistics
-  const getWorkStats = useCallback(async (userId) => {
+  const getWorkStats = useCallback(async () => {
     try {
-      const response = await fetch(`/api/works/stats?userId=${userId}`)
-      
+      const response = await fetch(`/api/works/stats`)
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const result = await response.json()
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch work stats')
       }
@@ -196,7 +192,7 @@ export const useWorks = (userId = null) => {
   // Initial load
   useEffect(() => {
     fetchWorks()
-  }, [userId])
+  }, [])
 
   return {
     works,

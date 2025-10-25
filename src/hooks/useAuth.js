@@ -1,6 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { createAuthClient } from "better-auth/react"
-
 const AuthContext = createContext({})
 
 // Better Auth client configuration
@@ -9,7 +8,6 @@ const auth = createAuthClient()
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -26,27 +24,11 @@ export const AuthProvider = ({ children }) => {
 
     getInitialSession()
 
-    // // Listen for authentication state changes
-    // const unsubscribe = auth.onSessionChange((session) => {
-    //   setUser(session?.user || null)
-    //   setLoading(false)
-    // })
-
-    // return () => {
-    //   if (unsubscribe) unsubscribe()
-    // }
   }, [])
 
-  const signUp = async (email, password, additionalData = {}) => {
+  const signUp = async (params) => {
     try {
-      const result = await auth.signUp.email({
-        email,
-        password,
-        name: additionalData.name,
-        image: additionalData.image, // Support avatar URL
-        callbackURL: additionalData.callbackURL, // Support callback URL
-        ...additionalData
-      })
+      const result = await auth.signUp.email(params)
 
       if (result.error) {
         return { error: result.error }
@@ -68,14 +50,9 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const signIn = async (email, password, options = {}) => {
+  const signIn = async (params) => {
     try {
-      const result = await auth.signIn.email({
-        email,
-        password,
-        callbackURL: options.callbackURL,
-        rememberMe: options.rememberMe !== false, // Defaults to true
-      })
+      const result = await auth.signIn.email(params)
 
       if (result.error) {
         return { error: result.error }
@@ -158,7 +135,10 @@ export const AuthProvider = ({ children }) => {
     resetPassword,
     updateProfile,
   }
-
+  // todo 优化初始loading状态，错误提示等
+  if (loading) {
+    return null
+  }
   return (
     <AuthContext.Provider value={value}>
       {children}

@@ -73,23 +73,20 @@ export default function RegisterPage() {
 
     try {
       const result = await signUp(
-        formData.email,
-        formData.password,
         {
+          email: formData.email,
+          password: formData.password,
           name: formData.username,
+          callbackURL: generateVerifyEmailCallbackURL(formData.email),
           referral_code: formData.referralCode || null,
           agree_marketing: formData.agreeMarketing,
-          callbackURL: generateVerifyEmailCallbackURL(formData.email) // Use a common method to generate the verification callback URL
         }
       );
 
       if (result.error) {
         setError(getErrorMessage(result.error));
       } else {
-
-        // Show success message
         setError('Registration successful! Please check your email and click the verification link to activate your account.');
-
       }
     } catch (err) {
       setError('Registration failed, please try again later');

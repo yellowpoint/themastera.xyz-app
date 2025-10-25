@@ -45,7 +45,11 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await signIn(formData.email, formData.password);
+      const result = await signIn({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe !== false, // Defaults to true
+      });
 
       if (result.error) {
         setError(getErrorMessage(result.error));
@@ -91,10 +95,10 @@ export default function LoginPage() {
               value={formData.email}
               onValueChange={(value) => handleInputChange('email', value)}
               classNames={{
-                 input: "text-white",
-                 label: "text-gray-300",
-                 inputWrapper: "bg-content2 border-divider hover:border-lime-400 focus-within:border-lime-400"
-               }}
+                input: "text-white",
+                label: "text-gray-300",
+                inputWrapper: "bg-content2 border-divider hover:border-lime-400 focus-within:border-lime-400"
+              }}
             />
 
             <Input
@@ -113,10 +117,10 @@ export default function LoginPage() {
               }
               type={isVisible ? "text" : "password"}
               classNames={{
-                 input: "text-white",
-                 label: "text-gray-300",
-                 inputWrapper: "bg-content2 border-divider hover:border-lime-400 focus-within:border-lime-400"
-               }}
+                input: "text-white",
+                label: "text-gray-300",
+                inputWrapper: "bg-content2 border-divider hover:border-lime-400 focus-within:border-lime-400"
+              }}
             />
 
             <div className="flex items-center justify-between">

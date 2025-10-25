@@ -1,21 +1,15 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthSession, requireAuth } from '@/middleware/auth'
 
 // GET /api/works/stats - 获取作品统计数据
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
-    if (!userId) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing userId parameter' 
-        },
-        { status: 400 }
-      )
-    }
+    // 验证用户是否已登录
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
+    
+    const { userId } = await getAuthSession(request)
 
     // 获取作者的所有作品
     const works = await prisma.work.findMany({
@@ -41,7 +35,7 @@ export async function GET(request) {
     }
 
     // 计算平均评分
-    const allRatings = works.flatMap(work => 
+    const allRatings = works.flatMap(work =>
       work.reviews.map(review => review.rating)
     ).filter(rating => rating != null)
 
@@ -78,7 +72,7 @@ export async function GET(request) {
     })
 
     const monthlyStats = {
-      monthlyEarnings: monthlyPurchases.reduce((sum, purchase) => 
+      monthlyEarnings: monthlyPurchases.reduce((sum, purchase) =>
         sum + (purchase.work.price || 0), 0
       ),
       monthlyViews: 0, // 这需要额外的视图跟踪表
@@ -96,10 +90,10 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching work stats:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to fetch work stats',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )
@@ -109,14 +103,18 @@ export async function GET(request) {
 // POST /api/works/stats - 更新作品统计（如下载量、收益等）
 export async function POST(request) {
   try {
+    // 验证用户是否已登录
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
+    
     const body = await request.json()
     const { workId, type, value } = body
 
     if (!workId || !type) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing required fields: workId, type' 
+        {
+          success: false,
+          error: 'Missing required fields: workId, type'
         },
         { status: 400 }
       )
@@ -168,10 +166,10 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error updating work stats:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to update work stats',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )

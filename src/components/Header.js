@@ -143,49 +143,49 @@ export default function Header() {
 
               <NavbarItem>
                 <Chip
-                    color="primary"
-                    variant="flat"
-                    className="cursor-pointer"
-                    onClick={() => router.push('/points')}
-                  >
-                    {user?.user_metadata?.points || 0} Points
-                  </Chip>
-                </NavbarItem>
+                  color="primary"
+                  variant="flat"
+                  className="cursor-pointer"
+                  onClick={() => router.push('/points')}
+                >
+                  {user?.user_metadata?.points || 0} Points
+                </Chip>
+              </NavbarItem>
 
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
-                    <Avatar
-                      isBordered
-                      as="button"
-                      className="transition-transform"
-                      color="primary"
-                      name={user?.user_metadata?.name || user?.email?.charAt(0).toUpperCase() || "User"}
-                      size="sm"
-                      src={user?.user_metadata?.avatar}
-                    />
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label="Profile Actions" variant="flat">
-                    <DropdownItem key="profile" className="h-14 gap-2">
-                      <p className="font-semibold">Logged in as</p>
-                      <p className="font-semibold">{user?.email}</p>
-                    </DropdownItem>
-                    {userMenuItems.map((item) => (
-                      <DropdownItem
-                        key={item.name}
-                        onPress={() => router.push(item.href)}
-                        startContent={<item.icon size={16} />}
-                      >
-                        {item.name}
-                      </DropdownItem>
-                    ))}
+              <Dropdown placement="bottom-end">
+                <DropdownTrigger>
+                  <Avatar
+                    isBordered
+                    as="button"
+                    className="transition-transform"
+                    color="primary"
+                    name={user?.user_metadata?.name || user?.email?.charAt(0).toUpperCase() || "User"}
+                    size="sm"
+                    src={user?.user_metadata?.avatar}
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Profile Actions" variant="flat">
+                  <DropdownItem key="profile" className="h-14 gap-2">
+                    <p className="font-semibold">Logged in as</p>
+                    <p className="font-semibold">{user?.email}</p>
+                  </DropdownItem>
+                  {userMenuItems.map((item) => (
                     <DropdownItem
-                      key="logout"
-                      color="danger"
-                      startContent={<LogOut size={16} />}
-                      onPress={handleSignOut}
+                      key={item.name}
+                      onPress={() => router.push(item.href)}
+                      startContent={<item.icon size={16} />}
                     >
-                      Sign Out
+                      {item.name}
                     </DropdownItem>
+                  ))}
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    startContent={<LogOut size={16} />}
+                    onPress={handleSignOut}
+                  >
+                    Sign Out
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </>

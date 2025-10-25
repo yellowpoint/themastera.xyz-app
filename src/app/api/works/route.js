@@ -1,16 +1,22 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthSession, requireAuth } from '@/middleware/auth'
 
 // GET /api/works - Get works list
 export async function GET(request) {
   try {
+    // 验证用户是否已登录
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
+    
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
     const category = searchParams.get('category')
     const status = searchParams.get('status')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
+
+    const { userId } = await getAuthSession(request)
 
     // Build query conditions
     const where = {}
@@ -86,23 +92,30 @@ export async function GET(request) {
 // POST /api/works - Create new work
 export async function POST(request) {
   try {
+    // 验证用户是否已登录
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
+    
+    // 从cookie获取用户信息
+    const { userId } = await getAuthSession(request)
+
     const body = await request.json()
 
     // Validate required fields
-    const { title, description, category, userId } = body
+    const { title, description, category } = body
 
-    if (!title || !description || !category || !userId) {
+    if (!title || !description || !category) {
       return NextResponse.json(
         {
           success: false,
           error: 'Missing required fields',
-          required: ['title', 'description', 'category', 'userId']
+          required: ['title', 'description', 'category']
         },
         { status: 400 }
       )
     }
 
-    // 准备创建数据
+    // 准备创建数据，使用cookie中的用户ID
     const createData = {
       title,
       description,
