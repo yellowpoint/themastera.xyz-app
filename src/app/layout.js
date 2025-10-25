@@ -40,8 +40,7 @@ export default function RootLayout({ children }) {
                   if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
                     return savedTheme;
                   }
-                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  return systemPrefersDark ? 'dark' : 'light';
+                  return 'dark'; // 默认使用深色模式
                 }
                 
                 const theme = getInitialTheme();

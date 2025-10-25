@@ -16,9 +16,8 @@ function getInitialTheme() {
     return savedTheme
   }
   
-  // 如果没有保存的主题，检查系统偏好
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  return systemPrefersDark ? 'dark' : 'light'
+  // 默认使用深色模式，不再检查系统偏好
+  return 'dark'
 }
 
 export function ThemeProvider({ children }) {
