@@ -206,8 +206,8 @@ export default function VideoPlayer({
 
   // 有权限时显示视频播放器
   return (
-    <Card className={className}>
-      <CardBody className="p-0">
+    <Card className='rounded-none'>
+      <CardBody className="p-0 bg-black ">
         <div style={{ width, height }} className="relative">
 
           {error ? (
@@ -255,10 +255,10 @@ export default function VideoPlayer({
                   forceVideo: true
                 }
               }}
-              style={{
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}
+            // style={{
+            //   borderRadius: '8px',
+            //   overflow: 'hidden'
+            // }}
             />
           )}
         </div>

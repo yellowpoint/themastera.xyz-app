@@ -92,6 +92,7 @@ export async function PUT(request, { params }) {
     if (body.tags !== undefined) updateData.tags = body.tags
     if (body.status !== undefined) updateData.status = body.status
     if (body.fileUrl !== undefined) updateData.fileUrl = body.fileUrl
+    if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl
 
     // 更新作品
     const work = await prisma.work.update({

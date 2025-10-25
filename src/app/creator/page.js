@@ -23,11 +23,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  DrawerFooter,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -42,25 +37,15 @@ import {
 import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText, TrendingUp, Star, Calendar, Clock, Heart, Download, MessageSquare } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
-import FileUpload from '@/components/FileUpload'
 import { useRouter } from 'next/navigation'
 
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
-  const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const router = useRouter()
 
   const { user, loading: authLoading } = useAuth()
   const { works, loading: worksLoading, createWork, getWorkStats, deleteWork } = useWorks(user?.id)
-
-  const [uploadForm, setUploadForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    price: '',
-    tags: ''
-  })
 
   const [workToDelete, setWorkToDelete] = useState(null)
 
@@ -113,62 +98,6 @@ export default function CreatorPage() {
         </Card>
       </div>
     )
-  }
-
-  // 处理文件上传完成
-  const handleUploadComplete = (uploadResults) => {
-    console.log('Upload results:', uploadResults) // 添加调试日志
-    if (uploadResults && uploadResults.length > 0) {
-      const firstFile = uploadResults[0]
-      // 使用fileUrls字段，支持逗号分隔的多文件URL
-      const fileUrls = uploadResults.map(file => file.fileUrl).join(',')
-      setUploadForm(prev => ({
-        ...prev,
-        fileUrl: fileUrls, // 使用可能包含多个URL的字段
-        thumbnailUrl: firstFile.fileUrl, // 缩略图仍使用第一个文件
-      }))
-    }
-  }
-
-  // 提交新作品
-  const handleSubmitWork = async () => {
-    if (!uploadForm.title || !uploadForm.category || !uploadForm.price) {
-      toast.error('请填写必要信息')
-      return
-    }
-
-    try {
-      const workData = {
-        title: uploadForm.title,
-        description: uploadForm.description,
-        category: uploadForm.category,
-        price: parseFloat(uploadForm.price),
-        tags: uploadForm.tags,
-        userId: user.id,
-        fileUrl: uploadForm.fileUrl,
-        thumbnailUrl: uploadForm.thumbnailUrl,
-        status: 'published'
-      }
-
-      await createWork(workData)
-
-      // 重置表单
-      setUploadForm({
-        title: '',
-        description: '',
-        category: '',
-        price: '',
-        tags: '',
-        fileUrl: '',
-        thumbnailUrl: ''
-      })
-
-      onUploadClose()
-      toast.success('作品发布成功！')
-    } catch (error) {
-      console.error('Error submitting work:', error)
-      toast.error('提交失败，请重试')
-    }
   }
 
   // 收益记录
@@ -275,7 +204,7 @@ export default function CreatorPage() {
         <div className="flex flex-wrap gap-3 mb-6">
           <Button
             color="primary"
-            onPress={onUploadOpen}
+            onPress={() => router.push('/creator/upload')}
             startContent={<Plus size={16} />}
             size="sm"
           >
@@ -452,7 +381,7 @@ export default function CreatorPage() {
                 <Button
                   color="default"
                   size="sm"
-                  onPress={onUploadOpen}
+                  onPress={() => router.push('/creator/upload')}
                   startContent={<Plus size={16} />}
                 >
                   添加作品
@@ -695,86 +624,6 @@ export default function CreatorPage() {
           </div>
         )}
       </main>
-
-      <Drawer
-        isOpen={isUploadOpen}
-        onClose={onUploadClose}
-        placement="right"
-        size="md"
-        className="bg-gray-900"
-      >
-        <DrawerContent>
-          <DrawerHeader className="border-b border-gray-800">
-            <h2 className="text-xl font-bold">上传新作品</h2>
-          </DrawerHeader>
-          <DrawerBody>
-            <div className="space-y-4 py-4">
-              <Input
-                label="作品标题"
-                placeholder="输入作品标题..."
-                value={uploadForm.title}
-                onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
-              />
-
-              <Textarea
-                label="作品描述"
-                placeholder="描述你的作品..."
-                minRows={4}
-                value={uploadForm.description}
-                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
-              />
-
-              <Select
-                label="作品分类"
-                placeholder="选择分类"
-                selectedKeys={uploadForm.category ? [uploadForm.category] : []}
-                onSelectionChange={(keys) => setUploadForm({ ...uploadForm, category: Array.from(keys)[0] })}
-              >
-                {categories.map((category) => (
-                  <SelectItem key={category.key} value={category.key}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-              </Select>
-
-              <Input
-                label="作品价格"
-                placeholder="设置价格（元）"
-                type="number"
-                value={uploadForm.price}
-                onChange={(e) => setUploadForm({ ...uploadForm, price: e.target.value })}
-              />
-
-              <Input
-                label="标签"
-                placeholder="输入标签，用逗号分隔"
-                value={uploadForm.tags}
-                onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
-              />
-
-              <div>
-                <label className="block text-sm font-medium mb-2">上传文件</label>
-                <FileUpload
-                  onUploadComplete={handleUploadComplete}
-                  acceptedTypes={['image/*', 'video/*', 'audio/*', '.zip', '.rar', '.pdf']}
-                />
-              </div>
-            </div>
-          </DrawerBody>
-          <DrawerFooter className="border-t border-gray-800">
-            <Button variant="light" onPress={onUploadClose}>
-              取消
-            </Button>
-            <Button
-              color="primary"
-              onPress={handleSubmitWork}
-              isDisabled={!uploadForm.title || !uploadForm.description || !uploadForm.category}
-            >
-              上传作品
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
 
       {/* 删除确认模态框 */}
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="md">

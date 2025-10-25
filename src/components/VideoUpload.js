@@ -1,74 +1,28 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Button, Progress, Card, CardBody, Checkbox, Image } from '@heroui/react'
-import { Upload, X, File as FileIcon, Image as ImageIcon, Check, Video, Camera } from 'lucide-react'
+import { Button, Progress, Card, CardBody } from '@heroui/react'
+import { Upload, X, Video, Check } from 'lucide-react'
 import { supabase, getStorageUrl } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 
-export default function FileUpload({
+export default function VideoUpload({
   onUploadComplete,
-  acceptedTypes = ['*'],
   maxSize = 50 * 1024 * 1024, // 50MB
   bucket = 'data',
-  folder = '',
-  enableCoverUpload = false // 新增：是否启用封面图上传功能
+  folder = ''
 }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [dragActive, setDragActive] = useState(false)
   const [error, setError] = useState('')
   const [uploadedFiles, setUploadedFiles] = useState([])
-  const [coverImage, setCoverImage] = useState(null) // 封面图
   const fileInputRef = useRef(null)
-  const coverInputRef = useRef(null)
   const { user } = useAuth()
 
   // 确保 bucket 和 folder 参数有效
   const storageBucket = bucket || 'data'
   const storageFolder = folder ? `${folder}/` : ''
-
-  // 处理 acceptedTypes 参数，支持数组和字符串格式
-  const acceptedTypesString = Array.isArray(acceptedTypes)
-    ? acceptedTypes.join(',')
-    : acceptedTypes
-
-  // 上传封面图
-  const uploadCoverImage = async (file) => {
-    if (!file) return null
-    
-    try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `cover_${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-      const filePath = storageFolder ? `${storageFolder}${user.id}/covers/${fileName}` : `${user.id}/covers/${fileName}`
-
-      const { data, error } = await supabase
-        .storage
-        .from(storageBucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
-
-      if (error) {
-        throw new Error(`封面上传失败: ${error.message}`)
-      }
-
-      const publicUrl = getStorageUrl(storageBucket, filePath)
-      
-      return {
-        fileUrl: publicUrl,
-        fullPath: filePath,
-        fileName: fileName,
-        originalName: file.name,
-        size: file.size,
-        type: file.type
-      }
-    } catch (error) {
-      console.error('Cover upload error:', error)
-      throw error
-    }
-  }
 
   // 上传单个文件
   const uploadFile = async (file) => {
@@ -87,7 +41,7 @@ export default function FileUpload({
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = storageFolder ? `${storageFolder}${user.id}/${fileName}` : `${user.id}/${fileName}`
 
-      // 模拟上传进度 - Supabase不提供进度回调，所以我们模拟进度
+      // 模拟上传进度
       const progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
@@ -167,7 +121,13 @@ export default function FileUpload({
   const handleFileSelect = async (files) => {
     setError('') // 清除之前的错误
     const fileArray = Array.from(files)
+    
+    // 验证文件类型（只允许视频文件）
     const validFiles = fileArray.filter(file => {
+      if (!file.type.startsWith('video/')) {
+        setError(`文件 ${file.name} 不是视频文件`)
+        return false
+      }
       if (file.size > maxSize) {
         setError(`文件 ${file.name} 超过大小限制 (${maxSize / 1024 / 1024}MB)`)
         return false
@@ -186,11 +146,8 @@ export default function FileUpload({
         const newUploadedFiles = [...uploadedFiles, ...uploadResult.results];
         setUploadedFiles(newUploadedFiles);
         
-        // 传递文件和封面信息
-        onUploadComplete?.({
-          files: newUploadedFiles,
-          coverImage: coverImage
-        });
+        // 传递文件信息
+        onUploadComplete?.(newUploadedFiles);
         setError('');
       } else {
         setError('上传失败：未收到有效的上传结果')
@@ -198,33 +155,6 @@ export default function FileUpload({
     } catch (error) {
       console.error('Upload failed:', error)
       setError(error.message || '上传失败，请重试')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const handleCoverSelect = async (files) => {
-    if (!files || files.length === 0) return
-    
-    const file = files[0]
-    if (!file.type.startsWith('image/')) {
-      setError('封面必须是图片文件')
-      return
-    }
-    
-    try {
-      setUploading(true)
-      const result = await uploadCoverImage(file)
-      setCoverImage(result)
-      
-      // 更新回调，传递当前的文件和新的封面
-      onUploadComplete?.({
-        files: uploadedFiles,
-        coverImage: result
-      });
-    } catch (error) {
-      console.error('Cover upload failed:', error)
-      setError(error.message || '封面上传失败')
     } finally {
       setUploading(false)
     }
@@ -256,27 +186,10 @@ export default function FileUpload({
     }
   }
 
-  const handleCoverInputChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleCoverSelect(e.target.files)
-    }
-  }
-
   const removeFile = (index) => {
     const newFiles = uploadedFiles.filter((_, i) => i !== index)
     setUploadedFiles(newFiles)
-    onUploadComplete?.({
-      files: newFiles,
-      coverImage: coverImage
-    })
-  }
-
-  const removeCover = () => {
-    setCoverImage(null)
-    onUploadComplete?.({
-      files: uploadedFiles,
-      coverImage: null
-    })
+    onUploadComplete?.(newFiles)
   }
 
   const formatFileSize = (bytes) => {
@@ -289,7 +202,7 @@ export default function FileUpload({
 
   return (
     <div className="w-full space-y-4">
-      {/* 主文件上传区域 */}
+      {/* 视频文件上传区域 */}
       <div
         className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
           ? 'border-primary bg-primary/10'
@@ -301,87 +214,23 @@ export default function FileUpload({
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+        <Video className="w-12 h-12 mx-auto mb-4 text-gray-400" />
         <p className="text-lg font-medium mb-2">
-          点击或拖拽文件到此处上传
+          点击或拖拽视频文件到此处上传
         </p>
         <p className="text-sm text-gray-500">
-          支持的格式: {acceptedTypesString} | 最大大小: {maxSize / 1024 / 1024}MB
+          支持的格式: MP4, MOV, AVI, MKV | 最大大小: {maxSize / 1024 / 1024}MB
         </p>
 
         <input
           ref={fileInputRef}
           type="file"
-          accept={acceptedTypesString}
+          accept="video/*"
           multiple
           onChange={handleInputChange}
           className="hidden"
         />
       </div>
-
-      {/* 封面图上传区域 */}
-      {enableCoverUpload && (
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium flex items-center gap-2">
-              <Camera className="w-4 h-4" />
-              作品封面
-            </h4>
-            <Button
-              size="sm"
-              variant="flat"
-              color="primary"
-              onPress={() => coverInputRef.current?.click()}
-              startContent={<ImageIcon className="w-4 h-4" />}
-            >
-              选择封面
-            </Button>
-          </div>
-          
-          {coverImage ? (
-            <Card className="border-green-200">
-              <CardBody className="flex flex-row items-center justify-between p-3">
-                <div className="flex items-center space-x-3">
-                  <Image
-                    src={coverImage.fileUrl}
-                    alt="封面预览"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div>
-                    <p className="font-medium text-green-800">{coverImage.originalName}</p>
-                    <p className="text-sm text-green-600">
-                      封面图片 • {formatFileSize(coverImage.size)}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="light"
-                  color="danger"
-                  onPress={removeCover}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </CardBody>
-            </Card>
-          ) : (
-            <div className="text-center py-4 text-gray-500">
-              <p className="text-sm">
-                选择一张图片作为作品封面
-              </p>
-            </div>
-          )}
-          
-          <input
-            ref={coverInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleCoverInputChange}
-            className="hidden"
-          />
-        </div>
-      )}
 
       {/* 错误提示 */}
       {error && (
@@ -401,22 +250,16 @@ export default function FileUpload({
         </div>
       )}
 
-      {/* 已上传文件列表 */}
+      {/* 已上传视频列表 */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-2">
-          <h4 className="font-medium text-green-600">已上传的文件:</h4>
+          <h4 className="font-medium text-green-600">已上传的视频:</h4>
           {uploadedFiles.map((file, index) => (
             <Card key={index} className="border-green-200">
               <CardBody className="flex flex-row items-center justify-between p-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    {file.type?.startsWith('video/') ? (
-                      <Video className="w-4 h-4 text-green-600" />
-                    ) : file.type?.startsWith('image/') ? (
-                      <ImageIcon className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Check className="w-4 h-4 text-green-600" />
-                    )}
+                    <Video className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
                     <p className="font-medium text-green-800">{file.originalName || file.fileName}</p>
@@ -430,7 +273,7 @@ export default function FileUpload({
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:underline"
                       >
-                        查看文件
+                        查看视频
                       </a>
                     )}
                   </div>

@@ -102,9 +102,23 @@ export async function POST(request) {
       )
     }
 
+    // 准备创建数据
+    const createData = {
+      title,
+      description,
+      category,
+      userId,
+      price: parseFloat(body.price) || 0,
+      tags: body.tags || null,
+      fileUrl: body.fileUrl || null,
+      thumbnailUrl: body.thumbnailUrl || null,
+      status: body.status || 'draft',
+      isActive: body.isActive !== undefined ? body.isActive : true
+    }
+
     // 创建作品
     const work = await prisma.work.create({
-      data: body,
+      data: createData,
       include: {
         user: {
           select: {
