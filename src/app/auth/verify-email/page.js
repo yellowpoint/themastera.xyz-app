@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardBody, Button, Spinner } from '@heroui/react'
 import { CheckCircle, XCircle } from 'lucide-react'
 
-export default function VerifyEmailPage() {
+// 创建一个内部组件来使用 useSearchParams
+function VerifyEmailContent() {
   const [status, setStatus] = useState('verifying') // 'verifying', 'success', 'error'
   const [message, setMessage] = useState('')
   const searchParams = useSearchParams()
@@ -141,5 +142,23 @@ export default function VerifyEmailPage() {
         </CardBody>
       </Card>
     </div>
+  )
+}
+
+// 导出默认组件，使用 Suspense 包裹内部组件
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+        <Card className="w-full max-w-md">
+          <CardBody className="text-center p-8">
+            <Spinner size="lg" className="mb-4" />
+            <h1 className="text-2xl font-bold mb-4">加载中...</h1>
+          </CardBody>
+        </Card>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
