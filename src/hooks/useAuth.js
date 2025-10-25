@@ -4,9 +4,7 @@ import { createAuthClient } from "better-auth/react"
 const AuthContext = createContext({})
 
 // Better Auth 客户端配置
-const auth = createAuthClient({
-  // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-})
+const auth = createAuthClient()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -28,15 +26,15 @@ export const AuthProvider = ({ children }) => {
 
     getInitialSession()
 
-    // 监听认证状态变化
-    const unsubscribe = auth.onSessionChange((session) => {
-      setUser(session?.user || null)
-      setLoading(false)
-    })
+    // // 监听认证状态变化
+    // const unsubscribe = auth.onSessionChange((session) => {
+    //   setUser(session?.user || null)
+    //   setLoading(false)
+    // })
 
-    return () => {
-      if (unsubscribe) unsubscribe()
-    }
+    // return () => {
+    //   if (unsubscribe) unsubscribe()
+    // }
   }, [])
 
   const signUp = async (email, password, additionalData = {}) => {

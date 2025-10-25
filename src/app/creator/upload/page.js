@@ -8,6 +8,7 @@ import VideoUpload from '@/components/VideoUpload'
 import ImgUpload from '@/components/ImgUpload'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
+import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function UploadPage() {
     title: '',
     description: '',
     category: '',
+    language: '',
     price: '',
     tags: '',
     fileUrl: '',
@@ -153,14 +155,10 @@ export default function UploadPage() {
     }
   }
 
-  const categories = [
-    { key: 'video', label: '视频' },
-    { key: 'audio', label: '音频' },
-    { key: 'image', label: '图片' },
-    { key: 'document', label: '文档' },
-    { key: 'software', label: '软件' },
-    { key: 'other', label: '其他' }
-  ]
+  const categories = MUSIC_CATEGORIES.map(category => ({
+    key: category,
+    label: category
+  }))
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -230,13 +228,13 @@ export default function UploadPage() {
                   />
                 </div>
 
-                {/* 分区 */}
+                {/* 风格 */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> 分区
+                    <span className="text-red-500">*</span> 风格
                   </label>
                   <Select
-                    placeholder="请选择分区"
+                    placeholder="请选择风格"
                     selectedKeys={uploadForm.category ? [uploadForm.category] : []}
                     onSelectionChange={(keys) => {
                       const selectedKey = Array.from(keys)[0]
@@ -246,6 +244,27 @@ export default function UploadPage() {
                     {categories.map((category) => (
                       <SelectItem key={category.key} value={category.key}>
                         {category.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* 语言 */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">
+                    <span className="text-red-500">*</span> 语言
+                  </label>
+                  <Select
+                    placeholder="请选择语言"
+                    selectedKeys={uploadForm.language ? [uploadForm.language] : []}
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0]
+                      setUploadForm(prev => ({ ...prev, language: selectedKey }))
+                    }}
+                  >
+                    {LANGUAGE_CATEGORIES.map((language) => (
+                      <SelectItem key={language} value={language}>
+                        {language}
                       </SelectItem>
                     ))}
                   </Select>

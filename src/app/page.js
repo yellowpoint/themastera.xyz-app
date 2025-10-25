@@ -43,8 +43,9 @@ import {
   Star
 } from "lucide-react";
 import Link from "next/link";
+import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
 
-const categories = ["全部", "视觉艺术", "音乐", "动画", "摄影", "设计", "插画"];
+const categories = ["全部", ...MUSIC_CATEGORIES];
 
 export default function HomePage() {
   const [works, setWorks] = useState([]);
@@ -52,13 +53,13 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
+  const [selectedLanguage, setSelectedLanguage] = useState("全部");
   const [viewMode, setViewMode] = useState("grid");
 
-  const { isOpen: isUploadOpen, onOpen: onUploadOpen, onOpenChange: onUploadOpenChange } = useDisclosure();
 
   useEffect(() => {
     fetchTrendingWorks();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedLanguage]);
 
   const fetchTrendingWorks = async () => {
     try {
@@ -66,7 +67,8 @@ export default function HomePage() {
       setError(null);
 
       const category = selectedCategory === "全部" ? "" : selectedCategory;
-      const response = await fetch(`/api/works/trending?category=${encodeURIComponent(category)}&limit=20`);
+      const language = selectedLanguage === "全部" ? "" : selectedLanguage;
+      const response = await fetch(`/api/works/trending?category=${encodeURIComponent(category)}&language=${encodeURIComponent(language)}&limit=20`);
       const data = await response.json();
 
       if (data.success) {
@@ -88,6 +90,10 @@ export default function HomePage() {
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
+  };
+
+  const handleLanguageChange = (language) => {
+    setSelectedLanguage(language);
   };
 
   const filteredWorks = works.filter(work => {
@@ -112,23 +118,11 @@ export default function HomePage() {
     <Link href={`/content/${work.id}`} className="group cursor-pointer block">
       <div className="relative mb-3">
         <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl overflow-hidden">
-          {work.thumbnailUrl ? (
-            <img
-              src={work.thumbnailUrl}
-              alt={work.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
-              {work.category === "视觉艺术" && <Palette />}
-              {work.category === "音乐" && <Music />}
-              {work.category === "动画" && <Film />}
-              {work.category === "摄影" && <Camera />}
-              {work.category === "设计" && <Monitor />}
-              {work.category === "插画" && <PenTool />}
-            </div>
-          )}
-
+          <img
+            src={work.thumbnailUrl}
+            alt={work.title}
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Button isIconOnly size="lg" className="bg-background/20 backdrop-blur-sm">
               <Play className="w-6 h-6" />
@@ -270,7 +264,8 @@ export default function HomePage() {
         </div>
 
         {/* 分类标签 */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="flex items-center text-sm text-gray-400 mr-2">风格:</span>
           {categories.map((category) => (
             <Button
               key={category}
@@ -280,6 +275,31 @@ export default function HomePage() {
               onPress={() => handleCategoryChange(category)}
             >
               {category}
+            </Button>
+          ))}
+        </div>
+
+        {/* 语言筛选 */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <span className="flex items-center text-sm text-gray-400 mr-2">语言:</span>
+          <Button
+            key="全部"
+            variant={selectedLanguage === "全部" ? "solid" : "flat"}
+            color={selectedLanguage === "全部" ? "primary" : "default"}
+            size="sm"
+            onPress={() => handleLanguageChange("全部")}
+          >
+            全部
+          </Button>
+          {LANGUAGE_CATEGORIES.map((language) => (
+            <Button
+              key={language}
+              variant={selectedLanguage === language ? "solid" : "flat"}
+              color={selectedLanguage === language ? "primary" : "default"}
+              size="sm"
+              onPress={() => handleLanguageChange(language)}
+            >
+              {language}
             </Button>
           ))}
         </div>
