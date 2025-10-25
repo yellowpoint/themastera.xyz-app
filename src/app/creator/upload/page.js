@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form, toast } from '@heroui/react'
+import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form, addToast } from '@heroui/react'
 import { ArrowLeft, Plus, X } from 'lucide-react'
 import VideoUpload from '@/components/VideoUpload'
 import ImgUpload from '@/components/ImgUpload'
@@ -56,22 +56,34 @@ export default function UploadPage() {
     e.preventDefault()
 
     if (!user) {
-      toast.error('请先登录')
+      addToast({
+        description: '请先登录',
+        color: "danger"
+      })
       return
     }
 
     if (!uploadForm.title || !uploadForm.description || !uploadForm.category) {
-      toast.error('请填写必要信息')
+      addToast({
+        description: '请填写必要信息',
+        color: "danger"
+      })
       return
     }
 
     if (!uploadForm.fileUrl) {
-      toast.error('请上传视频文件')
+      addToast({
+        description: '请上传视频文件',
+        color: "danger"
+      })
       return
     }
 
     if (!uploadForm.thumbnailUrl) {
-      toast.error('请上传封面图片')
+      addToast({
+        description: '请上传封面图片',
+        color: "danger"
+      })
       return
     }
 
@@ -87,11 +99,17 @@ export default function UploadPage() {
       }
 
       await createWork(workData)
-      toast.success('作品发布成功！')
+      addToast({
+        description: '作品发布成功！',
+        color: "success"
+      })
       router.push('/creator')
     } catch (error) {
       console.error('发布失败:', error)
-      toast.error('发布失败，请重试')
+      addToast({
+        description: '发布失败，请重试',
+        color: "danger"
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -100,7 +118,10 @@ export default function UploadPage() {
   // 保存草稿
   const handleSaveDraft = async () => {
     if (!user) {
-      toast.error('请先登录')
+      addToast({
+        description: '请先登录',
+        color: "danger"
+      })
       return
     }
 
@@ -116,11 +137,17 @@ export default function UploadPage() {
       }
 
       await createWork(workData)
-      toast.success('草稿保存成功！')
+      addToast({
+        description: '草稿保存成功！',
+        color: "success"
+      })
       router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
-      toast.error('保存失败，请重试')
+      addToast({
+        description: '保存失败，请重试',
+        color: "danger"
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -272,14 +299,14 @@ export default function UploadPage() {
 
         {/* 底部按钮区域 */}
         <div className="mt-8 flex justify-end gap-4">
-          <Button
+          {/* <Button
             variant="bordered"
             onPress={handleSaveDraft}
             isLoading={isSubmitting}
             size="lg"
           >
             存草稿
-          </Button>
+          </Button> */}
           <Button
             color="primary"
             type="submit"

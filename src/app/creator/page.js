@@ -32,7 +32,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  toast
+  addToast
 } from '@heroui/react'
 import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText, TrendingUp, Star, Calendar, Clock, Heart, Download, MessageSquare } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -180,10 +180,16 @@ export default function CreatorPage() {
       await deleteWork(workToDelete.id)
       onDeleteClose()
       setWorkToDelete(null)
-      toast.success('作品删除成功！')
+      addToast({
+        description: '作品删除成功！',
+        color: "success"
+      })
     } catch (error) {
       console.error('Error deleting work:', error)
-      toast.error('删除失败，请重试')
+      addToast({
+        description: '删除失败，请重试',
+        color: "danger"
+      })
     }
   }
 
@@ -451,7 +457,7 @@ export default function CreatorPage() {
                                 <MoreVertical size={16} />
                               </Button>
                             </DropdownTrigger>
-                            <DropdownMenu 
+                            <DropdownMenu
                               aria-label="操作选项"
                               onAction={(key) => {
                                 if (key === 'delete') {
@@ -652,8 +658,8 @@ export default function CreatorPage() {
             <Button variant="light" onPress={onDeleteClose}>
               取消
             </Button>
-            <Button 
-              color="danger" 
+            <Button
+              color="danger"
               onPress={confirmDeleteWork}
               startContent={<Trash size={16} />}
             >

@@ -5,7 +5,7 @@ const AuthContext = createContext({})
 
 // Better Auth 客户端配置
 const auth = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL || "https://app.themastera.xyz/",
+  // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
 })
 
 export const AuthProvider = ({ children }) => {

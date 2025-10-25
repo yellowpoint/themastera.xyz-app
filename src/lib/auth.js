@@ -7,10 +7,10 @@ import { prisma } from "./prisma"
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  // secret: process.env.BETTER_AUTH_SECRET,
+  // baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
-    provider: "postgresql",
+    provider: process.env.NODE_ENV === "production" ? "postgresql" : "sqlite",
   }),
   emailAndPassword: {
     enabled: true,
