@@ -178,3 +178,10 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+button,
+[data-radix-collection-item],
+[role="button"],
+.btn {
+  cursor: pointer;
+}
