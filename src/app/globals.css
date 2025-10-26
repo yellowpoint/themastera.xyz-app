@@ -16,8 +16,8 @@
 
 :root {
   /* Light theme colors (default) */
-  --primary: oklch(0.205 0 0);
-  --primary-hover: #4338ca;
+  --primary: hsla(260, 71%, 56%, 1);
+  --primary-hover: hsla(260, 71%, 46%, 1);
   --secondary: oklch(0.97 0 0);
   --secondary-hover: #e5e7eb;
   --accent: oklch(0.97 0 0);
