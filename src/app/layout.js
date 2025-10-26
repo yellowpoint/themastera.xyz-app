@@ -1,50 +1,33 @@
 import './globals.css'
 import { Providers } from './providers'
-import Header from '../components/Header'
-import Sidebar from '../components/Sidebar'
-import Footer from '../components/Footer'
+import { AppSidebar } from '@/components/app-sidebar'
+import {
+  SidebarInset,
+  SidebarProvider,
+} from '@/components/ui/sidebar'
+import TopHeader from '@/components/TopHeader'
 
 export const metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
   description: 'A creative platform connecting creators and fans, allowing everyone to discover and share exciting content. Supports multiple content types, a membership tier system, a points-based reward mechanism, and community interaction features.',
   keywords: 'creator platform, content sharing, community interaction, points system, membership tiers, creative content',
   authors: [{ name: 'Mastera Team' }],
-  // viewport: 'width=device-width, initial-scale=1',
-  // themeColor: '#BEF264',
-  // openGraph: {
-  //   title: 'Mastera Platform - 创作者与粉丝的创意平台',
-  //   description: '连接创作者与粉丝的创意平台，让每个人都能发现和分享精彩内容',
-  //   type: 'website',
-  //   locale: 'zh_CN',
-  // },
-  // twitter: {
-  //   card: 'summary_large_image',
-  //   title: 'Mastera Platform',
-  //   description: '连接创作者与粉丝的创意平台',
-  // },
-  // robots: {
-  //   index: true,
-  //   follow: true,
-  // },
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="light">
-      <head>
-      </head>
       <body className="antialiased">
         <Providers>
-          <div className="min-h-screen flex bg-background text-foreground">
-            <Sidebar />
-            <div className="flex flex-col flex-1 transition-all duration-300">
-              <Header />
-              <main className="flex-1 px-4 py-6">
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <TopHeader />
+              <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 {children}
-              </main>
-              <Footer />
-            </div>
-          </div>
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
         </Providers>
       </body>
     </html>
