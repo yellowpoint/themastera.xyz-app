@@ -7,7 +7,7 @@ const ThemeContext = createContext()
 // Function to get initial theme
 function getInitialTheme() {
   if (typeof window === 'undefined') {
-    return 'dark' // Default value for server-side rendering
+    return 'light' // Default value for server-side rendering
   }
   
   // Read theme setting from localStorage
@@ -16,8 +16,8 @@ function getInitialTheme() {
     return savedTheme
   }
   
-  // Default to dark mode, no longer checking system preference
-  return 'dark'
+  // Default to light mode
+  return 'light'
 }
 
 export function ThemeProvider({ children }) {

@@ -87,18 +87,18 @@ export default function Header() {
     <>
       <Navbar
         onMenuOpenChange={setIsMenuOpen}
-        className="backdrop-blur-md border-b border-gray-800"
+        className="bg-background border-b border-divider shadow-sm"
         maxWidth="full"
       >
         <NavbarContent>
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="sm:hidden"
+            className="sm:hidden text-text-primary"
           />
           <NavbarBrand>
             <Button
               variant="light"
-              className="text-2xl font-bold"
+              className="text-2xl font-bold text-text-primary"
               onPress={() => router.push('/')}
             >
               Mastera
@@ -111,7 +111,7 @@ export default function Header() {
             <NavbarItem key={item.name}>
               <Button
                 variant="light"
-                className="hover:bg-primary flex items-center gap-2"
+                className="text-text-secondary hover:text-primary flex items-center gap-2"
                 onPress={() => router.push(item.href)}
               >
                 <item.icon size={16} />
@@ -128,14 +128,13 @@ export default function Header() {
           {user ? (
             <>
               <NavbarItem>
-
                 <Button
                   variant="light"
                   size="sm"
-                  className="text-gray-300 hover:text-lime-400"
+                  className="text-text-secondary hover:text-primary"
                   onPress={() => router.push('/notifications')}
                 >
-                  <Badge content="3" color="danger" size="sm">
+                  <Badge content="25" color="danger" size="sm">
                     <Bell size={20} />
                   </Badge>
                 </Button>
@@ -164,7 +163,7 @@ export default function Header() {
                     src={user?.user_metadata?.avatar}
                   />
                 </DropdownTrigger>
-                <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownMenu aria-label="Profile Actions" variant="flat" className="bg-card-bg">
                   <DropdownItem key="profile" className="h-14 gap-2">
                     <p className="font-semibold">Logged in as</p>
                     <p className="font-semibold">{user?.email}</p>
@@ -173,7 +172,8 @@ export default function Header() {
                     <DropdownItem
                       key={item.name}
                       onPress={() => router.push(item.href)}
-                      startContent={<item.icon size={16} />}
+                      startContent={<item.icon size={16} className="text-text-secondary" />}
+                      className="text-text-primary"
                     >
                       {item.name}
                     </DropdownItem>
@@ -194,7 +194,7 @@ export default function Header() {
               <NavbarItem>
                 <Button
                   variant="light"
-                  className="text-gray-300 hover:text-lime-400"
+                  className="text-text-secondary hover:text-primary"
                   onPress={() => router.push('/auth/login')}
                 >
                   Login
@@ -213,12 +213,12 @@ export default function Header() {
           )}
         </NavbarContent>
 
-        <NavbarMenu className="bg-black/95 backdrop-blur-md">
+        <NavbarMenu className="bg-background border-r border-divider">
           {menuItems.map((item, index) => (
             <NavbarMenuItem key={`${item.name}-${index}`}>
               <Button
                 variant="light"
-                className="w-full justify-start text-gray-300 hover:text-lime-400 flex items-center gap-3"
+                className="w-full justify-start text-text-secondary hover:text-primary flex items-center gap-3"
                 onPress={() => {
                   router.push(item.href)
                   setIsMenuOpen(false)
@@ -239,7 +239,7 @@ export default function Header() {
                 <NavbarMenuItem key={`user-${item.name}-${index}`}>
                   <Button
                     variant="light"
-                    className="w-full justify-start text-gray-400 hover:text-lime-400 flex items-center gap-3"
+                    className="w-full justify-start text-text-secondary hover:text-primary flex items-center gap-3"
                     onPress={() => {
                       router.push(item.href)
                       setIsMenuOpen(false)
@@ -274,7 +274,7 @@ export default function Header() {
               <NavbarMenuItem>
                 <Button
                   variant="light"
-                  className="w-full justify-start text-gray-300 hover:text-lime-400"
+                  className="w-full justify-start text-text-secondary hover:text-primary"
                   onPress={() => {
                     router.push('/auth/login')
                     setIsMenuOpen(false)
@@ -286,7 +286,7 @@ export default function Header() {
               <NavbarMenuItem>
                 <Button
                   variant="light"
-                  className="w-full justify-start text-gray-300 hover:text-lime-400"
+                  className="w-full justify-start text-text-secondary hover:text-primary"
                   onPress={() => {
                     router.push('/auth/register')
                     setIsMenuOpen(false)
@@ -297,6 +297,13 @@ export default function Header() {
               </NavbarMenuItem>
             </>
           )}
+          
+          <NavbarMenuItem className="mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-text-secondary text-sm">Theme:</span>
+              <ThemeToggle />
+            </div>
+          </NavbarMenuItem>
         </NavbarMenu>
       </Navbar>
     </>

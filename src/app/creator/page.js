@@ -38,6 +38,7 @@ import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, File
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -79,11 +80,11 @@ export default function CreatorPage() {
   // If user is not logged in, show login prompt
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4 shadow-lg border border-card-border">
           <CardBody className="text-center p-8">
-            <h2 className="text-2xl font-bold mb-4">Creator Center</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold mb-4 text-text-primary">Creator Center</h2>
+            <p className="text-text-secondary mb-6">
               Please login to access creator features
             </p>
             <Button
@@ -197,38 +198,41 @@ export default function CreatorPage() {
     <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Page title */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">
-            Creator Center <span className="text-lime-400">Creator Hub</span>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-text-primary">
+            Creator Center <span className="text-accent">Creator Hub</span>
           </h1>
-          <p className="text-gray-400 text-base">
+          <p className="text-text-secondary text-base">
             Manage your works, track earnings, interact with fans
           </p>
         </div>
 
         {/* Quick actions */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-4 mb-8">
           <Button
             color="primary"
             onPress={() => router.push('/creator/upload')}
             startContent={<Plus size={16} />}
-            size="sm"
+            size="md"
+            className="shadow-sm"
           >
             Upload New Work
           </Button>
           <Button
             variant="flat"
             color="secondary"
-            size="sm"
+            size="md"
             startContent={<BarChart size={16} />}
+            className="bg-secondary text-text-primary"
           >
             View Analytics
           </Button>
           <Button
             variant="flat"
             color="success"
-            size="sm"
+            size="md"
             startContent={<DollarSign size={16} />}
+            className="bg-secondary text-text-primary"
           >
             Withdraw Earnings
           </Button>
@@ -238,10 +242,15 @@ export default function CreatorPage() {
         <Tabs
           selectedKey={activeTab}
           onSelectionChange={setActiveTab}
-          className="mb-6"
+          className="mb-8"
           color="primary"
           variant="underlined"
-          size="md"
+          size="lg"
+          classNames={{
+            tabList: "gap-6 border-b border-divider",
+            cursor: "bg-primary",
+            tab: "text-text-secondary data-[selected=true]:text-primary font-medium"
+          }}
         >
           <Tab key="dashboard" title="Dashboard" />
           <Tab key="works" title="Works Management" />
@@ -254,56 +263,56 @@ export default function CreatorPage() {
           <div className="space-y-8">
             {/* Statistics cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <Card className="bg-card-bg border border-card-border shadow-sm">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Works</p>
-                      <p className="text-2xl font-bold">{creatorStats.totalWorks}</p>
+                      <p className="text-text-muted text-sm font-medium mb-1">Total Works</p>
+                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalWorks}</p>
                     </div>
-                    <div className="text-gray-400">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
                       <FileText size={24} />
                     </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <Card className="bg-card-bg border border-card-border shadow-sm">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Earnings</p>
-                      <p className="text-2xl font-bold">${creatorStats.totalEarnings.toLocaleString()}</p>
+                      <p className="text-text-muted text-sm font-medium mb-1">Total Earnings</p>
+                      <p className="text-2xl font-bold text-text-primary">${creatorStats.totalEarnings.toLocaleString()}</p>
                     </div>
-                    <div className="text-gray-400">
+                    <div className="bg-success/10 p-3 rounded-full text-success">
                       <DollarSign size={24} />
                     </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <Card className="bg-card-bg border border-card-border shadow-sm">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">Followers</p>
-                      <p className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</p>
+                      <p className="text-text-muted text-sm font-medium mb-1">Followers</p>
+                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalFollowers.toLocaleString()}</p>
                     </div>
-                    <div className="text-gray-400">
+                    <div className="bg-accent/10 p-3 rounded-full text-accent">
                       <Users size={24} />
                     </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <Card className="bg-card-bg border border-card-border shadow-sm">
                 <CardBody className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">Total Views</p>
-                      <p className="text-2xl font-bold">{creatorStats.totalViews.toLocaleString()}</p>
+                      <p className="text-text-muted text-sm font-medium mb-1">Total Views</p>
+                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalViews.toLocaleString()}</p>
                     </div>
-                    <div className="text-gray-400">
+                    <div className="bg-warning/10 p-3 rounded-full text-warning">
                       <Eye size={24} />
                     </div>
                   </div>
@@ -313,38 +322,38 @@ export default function CreatorPage() {
 
             {/* Monthly statistics */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-content1 border-divider">
+              <Card className="bg-card-bg border border-card-border shadow-sm">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold">Monthly Performance</h3>
+                  <h3 className="text-xl font-semibold text-text-primary">Monthly Performance</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Monthly Earnings</span>
-                    <span className="text-lg font-semibold text-green-400">
+                    <span className="text-text-secondary">Monthly Earnings</span>
+                    <span className="text-lg font-semibold text-success">
                       ${creatorStats.monthlyEarnings.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Monthly Views</span>
-                    <span className="text-lg font-semibold">
+                    <span className="text-text-secondary">Monthly Views</span>
+                    <span className="text-lg font-semibold text-text-primary">
                       {creatorStats.monthlyViews.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Average Rating</span>
-                    <span className="text-lg font-semibold text-yellow-400 flex items-center gap-1">
+                    <span className="text-text-secondary">Average Rating</span>
+                    <span className="text-lg font-semibold text-warning flex items-center gap-1">
                       <Star size={16} /> {creatorStats.averageRating}
                     </span>
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-400">Completion Rate</span>
-                      <span className="text-lg font-semibold">{creatorStats.completionRate}%</span>
+                      <span className="text-text-secondary">Completion Rate</span>
+                      <span className="text-lg font-semibold text-text-primary">{creatorStats.completionRate}%</span>
                     </div>
                     <Progress
                       value={creatorStats.completionRate}
                       color="success"
-                      className="w-full"
+                      className="h-2"
                     />
                   </div>
                 </CardBody>

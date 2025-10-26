@@ -1,6 +1,7 @@
 import './globals.css'
 import { Providers } from './providers'
 import Header from '../components/Header'
+import Sidebar from '../components/Sidebar'
 import Footer from '../components/Footer'
 
 export const metadata = {
@@ -60,12 +61,15 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased">
         <Providers>
-          <div className="min-h-screen flex flex-col bg-background text-foreground">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+          <div className="min-h-screen flex bg-background text-foreground">
+            <Sidebar />
+            <div className="flex flex-col flex-1 transition-all duration-300">
+              <Header />
+              <main className="flex-1 px-4 py-6">
+                {children}
+              </main>
+              <Footer />
+            </div>
           </div>
         </Providers>
       </body>
