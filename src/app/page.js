@@ -1,28 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Avatar,
-  Chip,
-  Input,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Skeleton,
-  Spinner
-} from "@heroui/react";
-import {
   Search,
   Upload,
   Filter,
@@ -44,6 +22,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
+// shadcn/ui imports replacing HeroUI
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 const categories = ["All", ...MUSIC_CATEGORIES];
 
@@ -124,43 +114,33 @@ export default function HomePage() {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Button isIconOnly size="lg" className="bg-background/20 backdrop-blur-sm">
+            <Button size="lg" variant="ghost" className="bg-background/20 backdrop-blur-sm rounded-full p-2">
               <Play className="w-6 h-6" />
             </Button>
           </div>
-
           <div className="absolute bottom-2 right-2 bg-background/80 text-foreground text-xs px-2 py-1 rounded">
             {work.duration}
           </div>
-
           {work.premium && (
             <div className="absolute top-2 left-2">
-              <Chip size="sm" color="warning">Premium</Chip>
+              <Badge className="bg-yellow-400 text-black">Premium</Badge>
             </div>
           )}
-
           {work.trendingScore > 50 && (
             <div className="absolute top-2 right-2">
-              <Chip size="sm" color="danger" startContent={<TrendingUp size={12} />}>
-                Trending
-              </Chip>
+              <Badge className="bg-red-500 text-white"><TrendingUp className="mr-1 h-3 w-3" /> Trending</Badge>
             </div>
           )}
         </div>
-
         <div className="flex gap-3">
-          <Avatar
-            src={work.user.image}
-            size="sm"
-            className="flex-shrink-0"
-            showFallback
-          />
-
+          <Avatar className="h-9 w-9 flex-shrink-0">
+            <AvatarImage src={work.user.image} />
+            <AvatarFallback>{work.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
+          </Avatar>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
               {work.title}
             </h3>
-
             <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
               <span className="flex items-center gap-1">
                 <Eye size={12} />
@@ -177,13 +157,11 @@ export default function HomePage() {
                 {work.uploadTime}
               </span>
             </div>
-
-            {/* Tags */}
             <div className="flex flex-wrap gap-1 mt-2">
               {(work.tags ? work.tags.split(',').map(tag => tag.trim()) : []).slice(0, 2).map((tag, index) => (
-                <Chip key={index} size="sm" variant="flat" color="default" className="text-xs">
+                <Badge key={index} variant="outline" className="text-xs">
                   {tag}
-                </Chip>
+                </Badge>
               ))}
             </div>
           </div>
@@ -212,7 +190,7 @@ export default function HomePage() {
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
-            Discover Amazing Content <span className="text-lime-400">Discover</span>
+            Discover Amazing Content <span className="text-primary">Discover</span>
           </h1>
           <p className="text-gray-300 text-lg">
             Explore quality works from global creators, find your next source of inspiration
@@ -222,41 +200,41 @@ export default function HomePage() {
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
-            <Input
-              placeholder="Search works, creators or tags..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              startContent={<Search size={16} className="text-gray-400" />}
-              size="lg"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search works, creators or tags..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
           </div>
-
           <div className="flex gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="flat" startContent={<Filter size={16} />}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Filter size={16} className="mr-2" />
                   Filter
                 </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem key="trending">Trending</DropdownItem>
-                <DropdownItem key="newest">Newest</DropdownItem>
-                <DropdownItem key="rating">Top Rated</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => { }}>Trending</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { }}>Newest</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { }}>Top Rated</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
-              isIconOnly
-              variant={viewMode === "grid" ? "solid" : "flat"}
-              onPress={() => setViewMode("grid")}
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              onClick={() => setViewMode("grid")}
+              className="p-2"
             >
               <Grid size={16} />
             </Button>
-
             <Button
-              isIconOnly
-              variant={viewMode === "list" ? "solid" : "flat"}
-              onPress={() => setViewMode("list")}
+              variant={viewMode === "list" ? "default" : "ghost"}
+              onClick={() => setViewMode("list")}
+              className="p-2"
             >
               <List size={16} />
             </Button>
@@ -269,10 +247,9 @@ export default function HomePage() {
           {categories.map((category) => (
             <Button
               key={category}
-              variant={selectedCategory === category ? "solid" : "flat"}
-              color={selectedCategory === category ? "primary" : "default"}
+              variant={selectedCategory === category ? "default" : "outline"}
               size="sm"
-              onPress={() => handleCategoryChange(category)}
+              onClick={() => handleCategoryChange(category)}
             >
               {category}
             </Button>
@@ -284,20 +261,18 @@ export default function HomePage() {
           <span className="flex items-center text-sm text-gray-400 mr-2">Language:</span>
           <Button
             key="All"
-            variant={selectedLanguage === "All" ? "solid" : "flat"}
-            color={selectedLanguage === "All" ? "primary" : "default"}
+            variant={selectedLanguage === "All" ? "default" : "outline"}
             size="sm"
-            onPress={() => handleLanguageChange("All")}
+            onClick={() => handleLanguageChange("All")}
           >
             All
           </Button>
           {LANGUAGE_CATEGORIES.map((language) => (
             <Button
               key={language}
-              variant={selectedLanguage === language ? "solid" : "flat"}
-              color={selectedLanguage === language ? "primary" : "default"}
+              variant={selectedLanguage === language ? "default" : "outline"}
               size="sm"
-              onPress={() => handleLanguageChange(language)}
+              onClick={() => handleLanguageChange(language)}
             >
               {language}
             </Button>
@@ -306,13 +281,12 @@ export default function HomePage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-6">
-            <p className="text-danger">{error}</p>
+          <div className="bg-red-100/10 border border-red-200/20 rounded-lg p-4 mb-6">
+            <p className="text-red-600">{error}</p>
             <Button
               size="sm"
-              color="danger"
-              variant="flat"
-              onPress={fetchTrendingWorks}
+              variant="destructive"
+              onClick={fetchTrendingWorks}
               className="mt-2"
             >
               Retry
@@ -348,9 +322,7 @@ export default function HomePage() {
               {searchQuery ? "No matching works found, try different keywords" : "No works in this category yet"}
             </p>
             {searchQuery && (
-              <Button onPress={() => setSearchQuery("")}>
-                Clear Search
-              </Button>
+              <Button onClick={() => setSearchQuery("")}>Clear Search</Button>
             )}
           </div>
         )}
@@ -358,7 +330,7 @@ export default function HomePage() {
         {/* Load More */}
         {!loading && filteredWorks.length > 0 && (
           <div className="text-center mt-12">
-            <Button size="lg" variant="flat">
+            <Button size="lg" variant="outline">
               Load More
             </Button>
           </div>

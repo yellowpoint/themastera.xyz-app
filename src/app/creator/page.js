@@ -40,6 +40,10 @@ import { useWorks } from '@/hooks/useWorks'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
+// shadcn/ui aliases for key components
+import { Card as UICard, CardHeader as UICardHeader, CardContent as UICardContent, CardFooter as UICardFooter } from '@/components/ui/card'
+import { Button as UIButton } from '@/components/ui/button'
+
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -81,22 +85,21 @@ export default function CreatorPage() {
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4 shadow-lg border border-card-border">
-          <CardBody className="text-center p-8">
-            <h2 className="text-2xl font-bold mb-4 text-text-primary">Creator Center</h2>
-            <p className="text-text-secondary mb-6">
+        <UICard className="max-w-md w-full mx-4 shadow-lg border">
+          <UICardContent className="text-center p-8">
+            <h2 className="text-2xl font-bold mb-4">Creator Center</h2>
+            <p className="text-muted-foreground mb-6">
               Please login to access creator features
             </p>
-            <Button
-              color="primary"
+            <UIButton
               size="lg"
-              onPress={() => router.push('/auth/login')}
+              onClick={() => router.push('/auth/login')}
               className="w-full"
             >
               Login / Register
-            </Button>
-          </CardBody>
-        </Card>
+            </UIButton>
+          </UICardContent>
+        </UICard>
       </div>
     )
   }
