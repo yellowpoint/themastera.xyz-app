@@ -35,7 +35,6 @@ import {
   LogOut
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -122,9 +121,6 @@ export default function Header() {
         </NavbarContent>
 
         <NavbarContent justify="end">
-          <NavbarItem>
-            <ThemeToggle />
-          </NavbarItem>
           {user ? (
             <>
               <NavbarItem>
@@ -297,13 +293,8 @@ export default function Header() {
               </NavbarMenuItem>
             </>
           )}
-          
-          <NavbarMenuItem className="mt-4">
-            <div className="flex items-center gap-2">
-              <span className="text-text-secondary text-sm">Theme:</span>
-              <ThemeToggle />
-            </div>
-          </NavbarMenuItem>
+
+
         </NavbarMenu>
       </Navbar>
     </>

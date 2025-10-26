@@ -30,34 +30,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="light">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                function getInitialTheme() {
-                  const savedTheme = localStorage.getItem('theme');
-                  if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-                    return savedTheme;
-                  }
-                  return 'dark'; // 默认使用深色模式
-                }
-                
-                const theme = getInitialTheme();
-                const root = document.documentElement;
-                root.classList.remove('light', 'dark');
-                
-                if (theme === 'system') {
-                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  root.classList.add(systemPrefersDark ? 'dark' : 'light');
-                } else {
-                  root.classList.add(theme);
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body className="antialiased">
         <Providers>
