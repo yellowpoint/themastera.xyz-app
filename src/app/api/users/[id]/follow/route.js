@@ -1,21 +1,24 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthSession, requireAuth } from '@/middleware/auth'
 
 // POST /api/users/[id]/follow - 关注/取消关注用户
 export async function POST(request, { params }) {
   try {
     const { id: targetUserId } = await params
     const body = await request.json()
-    const { userId, action } = body // action: 'follow' or 'unfollow'
+    const { action } = body // action: 'follow' or 'unfollow'
+
+    // 认证
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
+
+    const { userId } = await getAuthSession(request)
 
     // 验证必需字段
-    if (!userId || !action) {
+    if (!action) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required fields',
-          required: ['userId', 'action']
-        },
+        { success: false, error: 'Missing required field: action' },
         { status: 400 }
       )
     }
@@ -55,10 +58,7 @@ export async function POST(request, { params }) {
     }
 
     // 检查当前用户是否存在
-    const currentUser = await prisma.user.findUnique({
-      where: { id: userId }
-    })
-
+    const currentUser = await prisma.user.findUnique({ where: { id: userId } })
     if (!currentUser) {
       return NextResponse.json(
         { success: false, error: 'Current user not found' },
@@ -164,8 +164,7 @@ export async function POST(request, { params }) {
 export async function GET(request, { params }) {
   try {
     const { id: targetUserId } = await params
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+    const { userId } = await getAuthSession(request)
 
     // 检查目标用户是否存在
     const targetUser = await prisma.user.findUnique({

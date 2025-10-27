@@ -50,6 +50,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
+import { toast } from "sonner";
 
 export default function ContentDetailPage() {
   const params = useParams();
@@ -74,6 +75,9 @@ export default function ContentDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [dislikesCount, setDislikesCount] = useState(0);
+  const [authorFollowersCount, setAuthorFollowersCount] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [commentRating, setCommentRating] = useState(5);
@@ -97,24 +101,49 @@ export default function ContentDetailPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Work not found or has been deleted');
+          const msg = 'Work not found or has been deleted';
+          toast.error(msg);
+          throw new Error(msg);
         } else if (response.status >= 500) {
-          throw new Error('Server error, please try again later');
+          const msg = 'Server error, please try again later';
+          toast.error(msg);
+          throw new Error(msg);
         } else {
-          throw new Error('Failed to fetch work details');
+          const msg = 'Failed to fetch work details';
+          toast.error(msg);
+          throw new Error(msg);
         }
       }
 
       const data = await response.json();
 
       if (data.success) {
-        setWork(data.data);
-        setDuration(parseDuration(data.data.duration || '0:00'));
+        const { work, engagement, authorFollow } = data.data || {};
+        if (work) {
+          setWork(work);
+          setDuration(parseDuration(work.duration || '0:00'));
+        }
+        if (engagement) {
+          const { reaction, likesCount, dislikesCount } = engagement;
+          setIsLiked(reaction === 'like');
+          setIsDisliked(reaction === 'dislike');
+          if (typeof likesCount === 'number') setLikesCount(likesCount);
+          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+        }
+        if (authorFollow) {
+          setIsFollowing(!!authorFollow.isFollowing);
+          if (typeof authorFollow.followersCount === 'number') {
+            setAuthorFollowersCount(authorFollow.followersCount);
+          }
+        }
       } else {
-        throw new Error(data.error || 'Failed to fetch work details');
+        const msg = data.error || 'Failed to fetch work details';
+        toast.error(msg);
+        throw new Error(msg);
       }
     } catch (err) {
       console.error('Error fetching work details:', err);
+      toast.error(err.message || 'Failed to load work details');
       setError(err.message || 'Network error, please try again later');
     } finally {
       setLoading(false);
@@ -128,7 +157,9 @@ export default function ContentDetailPage() {
       const response = await fetch(`/api/works/${workId}/comments?limit=20&sort=newest`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch comments');
+        const msg = 'Failed to fetch comments';
+        toast.error(msg);
+        throw new Error(msg);
       }
 
       const data = await response.json();
@@ -136,10 +167,13 @@ export default function ContentDetailPage() {
       if (data.success) {
         setComments(data.data.comments || []);
       } else {
-        throw new Error(data.error || 'Failed to fetch comments');
+        const msg = data.error || 'Failed to fetch comments';
+        toast.error(msg);
+        throw new Error(msg);
       }
     } catch (err) {
       console.error('Error fetching comments:', err);
+      toast.error(err.message || 'Failed to fetch comments');
     } finally {
       setCommentsLoading(false);
     }
@@ -150,7 +184,9 @@ export default function ContentDetailPage() {
       const response = await fetch(`/api/works/trending?limit=8&exclude=${workId}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch related works');
+        const msg = 'Failed to fetch related works';
+        toast.error(msg);
+        throw new Error(msg);
       }
 
       const data = await response.json();
@@ -158,10 +194,13 @@ export default function ContentDetailPage() {
       if (data.success) {
         setRelatedWorks(data.data || []);
       } else {
-        throw new Error(data.error || 'Failed to fetch related works');
+        const msg = data.error || 'Failed to fetch related works';
+        toast.error(msg);
+        throw new Error(msg);
       }
     } catch (err) {
       console.error('Error fetching related works:', err);
+      toast.error(err.message || 'Failed to fetch related works');
     }
   };
 
@@ -227,16 +266,62 @@ export default function ContentDetailPage() {
   };
 
   const handleLike = async () => {
-    if (isDisliked) setIsDisliked(false);
-    setIsLiked(!isLiked);
-    // TODO: API call to like/unlike
+    try {
+      const action = isLiked ? 'unlike' : 'like';
+      const response = await fetch(`/api/works/${workId}/engagement`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const { reaction, likesCount, dislikesCount } = data.data || {};
+          setIsLiked(reaction === 'like');
+          setIsDisliked(reaction === 'dislike');
+          if (typeof likesCount === 'number') setLikesCount(likesCount);
+          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+        } else {
+          toast.error(data.error || 'Failed to update like');
+        }
+      } else {
+        toast.error('Failed to update like');
+      }
+    } catch (err) {
+      console.error('Error updating like:', err);
+      toast.error(err.message || 'Failed to update like');
+    }
   };
 
   const handleDislike = async () => {
-    if (isLiked) setIsLiked(false);
-    setIsDisliked(!isDisliked);
-    // TODO: API call to dislike/undislike
+    try {
+      const action = isDisliked ? 'undislike' : 'dislike';
+      const response = await fetch(`/api/works/${workId}/engagement`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const { reaction, likesCount, dislikesCount } = data.data || {};
+          setIsLiked(reaction === 'like');
+          setIsDisliked(reaction === 'dislike');
+          if (typeof likesCount === 'number') setLikesCount(likesCount);
+          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+        } else {
+          toast.error(data.error || 'Failed to update dislike');
+        }
+      } else {
+        toast.error('Failed to update dislike');
+      }
+    } catch (err) {
+      console.error('Error updating dislike:', err);
+      toast.error(err.message || 'Failed to update dislike');
+    }
   };
+
+  // 已移除作品关注逻辑（改为赞/踩相斥）
 
   const handleFollow = async () => {
     try {
@@ -247,10 +332,19 @@ export default function ContentDetailPage() {
       });
 
       if (response.ok) {
-        setIsFollowing(!isFollowing);
+        const next = !isFollowing;
+        setIsFollowing(next);
+        setAuthorFollowersCount((prev) => {
+          const updated = next ? prev + 1 : Math.max(0, prev - 1);
+          return updated;
+        });
+        toast.success(next ? 'Followed the creator' : 'Unfollowed the creator');
+      } else {
+        toast.error('Failed to update follow state');
       }
     } catch (err) {
       console.error('Error following user:', err);
+      toast.error(err.message || 'Failed to update follow state');
     }
   };
 
@@ -272,9 +366,13 @@ export default function ContentDetailPage() {
         setNewComment("");
         setCommentRating(5);
         fetchComments(); // Refresh comments
+        toast.success('Comment posted');
+      } else {
+        toast.error('Failed to post comment');
       }
     } catch (err) {
       console.error('Error submitting comment:', err);
+      toast.error(err.message || 'Failed to post comment');
     }
   };
 
@@ -385,7 +483,7 @@ export default function ContentDetailPage() {
                     size="sm"
                     onPress={handleLike}
                   >
-                    {work.likes + (isLiked ? 1 : 0)}
+                    {`Like ${likesCount}`}
                   </Button>
 
                   <Button
@@ -395,7 +493,7 @@ export default function ContentDetailPage() {
                     size="sm"
                     onPress={handleDislike}
                   >
-                    Dislike
+                    {`Dislike ${dislikesCount}`}
                   </Button>
 
                   <Button
@@ -441,7 +539,7 @@ export default function ContentDetailPage() {
                   </div>
 
                   <p className="text-sm text-gray-500 mb-2">
-                    {work.user.followers || 0} followers
+                    {authorFollowersCount} followers
                   </p>
 
                   <div className="flex items-center gap-2">

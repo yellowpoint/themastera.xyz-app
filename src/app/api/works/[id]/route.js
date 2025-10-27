@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthSession } from '@/middleware/auth'
 
 // GET /api/works/[id] - Get single work
 export async function GET(request, { params }) {
@@ -46,9 +47,52 @@ export async function GET(request, { params }) {
       )
     }
 
+    // Get current user session for personalized fields
+    const { userId } = await getAuthSession(request)
+
+    // Aggregate engagement counts
+    const [likesCount, dislikesCount] = await Promise.all([
+      prisma.workLike.count({ where: { workId: id } }),
+      prisma.workDislike.count({ where: { workId: id } }),
+    ])
+
+    // Determine current user's reaction (mutually exclusive)
+    let reaction = null
+    if (userId) {
+      const [liked, disliked] = await Promise.all([
+        prisma.workLike.findFirst({ where: { workId: id, userId } }),
+        prisma.workDislike.findFirst({ where: { workId: id, userId } }),
+      ])
+      reaction = liked ? 'like' : (disliked ? 'dislike' : null)
+    }
+
+    // Author follow info
+    const authorId = work.user?.id
+    let isFollowing = false
+    if (userId && authorId && userId !== authorId) {
+      const follow = await prisma.follow.findFirst({
+        where: { followerId: userId, followingId: authorId },
+      })
+      isFollowing = !!follow
+    }
+    const followersCount = authorId
+      ? await prisma.follow.count({ where: { followingId: authorId } })
+      : 0
+
     return NextResponse.json({
       success: true,
-      data: work
+      data: {
+        work,
+        engagement: {
+          likesCount,
+          dislikesCount,
+          reaction, // 'like' | 'dislike' | null
+        },
+        authorFollow: {
+          isFollowing,
+          followersCount,
+        },
+      }
     })
 
   } catch (error) {

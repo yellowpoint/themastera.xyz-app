@@ -31,6 +31,8 @@ model User {
   reviews       Review[]
   followers     Follow[]   @relation("UserFollowers")
   following     Follow[]   @relation("UserFollowing")
+  workLikes     WorkLike[]
+  workDislikes  WorkDislike[]
 
   @@unique([email])
   @@map("user")
@@ -106,6 +108,8 @@ model Work {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   purchases Purchase[]
   reviews   Review[]
+  workLikes    WorkLike[]
+  workDislikes WorkDislike[]
 
   @@map("works")
 }
@@ -154,4 +158,34 @@ model Follow {
 
   @@unique([followerId, followingId])
   @@map("follows")
+}
+
+// 作品关注（用户关注/收藏某作品）
+model WorkLike {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  // 关联
+  userId String
+  workId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@map("work_likes")
+}
+
+// 作品踩（用户不喜欢某作品）
+model WorkDislike {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  // 关联
+  userId String
+  workId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@map("work_dislikes")
 }

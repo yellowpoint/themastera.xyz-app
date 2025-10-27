@@ -118,24 +118,31 @@ export default function CreatorProfilePage() {
 
   const handleFollow = async () => {
     try {
+      const action = isFollowing ? 'unfollow' : 'follow';
       const response = await fetch(`/api/users/${creatorId}/follow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: isFollowing ? 'unfollow' : 'follow',
-          userId: 'current-user-id' // TODO: Get from auth
-        })
+        body: JSON.stringify({ action })
       });
-      
+
+      if (response.status === 401) {
+        console.warn('需要登录才能订阅作者');
+        return;
+      }
+
       if (response.ok) {
         setIsFollowing(!isFollowing);
-        // Update follower count
+        // 更新粉丝数，并刷新订阅状态与粉丝列表
         if (creator) {
           setCreator({
             ...creator,
-            followerCount: creator.followerCount + (isFollowing ? -1 : 1)
+            followerCount: (creator.followerCount || 0) + (isFollowing ? -1 : 1)
           });
         }
+        fetchFollowStatus();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        console.error('订阅作者失败:', data?.error || response.statusText);
       }
     } catch (err) {
       console.error('Error following user:', err);
