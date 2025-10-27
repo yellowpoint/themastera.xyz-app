@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player";
+import MuxPlayer from '@mux/mux-player-react'
 import {
   Card,
   CardBody,
@@ -24,6 +25,7 @@ const MEMBERSHIP_LEVELS = {
 
 export default function VideoPlayer({
   videoUrl,
+  playbackId,
   thumbnailUrl,
   title = "Video Content",
   description,
@@ -148,8 +150,8 @@ export default function VideoPlayer({
     );
   };
 
-  // If there is no video URL, display an error message
-  if (!videoUrl) {
+  // If there is no video source, display an error message
+  if (!videoUrl && !playbackId) {
     return (
       <Card className={className}>
         <CardBody className="p-0">
@@ -226,40 +228,59 @@ export default function VideoPlayer({
               </div>
             </div>
           ) : (
-            <ReactPlayer
-              src={getVideoUrl()}
-              width="100%"
-              height="100%"
-              controls={showControls}
-              playing={autoPlay}
-              muted={muted}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              onEnded={handleEnded}
-              onError={handleError}
-              onReady={handleReady}
-              onLoadStart={() => {
-                // ReactPlayer starts loading
-              }}
-              onProgress={(progress) => {
-                // You can handle playback progress here
-              }}
-              config={{
-                file: {
-                  attributes: {
-                    preload: 'metadata',
-                    controlsList: 'nodownload',
-                    disablePictureInPicture: false,
-                    crossOrigin: 'anonymous' // Add CORS support
-                  },
-                  forceVideo: true
-                }
-              }}
-            // style={{
-            //   borderRadius: '8px',
-            //   overflow: 'hidden'
-            // }}
-            />
+            (() => {
+              const isMuxPlayback = Boolean(playbackId) || (videoUrl && videoUrl.includes('stream.mux.com'))
+              if (isMuxPlayback) {
+                const effectivePlaybackId = playbackId || (videoUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1])
+                return (
+                  <MuxPlayer
+                    style={{ width: '100%', height: '100%' }}
+                    playbackId={effectivePlaybackId}
+                    metadata={{
+                      video_title: title,
+                    }}
+                    streamType="on-demand"
+                    autoPlay={autoPlay}
+                    muted={muted}
+                    onPlay={handlePlay}
+                    onPause={handlePause}
+                    onEnded={handleEnded}
+                  />
+                )
+              }
+              return (
+                <ReactPlayer
+                  src={getVideoUrl()}
+                  width="100%"
+                  height="100%"
+                  controls={showControls}
+                  playing={autoPlay}
+                  muted={muted}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onEnded={handleEnded}
+                  onError={handleError}
+                  onReady={handleReady}
+                  onLoadStart={() => {
+                    // ReactPlayer starts loading
+                  }}
+                  onProgress={(progress) => {
+                    // You can handle playback progress here
+                  }}
+                  config={{
+                    file: {
+                      attributes: {
+                        preload: 'metadata',
+                        controlsList: 'nodownload',
+                        disablePictureInPicture: false,
+                        crossOrigin: 'anonymous' // Add CORS support
+                      },
+                      forceVideo: true
+                    }
+                  }}
+                />
+              )
+            })()
           )}
         </div>
       </CardBody>

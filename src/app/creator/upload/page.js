@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form, addToast } from '@heroui/react'
 import { ArrowLeft, Plus, X } from 'lucide-react'
-import VideoUpload from '@/components/VideoUpload'
+import UploadSwitcher from '@/components/UploadSwitcher'
 import ImgUpload from '@/components/ImgUpload'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
@@ -29,6 +29,7 @@ export default function UploadPage() {
 
   const [tags, setTags] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [autoCover, setAutoCover] = useState(null)
 
   // Handle video upload completion
   const handleVideoUploadComplete = (uploadedFiles) => {
@@ -40,6 +41,30 @@ export default function UploadPage() {
         ...prev,
         fileUrl: fileUrls
       }))
+
+      // Try to auto-generate a cover thumbnail from Mux playbackId
+      const withPlayback = uploadedFiles.find(f => !!f.playbackId)
+      if (withPlayback?.playbackId) {
+        // Generate a thumbnail URL per Mux docs
+        // Prefer webp for smaller size, use smartcrop with reasonable dimensions
+        const playbackId = withPlayback.playbackId
+        const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`
+
+        // Reflect to cover upload component by pre-filling initial image
+        const initialImage = {
+          fileUrl: thumbUrl,
+          originalName: 'Auto thumbnail',
+          size: 0,
+          type: 'image/webp'
+        }
+        setAutoCover(initialImage)
+
+        // Also set into form so submit uses this as default cover
+        setUploadForm(prev => ({
+          ...prev,
+          thumbnailUrl: thumbUrl
+        }))
+      }
     }
   }
 
@@ -188,9 +213,7 @@ export default function UploadPage() {
             <Card>
               <CardBody className="p-6">
                 <h2 className="text-lg font-medium mb-4">Upload Video</h2>
-                <VideoUpload
-                  onUploadComplete={handleVideoUploadComplete}
-                />
+                <UploadSwitcher onUploadComplete={handleVideoUploadComplete} />
               </CardBody>
             </Card>
 
@@ -200,6 +223,7 @@ export default function UploadPage() {
                 <ImgUpload
                   onUploadComplete={handleCoverUploadComplete}
                   required={true}
+                  initialImage={autoCover}
                 />
               </CardBody>
             </Card>

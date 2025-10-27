@@ -3,7 +3,6 @@
 import { useState, useRef } from 'react'
 import { Button, Progress, Card, CardBody } from '@heroui/react'
 import { Upload, X, Video, Check } from 'lucide-react'
-import { supabase, getStorageUrl } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function VideoUpload({
@@ -24,7 +23,7 @@ export default function VideoUpload({
   const storageBucket = bucket || 'data'
   const storageFolder = folder ? `${folder}/` : ''
 
-  // Upload a single file
+  // Upload a single file via Mux Direct Upload
   const uploadFile = async (file) => {
     if (!file) {
       throw new Error('No file provided')
@@ -36,48 +35,75 @@ export default function VideoUpload({
     }
 
     try {
-      // Generate a unique file name, including the user ID to ensure permissions
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-      const filePath = storageFolder ? `${storageFolder}${user.id}/${fileName}` : `${user.id}/${fileName}`
-
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return prev
-          }
-          return prev + 10
-        })
-      }, 200)
-
-      // Upload file using Supabase
-      const { data, error } = await supabase
-        .storage
-        .from(storageBucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
-
-      clearInterval(progressInterval)
-
-      if (error) {
-        throw new Error(`Upload failed: ${error.message || 'Unknown error'}`)
+      // Step 1: Request a Mux direct upload URL
+      const createRes = await fetch('/api/mux/create-upload', { method: 'POST' })
+      const createData = await createRes.json()
+      if (!createRes.ok || !createData?.url || !createData?.id) {
+        throw new Error(createData?.error || 'Failed to create Mux upload')
       }
 
-      // Get the public URL of the file
-      const publicUrl = getStorageUrl(storageBucket, filePath)
+      const { url: uploadUrl, id: uploadId } = createData
+
+      // Step 2: PUT the file to Mux direct upload URL
+      setProgress(5)
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type || 'video/mp4',
+        },
+        body: file,
+      })
+
+      if (!putRes.ok) {
+        throw new Error(`Mux upload failed: ${putRes.status} ${putRes.statusText}`)
+      }
+      setProgress(60)
+
+      // Step 3: Poll upload status until asset is created
+      let assetId = null
+      const maxTries = 20
+      const delay = (ms) => new Promise((r) => setTimeout(r, ms))
+      for (let i = 0; i < maxTries; i++) {
+        const statusRes = await fetch(`/api/mux/upload/${uploadId}`)
+        const statusData = await statusRes.json()
+        if (!statusRes.ok) {
+          throw new Error(statusData?.error || 'Failed to check Mux upload status')
+        }
+        const u = statusData?.upload
+        if (u?.asset_id) {
+          assetId = u.asset_id
+          break
+        }
+        await delay(1000)
+        setProgress((p) => Math.min(p + 5, 85))
+      }
+
+      if (!assetId) {
+        throw new Error('Timed out waiting for asset to be created')
+      }
+      setProgress(90)
+
+      // Step 4: Get asset details to fetch playbackId
+      const assetRes = await fetch(`/api/mux/asset/${assetId}`)
+      const assetData = await assetRes.json()
+      if (!assetRes.ok) {
+        throw new Error(assetData?.error || 'Failed to retrieve Mux asset')
+      }
+      const playbackId = assetData?.asset?.playback_ids?.[0]?.id
+      if (!playbackId) {
+        throw new Error('No playback ID found on asset')
+      }
+
+      const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`
       setProgress(100)
 
       return {
-        fileUrl: publicUrl,
-        fullPath: filePath,
-        fileName: fileName,
+        fileUrl: hlsUrl,
+        playbackId,
+        assetId,
         originalName: file.name,
         size: file.size,
-        type: file.type
+        type: file.type,
       }
 
     } catch (error) {

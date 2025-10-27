@@ -1,0 +1,32 @@
+import { NextResponse } from 'next/server'
+import Mux from '@mux/mux-node'
+
+const mux = new Mux({
+  tokenId: process.env.MUX_TOKEN_ID,
+  tokenSecret: process.env.MUX_TOKEN_SECRET,
+})
+
+export async function POST(req) {
+  try {
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || '*'
+
+    const upload = await mux.video.uploads.create({
+      cors_origin: origin,
+      new_asset_settings: {
+        playback_policies: ['public'],
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      id: upload.id,
+      url: upload.url,
+    })
+  } catch (error) {
+    console.error('Mux create upload error:', error)
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to create Mux upload' },
+      { status: 500 }
+    )
+  }
+}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button, Card, CardBody, Image } from '@heroui/react'
 import { Camera, X, ImageIcon, Upload } from 'lucide-react'
 import { supabase, getStorageUrl } from '@/lib/supabase'
@@ -11,7 +11,8 @@ export default function ImgUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   bucket = 'data',
   folder = '',
-  required = true // Whether it is required
+  required = true, // Whether it is required
+  initialImage = null // Prefilled cover image (e.g., Mux thumbnail)
 }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -23,6 +24,13 @@ export default function ImgUpload({
   // 确保 bucket 和 folder 参数有效
   const storageBucket = bucket || 'data'
   const storageFolder = folder ? `${folder}/` : ''
+
+  // Prefill cover image from parent (e.g., auto-generated Mux thumbnail)
+  useEffect(() => {
+    if (initialImage && !coverImage) {
+      setCoverImage(initialImage)
+    }
+  }, [initialImage])
 
   // 上传封面图
   const uploadCoverImage = async (file) => {
