@@ -82,6 +82,7 @@ export default function ContentDetailPage() {
   const [commentRating, setCommentRating] = useState(5);
 
   const [isShareOpen, setShareOpen] = useState(false);
+  const [activeMediaTab, setActiveMediaTab] = useState('videos');
 
   useEffect(() => {
     if (workId) {
@@ -350,7 +351,7 @@ export default function ContentDetailPage() {
               <h1 className="text-2xl font-bold">{work.title}</h1>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Eye size={16} />
                     {formatViews(work.downloads)} views
@@ -363,14 +364,14 @@ export default function ContentDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant={isLiked ? "default" : "outline"} size="sm" onClick={handleLike}>
+                  <Button variant={isLiked ? "default" : "outline"} size="sm" onClick={handleLike} className="min-w-[120px] justify-start">
                     <ThumbsUp size={16} className="mr-2" />
-                    {`Like ${likesCount}`}
+                    {likesCount > 0 ? `${formatViews(likesCount)}` : 'Like'}
                   </Button>
 
-                  <Button variant={isDisliked ? "destructive" : "outline"} size="sm" onClick={handleDislike}>
+                  <Button variant={isDisliked ? "destructive" : "outline"} size="sm" onClick={handleDislike} className="min-w-[120px] justify-start">
                     <ThumbsDown size={16} className="mr-2" />
-                    {`Dislike ${dislikesCount}`}
+                    {dislikesCount > 0 ? `${formatViews(dislikesCount)}` : 'Dislike'}
                   </Button>
 
                   <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
@@ -378,10 +379,15 @@ export default function ContentDetailPage() {
                     Share
                   </Button>
 
-                  <Button variant="outline" size="sm">
-                    <Download size={16} className="mr-2" />
-                    Download
-                  </Button>
+                  <div className="relative">
+                    <Button variant="outline" size="sm" className="pr-8">
+                      <Download size={16} className="mr-2" />
+                      Download
+                    </Button>
+                    {work.premium && (
+                      <span className="absolute -right-2 -top-2 text-xs bg-violet-600 text-white px-2 py-0.5 rounded-full">Pro</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -405,8 +411,8 @@ export default function ContentDetailPage() {
                     </Link>
                   </div>
 
-                  <p className="text-sm text-gray-500 mb-2">
-                    {authorFollowersCount} followers
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {authorFollowersCount} subscribers
                   </p>
 
                   <div className="flex items-center gap-2">
@@ -416,9 +422,9 @@ export default function ContentDetailPage() {
                       onClick={handleFollow}
                     >
                       {isFollowing ? (
-                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Following</span>
+                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Subscribed</span>
                       ) : (
-                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Follow</span>
+                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Subscribe</span>
                       )}
                     </Button>
                   </div>
@@ -465,7 +471,7 @@ export default function ContentDetailPage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <MessageCircle size={20} />
-                    Comments ({comments.length})
+                    {comments.length} Comments
                   </h3>
 
                   <DropdownMenu>
@@ -501,18 +507,23 @@ export default function ContentDetailPage() {
                     </div>
                   </div>
 
-                  <Textarea
-                    placeholder="Write your comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={3}
-                  />
+                  <div>
+                    <Textarea
+                      placeholder="Add a comment"
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value.slice(0,200))}
+                      rows={3}
+                    />
+                    <div className="text-right text-xs text-muted-foreground mt-1">
+                      {`${newComment.length}/200`}
+                    </div>
+                  </div>
 
                   <div className="flex justify-end">
                     <Button
                       variant="default"
                       onClick={handleCommentSubmit}
-                      disabled={!newComment.trim()}
+                      disabled={!newComment.trim() || newComment.length > 200}
                     >
                       Post Comment
                     </Button>
@@ -576,44 +587,58 @@ export default function ContentDetailPage() {
             </div>
           </div>
 
-          {/* Sidebar - Related Recommendations */}
+          {/* Sidebar - Media Tabs + Queue + Library */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Related</h3>
-
-            <div className="space-y-3">
-              {relatedWorks.map((relatedWork) => (
-                <Link key={relatedWork.id} href={`/content/${relatedWork.id}`}>
-                  <div className="flex gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                    <div className="w-32 h-20 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden flex-shrink-0">
-                      {relatedWork.thumbnailUrl ? (
-                        <img
-                          src={relatedWork.thumbnailUrl}
-                          alt={relatedWork.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          🎨
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm line-clamp-2 mb-1">
-                        {relatedWork.title}
-                      </h4>
-                      <p className="text-xs text-gray-500 mb-1">
-                        {relatedWork.user.name}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <span>{formatViews(relatedWork.downloads)} views</span>
-                        <span>•</span>
-                        <span>{relatedWork.uploadTime}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+            <div className="flex items-center gap-2 border-b pb-2">
+              {['videos','musics','podcasts'].map(tab => (
+                <Button key={tab} variant={activeMediaTab===tab? 'default':'ghost'} size="sm" onClick={() => setActiveMediaTab(tab)} className="capitalize">
+                  {tab}
+                </Button>
               ))}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2">Now playing</h3>
+                <div className="flex gap-3 p-2 rounded-lg bg-accent/20">
+                  <div className="w-16 h-16 rounded overflow-hidden bg-muted">
+                    {work.thumbnailUrl && (
+                      <img src={work.thumbnailUrl} alt={work.title} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium line-clamp-1">{work.title}</div>
+                    <div className="text-xs text-muted-foreground">{work.user.name}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2">Next in queue</h3>
+                <div className="space-y-2">
+                  {relatedWorks.slice(0,2).map(item => (
+                    <Link key={item.id} href={`/content/${item.id}`}>
+                      <div className="flex gap-3 p-2 rounded-lg hover:bg-muted/30 cursor-pointer">
+                        <div className="w-16 h-16 rounded overflow-hidden bg-muted">
+                          {item.thumbnailUrl && (
+                            <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium line-clamp-1">{item.title}</div>
+                          <div className="text-xs text-muted-foreground">{item.user.name}</div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <h3 className="text-sm font-semibold mb-2">Your library</h3>
+                <p className="text-xs text-muted-foreground mb-3">Create your playlist</p>
+                <Button className="w-full">Create your playlist</Button>
+              </div>
             </div>
           </div>
         </div>

@@ -5,13 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { ArrowLeft, Plus, X } from 'lucide-react'
-import UploadSwitcher from '@/components/UploadSwitcher'
-import ImgUpload from '@/components/ImgUpload'
+import { Copy, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
+import UserProfileSidebar from '@/components/UserProfileSidebar'
+import UploadSwitcher from '@/components/UploadSwitcher'
+import ImgUpload from '@/components/ImgUpload'
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -25,16 +29,22 @@ export default function UploadPage() {
     description: '',
     category: '',
     language: '',
-    price: '',
     tags: '',
+    isPaid: false,
+    isForKids: true,
     fileUrl: '',
     thumbnailUrl: '',
     status: 'draft'
   })
 
-  const [tags, setTags] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadedVideo, setUploadedVideo] = useState(null)
   const [autoCover, setAutoCover] = useState(null)
+
+  const categories = MUSIC_CATEGORIES.map(category => ({
+    key: category,
+    label: category
+  }))
 
   // Handle video upload completion
   const handleVideoUploadComplete = (uploadedFiles) => {
@@ -42,20 +52,26 @@ export default function UploadPage() {
 
     if (uploadedFiles && uploadedFiles.length > 0) {
       const fileUrls = uploadedFiles.map(file => file.fileUrl).join(',')
+
+      setUploadedVideo({
+        name: uploadedFiles[0].originalName || 'video.mp4',
+        fileUrl: fileUrls,
+        playbackId: uploadedFiles[0].playbackId,
+        duration: uploadedFiles[0].duration || '0:00'
+      })
+
       setUploadForm(prev => ({
         ...prev,
-        fileUrl: fileUrls
+        fileUrl: fileUrls,
+        title: prev.title || uploadedFiles[0].originalName?.replace(/\.[^/.]+$/, '') || ''
       }))
 
       // Try to auto-generate a cover thumbnail from Mux playbackId
       const withPlayback = uploadedFiles.find(f => !!f.playbackId)
       if (withPlayback?.playbackId) {
-        // Generate a thumbnail URL per Mux docs
-        // Prefer webp for smaller size, use smartcrop with reasonable dimensions
         const playbackId = withPlayback.playbackId
         const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`
 
-        // Reflect to cover upload component by pre-filling initial image
         const initialImage = {
           fileUrl: thumbUrl,
           originalName: 'Auto thumbnail',
@@ -64,7 +80,6 @@ export default function UploadPage() {
         }
         setAutoCover(initialImage)
 
-        // Also set into form so submit uses this as default cover
         setUploadForm(prev => ({
           ...prev,
           thumbnailUrl: thumbUrl
@@ -113,8 +128,6 @@ export default function UploadPage() {
       const workData = {
         ...uploadForm,
         userId: user.id,
-        price: parseFloat(uploadForm.price) || 0,
-        tags: tags,
         status: 'published'
       }
 
@@ -142,14 +155,11 @@ export default function UploadPage() {
       const workData = {
         ...uploadForm,
         userId: user.id,
-        price: parseFloat(uploadForm.price) || 0,
-        tags: tags,
         status: 'draft'
       }
 
       await createWork(workData)
       toast.success('Draft saved successfully!')
-      router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
       toast.error('Save failed, please try again')
@@ -158,87 +168,139 @@ export default function UploadPage() {
     }
   }
 
-  const categories = MUSIC_CATEGORIES.map(category => ({
-    key: category,
-    label: category
-  }))
+  const handleCopyLink = () => {
+    if (uploadedVideo?.fileUrl) {
+      navigator.clipboard.writeText(uploadedVideo.fileUrl)
+      toast.success('Video link copied to clipboard')
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header navigation */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => router.back()}
-              >
-                <ArrowLeft size={20} />
-              </Button>
-              <h1 className="text-xl font-semibold">Publish Video</h1>
+    <div className="bg-background h-full">
+      <div className="flex gap-1 h-full">
+        {/* Left Sidebar - User Profile Card */}
+        <UserProfileSidebar />
+
+        <Separator orientation="vertical" className="h-auto opacity-20" />
+
+        {/* Middle Content - Upload Form */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <div className="bg-white px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-4">
+                <h1 className="text-4xl font-normal">Upload video</h1>
+                <Button variant="ghost" className="bg-[#F7F8FA] text-muted-foreground px-4 py-1 h-auto text-sm">
+                  Draft saved
+                </Button>
+              </div>
             </div>
 
-          </div>
-        </div>
-      </div>
+            {/* Subtitle */}
+            <p className="text-base text-muted-foreground">
+              One sentence to describe The benefit for people to upload videos on Mastera
+            </p>
 
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Video upload area */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-lg font-medium mb-4">Upload Video</h2>
-                <UploadSwitcher onUploadComplete={handleVideoUploadComplete} />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-lg font-medium mb-4">Upload Cover</h2>
-                <ImgUpload
-                  onUploadComplete={handleCoverUploadComplete}
-                  required={true}
-                  initialImage={autoCover}
-                />
-              </CardContent>
-            </Card>
+            <Separator className="opacity-20" />
           </div>
 
-          {/* Right: Basic settings */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-medium mb-4">Basic Settings</h3>
+          {/* Scrollable Form Content */}
+          <div className="flex-1 overflow-y-auto px-8 py-2">
+            <div className="space-y-4 max-w-[800px]">
+              {/* Video Details Section */}
+              <div className="space-y-4 py-2">
+                <h2 className="text-2xl font-normal text-[#7440DF]">Video details</h2>
 
-                {/* Title */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> Title
-                  </label>
-                  <div className="flex items-center gap-2">
+                {/* Title Field */}
+                <div className="bg-[#F7F8FA] rounded-lg p-2">
+                  <div className="px-3 py-2">
+                    <label className="text-lg text-muted-foreground">Title (required)</label>
+                  </div>
+                  <div className="flex justify-between items-center px-3">
                     <Input
-                      placeholder="Enter a title for your work"
+                      placeholder="abc-this text will use file name as default"
                       value={uploadForm.title}
                       onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="flex-1"
+                      className="border-0 bg-transparent text-xl font-normal p-0 focus-visible:ring-0 flex-1"
+                      maxLength={200}
                     />
-                    <span className="text-xs text-gray-400">
-                      {uploadForm.title.length}/80
+                    <span className="text-base text-muted-foreground ml-2">
+                      {uploadForm.title.length}/200
                     </span>
                   </div>
                 </div>
 
-                {/* Style */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> Style
-                  </label>
+                {/* Description Field */}
+                <div className="bg-[#F7F8FA] rounded-lg p-2 h-[180px]">
+                  <div className="px-3 py-2">
+                    <label className="text-lg text-muted-foreground">Description</label>
+                  </div>
+                  <div className="flex flex-col h-[calc(100%-48px)] px-3">
+                    <Textarea
+                      placeholder="Tell viewer about your video"
+                      value={uploadForm.description}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
+                      className="border-0 bg-transparent text-xl text-muted-foreground p-0 focus-visible:ring-0 flex-1 resize-none"
+                      maxLength={200}
+                    />
+                    <span className="text-base text-muted-foreground text-right">
+                      {uploadForm.description.length}/200
+                    </span>
+                  </div>
+                </div>
+
+                {/* Paid Content Toggle */}
+                <div className="py-2 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={uploadForm.isPaid}
+                      onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isPaid: checked }))}
+                    />
+                    <Label className="text-2xl font-normal text-[#7440DF]">Paid Content</Label>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    This is the description of why people paid to view, and how creator have reward from this, such as for each review, the create can have 10 mastera points reward
+                  </p>
+                </div>
+              </div>
+
+              <Separator className="opacity-20" />
+
+              {/* Thumbnail Section */}
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-normal text-[#7440DF]">Thumbnail</h2>
+                  <p className="text-base text-muted-foreground">
+                    Set a thumbnail that stands out and draws viewers' attention
+                  </p>
+                </div>
+
+                <div>
+                  <ImgUpload
+                    onUploadComplete={handleCoverUploadComplete}
+                    required={true}
+                    initialImage={autoCover}
+                  />
+                </div>
+              </div>
+
+              <Separator className="opacity-20" />
+
+              {/* Music Style Section */}
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-normal text-foreground">Music style</h2>
+                  <p className="text-base text-muted-foreground">
+                    Let people know, what kind of music style you are create
+                  </p>
+                </div>
+
+                <div className="py-2">
                   <Select value={uploadForm.category} onValueChange={(val) => setUploadForm(prev => ({ ...prev, category: val }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a style" />
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2">
+                      <div className="px-3 py-2">
+                        <SelectValue placeholder="Select music style" className="text-2xl font-normal" />
+                      </div>
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -249,15 +311,23 @@ export default function UploadPage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                {/* Language */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> Language
-                  </label>
+              {/* Language Section */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-normal text-foreground">Language and captions certification</h2>
+                  <p className="text-base text-muted-foreground">
+                    Select your video's language and, if needed, a caption certification
+                  </p>
+                </div>
+
+                <div className="py-2">
                   <Select value={uploadForm.language} onValueChange={(val) => setUploadForm(prev => ({ ...prev, language: val }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a language" />
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2">
+                      <div className="px-3 py-2">
+                        <SelectValue placeholder="Select language" className="text-2xl font-normal" />
+                      </div>
                     </SelectTrigger>
                     <SelectContent>
                       {LANGUAGE_CATEGORIES.map((language) => (
@@ -268,74 +338,117 @@ export default function UploadPage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                {/* Tags */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">
-                    <span className="text-red-500">*</span> Tags
-                  </label>
-                  <Input
-                    placeholder="Separate tags with commas, e.g., tutorial,programming,frontend"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                  />
+              <Separator className="opacity-20" />
+
+              {/* Audience Section */}
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-normal text-foreground">Audience</h2>
+                  <p className="text-base text-muted-foreground">
+                    Regardless of your location, you're legally required to comply with the Children's Online Privacy Protection Act (COPPA) and/or other laws. You're required to tell us whether your videos are made for kids. What's content made for kids?
+                  </p>
                 </div>
 
-                {/* Price */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Price</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">$</span>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      value={uploadForm.price}
-                      onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
-                    />
+                <RadioGroup value={uploadForm.isForKids ? "yes" : "no"} onValueChange={(val) => setUploadForm(prev => ({ ...prev, isForKids: val === "yes" }))}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="kids-yes" />
+                    <Label htmlFor="kids-yes" className="text-base font-normal">Yes, this content is for kids</Label>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="kids-no" />
+                    <Label htmlFor="kids-no" className="text-base font-normal">No, this content is not made for kids</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
 
-            {/* Description */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-medium mb-4">Description</h3>
-                <Textarea
-                  placeholder="Provide more details to help people discover your video"
-                  value={uploadForm.description}
-                  onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
-                  rows={6}
-                />
-                <div className="flex justify-end">
-                  <span className="text-xs text-gray-400">
-                    {uploadForm.description.length}/2000
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Bottom Confirmation Bar */}
+          <div className="bg-white border-t px-6 py-4 flex-shrink-0">
+            <div className="flex justify-between items-center">
+              <Button variant="ghost" className="text-[#7440DF] text-sm" onClick={handleSaveDraft}>
+                Save a draft
+              </Button>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="bg-[#F2F3F5] text-foreground px-4 h-10" onClick={() => router.back()}>
+                  Cancel
+                </Button>
+                <Button className="bg-[#7440DF] text-white px-4 h-10" onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? 'Uploading...' : 'Upload'}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom button area */}
-        <div className="mt-8 flex justify-end gap-4">
-          {/* <Button
-            variant="bordered"
-            onPress={handleSaveDraft}
-            isLoading={isSubmitting}
-            size="lg"
-          >
-            Save Draft
-          </Button> */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Now'}
-          </Button>
+        <Separator orientation="vertical" className="h-auto opacity-20" />
+
+        {/* Right Sidebar - Video Status */}
+        <div className="w-[427px] bg-white overflow-y-auto">
+          <div className="p-6 space-y-6">
+            <h2 className="text-2xl font-normal text-[#7440DF]">Video status</h2>
+
+            {/* Video Upload Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-normal">Upload video</h3>
+              <UploadSwitcher onUploadComplete={handleVideoUploadComplete} />
+            </div>
+
+            <Separator className="opacity-20" />
+
+            {/* Video Preview */}
+            {uploadedVideo && (
+              <div className="space-y-4">
+                <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden">
+                  {uploadedVideo.playbackId ? (
+                    <img
+                      src={`https://image.mux.com/${uploadedVideo.playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`}
+                      alt="Video thumbnail"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                      <span className="text-gray-600">Video Preview</span>
+                    </div>
+                  )}
+                  {uploadedVideo.duration && (
+                    <div className="absolute bottom-2 right-2 bg-black/80 text-white px-3 py-1 rounded text-sm">
+                      {uploadedVideo.duration}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="text-lg font-normal mb-1">File name</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {uploadedVideo.name}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-normal mb-1">Video link</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground truncate flex-1">
+                        {uploadedVideo.fileUrl}
+                      </span>
+                      <button
+                        className="p-1 hover:bg-gray-100 rounded flex-shrink-0"
+                        onClick={handleCopyLink}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

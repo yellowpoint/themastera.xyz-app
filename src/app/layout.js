@@ -17,14 +17,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
-      <body className="antialiased">
+    <html lang="en" suppressHydrationWarning className="light">
+      <body className="antialiased h-screen overflow-hidden">
         <Providers>
           <SidebarProvider>
             <AppSidebar className='pt-16' />
-            <SidebarInset>
+            <SidebarInset className="flex flex-col h-screen">
               <TopHeader />
-              <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+              <div className="flex-1 pt-16 overflow-auto">
                 {children}
               </div>
             </SidebarInset>
