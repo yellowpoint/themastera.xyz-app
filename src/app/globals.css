@@ -18,8 +18,8 @@
   /* Light theme colors (default) */
   --primary: hsla(260, 71%, 56%, 1);
   --primary-hover: hsla(260, 71%, 46%, 1);
-  --secondary: oklch(0.97 0 0);
-  --secondary-hover: #e5e7eb;
+  --secondary: hsla(220, 23%, 97%, 1);
+  --secondary-hover: hsla(216, 15%, 36%, 1);
   --accent: oklch(0.97 0 0);
   --accent-hover: #7c3aed;
   --success: #10b981;

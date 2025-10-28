@@ -17,16 +17,14 @@ export default function TopHeader() {
   return (
     <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-divider">
       <div className="flex h-16 items-center gap-3 px-4">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
-        </div>
+
         <div className="flex-1 flex justify-center">
           <div className="w-full max-w-md">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                aria-label="搜索"
-                placeholder="搜索内容、创作者…"
+                aria-label="Search"
+                placeholder="Search the item you like"
                 className="w-full pl-8"
               />
             </div>
@@ -35,12 +33,12 @@ export default function TopHeader() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <Badge
-                className="cursor-pointer"
-                onClick={() => router.push('/points')}
+              <Button
+                variant="secondary"
+                onClick={() => router.push('/creator')}
               >
-                {user?.user_metadata?.points || 0} Points
-              </Badge>
+                <span className="text-lg">+</span> Create
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
@@ -62,18 +60,18 @@ export default function TopHeader() {
             </>
           ) : (
             <>
+
               <Button
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground"
+                onClick={() => router.push('/auth/register')}
+              >
+                Sign up
+              </Button>
+              <Button
                 onClick={() => router.push('/auth/login')}
               >
                 Login
-              </Button>
-              <Button
-                variant="default"
-                onClick={() => router.push('/auth/register')}
-              >
-                Register
               </Button>
             </>
           )}

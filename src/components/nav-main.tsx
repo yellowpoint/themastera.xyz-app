@@ -20,8 +20,10 @@ import {
 } from "@/components/ui/sidebar";
 
 export function NavMain({
+  title,
   items,
 }: {
+  title?: string;
   items: {
     title: string;
     url: string;
@@ -43,7 +45,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      {/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
+      {title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) =>
           // Render collapsible only when item has sub items

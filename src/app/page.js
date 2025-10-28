@@ -20,6 +20,7 @@ import {
   Clock,
   Star
 } from "lucide-react";
+import { Home as HomeIcon, Compass, Megaphone, History as HistoryIcon, Users as UsersIcon, Bookmark, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
 // shadcn/ui imports replacing HeroUI
@@ -186,155 +187,120 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">
-            Discover Amazing Content <span className="text-primary">Discover</span>
-          </h1>
-          <p className="text-gray-300 text-lg">
-            Explore quality works from global creators, find your next source of inspiration
-          </p>
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* 顶部标签 */}
+        <div className="flex items-center gap-6 text-sm mb-4">
+          {['Overview','Videos','Musics','podcasts'].map((t, i) => (
+            <button key={t} className={`pb-2 ${i===0 ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}>{t}</button>
+          ))}
         </div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search works, creators or tags..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="pl-9"
+        {/* 主体两列：内容 + 右侧栏 */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* 主内容 9 列 */}
+          <div className="col-span-12 lg:col-span-9 space-y-8">
+            {/* 大封面视频区域 */}
+            <div className="relative rounded-2xl overflow-hidden">
+              <img
+                src={works[0]?.thumbnailUrl || 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?q=80&w=1470&auto=format&fit=crop'}
+                alt="Hero"
+                className="w-full h-[320px] object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute left-6 bottom-6 text-white">
+                <h2 className="text-2xl font-bold">The Fate of Ophelia</h2>
+                <p className="text-sm opacity-80">Taylor Swift</p>
+                <div className="mt-2 text-xs bg-black/40 rounded px-2 py-1 inline-block">00:43/00:52</div>
+              </div>
+            </div>
+
+            {/* Trending contents 区块 */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold">Trending contents</h3>
+                <Link href="/trending" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(loading ? Array.from({length:3}) : filteredWorks.slice(0,3)).map((w, idx) => (
+                  loading ? (
+                    <WorkCardSkeleton key={idx} />
+                  ) : (
+                    <div key={w.id} className="group">
+                      <div className="relative rounded-xl overflow-hidden">
+                        <img src={w.thumbnailUrl} alt={w.title} className="w-full h-40 object-cover" />
+                        <div className="absolute bottom-2 left-2 text-[10px] bg-black/50 text-white px-2 py-0.5 rounded">{formatViews(w.downloads)} views</div>
+                        <div className="absolute bottom-2 right-2 text-[10px] bg-black/50 text-white px-2 py-0.5 rounded">{w.duration}</div>
+                      </div>
+                      <div className="mt-2 flex items-start gap-2 text-sm">
+                        <Avatar className="h-6 w-6"><AvatarImage src={w.user.image} /><AvatarFallback>{w.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback></Avatar>
+                        <div>
+                          <div className="font-medium leading-tight">Content name</div>
+                          <div className="text-xs text-muted-foreground">{w.user.name}</div>
+                        </div>
+                        <button className="ml-auto text-muted-foreground"><MoreVertical size={16} /></button>
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+
+            {/* Featured Artist for you */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold">Featured Artist for you</h3>
+                <Link href="/artists" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(loading ? Array.from({length:3}) : filteredWorks.slice(3,6)).map((w, idx) => (
+                  loading ? <WorkCardSkeleton key={`fa-${idx}`} /> : <WorkCard key={w.id} work={w} />
+                ))}
+              </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Filter size={16} className="mr-2" />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => { }}>Trending</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { }}>Newest</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { }}>Top Rated</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              onClick={() => setViewMode("grid")}
-              className="p-2"
-            >
-              <Grid size={16} />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              onClick={() => setViewMode("list")}
-              className="p-2"
-            >
-              <List size={16} />
-            </Button>
+
+          {/* 右侧栏 3 列 */}
+          <div className="col-span-12 lg:col-span-3 space-y-6">
+            {/* Quick picks */}
+            <div className="bg-card border border-border rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">Quick picks</h4>
+                <button className="text-muted-foreground"><MoreVertical size={16} /></button>
+              </div>
+              <div className="mt-4 space-y-3">
+                {(loading ? Array.from({length:4}) : filteredWorks.slice(0,4)).map((w, idx) => (
+                  loading ? (
+                    <div key={`qp-${idx}`} className="flex items-center gap-3">
+                      <Skeleton className="w-14 h-14 rounded" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-3 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={w.id} className="flex items-center gap-3">
+                      <img src={w.thumbnailUrl} alt="thumb" className="w-14 h-14 object-cover rounded" />
+                      <div className="flex-1">
+                        <div className="text-sm leading-tight">Music or video name</div>
+                        <div className="text-xs text-muted-foreground leading-tight">{w.user.name} | Album name</div>
+                      </div>
+                      <button className="text-muted-foreground"><MoreVertical size={16} /></button>
+                    </div>
+                  )
+                ))}
+              </div>
+              <Link href="/quick-picks" className="mt-3 block text-xs text-muted-foreground hover:text-foreground">Expand for more quick picks</Link>
+            </div>
+
+            {/* Your library */}
+            <div className="bg-card border border-border rounded-2xl p-4">
+              <h4 className="font-semibold">Your library</h4>
+              <div className="mt-2 text-sm text-muted-foreground">Create your playlist</div>
+              <div className="mt-1 text-xs text-muted-foreground">a sentence why you need a play list</div>
+              <Button className="mt-4 w-full">+ Create your playlist</Button>
+            </div>
           </div>
         </div>
-
-        {/* Category Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="flex items-center text-sm text-gray-400 mr-2">Style:</span>
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleCategoryChange(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-
-        {/* Language Filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <span className="flex items-center text-sm text-gray-400 mr-2">Language:</span>
-          <Button
-            key="All"
-            variant={selectedLanguage === "All" ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleLanguageChange("All")}
-          >
-            All
-          </Button>
-          {LANGUAGE_CATEGORIES.map((language) => (
-            <Button
-              key={language}
-              variant={selectedLanguage === language ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleLanguageChange(language)}
-            >
-              {language}
-            </Button>
-          ))}
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-100/10 border border-red-200/20 rounded-lg p-4 mb-6">
-            <p className="text-red-600">{error}</p>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={fetchTrendingWorks}
-              className="mt-2"
-            >
-              Retry
-            </Button>
-          </div>
-        )}
-
-        {/* Works Grid */}
-        {loading ? (
-          <div className={`grid ${viewMode === "grid"
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            : "grid-cols-1"} gap-6`}>
-            {Array.from({ length: 8 }).map((_, index) => (
-              <WorkCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : (
-          <div className={`grid ${viewMode === "grid"
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            : "grid-cols-1"} gap-6`}>
-            {filteredWorks.map((work) => (
-              <WorkCard key={work.id} work={work} />
-            ))}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && filteredWorks.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎨</div>
-            <h3 className="text-xl font-semibold mb-2">No Works Found</h3>
-            <p className="text-gray-500 mb-4">
-              {searchQuery ? "No matching works found, try different keywords" : "No works in this category yet"}
-            </p>
-            {searchQuery && (
-              <Button onClick={() => setSearchQuery("")}>Clear Search</Button>
-            )}
-          </div>
-        )}
-
-        {/* Load More */}
-        {!loading && filteredWorks.length > 0 && (
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline">
-              Load More
-            </Button>
-          </div>
-        )}
       </main>
     </div>
   );

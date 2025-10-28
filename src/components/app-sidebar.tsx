@@ -24,7 +24,9 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 // This is sample data.
 const data = {
@@ -51,56 +53,22 @@ const data = {
     },
   ],
   navMain: [
-    {
-      title: "Home",
-      url: "/",
-      icon: SquareTerminal,
-    },
-    {
-      title: "Creator",
-      url: "/creator",
-      icon: Bot,
-    },
-    // {
-    //   title: "Settings",
-    //   url: "#",
-    //   icon: Settings2,
-    //   items: [
-    //     {
-    //       title: "General",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Team",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Billing",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Limits",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
+    { title: "Home", url: "/", icon: SquareTerminal },
+    { title: "Subscriptions", url: "/subscriptions", icon: BookOpen },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
+  navMain2: [
+    { title: "Me", url: "/me", icon: GalleryVerticalEnd },
+    { title: "History", url: "/history", icon: Map },
+    { title: "Explore", url: "/explore", icon: Command },
+    { title: "Broadcast", url: "/broadcast", icon: Bot },
+  ],
+  navMain3: [
+    { title: "Community", url: "/community", icon: PieChart },
+    { title: "Explorer", url: "/explorer", icon: Frame },
+  ],
+  footer: [
+    { title: "Settings", url: "/settings", icon: Settings2 },
+    { title: "Report history", url: "/report-history", icon: Frame },
   ],
 };
 
@@ -108,14 +76,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-2 group-data-[collapsible=icon]:hidden"
+          >
+            <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+            <span className="font-semibold">TheMasterA</span>
+          </Link>
+          <SidebarTrigger />
+        </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
+        <NavMain items={data.navMain} title="Main Operations" />
+        <NavMain items={data.navMain2} title="Me" />
+        <NavMain items={data.navMain3} title="Community" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavMain items={data.footer} />
+        {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
