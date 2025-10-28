@@ -274,18 +274,18 @@ function formatTimeAgo(date) {
   const created = new Date(date)
   const diffInMinutes = Math.floor((now - created) / (1000 * 60))
 
-  if (diffInMinutes < 1) return '刚刚'
-  if (diffInMinutes < 60) return `${diffInMinutes}分钟前`
+  if (diffInMinutes < 1) return 'Just now'
+  if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`
 
   const diffInHours = Math.floor(diffInMinutes / 60)
-  if (diffInHours < 24) return `${diffInHours}小时前`
+  if (diffInHours < 24) return `${diffInHours} hours ago`
 
   const diffInDays = Math.floor(diffInHours / 24)
-  if (diffInDays < 7) return `${diffInDays}天前`
+  if (diffInDays < 7) return `${diffInDays} days ago`
 
   const diffInWeeks = Math.floor(diffInDays / 7)
-  if (diffInWeeks < 4) return `${diffInWeeks}周前`
+  if (diffInWeeks < 4) return `${diffInWeeks} weeks ago`
 
   const diffInMonths = Math.floor(diffInDays / 30)
-  return `${diffInMonths}个月前`
+  return `${diffInMonths} months ago`
 }

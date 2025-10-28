@@ -126,36 +126,36 @@ export async function GET(request) {
   }
 }
 
-// 辅助函数：生成模拟时长
+// Helper: generate mock duration
 function generateDuration(category) {
   const durations = {
-    '视觉艺术': ['2:30', '4:15', '6:45', '3:20'],
-    '音乐': ['3:45', '4:22', '5:18', '2:55'],
-    '动画': ['8:15', '12:30', '6:20', '15:45'],
-    '摄影': ['2:18', '3:40', '5:25', '4:10'],
-    '设计': ['4:22', '7:30', '5:15', '9:20'],
-    '插画': ['6:45', '8:20', '4:35', '11:15']
+    'Visual Arts': ['2:30', '4:15', '6:45', '3:20'],
+    'Music': ['3:45', '4:22', '5:18', '2:55'],
+    'Animation': ['8:15', '12:30', '6:20', '15:45'],
+    'Photography': ['2:18', '3:40', '5:25', '4:10'],
+    'Design': ['4:22', '7:30', '5:15', '9:20'],
+    'Illustration': ['6:45', '8:20', '4:35', '11:15']
   }
 
   const categoryDurations = durations[category] || ['3:30', '5:20', '4:45', '6:15']
   return categoryDurations[Math.floor(Math.random() * categoryDurations.length)]
 }
 
-// 辅助函数：格式化上传时间
+// Helper: format upload time
 function formatUploadTime(createdAt) {
   const now = new Date()
   const created = new Date(createdAt)
   const diffInHours = Math.floor((now - created) / (1000 * 60 * 60))
 
-  if (diffInHours < 1) return '刚刚'
-  if (diffInHours < 24) return `${diffInHours}小时前`
+  if (diffInHours < 1) return 'Just now'
+  if (diffInHours < 24) return `${diffInHours} hours ago`
 
   const diffInDays = Math.floor(diffInHours / 24)
-  if (diffInDays < 7) return `${diffInDays}天前`
+  if (diffInDays < 7) return `${diffInDays} days ago`
 
   const diffInWeeks = Math.floor(diffInDays / 7)
-  if (diffInWeeks < 4) return `${diffInWeeks}周前`
+  if (diffInWeeks < 4) return `${diffInWeeks} weeks ago`
 
   const diffInMonths = Math.floor(diffInDays / 30)
-  return `${diffInMonths}个月前`
+  return `${diffInMonths} months ago`
 }

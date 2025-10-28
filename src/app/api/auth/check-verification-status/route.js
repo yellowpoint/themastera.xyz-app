@@ -3,18 +3,18 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request) {
   try {
-    // 从请求中获取用户邮箱
+    // Get user email from request
     const body = await request.json()
     const { email } = body
 
     if (!email) {
       return NextResponse.json(
-        { error: '邮箱地址是必需的' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
 
-    // 查询数据库中该邮箱的验证状态
+    // Check verification status in database
     const user = await prisma.user.findUnique({
       where: {
         email: email
@@ -29,7 +29,7 @@ export async function POST(request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: '用户不存在' },
+        { error: 'User not found' },
         { status: 404 }
       )
     }
@@ -44,9 +44,9 @@ export async function POST(request) {
     )
 
   } catch (error) {
-    console.error('检查邮箱验证状态失败:', error)
+    console.error('Failed to check email verification status:', error)
     return NextResponse.json(
-      { error: '服务器错误，请稍后重试' },
+      { error: 'Server error, please try again later' },
       { status: 500 }
     )
   }
