@@ -103,7 +103,10 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={isActiveHref(item.url)}
               >
-                <a href={item.url}>
+                <a
+                  href={item.url}
+                  className="transition-all rounded-md overflow-hidden"
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </a>

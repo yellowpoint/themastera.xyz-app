@@ -9,15 +9,26 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import Link from 'next/link'
+
 
 export default function TopHeader() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
 
   return (
-    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-divider">
+    <div className="light fixed left-0 right-0 top-0 z-40 border-b border-divider bg-background text-foreground">
       <div className="flex h-16 items-center gap-3 px-4">
-
+        <div className="flex items-center justify-between w-60">
+          <Link
+            href="/"
+            className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
+          >
+            <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+            <span>TheMasterA</span>
+          </Link>
+          <SidebarTrigger />
+        </div>
         <div className="flex-1 flex justify-center">
           <div className="w-full max-w-md">
             <div className="relative">
@@ -39,7 +50,7 @@ export default function TopHeader() {
               >
                 <span className="text-lg">+</span> Create
               </Button>
-              <DropdownMenu>
+              <DropdownMenu >
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
                     <Avatar className="h-8 w-8 ring-2 ring-primary">
@@ -50,7 +61,7 @@ export default function TopHeader() {
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card">
+                <DropdownMenuContent align="end" className='bg-card light'>
                   <DropdownMenuItem onClick={() => router.push('/profile')}>Profile</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut({ onSuccess: () => router.push('/') })}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out

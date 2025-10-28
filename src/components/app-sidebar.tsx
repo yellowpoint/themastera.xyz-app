@@ -76,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <Link
             href="/"
             className="flex items-center gap-2 group-data-[collapsible=icon]:hidden"
@@ -85,7 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <span className="font-semibold">TheMasterA</span>
           </Link>
           <SidebarTrigger />
-        </div>
+        </div> */}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} title="Main Operations" />
