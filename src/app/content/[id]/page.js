@@ -51,6 +51,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
 import { toast } from "sonner";
+import { request } from "@/lib/request";
 
 export default function ContentDetailPage() {
   const params = useParams();
@@ -96,54 +97,29 @@ export default function ContentDetailPage() {
     try {
       setLoading(true);
       setError(null);
+      const { data } = await request.get(`/api/works/${workId}`);
 
-      const response = await fetch(`/api/works/${workId}`);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          const msg = 'Work not found or has been deleted';
-          toast.error(msg);
-          throw new Error(msg);
-        } else if (response.status >= 500) {
-          const msg = 'Server error, please try again later';
-          toast.error(msg);
-          throw new Error(msg);
-        } else {
-          const msg = 'Failed to fetch work details';
-          toast.error(msg);
-          throw new Error(msg);
+      const { work, engagement, authorFollow } = data?.data || {};
+      if (work) {
+        setWork(work);
+        setDuration(parseDuration(work.duration || '0:00'));
+      }
+      if (engagement) {
+        const { reaction, likesCount, dislikesCount } = engagement;
+        setIsLiked(reaction === 'like');
+        setIsDisliked(reaction === 'dislike');
+        if (typeof likesCount === 'number') setLikesCount(likesCount);
+        if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+      }
+      if (authorFollow) {
+        setIsFollowing(!!authorFollow.isFollowing);
+        if (typeof authorFollow.followersCount === 'number') {
+          setAuthorFollowersCount(authorFollow.followersCount);
         }
       }
 
-      const data = await response.json();
-
-      if (data.success) {
-        const { work, engagement, authorFollow } = data.data || {};
-        if (work) {
-          setWork(work);
-          setDuration(parseDuration(work.duration || '0:00'));
-        }
-        if (engagement) {
-          const { reaction, likesCount, dislikesCount } = engagement;
-          setIsLiked(reaction === 'like');
-          setIsDisliked(reaction === 'dislike');
-          if (typeof likesCount === 'number') setLikesCount(likesCount);
-          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
-        }
-        if (authorFollow) {
-          setIsFollowing(!!authorFollow.isFollowing);
-          if (typeof authorFollow.followersCount === 'number') {
-            setAuthorFollowersCount(authorFollow.followersCount);
-          }
-        }
-      } else {
-        const msg = data.error || 'Failed to fetch work details';
-        toast.error(msg);
-        throw new Error(msg);
-      }
     } catch (err) {
       console.error('Error fetching work details:', err);
-      toast.error(err.message || 'Failed to load work details');
       setError(err.message || 'Network error, please try again later');
     } finally {
       setLoading(false);
@@ -153,27 +129,10 @@ export default function ContentDetailPage() {
   const fetchComments = async () => {
     try {
       setCommentsLoading(true);
-
-      const response = await fetch(`/api/works/${workId}/comments?limit=20&sort=newest`);
-
-      if (!response.ok) {
-        const msg = 'Failed to fetch comments';
-        toast.error(msg);
-        throw new Error(msg);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setComments(data.data.comments || []);
-      } else {
-        const msg = data.error || 'Failed to fetch comments';
-        toast.error(msg);
-        throw new Error(msg);
-      }
+      const { data } = await request.get(`/api/works/${workId}/comments?limit=20&sort=newest`);
+      setComments(data?.data?.comments || []);
     } catch (err) {
       console.error('Error fetching comments:', err);
-      toast.error(err.message || 'Failed to fetch comments');
     } finally {
       setCommentsLoading(false);
     }
@@ -181,38 +140,16 @@ export default function ContentDetailPage() {
 
   const fetchRelatedWorks = async () => {
     try {
-      const response = await fetch(`/api/works/trending?limit=8&exclude=${workId}`);
-
-      if (!response.ok) {
-        const msg = 'Failed to fetch related works';
-        toast.error(msg);
-        throw new Error(msg);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setRelatedWorks(data.data || []);
-      } else {
-        const msg = data.error || 'Failed to fetch related works';
-        toast.error(msg);
-        throw new Error(msg);
-      }
+      const { data } = await request.get(`/api/works/trending?limit=8&exclude=${workId}`);
+      setRelatedWorks(data?.data || []);
     } catch (err) {
       console.error('Error fetching related works:', err);
-      toast.error(err.message || 'Failed to fetch related works');
     }
   };
 
   const parseDuration = (durationStr) => {
     const parts = durationStr.split(':');
     return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const formatViews = (views) => {
@@ -268,56 +205,30 @@ export default function ContentDetailPage() {
   const handleLike = async () => {
     try {
       const action = isLiked ? 'unlike' : 'like';
-      const response = await fetch(`/api/works/${workId}/engagement`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const { reaction, likesCount, dislikesCount } = data.data || {};
-          setIsLiked(reaction === 'like');
-          setIsDisliked(reaction === 'dislike');
-          if (typeof likesCount === 'number') setLikesCount(likesCount);
-          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
-        } else {
-          toast.error(data.error || 'Failed to update like');
-        }
-      } else {
-        toast.error('Failed to update like');
-      }
+      const { data } = await request.post(`/api/works/${workId}/engagement`, { action })
+
+      const { reaction, likesCount, dislikesCount } = data?.data || {};
+      setIsLiked(reaction === 'like');
+      setIsDisliked(reaction === 'dislike');
+      if (typeof likesCount === 'number') setLikesCount(likesCount);
+      if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+
     } catch (err) {
       console.error('Error updating like:', err);
-      toast.error(err.message || 'Failed to update like');
     }
   };
 
   const handleDislike = async () => {
     try {
       const action = isDisliked ? 'undislike' : 'dislike';
-      const response = await fetch(`/api/works/${workId}/engagement`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const { reaction, likesCount, dislikesCount } = data.data || {};
-          setIsLiked(reaction === 'like');
-          setIsDisliked(reaction === 'dislike');
-          if (typeof likesCount === 'number') setLikesCount(likesCount);
-          if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
-        } else {
-          toast.error(data.error || 'Failed to update dislike');
-        }
-      } else {
-        toast.error('Failed to update dislike');
-      }
+      const { data } = await request.post(`/api/works/${workId}/engagement`, { action })
+      const { reaction, likesCount, dislikesCount } = data?.data || {};
+      setIsLiked(reaction === 'like');
+      setIsDisliked(reaction === 'dislike');
+      if (typeof likesCount === 'number') setLikesCount(likesCount);
+      if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
     } catch (err) {
       console.error('Error updating dislike:', err);
-      toast.error(err.message || 'Failed to update dislike');
     }
   };
 
@@ -325,26 +236,16 @@ export default function ContentDetailPage() {
 
   const handleFollow = async () => {
     try {
-      const response = await fetch(`/api/users/${work.user.id}/follow`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: isFollowing ? 'unfollow' : 'follow' })
+      await request.post(`/api/users/${work.user.id}/follow`, { action: isFollowing ? 'unfollow' : 'follow' })
+      const next = !isFollowing;
+      setIsFollowing(next);
+      setAuthorFollowersCount((prev) => {
+        const updated = next ? prev + 1 : Math.max(0, prev - 1);
+        return updated;
       });
-
-      if (response.ok) {
-        const next = !isFollowing;
-        setIsFollowing(next);
-        setAuthorFollowersCount((prev) => {
-          const updated = next ? prev + 1 : Math.max(0, prev - 1);
-          return updated;
-        });
-        toast.success(next ? 'Followed the creator' : 'Unfollowed the creator');
-      } else {
-        toast.error('Failed to update follow state');
-      }
+      toast.success(next ? 'Followed the creator' : 'Unfollowed the creator');
     } catch (err) {
       console.error('Error following user:', err);
-      toast.error(err.message || 'Failed to update follow state');
     }
   };
 
@@ -352,27 +253,17 @@ export default function ContentDetailPage() {
     if (!newComment.trim()) return;
 
     try {
-      const response = await fetch(`/api/works/${workId}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: newComment,
-          rating: commentRating,
-          userId: 'current-user-id' // TODO: Get from auth
-        })
-      });
-
-      if (response.ok) {
-        setNewComment("");
-        setCommentRating(5);
-        fetchComments(); // Refresh comments
-        toast.success('Comment posted');
-      } else {
-        toast.error('Failed to post comment');
-      }
+      await request.post(`/api/works/${workId}/comments`, {
+        content: newComment,
+        rating: commentRating,
+        userId: 'current-user-id'
+      })
+      setNewComment("");
+      setCommentRating(5);
+      fetchComments(); // Refresh comments
+      toast.success('Comment posted');
     } catch (err) {
       console.error('Error submitting comment:', err);
-      toast.error(err.message || 'Failed to post comment');
     }
   };
 
