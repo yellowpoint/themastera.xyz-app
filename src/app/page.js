@@ -23,7 +23,6 @@ import {
 import { Home as HomeIcon, Compass, Megaphone, History as HistoryIcon, Users as UsersIcon, Bookmark, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
-// shadcn/ui imports replacing HeroUI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -190,8 +189,8 @@ export default function HomePage() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* 顶部标签 */}
         <div className="flex items-center gap-6 text-sm mb-4">
-          {['Overview','Videos','Musics','podcasts'].map((t, i) => (
-            <button key={t} className={`pb-2 ${i===0 ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}>{t}</button>
+          {['Overview', 'Videos', 'Musics', 'podcasts'].map((t, i) => (
+            <button key={t} className={`pb-2 ${i === 0 ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}>{t}</button>
           ))}
         </div>
 
@@ -221,7 +220,7 @@ export default function HomePage() {
                 <Link href="/trending" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(loading ? Array.from({length:3}) : filteredWorks.slice(0,3)).map((w, idx) => (
+                {(loading ? Array.from({ length: 3 }) : filteredWorks.slice(0, 3)).map((w, idx) => (
                   loading ? (
                     <WorkCardSkeleton key={idx} />
                   ) : (
@@ -252,7 +251,7 @@ export default function HomePage() {
                 <Link href="/artists" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(loading ? Array.from({length:3}) : filteredWorks.slice(3,6)).map((w, idx) => (
+                {(loading ? Array.from({ length: 3 }) : filteredWorks.slice(3, 6)).map((w, idx) => (
                   loading ? <WorkCardSkeleton key={`fa-${idx}`} /> : <WorkCard key={w.id} work={w} />
                 ))}
               </div>
@@ -268,7 +267,7 @@ export default function HomePage() {
                 <button className="text-muted-foreground"><MoreVertical size={16} /></button>
               </div>
               <div className="mt-4 space-y-3">
-                {(loading ? Array.from({length:4}) : filteredWorks.slice(0,4)).map((w, idx) => (
+                {(loading ? Array.from({ length: 4 }) : filteredWorks.slice(0, 4)).map((w, idx) => (
                   loading ? (
                     <div key={`qp-${idx}`} className="flex items-center gap-3">
                       <Skeleton className="w-14 h-14 rounded" />

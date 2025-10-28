@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Button } from '@heroui/react'
+import { Button } from '@/components/ui/button'
 import VideoUpload from './VideoUpload'
 import MuxUploaderPanel from './MuxUploaderPanel'
 

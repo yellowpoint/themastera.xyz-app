@@ -1,68 +1,52 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Tabs,
-  Tab,
-  Chip,
-  Avatar,
-  Progress,
-  useDisclosure,
-  Input,
-  Textarea,
-  Select,
-  SelectItem,
-  Divider,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  addToast
-} from '@heroui/react'
-import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText, TrendingUp, Star, Calendar, Clock, Heart, Download, MessageSquare } from 'lucide-react'
+import { Plus, Edit, BarChart, Trash, MoreVertical, DollarSign, Eye, Users, FileText } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { toast } from 'sonner'
 
-// shadcn/ui aliases for key components
-import { Card as UICard, CardHeader as UICardHeader, CardContent as UICardContent, CardFooter as UICardFooter } from '@/components/ui/card'
-import { Button as UIButton } from '@/components/ui/button'
+// shadcn/ui components
+import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableHead, 
+  TableRow, 
+  TableCell 
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 export default function CreatorPage() {
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [workToDelete, setWorkToDelete] = useState(null)
   const router = useRouter()
 
   const { user, loading: authLoading } = useAuth()
-  const { works, loading: worksLoading, createWork, getWorkStats, deleteWork } = useWorks(user?.id)
-
-  const [workToDelete, setWorkToDelete] = useState(null)
+  const { works, loading: worksLoading, getWorkStats, deleteWork } = useWorks(user?.id)
 
   const [creatorStats, setCreatorStats] = useState({
     totalWorks: 0,
     totalEarnings: 0,
     totalFollowers: 0,
     totalViews: 0,
-    monthlyEarnings: 0,
-    monthlyViews: 0,
-    averageRating: 0,
-    completionRate: 96
   })
 
   // Get creator statistics
@@ -85,95 +69,29 @@ export default function CreatorPage() {
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center">
-        <UICard className="max-w-md w-full mx-4 shadow-lg border">
-          <UICardContent className="text-center p-8">
+        <Card className="max-w-md w-full mx-4 shadow-lg border">
+          <CardContent className="text-center p-8">
             <h2 className="text-2xl font-bold mb-4">Creator Center</h2>
             <p className="text-muted-foreground mb-6">
               Please login to access creator features
             </p>
-            <UIButton
+            <Button
               size="lg"
               onClick={() => router.push('/auth/login')}
               className="w-full"
             >
               Login / Register
-            </UIButton>
-          </UICardContent>
-        </UICard>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
-  }
-
-  // Earnings history
-  const earningsHistory = [
-    { date: "2024-01-20", work: "AI Art Collection", amount: 299, type: "Sale" },
-    { date: "2024-01-19", work: "Photography Preset Pack", amount: 199, type: "Sale" },
-    { date: "2024-01-18", work: "Music Production Template", amount: 399, type: "Sale" },
-    { date: "2024-01-17", work: "Creator Reward", amount: 500, type: "Reward" },
-    { date: "2024-01-16", work: "AI Art Collection", amount: 299, type: "Sale" }
-  ]
-
-  // Fan interaction data
-  const fanInteractions = [
-    {
-      id: 1,
-      user: "Art Enthusiast",
-      avatar: "/api/placeholder/40/40",
-      action: "followed you",
-      time: "2 hours ago",
-      type: "follow"
-    },
-    {
-      id: 2,
-      user: "Designer Li",
-      avatar: "/api/placeholder/40/40",
-      action: "purchased 'AI Art Collection'",
-      time: "4 hours ago",
-      type: "purchase"
-    },
-    {
-      id: 3,
-      user: "Photo Novice",
-      avatar: "/api/placeholder/40/40",
-      action: "commented on 'Photography Preset Pack'",
-      time: "6 hours ago",
-      type: "comment",
-      comment: "This preset pack is very useful, the effects are great!"
-    }
-  ]
-
-  const categories = [
-    { key: "visual", label: "Visual Arts" },
-    { key: "photography", label: "Photography" },
-    { key: "audio", label: "Audio" },
-    { key: "video", label: "Video" },
-    { key: "design", label: "Design" },
-    { key: "other", label: "Other" }
-  ]
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Published': return 'success'
-      case 'Under Review': return 'warning'
-      case 'Removed': return 'danger'
-      default: return 'default'
-    }
-  }
-
-  const getInteractionIcon = (type) => {
-    switch (type) {
-      case 'follow': return <Users size={16} />
-      case 'purchase': return <DollarSign size={16} />
-      case 'comment': return <MessageSquare size={16} />
-      case 'like': return <Heart size={16} />
-      default: return <FileText size={16} />
-    }
   }
 
   // Handle work deletion
   const handleDeleteWork = (work) => {
     setWorkToDelete(work)
-    onDeleteOpen()
+    setIsDeleteOpen(true)
   }
 
   // Confirm work deletion
@@ -182,18 +100,12 @@ export default function CreatorPage() {
 
     try {
       await deleteWork(workToDelete.id)
-      onDeleteClose()
+      setIsDeleteOpen(false)
       setWorkToDelete(null)
-      addToast({
-        description: 'Work deleted successfully!',
-        color: "success"
-      })
+      toast.success('Work deleted successfully!')
     } catch (error) {
       console.error('Error deleting work:', error)
-      addToast({
-        description: 'Deletion failed, please try again',
-        color: "danger"
-      })
+      toast.error('Deletion failed, please try again')
     }
   }
 
@@ -202,484 +114,205 @@ export default function CreatorPage() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Page title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-text-primary">
-            Creator Center <span className="text-accent">Creator Hub</span>
+          <h1 className="text-3xl font-bold mb-2">
+            Creator Center
           </h1>
-          <p className="text-text-secondary text-base">
-            Manage your works, track earnings, interact with fans
+          <p className="text-muted-foreground text-base">
+            Manage your works and track performance
           </p>
         </div>
 
         {/* Quick actions */}
         <div className="flex flex-wrap gap-4 mb-8">
           <Button
-            color="primary"
-            onPress={() => router.push('/creator/upload')}
-            startContent={<Plus size={16} />}
-            size="md"
+            onClick={() => router.push('/creator/upload')}
             className="shadow-sm"
           >
+            <Plus className="mr-2 h-4 w-4" />
             Upload New Work
           </Button>
           <Button
-            variant="flat"
-            color="secondary"
-            size="md"
-            startContent={<BarChart size={16} />}
-            className="bg-secondary text-text-primary"
+            variant="outline"
           >
+            <BarChart className="mr-2 h-4 w-4" />
             View Analytics
-          </Button>
-          <Button
-            variant="flat"
-            color="success"
-            size="md"
-            startContent={<DollarSign size={16} />}
-            className="bg-secondary text-text-primary"
-          >
-            Withdraw Earnings
           </Button>
         </div>
 
-        {/* Content tabs */}
-        <Tabs
-          selectedKey={activeTab}
-          onSelectionChange={setActiveTab}
-          className="mb-8"
-          color="primary"
-          variant="underlined"
-          size="lg"
-          classNames={{
-            tabList: "gap-6 border-b border-divider",
-            cursor: "bg-primary",
-            tab: "text-text-secondary data-[selected=true]:text-primary font-medium"
-          }}
-        >
-          <Tab key="dashboard" title="Dashboard" />
-          <Tab key="works" title="Works Management" />
-          <Tab key="earnings" title="Earnings" />
-          <Tab key="fans" title="Fan Interactions" />
-        </Tabs>
+        {/* Statistics cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Total Works</p>
+                  <p className="text-2xl font-bold">{creatorStats.totalWorks}</p>
+                </div>
+                <div className="bg-primary/10 p-3 rounded-full text-primary">
+                  <FileText size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Dashboard */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-8">
-            {/* Statistics cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-card-bg border border-card-border shadow-sm">
-                <CardBody className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-text-muted text-sm font-medium mb-1">Total Works</p>
-                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalWorks}</p>
-                    </div>
-                    <div className="bg-primary/10 p-3 rounded-full text-primary">
-                      <FileText size={24} />
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Total Earnings</p>
+                  <p className="text-2xl font-bold">${creatorStats.totalEarnings.toLocaleString()}</p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-full text-green-600">
+                  <DollarSign size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card className="bg-card-bg border border-card-border shadow-sm">
-                <CardBody className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-text-muted text-sm font-medium mb-1">Total Earnings</p>
-                      <p className="text-2xl font-bold text-text-primary">${creatorStats.totalEarnings.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-success/10 p-3 rounded-full text-success">
-                      <DollarSign size={24} />
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Followers</p>
+                  <p className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</p>
+                </div>
+                <div className="bg-blue-100 p-3 rounded-full text-blue-600">
+                  <Users size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card className="bg-card-bg border border-card-border shadow-sm">
-                <CardBody className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-text-muted text-sm font-medium mb-1">Followers</p>
-                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalFollowers.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-accent/10 p-3 rounded-full text-accent">
-                      <Users size={24} />
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-
-              <Card className="bg-card-bg border border-card-border shadow-sm">
-                <CardBody className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-text-muted text-sm font-medium mb-1">Total Views</p>
-                      <p className="text-2xl font-bold text-text-primary">{creatorStats.totalViews.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-warning/10 p-3 rounded-full text-warning">
-                      <Eye size={24} />
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-
-            {/* Monthly statistics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-card-bg border border-card-border shadow-sm">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold text-text-primary">Monthly Performance</h3>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-text-secondary">Monthly Earnings</span>
-                    <span className="text-lg font-semibold text-success">
-                      ${creatorStats.monthlyEarnings.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-text-secondary">Monthly Views</span>
-                    <span className="text-lg font-semibold text-text-primary">
-                      {creatorStats.monthlyViews.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-text-secondary">Average Rating</span>
-                    <span className="text-lg font-semibold text-warning flex items-center gap-1">
-                      <Star size={16} /> {creatorStats.averageRating}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-text-secondary">Completion Rate</span>
-                      <span className="text-lg font-semibold text-text-primary">{creatorStats.completionRate}%</span>
-                    </div>
-                    <Progress
-                      value={creatorStats.completionRate}
-                      color="success"
-                      className="h-2"
-                    />
-                  </div>
-                </CardBody>
-              </Card>
-
-              <Card className="bg-content1 border-divider">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">Recent Interactions</h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="space-y-4">
-                    {fanInteractions.slice(0, 4).map((interaction) => (
-                      <div key={interaction.id} className="flex items-center gap-3">
-                        <Avatar src={interaction.avatar} size="sm" />
-                        <div className="flex-1">
-                          <p className="text-sm">
-                            <span className="font-semibold">{interaction.user}</span>
-                            <span className="text-gray-400 ml-1">{interaction.action}</span>
-                          </p>
-                          <p className="text-xs text-gray-500">{interaction.time}</p>
-                        </div>
-                        <div className="text-lg">
-                          {getInteractionIcon(interaction.type)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-          </div>
-        )}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Total Views</p>
+                  <p className="text-2xl font-bold">{creatorStats.totalViews.toLocaleString()}</p>
+                </div>
+                <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+                  <Eye size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Works Management */}
-        {activeTab === 'works' && (
-          <div className="space-y-6">
-            <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="flex justify-between items-center py-3">
-                <h3 className="text-lg font-medium">Works Management</h3>
-                <Button
-                  color="default"
-                  size="sm"
-                  onPress={() => router.push('/creator/upload')}
-                  startContent={<Plus size={16} />}
-                >
-                  Add Work
-                </Button>
-              </CardHeader>
-              <CardBody className="p-0">
-                <Table
-                  aria-label="Works management table"
-                  className="w-full"
-                  removeWrapper
-                  shadow="none"
-                >
-                  <TableHeader>
-                    <TableColumn>Cover</TableColumn>
-                    <TableColumn>Title</TableColumn>
-                    <TableColumn>Category</TableColumn>
-                    <TableColumn>Price</TableColumn>
-                    <TableColumn>Downloads</TableColumn>
-                    <TableColumn>Earnings</TableColumn>
-                    <TableColumn>Rating</TableColumn>
-                    <TableColumn>Status</TableColumn>
-                    <TableColumn>Actions</TableColumn>
-                  </TableHeader>
-                  <TableBody>
-                    {works.map((work) => (
-                      <TableRow key={work.id} className="hover:bg-gray-100 dark:hover:bg-gray-800/50">
-                        <TableCell>
-                          <img
-                            src={work.thumbnailUrl}
-                            alt={work.title}
-                            className="w-10 h-10 object-cover rounded"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <p className="font-medium line-clamp-1">{work.title}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">{work.category}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="font-medium">${work.price}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm">{work.downloads}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="font-medium">
-                            ${work.earnings.toLocaleString()}
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm">{work.rating}</p>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="sm"
-                            color="default"
-                            variant="flat"
-                          >
-                            {work.status}
-                          </Chip>
-                        </TableCell>
-                        <TableCell>
-                          <Dropdown>
-                            <DropdownTrigger>
-                              <Button size="sm" variant="light" isIconOnly>
-                                <MoreVertical size={16} />
-                              </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu
-                              aria-label="Action options"
-                              onAction={(key) => {
-                                if (key === 'delete') {
-                                  handleDeleteWork(work)
-                                }
-                              }}
-                            >
-                              <DropdownItem key="edit" startContent={<Edit size={16} />}>Edit</DropdownItem>
-                              <DropdownItem key="stats" startContent={<BarChart size={16} />}>Statistics</DropdownItem>
-                              <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Trash size={16} />}>Delete</DropdownItem>
-                            </DropdownMenu>
-                          </Dropdown>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardBody>
-            </Card>
-          </div>
-        )}
-
-        {/* Earnings Statistics */}
-        {activeTab === 'earnings' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-                <CardBody className="p-6 text-center">
-                  <div className="text-gray-400 mb-2">
-                    <DollarSign size={24} />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">Monthly Earnings</p>
-                  <p className="text-2xl font-bold">${creatorStats.monthlyEarnings.toLocaleString()}</p>
-                </CardBody>
-              </Card>
-
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-                <CardBody className="p-6 text-center">
-                  <div className="text-gray-400 mb-2">
-                    <TrendingUp size={24} />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">Total Earnings</p>
-                  <p className="text-2xl font-bold">¥{creatorStats.totalEarnings.toLocaleString()}</p>
-                </CardBody>
-              </Card>
-
-              <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-                <CardBody className="p-6 text-center">
-                  <div className="text-gray-400 mb-2">
-                    <Star size={24} />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">Available for Withdrawal</p>
-                  <p className="text-2xl font-bold">¥{(creatorStats.monthlyEarnings * 0.8).toLocaleString()}</p>
-                </CardBody>
-              </Card>
-            </div>
-
-            <Card className="bg-content1 border-divider">
-              <CardHeader>
-                <h3 className="text-xl font-semibold">Earnings History</h3>
-              </CardHeader>
-              <CardBody>
-                <Table aria-label="Earnings history table">
-                  <TableHeader>
-                    <TableColumn>Date</TableColumn>
-                    <TableColumn>Work/Project</TableColumn>
-                    <TableColumn>Type</TableColumn>
-                    <TableColumn>Amount</TableColumn>
-                  </TableHeader>
-                  <TableBody>
-                    {earningsHistory.map((record, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{record.date}</TableCell>
-                        <TableCell>{record.work}</TableCell>
-                        <TableCell>
-                          <Chip
-                            size="sm"
-                            color={record.type === '销售' ? 'success' : 'primary'}
-                            variant="flat"
-                          >
-                            {record.type}
-                          </Chip>
-                        </TableCell>
-                        <TableCell className="text-green-400 font-semibold">
-                          +¥{record.amount}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardBody>
-            </Card>
-          </div>
-        )}
-
-        {/* Fan Interactions */}
-        {activeTab === 'fans' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="bg-content1 border-divider">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">Fan Statistics</h3>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Total Followers</span>
-                    <span className="text-2xl font-bold">{creatorStats.totalFollowers.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">New This Month</span>
-                    <span className="text-lg font-semibold text-green-400">+234</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Active Fans</span>
-                    <span className="text-lg font-semibold">8,765</span>
-                  </div>
-                </CardBody>
-              </Card>
-
-              <Card className="bg-content1 border-divider">
-                <CardHeader>
-                  <h3 className="text-xl font-semibold">Interaction Statistics</h3>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Total Likes</span>
-                    <span className="text-lg font-semibold">45,678</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Total Comments</span>
-                    <span className="text-lg font-semibold">12,345</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Shares</span>
-                    <span className="text-lg font-semibold">3,456</span>
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-
-            <Card className="bg-content1 border-divider">
-              <CardHeader>
-                <h3 className="text-xl font-semibold">Recent Interactions</h3>
-              </CardHeader>
-              <CardBody>
-                <div className="space-y-4">
-                  {fanInteractions.map((interaction) => (
-                    <div key={interaction.id} className="flex items-start gap-4 p-4 rounded-lg bg-gray-800/50">
-                      <Avatar src={interaction.avatar} size="md" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold">{interaction.user}</span>
-                          <span className="text-gray-400 text-sm">{interaction.action}</span>
-                          <span className="text-xs text-gray-500">{interaction.time}</span>
-                        </div>
-                        {interaction.comment && (
-                          <p className="text-gray-300 text-sm bg-gray-700/50 p-2 rounded">
-                            {interaction.comment}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-gray-400">
-                        {getInteractionIcon(interaction.type)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        )}
-      </main>
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="md">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            <h3 className="text-lg font-semibold">Confirm Work Deletion</h3>
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-400">
-                Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-gray-100">"{workToDelete?.title}"</span>?
-              </p>
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                <p className="text-red-700 dark:text-red-400 text-sm">
-                  ⚠️ This action cannot be undone. All data related to this work will be permanently deleted, including:
-                </p>
-                <ul className="text-red-600 dark:text-red-400 text-sm mt-2 ml-4 list-disc">
-                  <li>Work files and thumbnails</li>
-                  <li>All comments and ratings</li>
-                  <li>Download records and earnings data</li>
-                </ul>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onDeleteClose}>
-              Cancel
-            </Button>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <h3 className="text-lg font-medium">Works Management</h3>
             <Button
-              color="danger"
-              onPress={confirmDeleteWork}
-              startContent={<Trash size={16} />}
+              size="sm"
+              onClick={() => router.push('/creator/upload')}
             >
-              Confirm Delete
+              <Plus className="mr-2 h-4 w-4" />
+              Add Work
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cover</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Downloads</TableHead>
+                  <TableHead>Earnings</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {works.map((work) => (
+                  <TableRow key={work.id}>
+                    <TableCell>
+                      <img
+                        src={work.thumbnailUrl}
+                        alt={work.title}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium line-clamp-1">{work.title}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-muted-foreground text-sm">{work.category}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium">${work.price}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">{work.downloads}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium">
+                        ${work.earnings.toLocaleString()}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">{work.rating}</p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {work.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="ghost">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <BarChart className="mr-2 h-4 w-4" />
+                            Statistics
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleDeleteWork(work)}
+                          >
+                            <Trash className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Delete confirmation dialog */}
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Work</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete "{workToDelete?.title}"? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteWork}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </main>
     </div>
   )
 }

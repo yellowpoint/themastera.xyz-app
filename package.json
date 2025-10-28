@@ -1,5 +1,5 @@
 {
-  "name": "heroui",
+  "name": "mastera-xyz-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,7 +14,6 @@
     "dbstudio": "prisma studio"
   },
   "dependencies": {
-    "@heroui/react": "^2.8.5",
     "@hookform/resolvers": "^5.2.2",
     "@mux/mux-node": "^12.8.0",
     "@mux/mux-player-react": "^3.7.0",

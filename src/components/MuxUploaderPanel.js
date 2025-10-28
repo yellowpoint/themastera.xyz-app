@@ -2,7 +2,9 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import MuxUploader from '@mux/mux-uploader-react'
-import { Button, Progress, Card, CardBody } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Card, CardContent } from '@/components/ui/card'
 import { Video, X, Check } from 'lucide-react'
 
 /**
@@ -184,7 +186,7 @@ export default function MuxUploaderPanel({
           <h4 className="font-medium text-green-600">已上传的视频:</h4>
           {uploadedFiles.map((file, index) => (
             <Card key={index} className="border-green-200">
-              <CardBody className="flex flex-row items-center justify-between p-3">
+              <CardContent className="flex flex-row items-center justify-between p-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                     <Video className="w-4 h-4 text-green-600" />
@@ -207,15 +209,13 @@ export default function MuxUploaderPanel({
                   </div>
                 </div>
                 <Button
-                  isIconOnly
                   size="sm"
-                  variant="light"
-                  color="danger"
-                  onPress={() => removeFile(index)}
+                  variant="destructive"
+                  onClick={() => removeFile(index)}
                 >
                   <X className="w-4 h-4" />
                 </Button>
-              </CardBody>
+              </CardContent>
             </Card>
           ))}
         </div>

@@ -1,29 +1,27 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
-  Button,
-  Card,
-  CardBody,
-  Avatar,
-  Chip,
-  Input,
-  Textarea,
-  Divider,
-  Dropdown,
-  DropdownTrigger,
   DropdownMenu,
-  DropdownItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Skeleton,
-  Progress,
-  Tabs,
-  Tab
-} from "@heroui/react";
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Play,
   Pause,
@@ -83,7 +81,7 @@ export default function ContentDetailPage() {
   const [newComment, setNewComment] = useState("");
   const [commentRating, setCommentRating] = useState(5);
 
-  const { isOpen: isShareOpen, onOpen: onShareOpen, onOpenChange: onShareOpenChange } = useDisclosure();
+  const [isShareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     if (workId) {
@@ -316,13 +314,13 @@ export default function ContentDetailPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/content">
-              <Button color="primary" variant="solid">
+              <Button variant="default">
                 Browse Other Works
               </Button>
             </Link>
 
             <Link href="/">
-              <Button color="default" variant="light">
+              <Button variant="ghost">
                 Back to Home
               </Button>
             </Link>
@@ -361,63 +359,41 @@ export default function ContentDetailPage() {
                     <Clock size={16} />
                     {work.uploadTime}
                   </span>
-                  <Chip size="sm" color="primary" variant="flat">
-                    {work.category}
-                  </Chip>
+                  <Badge variant="outline">{work.category}</Badge>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant={isLiked ? "solid" : "flat"}
-                    color={isLiked ? "success" : "default"}
-                    startContent={<ThumbsUp size={16} />}
-                    size="sm"
-                    onPress={handleLike}
-                  >
+                  <Button variant={isLiked ? "default" : "outline"} size="sm" onClick={handleLike}>
+                    <ThumbsUp size={16} className="mr-2" />
                     {`Like ${likesCount}`}
                   </Button>
 
-                  <Button
-                    variant={isDisliked ? "solid" : "flat"}
-                    color={isDisliked ? "danger" : "default"}
-                    startContent={<ThumbsDown size={16} />}
-                    size="sm"
-                    onPress={handleDislike}
-                  >
+                  <Button variant={isDisliked ? "destructive" : "outline"} size="sm" onClick={handleDislike}>
+                    <ThumbsDown size={16} className="mr-2" />
                     {`Dislike ${dislikesCount}`}
                   </Button>
 
-                  <Button
-                    variant="flat"
-                    startContent={<Share2 size={16} />}
-                    size="sm"
-                    onPress={onShareOpen}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+                    <Share2 size={16} className="mr-2" />
                     Share
                   </Button>
 
-                  <Button
-                    variant="flat"
-                    startContent={<Download size={16} />}
-                    size="sm"
-                    color="primary"
-                  >
+                  <Button variant="outline" size="sm">
+                    <Download size={16} className="mr-2" />
                     Download
                   </Button>
                 </div>
               </div>
 
-              <Divider />
+              <Separator />
 
               {/* Creator Information */}
               <div className="flex items-start gap-4">
                 <Link href={`/creator/${work.user.id}`}>
-                  <Avatar
-                    src={work.user.image}
-                    size="lg"
-                    className="cursor-pointer"
-                    showFallback
-                  />
+                  <Avatar className="h-12 w-12 cursor-pointer">
+                    <AvatarImage src={work.user.image} />
+                    <AvatarFallback />
+                  </Avatar>
                 </Link>
 
                 <div className="flex-1">
@@ -435,13 +411,15 @@ export default function ContentDetailPage() {
 
                   <div className="flex items-center gap-2">
                     <Button
-                      color={isFollowing ? "default" : "primary"}
-                      variant={isFollowing ? "flat" : "solid"}
+                      variant={isFollowing ? "outline" : "default"}
                       size="sm"
-                      startContent={isFollowing ? <BellRing size={16} /> : <Bell size={16} />}
-                      onPress={handleFollow}
+                      onClick={handleFollow}
                     >
-                      {isFollowing ? "Following" : "Follow"}
+                      {isFollowing ? (
+                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Following</span>
+                      ) : (
+                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Follow</span>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -452,12 +430,18 @@ export default function ContentDetailPage() {
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold">Description</h4>
                   <Button
-                    variant="light"
+                    variant="ghost"
                     size="sm"
-                    endContent={showDescription ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    onPress={() => setShowDescription(!showDescription)}
+                    onClick={() => setShowDescription(!showDescription)}
                   >
-                    {showDescription ? "Collapse" : "Expand"}
+                    <span className="inline-flex items-center">
+                      {showDescription ? "Collapse" : "Expand"}
+                      {showDescription ? (
+                        <ChevronUp size={16} className="ml-2" />
+                      ) : (
+                        <ChevronDown size={16} className="ml-2" />
+                      )}
+                    </span>
                   </Button>
                 </div>
 
@@ -468,15 +452,13 @@ export default function ContentDetailPage() {
                 {work.tags && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {(work.tags ? work.tags.split(',').map(tag => tag.trim()) : []).map((tag, index) => (
-                      <Chip key={index} size="sm" variant="flat" color="primary">
-                        #{tag}
-                      </Chip>
+                      <Badge key={index} variant="outline">#{tag}</Badge>
                     ))}
                   </div>
                 )}
               </div>
 
-              <Divider />
+              <Separator />
 
               {/* Comments Section */}
               <div className="space-y-4">
@@ -486,18 +468,16 @@ export default function ContentDetailPage() {
                     Comments ({comments.length})
                   </h3>
 
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button variant="flat" size="sm">
-                        Sort by
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu>
-                      <DropdownItem key="newest">Newest</DropdownItem>
-                      <DropdownItem key="oldest">Oldest</DropdownItem>
-                      <DropdownItem key="rating">Rating</DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">Sort by</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem>Newest</DropdownMenuItem>
+                      <DropdownMenuItem>Oldest</DropdownMenuItem>
+                      <DropdownMenuItem>Rating</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Add Comment */}
@@ -508,10 +488,9 @@ export default function ContentDetailPage() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Button
                           key={star}
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          onPress={() => setCommentRating(star)}
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setCommentRating(star)}
                         >
                           <Star
                             size={16}
@@ -526,21 +505,21 @@ export default function ContentDetailPage() {
                     placeholder="Write your comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    minRows={3}
+                    rows={3}
                   />
 
                   <div className="flex justify-end">
                     <Button
-                      color="primary"
-                      onPress={handleCommentSubmit}
-                      isDisabled={!newComment.trim()}
+                      variant="default"
+                      onClick={handleCommentSubmit}
+                      disabled={!newComment.trim()}
                     >
                       Post Comment
                     </Button>
                   </div>
                 </div>
 
-                <Divider />
+                <Separator />
 
                 {/* Comment List */}
                 <div className="space-y-4">
@@ -558,11 +537,10 @@ export default function ContentDetailPage() {
                   ) : (
                     comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
-                        <Avatar
-                          src={comment.user.image}
-                          size="sm"
-                          showFallback
-                        />
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={comment.user.image} />
+                          <AvatarFallback />
+                        </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-semibold text-sm">{comment.user.name}</span>
@@ -581,10 +559,11 @@ export default function ContentDetailPage() {
                             {comment.content}
                           </p>
                           <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <Button variant="light" size="sm" startContent={<ThumbsUp size={12} />}>
+                            <Button variant="ghost" size="sm">
+                              <ThumbsUp size={12} className="mr-2" />
                               {comment.likes}
                             </Button>
-                            <Button variant="light" size="sm">
+                            <Button variant="ghost" size="sm">
                               Reply
                             </Button>
                           </div>
@@ -640,41 +619,32 @@ export default function ContentDetailPage() {
         </div>
       </div>
 
-      {/* Share Modal */}
-      <Modal isOpen={isShareOpen} onOpenChange={onShareOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Share Work</ModalHeader>
-              <ModalBody>
-                <div className="space-y-4">
-                  <Input
-                    label="Share Link"
-                    value={`${window.location.origin}/content/${workId}`}
-                    readOnly
-                    endContent={
-                      <Button size="sm" variant="flat">
-                        Copy
-                      </Button>
-                    }
-                  />
-
-                  <div className="flex gap-2">
-                    <Button color="primary" variant="flat">WeChat</Button>
-                    <Button color="primary" variant="flat">Weibo</Button>
-                    <Button color="primary" variant="flat">QQ</Button>
-                  </div>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      {/* Share Dialog */}
+      <Dialog open={isShareOpen} onOpenChange={setShareOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Work</DialogTitle>
+            <DialogDescription>Copy the link or share via social apps.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Share Link</label>
+              <div className="flex gap-2">
+                <Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`} readOnly />
+                <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`)}>Copy</Button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline">WeChat</Button>
+              <Button variant="outline">Weibo</Button>
+              <Button variant="outline">QQ</Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShareOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

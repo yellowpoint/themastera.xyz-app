@@ -21,7 +21,6 @@ Mastera Platform 是一个基于 Next.js 构建的全栈 Web 应用，旨在为�
 
 - **Next.js 15** - React 全栈框架
 - **React 19** - 用户界面库
-- **HeroUI** - 现代化 UI 组件库
 - **Tailwind CSS 4** - 原子化 CSS 框架
 - **Framer Motion** - 动画库
 - **Lucide React** - 图标库

@@ -2,13 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Input, Textarea, Select, SelectItem, Card, CardBody, Form, addToast } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent } from '@/components/ui/card'
+import { toast } from 'sonner'
 import { ArrowLeft, Plus, X } from 'lucide-react'
 import UploadSwitcher from '@/components/UploadSwitcher'
 import ImgUpload from '@/components/ImgUpload'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -83,34 +88,22 @@ export default function UploadPage() {
     e.preventDefault()
 
     if (!user) {
-      addToast({
-        description: 'Please login first',
-        color: "danger"
-      })
+      toast.error('Please login first')
       return
     }
 
     if (!uploadForm.title || !uploadForm.description || !uploadForm.category) {
-      addToast({
-        description: 'Please fill in required information',
-        color: "danger"
-      })
+      toast.error('Please fill in required information')
       return
     }
 
     if (!uploadForm.fileUrl) {
-      addToast({
-        description: 'Please upload video file',
-        color: "danger"
-      })
+      toast.error('Please upload video file')
       return
     }
 
     if (!uploadForm.thumbnailUrl) {
-      addToast({
-        description: 'Please upload cover image',
-        color: "danger"
-      })
+      toast.error('Please upload cover image')
       return
     }
 
@@ -126,17 +119,11 @@ export default function UploadPage() {
       }
 
       await createWork(workData)
-      addToast({
-        description: 'Work published successfully!',
-        color: "success"
-      })
+      toast.success('Work published successfully!')
       router.push('/creator')
     } catch (error) {
       console.error('Publish failed:', error)
-      addToast({
-        description: 'Publish failed, please try again',
-        color: "danger"
-      })
+      toast.error('Publish failed, please try again')
     } finally {
       setIsSubmitting(false)
     }
@@ -145,10 +132,7 @@ export default function UploadPage() {
   // Save draft
   const handleSaveDraft = async () => {
     if (!user) {
-      addToast({
-        description: 'Please login first',
-        color: "danger"
-      })
+      toast.error('Please login first')
       return
     }
 
@@ -164,17 +148,11 @@ export default function UploadPage() {
       }
 
       await createWork(workData)
-      addToast({
-        description: 'Draft saved successfully!',
-        color: "success"
-      })
+      toast.success('Draft saved successfully!')
       router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
-      addToast({
-        description: 'Save failed, please try again',
-        color: "danger"
-      })
+      toast.error('Save failed, please try again')
     } finally {
       setIsSubmitting(false)
     }
@@ -193,9 +171,9 @@ export default function UploadPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
-                isIconOnly
-                variant="light"
-                onPress={() => router.back()}
+                size="icon"
+                variant="ghost"
+                onClick={() => router.back()}
               >
                 <ArrowLeft size={20} />
               </Button>
@@ -206,33 +184,33 @@ export default function UploadPage() {
         </div>
       </div>
 
-      <Form onSubmit={handleSubmit} className="max-w-4xl mx-auto px-4 py-6">
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Video upload area */}
           <div className="space-y-6">
             <Card>
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <h2 className="text-lg font-medium mb-4">Upload Video</h2>
                 <UploadSwitcher onUploadComplete={handleVideoUploadComplete} />
-              </CardBody>
+              </CardContent>
             </Card>
 
             <Card>
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <h2 className="text-lg font-medium mb-4">Upload Cover</h2>
                 <ImgUpload
                   onUploadComplete={handleCoverUploadComplete}
                   required={true}
                   initialImage={autoCover}
                 />
-              </CardBody>
+              </CardContent>
             </Card>
           </div>
 
           {/* Right: Basic settings */}
           <div className="space-y-6">
             <Card>
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <h3 className="text-lg font-medium mb-4">Basic Settings</h3>
 
                 {/* Title */}
@@ -240,16 +218,17 @@ export default function UploadPage() {
                   <label className="block text-sm font-medium mb-2">
                     <span className="text-red-500">*</span> Title
                   </label>
-                  <Input
-                    placeholder="Enter a title for your work"
-                    value={uploadForm.title}
-                    onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
-                    endContent={
-                      <span className="text-xs text-gray-400">
-                        {uploadForm.title.length}/80
-                      </span>
-                    }
-                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Enter a title for your work"
+                      value={uploadForm.title}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-gray-400">
+                      {uploadForm.title.length}/80
+                    </span>
+                  </div>
                 </div>
 
                 {/* Style */}
@@ -257,19 +236,17 @@ export default function UploadPage() {
                   <label className="block text-sm font-medium mb-2">
                     <span className="text-red-500">*</span> Style
                   </label>
-                  <Select
-                    placeholder="Select a style"
-                    selectedKeys={uploadForm.category ? [uploadForm.category] : []}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0]
-                      setUploadForm(prev => ({ ...prev, category: selectedKey }))
-                    }}
-                  >
-                    {categories.map((category) => (
-                      <SelectItem key={category.key} value={category.key}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
+                  <Select value={uploadForm.category} onValueChange={(val) => setUploadForm(prev => ({ ...prev, category: val }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.key} value={category.key}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
 
@@ -278,19 +255,17 @@ export default function UploadPage() {
                   <label className="block text-sm font-medium mb-2">
                     <span className="text-red-500">*</span> Language
                   </label>
-                  <Select
-                    placeholder="Select a language"
-                    selectedKeys={uploadForm.language ? [uploadForm.language] : []}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0]
-                      setUploadForm(prev => ({ ...prev, language: selectedKey }))
-                    }}
-                  >
-                    {LANGUAGE_CATEGORIES.map((language) => (
-                      <SelectItem key={language} value={language}>
-                        {language}
-                      </SelectItem>
-                    ))}
+                  <Select value={uploadForm.language} onValueChange={(val) => setUploadForm(prev => ({ ...prev, language: val }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGE_CATEGORIES.map((language) => (
+                        <SelectItem key={language} value={language}>
+                          {language}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
 
@@ -309,33 +284,35 @@ export default function UploadPage() {
                 {/* Price */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">Price</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={uploadForm.price}
-                    onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
-                    startContent={<span className="text-sm">$</span>}
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">$</span>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={uploadForm.price}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
+                    />
+                  </div>
                 </div>
-              </CardBody>
+              </CardContent>
             </Card>
 
             {/* Description */}
             <Card>
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <h3 className="text-lg font-medium mb-4">Description</h3>
                 <Textarea
                   placeholder="Provide more details to help people discover your video"
                   value={uploadForm.description}
                   onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
-                  minRows={6}
-                  endContent={
-                    <span className="text-xs text-gray-400">
-                      {uploadForm.description.length}/2000
-                    </span>
-                  }
+                  rows={6}
                 />
-              </CardBody>
+                <div className="flex justify-end">
+                  <span className="text-xs text-gray-400">
+                    {uploadForm.description.length}/2000
+                  </span>
+                </div>
+              </CardContent>
             </Card>
           </div>
         </div>
@@ -351,15 +328,14 @@ export default function UploadPage() {
             Save Draft
           </Button> */}
           <Button
-            color="primary"
             type="submit"
-            isLoading={isSubmitting}
-            size="lg"
+            disabled={isSubmitting}
+            className="px-6"
           >
-            Submit Now
+            {isSubmitting ? 'Submitting...' : 'Submit Now'}
           </Button>
         </div>
-      </Form>
+      </form>
     </div>
   )
 }

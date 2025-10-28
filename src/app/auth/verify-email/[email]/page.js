@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { Card, CardBody, Button, Spinner } from '@heroui/react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 import { CheckCircle, XCircle } from 'lucide-react'
 
 export default function VerifyEmailPage() {
@@ -88,10 +90,10 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
-        <CardBody className="text-center p-8">
+        <CardContent className="text-center p-8">
           {status === 'verifying' && (
             <>
-              <Spinner size="lg" className="mb-4" />
+              <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground mx-auto" />
               <h1 className="text-2xl font-bold mb-4">Verifying Email...</h1>
               <p className="text-gray-600 dark:text-gray-400">
                 Verifying your email address, please wait...
@@ -121,17 +123,15 @@ export default function VerifyEmailPage() {
               </p>
               <div className="space-y-3">
                 <Button
-                  color="primary"
-                  variant="solid"
-                  onPress={resendVerification}
+                  variant="default"
+                  onClick={resendVerification}
                   className="w-full"
                 >
                   Resend Verification Email
                 </Button>
                 <Button
-                  color="default"
-                  variant="light"
-                  onPress={() => router.push('/auth/login')}
+                  variant="outline"
+                  onClick={() => router.push('/auth/login')}
                   className="w-full"
                 >
                   Return to Login
@@ -139,7 +139,7 @@ export default function VerifyEmailPage() {
               </div>
             </>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   )

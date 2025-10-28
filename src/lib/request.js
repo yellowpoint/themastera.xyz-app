@@ -1,5 +1,5 @@
 'use client'
-import { addToast } from '@heroui/react'
+import { toast } from 'sonner'
 /**
  * 统一请求封装：集中处理错误、状态码与提示
  *
@@ -69,7 +69,7 @@ export async function request(
   } catch (err) {
     const msg = err?.message || 'Network error, please try again later'
     if (showErrorToast && typeof window !== 'undefined') {
-      addToast?.({ description: msg, color: 'danger' })
+      toast.error(msg)
     }
     if (throwOnError) throw err
     return { ok: false, status: 0, data: null, error: msg }

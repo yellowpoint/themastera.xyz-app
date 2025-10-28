@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Button, Card, CardBody, Image } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Camera, X, ImageIcon, Upload } from 'lucide-react'
 import { supabase, getStorageUrl } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -152,12 +153,11 @@ export default function ImgUpload({
         {!coverImage && (
           <Button
             size="sm"
-            variant="flat"
-            color="primary"
-            onPress={() => fileInputRef.current?.click()}
-            startContent={<ImageIcon className="w-4 h-4" />}
-            isLoading={uploading}
+            variant="default"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
           >
+            <ImageIcon className="mr-2 w-4 h-4" />
             Select Cover
           </Button>
         )}
@@ -187,9 +187,9 @@ export default function ImgUpload({
       ) : (
         /* Cover preview */
         <Card className="border-green-200">
-          <CardBody className="flex flex-row items-center justify-between p-3">
+          <CardContent className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center space-x-3">
-              <Image
+              <img
                 src={coverImage.fileUrl}
                 alt="Cover preview"
                 className="w-16 h-16 object-cover rounded"
@@ -212,25 +212,22 @@ export default function ImgUpload({
             <div className="flex gap-2">
               <Button
                 size="sm"
-                variant="flat"
-                color="primary"
-                onPress={() => fileInputRef.current?.click()}
-                startContent={<ImageIcon className="w-4 h-4" />}
-                isLoading={uploading}
+                variant="default"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
               >
+                <ImageIcon className="mr-2 w-4 h-4" />
                 Change
               </Button>
               <Button
-                isIconOnly
                 size="sm"
-                variant="light"
-                color="danger"
-                onPress={removeCover}
+                variant="destructive"
+                onClick={removeCover}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       )}
 

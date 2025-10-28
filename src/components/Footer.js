@@ -1,6 +1,8 @@
 'use client'
 
-import { Button, Link, Divider } from '@heroui/react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { Twitter, MessageCircle, Send, Instagram, Star, Target, Rocket } from 'lucide-react'
 
 export default function Footer() {
@@ -58,33 +60,29 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <Button
-                isIconOnly
-                variant="light"
-                className="text-foreground-500 hover:text-lime-400"
+                variant="ghost"
+                className="p-0 size-10 text-foreground-500 hover:text-lime-400"
                 aria-label="Twitter"
               >
                 <Twitter size={20} />
               </Button>
               <Button
-                isIconOnly
-                variant="light"
-                className="text-foreground-500 hover:text-lime-400"
+                variant="ghost"
+                className="p-0 size-10 text-foreground-500 hover:text-lime-400"
                 aria-label="Discord"
               >
                 <MessageCircle size={20} />
               </Button>
               <Button
-                isIconOnly
-                variant="light"
-                className="text-foreground-500 hover:text-lime-400"
+                variant="ghost"
+                className="p-0 size-10 text-foreground-500 hover:text-lime-400"
                 aria-label="Telegram"
               >
                 <Send size={20} />
               </Button>
               <Button
-                isIconOnly
-                variant="light"
-                className="text-foreground-500 hover:text-lime-400"
+                variant="ghost"
+                className="p-0 size-10 text-foreground-500 hover:text-lime-400"
                 aria-label="Instagram"
               >
                 <Instagram size={20} />
@@ -112,7 +110,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <Divider className="my-8 bg-divider" />
+        <Separator className="my-8 bg-divider" />
 
         {/* Footer information */}
         <div className="flex flex-col md:flex-row justify-between items-center">

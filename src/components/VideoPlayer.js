@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player";
 import MuxPlayer from '@mux/mux-player-react'
+// shadcn/ui replacements
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardBody,
-  Button,
-  Chip,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure
-} from "@heroui/react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Play, Lock, Crown, Star, Zap } from "lucide-react";
 
 const MEMBERSHIP_LEVELS = {
@@ -44,7 +44,7 @@ export default function VideoPlayer({
 }) {
   const [error, setError] = useState(null);
   const [hasAccess, setHasAccess] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Check user access
   useEffect(() => {
@@ -126,20 +126,20 @@ export default function VideoPlayer({
 
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-white/80">Requires</span>
-              <Chip
-                color={requiredMembership.color}
-                variant="flat"
-                startContent={RequiredIcon && <RequiredIcon className="w-4 h-4" />}
+              <Badge
+                className={`${requiredMembership.color === "warning" ? "bg-yellow-500 text-white" : ""}
+                  ${requiredMembership.color === "secondary" ? "bg-secondary text-secondary-foreground" : ""}
+                  ${requiredMembership.color === "success" ? "bg-green-600 text-white" : ""}`}
               >
+                {RequiredIcon && <RequiredIcon className="mr-1 h-4 w-4" />}
                 {requiredMembership.name}
-              </Chip>
+              </Badge>
               <span className="text-white/80">and above</span>
             </div>
 
             <Button
-              color="primary"
-              size="lg"
-              onPress={onOpen}
+              variant="default"
+              onClick={() => setIsOpen(true)}
               className="font-semibold"
             >
               Upgrade to Watch
@@ -154,14 +154,14 @@ export default function VideoPlayer({
   if (!videoUrl && !playbackId) {
     return (
       <Card className={className}>
-        <CardBody className="p-0">
+        <CardContent className="p-0">
           <div style={{ width, height }} className="flex items-center justify-center bg-gray-100 rounded-lg">
             <div className="text-center">
               <p className="text-gray-500 mb-2">Video file does not exist</p>
               <p className="text-sm text-gray-400">Please check if the video file has been uploaded</p>
             </div>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     );
   }
@@ -170,38 +170,40 @@ export default function VideoPlayer({
   if (!hasAccess) {
     return (
       <Card className={className}>
-        <CardBody className="p-0">
+        <CardContent className="p-0">
           <div style={{ width, height }}>
             <UpgradePrompt />
           </div>
-        </CardBody>
+        </CardContent>
 
         {/* Upgrade membership modal */}
-        <Modal isOpen={isOpen} onClose={onClose} size="md">
-          <ModalContent>
-            <ModalHeader>Upgrade Membership</ModalHeader>
-            <ModalBody>
-              <p>Upgrade to {MEMBERSHIP_LEVELS[requiredLevel].name} to watch this content</p>
-              <div className="space-y-2 mt-4">
-                <p className="text-sm text-gray-600">Membership privileges:</p>
-                <ul className="text-sm space-y-1 ml-4">
-                  <li>• Watch HD video content</li>
-                  <li>• Download high-quality materials</li>
-                  <li>• Participate in exclusive events</li>
-                  <li>• Get more points rewards</li>
-                </ul>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="light" onPress={onClose}>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upgrade Membership</DialogTitle>
+              <DialogDescription>
+                Upgrade to {MEMBERSHIP_LEVELS[requiredLevel].name} to watch this content
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2 mt-2">
+              <p className="text-sm text-gray-600">Membership privileges:</p>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• Watch HD video content</li>
+                <li>• Download high-quality materials</li>
+                <li>• Participate in exclusive events</li>
+                <li>• Get more points rewards</li>
+              </ul>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
-              <Button color="primary" onPress={onClose}>
+              <Button variant="default" onClick={() => setIsOpen(false)}>
                 Upgrade Now
               </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     );
   }
@@ -209,7 +211,7 @@ export default function VideoPlayer({
   // Show video player when there is access
   return (
     <Card className='rounded-none'>
-      <CardBody className="p-0 bg-black ">
+      <CardContent className="p-0 bg-black ">
         <div style={{ width, height }} className="relative">
 
           {error ? (
@@ -218,8 +220,8 @@ export default function VideoPlayer({
                 <p className="text-red-500 mb-2">{error}</p>
                 <Button
                   size="sm"
-                  variant="light"
-                  onPress={() => {
+                  variant="outline"
+                  onClick={() => {
                     setError(null);
                   }}
                 >
@@ -283,7 +285,7 @@ export default function VideoPlayer({
             })()
           )}
         </div>
-      </CardBody>
+      </CardContent>
     </Card>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@heroui/react'
+import { Button } from '@/components/ui/button'
 import {
   Home,
   PenTool,
@@ -48,10 +48,9 @@ export default function Sidebar() {
           )}
         </div>
         <Button
-          isIconOnly
-          variant="light"
-          className="text-text-secondary hover:text-primary absolute -right-5 top-4 z-9999 bg-background border border-divider rounded-full shadow-sm flex items-center justify-center size-10"
-          onPress={() => setCollapsed(!collapsed)}
+          variant="ghost"
+          className="text-text-secondary hover:text-primary absolute -right-5 top-4 z-9999 bg-background border border-divider rounded-full shadow-sm flex items-center justify-center size-10 p-0"
+          onClick={() => setCollapsed(!collapsed)}
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
@@ -60,13 +59,18 @@ export default function Sidebar() {
           {menuItems.map((item) => (
             <Button
               key={item.href}
-              variant="light"
+              variant="ghost"
               className={`w-full ${collapsed ? 'justify-center px-1' : 'justify-start px-3'} text-text-secondary hover:text-primary hover:bg-primary/5 py-2.5 rounded-lg`}
-              isIconOnly={collapsed}
-              startContent={!collapsed && <item.icon size={18} />}
-              onPress={() => router.push(item.href)}
+              onClick={() => router.push(item.href)}
             >
-              {collapsed ? <item.icon size={18} /> : item.name}
+              {collapsed ? (
+                <item.icon size={18} />
+              ) : (
+                <span className="flex items-center gap-2">
+                  <item.icon size={18} />
+                  {item.name}
+                </span>
+              )}
             </Button>
           ))}
         </div>
@@ -74,13 +78,18 @@ export default function Sidebar() {
 
       <div className="mt-auto p-4 border-t border-divider">
         <Button
-          variant="light"
+          variant="ghost"
           className={`w-full ${collapsed ? 'justify-center px-1' : 'justify-start px-3'} text-text-secondary hover:text-primary hover:bg-primary/5 py-2.5 rounded-lg`}
-          startContent={!collapsed && <Settings size={18} />}
-          isIconOnly={collapsed}
-          onPress={() => router.push('/settings')}
+          onClick={() => router.push('/settings')}
         >
-          {collapsed ? <Settings size={18} /> : 'Settings'}
+          {collapsed ? (
+            <Settings size={18} />
+          ) : (
+            <span className="flex items-center gap-2">
+              <Settings size={18} />
+              Settings
+            </span>
+          )}
         </Button>
       </div>
     </div>
