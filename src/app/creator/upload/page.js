@@ -209,7 +209,7 @@ export default function UploadPage() {
             <div className="space-y-4 max-w-[800px]">
               {/* Video Details Section */}
               <div className="space-y-4 py-2">
-                <h2 className="text-2xl font-normal text-[#7440DF]">Video details</h2>
+                <h2 className="text-2xl font-normal text-primary">Video details</h2>
 
                 {/* Title Field */}
                 <div className="bg-[#F7F8FA] rounded-lg p-2">
@@ -221,7 +221,7 @@ export default function UploadPage() {
                       placeholder="abc-this text will use file name as default"
                       value={uploadForm.title}
                       onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="border-0 bg-transparent text-xl font-normal p-0 focus-visible:ring-0 flex-1"
+                      // className="border-0 bg-transparent text-xl font-normal p-0 focus-visible:ring-0 flex-1"
                       maxLength={200}
                     />
                     <span className="text-base text-muted-foreground ml-2">
@@ -240,7 +240,7 @@ export default function UploadPage() {
                       placeholder="Tell viewer about your video"
                       value={uploadForm.description}
                       onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
-                      className="border-0 bg-transparent text-xl text-muted-foreground p-0 focus-visible:ring-0 flex-1 resize-none"
+                      // className="border-0 bg-transparent text-xl text-muted-foreground p-0 focus-visible:ring-0 flex-1 resize-none"
                       maxLength={200}
                     />
                     <span className="text-base text-muted-foreground text-right">
@@ -256,7 +256,7 @@ export default function UploadPage() {
                       checked={uploadForm.isPaid}
                       onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isPaid: checked }))}
                     />
-                    <Label className="text-2xl font-normal text-[#7440DF]">Paid Content</Label>
+                    <Label className="text-2xl font-normal text-primary">Paid Content</Label>
                   </div>
                   <p className="text-base text-muted-foreground leading-relaxed">
                     This is the description of why people paid to view, and how creator have reward from this, such as for each review, the create can have 10 mastera points reward
@@ -269,7 +269,7 @@ export default function UploadPage() {
               {/* Thumbnail Section */}
               <div className="space-y-4 py-2">
                 <div className="space-y-2">
-                  <h2 className="text-2xl font-normal text-[#7440DF]">Thumbnail</h2>
+                  <h2 className="text-2xl font-normal text-primary">Thumbnail</h2>
                   <p className="text-base text-muted-foreground">
                     Set a thumbnail that stands out and draws viewers' attention
                   </p>
@@ -289,7 +289,7 @@ export default function UploadPage() {
               {/* Music Style Section */}
               <div className="space-y-4 py-2">
                 <div className="space-y-2">
-                  <h2 className="text-xl font-normal text-foreground">Music style</h2>
+                  <h2 className="text-2xl font-normal text-primary">Music style</h2>
                   <p className="text-base text-muted-foreground">
                     Let people know, what kind of music style you are create
                   </p>
@@ -316,7 +316,7 @@ export default function UploadPage() {
               {/* Language Section */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <h2 className="text-xl font-normal text-foreground">Language and captions certification</h2>
+                  <h2 className="text-2xl font-normal text-primary">Language and captions certification</h2>
                   <p className="text-base text-muted-foreground">
                     Select your video's language and, if needed, a caption certification
                   </p>
@@ -345,7 +345,7 @@ export default function UploadPage() {
               {/* Audience Section */}
               <div className="space-y-4 py-2">
                 <div className="space-y-2">
-                  <h2 className="text-xl font-normal text-foreground">Audience</h2>
+                  <h2 className="text-2xl font-normal text-primary">Audience</h2>
                   <p className="text-base text-muted-foreground">
                     Regardless of your location, you're legally required to comply with the Children's Online Privacy Protection Act (COPPA) and/or other laws. You're required to tell us whether your videos are made for kids. What's content made for kids?
                   </p>
@@ -368,7 +368,7 @@ export default function UploadPage() {
           {/* Bottom Confirmation Bar */}
           <div className="bg-white border-t px-6 py-4 flex-shrink-0">
             <div className="flex justify-between items-center">
-              <Button variant="ghost" className="text-[#7440DF] text-sm" onClick={handleSaveDraft}>
+              <Button variant="ghost" className="text-primary text-sm" onClick={handleSaveDraft}>
                 Save a draft
               </Button>
 
@@ -376,7 +376,7 @@ export default function UploadPage() {
                 <Button variant="outline" className="bg-[#F2F3F5] text-foreground px-4 h-10" onClick={() => router.back()}>
                   Cancel
                 </Button>
-                <Button className="bg-[#7440DF] text-white px-4 h-10" onClick={handleSubmit} disabled={isSubmitting}>
+                <Button className="bg-primary text-white px-4 h-10" onClick={handleSubmit} disabled={isSubmitting}>
                   {isSubmitting ? 'Uploading...' : 'Upload'}
                 </Button>
               </div>
@@ -389,7 +389,7 @@ export default function UploadPage() {
         {/* Right Sidebar - Video Status */}
         <div className="w-[427px] bg-white overflow-y-auto">
           <div className="p-6 space-y-6">
-            <h2 className="text-2xl font-normal text-[#7440DF]">Video status</h2>
+            <h2 className="text-2xl font-normal text-primary">Video status</h2>
 
             {/* Video Upload Section */}
             <div className="space-y-4">
