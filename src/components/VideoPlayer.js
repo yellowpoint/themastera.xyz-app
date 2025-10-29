@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ReactPlayer from "react-player";
 import MuxPlayer from '@mux/mux-player-react'
 // shadcn/ui replacements
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,12 +64,7 @@ export default function VideoPlayer({
   }, [isPremium, userLevel, requiredLevel]);
 
   // Directly return the video URL (already a full link)
-  const getVideoUrl = () => {
-    if (!videoUrl) {
-      return null;
-    }
-    return videoUrl;
-  };
+  // Removed ReactPlayer helper; use native <video> for non-Mux playback
 
   // Handle play event
   const handlePlay = () => {
@@ -210,8 +204,8 @@ export default function VideoPlayer({
 
   // Show video player when there is access
   return (
-    <Card className='rounded-none'>
-      <CardContent className="p-0 bg-black ">
+    <Card className='rounded-none bg-black'>
+      <CardContent className="p-0  ">
         <div style={{ width, height }} className="relative">
 
           {error ? (
@@ -236,7 +230,14 @@ export default function VideoPlayer({
                 const effectivePlaybackId = playbackId || (videoUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1])
                 return (
                   <MuxPlayer
-                    style={{ width: '100%', height: '100%' }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      // Ensure video covers container without side black bars
+                      '--media-object-fit': 'cover',
+                      '--media-object-position': 'center'
+
+                    }}
                     playbackId={effectivePlaybackId}
                     metadata={{
                       video_title: title,
@@ -250,36 +251,21 @@ export default function VideoPlayer({
                   />
                 )
               }
+              // Fallback to native HTML5 video player when not using Mux
               return (
-                <ReactPlayer
-                  src={getVideoUrl()}
-                  width="100%"
-                  height="100%"
+                <video
+                  src={videoUrl}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                   controls={showControls}
-                  playing={autoPlay}
+                  autoPlay={autoPlay}
                   muted={muted}
+                  preload="metadata"
+                  controlsList="nodownload"
+                  crossOrigin="anonymous"
                   onPlay={handlePlay}
                   onPause={handlePause}
                   onEnded={handleEnded}
                   onError={handleError}
-                  onReady={handleReady}
-                  onLoadStart={() => {
-                    // ReactPlayer starts loading
-                  }}
-                  onProgress={(progress) => {
-                    // You can handle playback progress here
-                  }}
-                  config={{
-                    file: {
-                      attributes: {
-                        preload: 'metadata',
-                        controlsList: 'nodownload',
-                        disablePictureInPicture: false,
-                        crossOrigin: 'anonymous' // Add CORS support
-                      },
-                      forceVideo: true
-                    }
-                  }}
                 />
               )
             })()

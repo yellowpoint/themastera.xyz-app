@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -34,8 +33,6 @@ import {
   Flag,
   ThumbsUp,
   ThumbsDown,
-  MessageCircle,
-  Star,
   Eye,
   Clock,
   User,
@@ -56,10 +53,8 @@ export default function ContentDetailPage() {
   const workId = params.id;
 
   const [work, setWork] = useState(null);
-  const [comments, setComments] = useState([]);
   const [relatedWorks, setRelatedWorks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [commentsLoading, setCommentsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Player state
@@ -78,8 +73,6 @@ export default function ContentDetailPage() {
   const [dislikesCount, setDislikesCount] = useState(0);
   const [authorFollowersCount, setAuthorFollowersCount] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
-  const [newComment, setNewComment] = useState("");
-  const [commentRating, setCommentRating] = useState(5);
 
   const [isShareOpen, setShareOpen] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState('videos');
@@ -87,7 +80,6 @@ export default function ContentDetailPage() {
   useEffect(() => {
     if (workId) {
       fetchWorkDetails();
-      fetchComments();
       fetchRelatedWorks();
     }
   }, [workId]);
@@ -125,17 +117,6 @@ export default function ContentDetailPage() {
     }
   };
 
-  const fetchComments = async () => {
-    try {
-      setCommentsLoading(true);
-      const { data } = await request.get(`/api/works/${workId}/comments?limit=20&sort=newest`);
-      setComments(data?.data?.comments || []);
-    } catch (err) {
-      console.error('Error fetching comments:', err);
-    } finally {
-      setCommentsLoading(false);
-    }
-  };
 
   const fetchRelatedWorks = async () => {
     try {
@@ -157,47 +138,16 @@ export default function ContentDetailPage() {
     return views.toString();
   };
 
-  const handlePlayPause = () => {
-    if (videoRef) {
-      if (isPlaying) {
-        videoRef.pause();
-      } else {
-        videoRef.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleMute = () => {
-    if (videoRef) {
-      videoRef.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const handleVolumeChange = (newVolume) => {
-    if (videoRef) {
-      videoRef.volume = newVolume / 100;
-      setVolume(newVolume);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef) {
-      setCurrentTime(videoRef.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (videoRef) {
-      setDuration(videoRef.duration);
-    }
-  };
-
-  const handleSeek = (newTime) => {
-    if (videoRef) {
-      videoRef.currentTime = newTime;
-      setCurrentTime(newTime);
+  const formatDate = (dateInput) => {
+    try {
+      const d = new Date(dateInput);
+      if (isNaN(d.getTime())) return dateInput || '';
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${mm}-${dd}-${yyyy}`;
+    } catch (_) {
+      return dateInput || '';
     }
   };
 
@@ -248,27 +198,11 @@ export default function ContentDetailPage() {
     }
   };
 
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) return;
 
-    try {
-      await request.post(`/api/works/${workId}/comments`, {
-        content: newComment,
-        rating: commentRating,
-        userId: 'current-user-id'
-      })
-      setNewComment("");
-      setCommentRating(5);
-      fetchComments(); // Refresh comments
-      toast.success('Comment posted');
-    } catch (err) {
-      console.error('Error submitting comment:', err);
-    }
-  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-content-bg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
@@ -301,7 +235,7 @@ export default function ContentDetailPage() {
 
   if (error || !work) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-content-bg flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">
             {error?.includes('not found') || error?.includes('deleted') ? '😕' : '⚠️'}
@@ -332,7 +266,7 @@ export default function ContentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-content-bg">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content Area */}
@@ -347,20 +281,56 @@ export default function ContentDetailPage() {
             />
 
             {/* Work Information */}
-            <div className="space-y-4">
-              <h1 className="text-2xl font-bold">{work.title}</h1>
+            <div className="space-y-4 mt-4">
+              <h1 className="text-4xl font-bold">{work.title}</h1>
 
+              {/* Creator row with Subscribe button */}
+              <div className="flex items-start gap-4">
+                <Link href={`/creator/${work.user.id}`}>
+                  <Avatar className="h-12 w-12 cursor-pointer">
+                    <AvatarImage src={work.user.image} />
+                    <AvatarFallback />
+                  </Avatar>
+                </Link>
+
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Link href={`/creator/${work.user.id}`}>
+                        <h3 className="font-semibold hover:text-primary cursor-pointer">
+                          {work.user.name}
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground">
+                        {authorFollowersCount} subscribers
+                      </p>
+                    </div>
+                    <Button
+                      variant={isFollowing ? "outline" : "default"}
+                      size="sm"
+                      onClick={handleFollow}
+                    >
+                      {isFollowing ? (
+                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Subscribed</span>
+                      ) : (
+                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Subscribe</span>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls row: Likes / Dislikes / Download */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Eye size={16} />
-                    {formatViews(work.downloads)} views
+                    {formatViews(work.views ?? work.downloads)} views
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock size={16} />
-                    {work.uploadTime}
+                    {formatDate(work.uploadTime ?? work.createdAt)}
                   </span>
-                  <Badge variant="outline">{work.category}</Badge>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -372,11 +342,6 @@ export default function ContentDetailPage() {
                   <Button variant={isDisliked ? "destructive" : "outline"} size="sm" onClick={handleDislike} className="min-w-[120px] justify-start">
                     <ThumbsDown size={16} className="mr-2" />
                     {dislikesCount > 0 ? `${formatViews(dislikesCount)}` : 'Dislike'}
-                  </Button>
-
-                  <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
-                    <Share2 size={16} className="mr-2" />
-                    Share
                   </Button>
 
                   <div className="relative">
@@ -393,55 +358,17 @@ export default function ContentDetailPage() {
 
               <Separator />
 
-              {/* Creator Information */}
-              <div className="flex items-start gap-4">
-                <Link href={`/creator/${work.user.id}`}>
-                  <Avatar className="h-12 w-12 cursor-pointer">
-                    <AvatarImage src={work.user.image} />
-                    <AvatarFallback />
-                  </Avatar>
-                </Link>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Link href={`/creator/${work.user.id}`}>
-                      <h3 className="font-semibold hover:text-primary cursor-pointer">
-                        {work.user.name}
-                      </h3>
-                    </Link>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {authorFollowersCount} subscribers
-                  </p>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant={isFollowing ? "outline" : "default"}
-                      size="sm"
-                      onClick={handleFollow}
-                    >
-                      {isFollowing ? (
-                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Subscribed</span>
-                      ) : (
-                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Subscribe</span>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
               {/* Work Description */}
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+              <div className="bg-[#170e29] rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">Description</h4>
+                  <h4 className="font-semibold">Description of this video</h4>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowDescription(!showDescription)}
                   >
                     <span className="inline-flex items-center">
-                      {showDescription ? "Collapse" : "Expand"}
+                      {showDescription ? "Collapse" : "Expend for more"}
                       {showDescription ? (
                         <ChevronUp size={16} className="ml-2" />
                       ) : (
@@ -451,7 +378,7 @@ export default function ContentDetailPage() {
                   </Button>
                 </div>
 
-                <p className={`text-sm text-gray-600 dark:text-gray-400 ${showDescription ? "" : "line-clamp-3"}`}>
+                <p className={`text-sm text-gray-600 ${showDescription ? "" : "line-clamp-3"}`}>
                   {work.description || "The creator has not added a description yet..."}
                 </p>
 
@@ -463,135 +390,14 @@ export default function ContentDetailPage() {
                   </div>
                 )}
               </div>
-
-              <Separator />
-
-              {/* Comments Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <MessageCircle size={20} />
-                    {comments.length} Comments
-                  </h3>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">Sort by</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>Newest</DropdownMenuItem>
-                      <DropdownMenuItem>Oldest</DropdownMenuItem>
-                      <DropdownMenuItem>Rating</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Add Comment */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">Rating:</span>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Button
-                          key={star}
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setCommentRating(star)}
-                        >
-                          <Star
-                            size={16}
-                            className={star <= commentRating ? "text-yellow-400 fill-current" : "text-gray-300"}
-                          />
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Textarea
-                      placeholder="Add a comment"
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value.slice(0,200))}
-                      rows={3}
-                    />
-                    <div className="text-right text-xs text-muted-foreground mt-1">
-                      {`${newComment.length}/200`}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      variant="default"
-                      onClick={handleCommentSubmit}
-                      disabled={!newComment.trim() || newComment.length > 200}
-                    >
-                      Post Comment
-                    </Button>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Comment List */}
-                <div className="space-y-4">
-                  {commentsLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="flex gap-3">
-                        <Skeleton className="w-10 h-10 rounded-full" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-3 w-full" />
-                          <Skeleton className="h-3 w-3/4" />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={comment.user.image} />
-                          <AvatarFallback />
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm">{comment.user.name}</span>
-                            <div className="flex">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  size={12}
-                                  className={i < comment.rating ? "text-yellow-400 fill-current" : "text-gray-300"}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs text-gray-500">{comment.timeAgo}</span>
-                          </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                            {comment.content}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <Button variant="ghost" size="sm">
-                              <ThumbsUp size={12} className="mr-2" />
-                              {comment.likes}
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              Reply
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
             </div>
           </div>
 
           {/* Sidebar - Media Tabs + Queue + Library */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b pb-2">
-              {['videos','musics','podcasts'].map(tab => (
-                <Button key={tab} variant={activeMediaTab===tab? 'default':'ghost'} size="sm" onClick={() => setActiveMediaTab(tab)} className="capitalize">
+              {['videos', 'musics', 'podcasts'].map(tab => (
+                <Button key={tab} variant={activeMediaTab === tab ? 'default' : 'ghost'} size="sm" onClick={() => setActiveMediaTab(tab)} className="capitalize">
                   {tab}
                 </Button>
               ))}
@@ -616,7 +422,7 @@ export default function ContentDetailPage() {
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground mb-2">Next in queue</h3>
                 <div className="space-y-2">
-                  {relatedWorks.slice(0,2).map(item => (
+                  {relatedWorks.slice(0, 2).map(item => (
                     <Link key={item.id} href={`/content/${item.id}`}>
                       <div className="flex gap-3 p-2 rounded-lg hover:bg-muted/30 cursor-pointer">
                         <div className="w-16 h-16 rounded overflow-hidden bg-muted">
