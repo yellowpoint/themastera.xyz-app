@@ -1,39 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Search,
-  Upload,
-  Filter,
-  Grid,
-  List,
   Play,
   Eye,
-  Heart,
-  Share2,
-  Palette,
-  Music,
-  Film,
-  Camera,
-  Monitor,
-  PenTool,
   TrendingUp,
   Clock,
-  Star
+  Star,
+  Pause,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import { Home as HomeIcon, Compass, Megaphone, History as HistoryIcon, Users as UsersIcon, Bookmark, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories';
+import { HOMEPAGE_SECTIONS } from '@/config/sections';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 
 const categories = ["All", ...MUSIC_CATEGORIES];
 
@@ -46,10 +30,36 @@ export default function HomePage() {
   const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [viewMode, setViewMode] = useState("grid");
 
+  // Video player states
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const videoRef = useRef(null);
+  // Track broken thumbnail URLs to avoid re-request loops
+  const brokenThumbsRef = useRef(new Set());
+  const resolveThumb = (url) => {
+    if (!url) return '/thumbnail-placeholder.svg';
+    return brokenThumbsRef.current.has(url) ? '/thumbnail-placeholder.svg' : url;
+  };
+  const handleImgError = (url, e) => {
+    brokenThumbsRef.current.add(url);
+    // Prevent onError loops and immediately swap to placeholder
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = '/thumbnail-placeholder.svg';
+  };
 
   useEffect(() => {
     fetchTrendingWorks();
   }, [selectedCategory, selectedLanguage]);
+
+  // Set the first video as the current video when works are loaded
+  useEffect(() => {
+    if (works.length > 0 && !currentVideo) {
+      setCurrentVideo(works[0]);
+    }
+  }, [works, currentVideo]);
 
   const fetchTrendingWorks = async () => {
     try {
@@ -74,18 +84,6 @@ export default function HomePage() {
     }
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-  };
-
-  const handleLanguageChange = (language) => {
-    setSelectedLanguage(language);
-  };
-
   const filteredWorks = works.filter(work => {
     // Convert the tags string to an array
     const tagsArray = work.tags ? work.tags.split(',').map(tag => tag.trim()) : [];
@@ -98,6 +96,63 @@ export default function HomePage() {
     return matchesSearch;
   });
 
+  // Video control functions
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleMuteToggle = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime || 0);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration || 0);
+    }
+  };
+
+  const handleSeek = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, clickX / rect.width));
+    const newTime = (duration || 0) * pct;
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (s) => {
+    if (!Number.isFinite(s)) return '0:00';
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleVideoSelect = (video) => {
+    setCurrentVideo(video);
+    setIsPlaying(true);
+    setIsMuted(false);
+    // Scroll to top to show the video player
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const formatViews = (views) => {
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
@@ -109,9 +164,12 @@ export default function HomePage() {
       <div className="relative mb-3">
         <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl overflow-hidden">
           <img
-            src={work.thumbnailUrl}
+            src={resolveThumb(work.thumbnailUrl)}
+
             alt={work.title}
             className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => handleImgError(work.thumbnailUrl, e)}
           />
           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Button size="lg" variant="ghost" className="bg-background/20 backdrop-blur-sm rounded-full p-2">
@@ -186,80 +244,99 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* 顶部标签 */}
-        <div className="flex items-center gap-6 text-sm mb-4">
-          {['Overview', 'Videos', 'Musics', 'podcasts'].map((t, i) => (
-            <button key={t} className={`pb-2 ${i === 0 ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}>{t}</button>
-          ))}
-        </div>
-
-        {/* 主体两列：内容 + 右侧栏 */}
-        <div className="grid grid-cols-12 gap-6">
-          {/* 主内容 9 列 */}
-          <div className="col-span-12 lg:col-span-9 space-y-8">
-            {/* 大封面视频区域 */}
-            <div className="relative rounded-2xl overflow-hidden">
-              <img
-                src={works[0]?.thumbnailUrl || 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?q=80&w=1470&auto=format&fit=crop'}
-                alt="Hero"
-                className="w-full h-[320px] object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute left-6 bottom-6 text-white">
-                <h2 className="text-2xl font-bold">The Fate of Ophelia</h2>
-                <p className="text-sm opacity-80">Taylor Swift</p>
-                <div className="mt-2 text-xs bg-black/40 rounded px-2 py-1 inline-block">00:43/00:52</div>
+      {/* 固定定位的全宽视频背景，顶部留白约64px */}
+      {currentVideo && (
+        <div className="fixed inset-x-0 top-16 h-[600px] z-0 overflow-hidden">
+          <video
+            ref={videoRef}
+            src={currentVideo.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}
+            poster={currentVideo.thumbnailUrl}
+            className="w-[100vw] h-full object-cover cursor-pointer"
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            onClick={handlePlayPause}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+          />
+          {/* <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/30 to-transparent" /> */}
+          {/* 顶部操作栏：播放/静音与进度 */}
+          <div className="absolute left-70 right-110 top-4 z-10">
+            <div className=" flex items-center gap-3 ">
+              <button
+                onClick={handlePlayPause}
+                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5 text-white" />
+                ) : (
+                  <Play className="w-5 h-5 text-white" />
+                )}
+              </button>
+              <button
+                onClick={handleMuteToggle}
+                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5 text-white" />
+                ) : (
+                  <Volume2 className="w-5 h-5 text-white" />
+                )}
+              </button>
+              <div className="flex-1">
+                <div
+                  className="h-2 rounded-full bg-white/25 cursor-pointer"
+                  onClick={handleSeek}
+                >
+                  <div
+                    className="h-2 rounded-full bg-white"
+                    style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-white text-xs tabular-nums">
+                {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
-
-            {/* Trending contents 区块 */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold">Trending contents</h3>
-                <Link href="/trending" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(loading ? Array.from({ length: 3 }) : filteredWorks.slice(0, 3)).map((w, idx) => (
-                  loading ? (
-                    <WorkCardSkeleton key={idx} />
-                  ) : (
-                    <div key={w.id} className="group">
-                      <div className="relative rounded-xl overflow-hidden">
-                        <img src={w.thumbnailUrl} alt={w.title} className="w-full h-40 object-cover" />
-                        <div className="absolute bottom-2 left-2 text-[10px] bg-black/50 text-white px-2 py-0.5 rounded">{formatViews(w.downloads)} views</div>
-                        <div className="absolute bottom-2 right-2 text-[10px] bg-black/50 text-white px-2 py-0.5 rounded">{w.duration}</div>
-                      </div>
-                      <div className="mt-2 flex items-start gap-2 text-sm">
-                        <Avatar className="h-6 w-6"><AvatarImage src={w.user.image} /><AvatarFallback>{w.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback></Avatar>
-                        <div>
-                          <div className="font-medium leading-tight">Content name</div>
-                          <div className="text-xs text-muted-foreground">{w.user.name}</div>
-                        </div>
-                        <button className="ml-auto text-muted-foreground"><MoreVertical size={16} /></button>
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
+            <div className="mt-2 text-white">
+              <h2 className="text-2xl font-bold line-clamp-1">{currentVideo.title || 'No Title'}</h2>
+              <p className="text-sm opacity-80">{currentVideo.user?.name}</p>
             </div>
 
-            {/* Featured Artist for you */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold">Featured Artist for you</h3>
-                <Link href="/artists" className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(loading ? Array.from({ length: 3 }) : filteredWorks.slice(3, 6)).map((w, idx) => (
-                  loading ? <WorkCardSkeleton key={`fa-${idx}`} /> : <WorkCard key={w.id} work={w} />
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* 右侧栏 3 列 */}
-          <div className="col-span-12 lg:col-span-3 space-y-6">
+
+        </div>
+      )}
+
+      <main className="relative z-10 top-100 bg-black/70">
+        {/* 主体两列：内容 + 右侧栏 */}
+        <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto  px-4 py-6">
+          {/* 主内容 9 列 */}
+          <div className="col-span-12 md:col-span-9 space-y-8">
+            {/* 循环渲染8个栏目 */}
+            {HOMEPAGE_SECTIONS.map((section, sectionIndex) => (
+              <div key={section.id}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold">{section.title}</h3>
+                  <Link href={section.showAllLink} className="text-sm text-muted-foreground hover:text-foreground">Show all</Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {(loading ? Array.from({ length: 3 }) : filteredWorks.slice(sectionIndex * 3, (sectionIndex + 1) * 3)).map((w, idx) => (
+                    loading ? (
+                      <WorkCardSkeleton key={`${section.id}-skeleton-${idx}`} />
+                    ) : w ? (
+                      <WorkCard key={w.id} work={w} />
+                    ) : null
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 右侧栏：在大屏固定到右上角 */}
+          <div className="col-span-12 md:col-span-3 space-y-6 md:fixed md:right-6 md:top-16 md:w-[360px] md:z-20">
             {/* Quick picks */}
             <div className="bg-card border border-border rounded-2xl p-4">
               <div className="flex items-center justify-between">
@@ -277,13 +354,36 @@ export default function HomePage() {
                       </div>
                     </div>
                   ) : (
-                    <div key={w.id} className="flex items-center gap-3">
-                      <img src={w.thumbnailUrl} alt="thumb" className="w-14 h-14 object-cover rounded" />
-                      <div className="flex-1">
-                        <div className="text-sm leading-tight">Music or video name</div>
-                        <div className="text-xs text-muted-foreground leading-tight">{w.user.name} | Album name</div>
+                    <div
+                      key={w.id}
+                      onClick={() => handleVideoSelect(w)}
+                      className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${currentVideo?.id === w.id ? 'bg-primary/10' : 'hover:bg-muted/50'
+                        }`}
+                    >
+                      <div className="relative">
+                        <img
+                          src={resolveThumb(w.thumbnailUrl)}
+                          alt="thumb" className="w-14 h-14 object-cover rounded"
+                          loading="lazy"
+                          onError={(e) => handleImgError(w.thumbnailUrl, e)} />
+                        {currentVideo?.id === w.id && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
+                            <Play className="w-5 h-5 text-white fill-white" />
+                          </div>
+                        )}
                       </div>
-                      <button className="text-muted-foreground"><MoreVertical size={16} /></button>
+                      <div className="flex-1">
+                        <div className="text-sm leading-tight line-clamp-2">{w.title}</div>
+                        <div className="text-xs text-muted-foreground leading-tight mt-1">{w.user.name}</div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="text-muted-foreground"
+                      >
+                        <MoreVertical size={16} />
+                      </button>
                     </div>
                   )
                 ))}
