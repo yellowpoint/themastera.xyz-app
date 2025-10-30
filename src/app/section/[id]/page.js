@@ -4,8 +4,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Grid2x2 } from "lucide-react";
 import Link from "next/link";
-import WorkCard from "@/components/WorkCard";
-import WorkCardSkeleton from "@/components/WorkCardSkeleton";
+import WorkCardList from "@/components/WorkCardList";
 import { HOMEPAGE_SECTIONS } from "@/config/sections";
 
 export default function SectionPage() {
@@ -70,34 +69,15 @@ export default function SectionPage() {
       </div>
 
       {/* Grid */}
-      {items.length === 0 && loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {Array.from({ length: 24 }).map((_, i) => (
-            <WorkCardSkeleton key={`s-${i}`} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {items.map((w) => (
-            <WorkCard key={w.id} work={w} />
-          ))}
-        </div>
-      )}
-
-      {/* Load more */}
-      <div className="flex justify-center mt-6">
-        {error && (
-          <div className="flex items-center text-sm text-red-600 mr-4">
-            {error}
-          </div>
-        )}
-        {canLoadMore && (
-          <Button variant="outline" onClick={() => setPage((p) => p + 1)}>
-            <Grid2x2 className="h-4 w-4 mr-2" />
-            Load More
-          </Button>
-        )}
-      </div>
+      <WorkCardList
+        items={items}
+        loading={loading}
+        error={error}
+        skeletonCount={24}
+        canLoadMore={canLoadMore}
+        onLoadMore={() => setPage((p) => p + 1)}
+        loadMoreLabel="Load More"
+      />
     </div>
   );
 }

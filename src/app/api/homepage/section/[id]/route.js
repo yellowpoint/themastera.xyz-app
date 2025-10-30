@@ -32,7 +32,7 @@ function toHomepageItem(work) {
 export async function GET(request, { params }) {
   try {
     const { searchParams } = new URL(request.url)
-    const sectionId = params?.id
+    const { id: sectionId } = await params
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '24')
     const skip = (page - 1) * limit

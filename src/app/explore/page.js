@@ -2,8 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Music, Globe, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import WorkCard from "@/components/WorkCard";
-import WorkCardSkeleton from "@/components/WorkCardSkeleton";
+import WorkCardList from "@/components/WorkCardList";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
 
 export default function ExplorePage() {
@@ -111,35 +110,15 @@ export default function ExplorePage() {
       </div>
 
       {/* Works grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <WorkCardSkeleton key={`s-${i}`} />
-          ))}
-        </div>
-      ) : error ? (
-        <div className="flex items-center gap-2 text-sm text-red-600">
-          <RefreshCw className="h-4 w-4" />
-          <span>{error}</span>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {visibleWorks.map((w) => (
-              <WorkCard key={w.id || w.work?.id} work={w.work || w} />
-            ))}
-          </div>
-
-          {/* Load more */}
-          {visibleCount < filteredWorks.length && (
-            <div className="flex justify-center mt-6">
-              <Button variant="outline" onClick={() => setVisibleCount((c) => c + 12)}>
-                Load More
-              </Button>
-            </div>
-          )}
-        </>
-      )}
+      <WorkCardList
+        items={visibleWorks.map((w) => w.work || w)}
+        loading={loading}
+        error={error}
+        skeletonCount={12}
+        canLoadMore={visibleCount < filteredWorks.length}
+        onLoadMore={() => setVisibleCount((c) => c + 12)}
+        loadMoreLabel="Load More"
+      />
     </div>
   );
 }

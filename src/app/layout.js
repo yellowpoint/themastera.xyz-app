@@ -1,4 +1,5 @@
 import './globals.css'
+import { Lexend } from 'next/font/google'
 import { Providers } from './providers'
 import { AppSidebar } from '@/components/app-sidebar'
 import {
@@ -14,10 +15,16 @@ export const metadata = {
   authors: [{ name: 'Mastera Team' }],
 }
 
+const lexend = Lexend({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased h-screen overflow-hidden">
+      <body className={`${lexend.variable} antialiased h-screen overflow-hidden`}>
         <Providers>
           <SidebarProvider>
             <AppSidebar className='pt-16' />

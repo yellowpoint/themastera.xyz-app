@@ -1,7 +1,7 @@
 'use client'
 
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Search, LogOut } from 'lucide-react'
+import { Search, LogOut, Bell, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
@@ -24,8 +24,8 @@ export default function TopHeader() {
             href="/"
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
           >
-            <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
-            <span>TheMasterA</span>
+            <img src="/logo-black.png" alt="Logo" className="h-auto w-15" />
+            <span>THE MASTERA</span>
           </Link>
           <SidebarTrigger />
         </div>
@@ -50,15 +50,21 @@ export default function TopHeader() {
               >
                 <span className="text-lg">+</span> Create
               </Button>
+              {/* Notifications bell */}
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Notifications"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Bell className="h-5 w-5" />
+              </Button>
+              {/* Greeting with dropdown */}
               <DropdownMenu >
                 <DropdownMenuTrigger asChild>
-                  <button className="outline-none">
-                    <Avatar className="h-8 w-8 ring-2 ring-primary">
-                      <AvatarImage src={user?.user_metadata?.avatar} />
-                      <AvatarFallback>
-                        {user?.user_metadata?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
+                  <button className="outline-none flex items-center gap-2">
+                    <span className="text-sm">{`Hi, ${user?.user_metadata?.name || user?.email || 'User'}`}</span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className='bg-card light'>
