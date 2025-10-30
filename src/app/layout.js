@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
             <AppSidebar className='pt-16' />
             <SidebarInset className="flex flex-col h-screen">
               <TopHeader />
-              <div className="flex-1 mt-16 overflow-auto">
+              <div className="flex-1 mt-16 overflow-auto py-4 bg-content-bg">
                 {children}
               </div>
             </SidebarInset>

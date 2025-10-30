@@ -104,7 +104,7 @@ export default function VideoTitleInfo({
         </div>
 
         {/* Right Section: Like/Dislike + Download + Pro Badge */}
-        <div className="flex items-center gap-8 relative">
+        <div className="flex items-center gap-4 relative">
           {/* Like and Dislike Buttons Group */}
           <Button
             variant='secondary'

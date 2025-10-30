@@ -317,7 +317,7 @@ export default function HomePage() {
           </div>
 
           {/* 右侧栏：在大屏固定到右上角 */}
-          <div className="col-span-12 md:col-span-3 space-y-6 md:fixed md:right-6 md:top-16 md:w-[360px] md:z-20">
+          <div className="col-span-12 md:col-span-3 space-y-6 md:fixed md:right-6 md:top-16 md:w-[300px] md:z-20">
             {/* Quick picks */}
             <div className="bg-card border border-border rounded-2xl p-4">
               <div className="flex items-center justify-between">
