@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -33,18 +31,16 @@ import {
   Flag,
   ThumbsUp,
   ThumbsDown,
-  Eye,
-  Clock,
   User,
   Bell,
   BellRing,
   MoreVertical,
-  ChevronDown,
-  ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
+import VideoTitleInfo from "@/components/VideoTitleInfo";
+import VideoInfoSection from "@/components/VideoInfoSection";
 import { toast } from "sonner";
 import { request } from "@/lib/request";
 
@@ -72,7 +68,6 @@ export default function ContentDetailPage() {
   const [likesCount, setLikesCount] = useState(0);
   const [dislikesCount, setDislikesCount] = useState(0);
   const [authorFollowersCount, setAuthorFollowersCount] = useState(0);
-  const [showDescription, setShowDescription] = useState(false);
 
   const [isShareOpen, setShareOpen] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState('videos');
@@ -282,114 +277,32 @@ export default function ContentDetailPage() {
 
             {/* Work Information */}
             <div className="space-y-4 mt-4">
-              <h1 className="text-4xl font-bold">{work.title}</h1>
+              {/* Video Title and Creator Info using new component */}
+              <VideoTitleInfo
+                title={work.title}
+                isPremium={work.premium}
+                creatorId={work.user.id}
+                creatorName={work.user.name}
+                creatorAvatar={work.user.image}
+                subscribersCount={authorFollowersCount}
+                isFollowing={isFollowing}
+                onFollow={handleFollow}
+                isLiked={isLiked}
+                isDisliked={isDisliked}
+                likesCount={likesCount}
+                dislikesCount={dislikesCount}
+                onLike={handleLike}
+                onDislike={handleDislike}
+                onDownload={() => toast.info("Download feature coming soon")}
+              />
 
-              {/* Creator row with Subscribe button */}
-              <div className="flex items-start gap-4">
-                <Link href={`/creator/${work.user.id}`}>
-                  <Avatar className="h-12 w-12 cursor-pointer">
-                    <AvatarImage src={work.user.image} />
-                    <AvatarFallback />
-                  </Avatar>
-                </Link>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Link href={`/creator/${work.user.id}`}>
-                        <h3 className="font-semibold hover:text-primary cursor-pointer">
-                          {work.user.name}
-                        </h3>
-                      </Link>
-                      <p className="text-sm text-muted-foreground">
-                        {authorFollowersCount} subscribers
-                      </p>
-                    </div>
-                    <Button
-                      variant={isFollowing ? "outline" : "default"}
-                      size="sm"
-                      onClick={handleFollow}
-                    >
-                      {isFollowing ? (
-                        <span className="inline-flex items-center"><BellRing size={16} className="mr-2" /> Subscribed</span>
-                      ) : (
-                        <span className="inline-flex items-center"><Bell size={16} className="mr-2" /> Subscribe</span>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Controls row: Likes / Dislikes / Download */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Eye size={16} />
-                    {formatViews(work.views ?? work.downloads)} views
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={16} />
-                    {formatDate(work.uploadTime ?? work.createdAt)}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button variant={isLiked ? "default" : "outline"} size="sm" onClick={handleLike} className="min-w-[120px] justify-start">
-                    <ThumbsUp size={16} className="mr-2" />
-                    {likesCount > 0 ? `${formatViews(likesCount)}` : 'Like'}
-                  </Button>
-
-                  <Button variant={isDisliked ? "destructive" : "outline"} size="sm" onClick={handleDislike} className="min-w-[120px] justify-start">
-                    <ThumbsDown size={16} className="mr-2" />
-                    {dislikesCount > 0 ? `${formatViews(dislikesCount)}` : 'Dislike'}
-                  </Button>
-
-                  <div className="relative">
-                    <Button variant="outline" size="sm" className="pr-8">
-                      <Download size={16} className="mr-2" />
-                      Download
-                    </Button>
-                    {work.premium && (
-                      <span className="absolute -right-2 -top-2 text-xs bg-violet-600 text-white px-2 py-0.5 rounded-full">Pro</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Work Description */}
-              <div className="bg-[#170e29] rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">Description of this video</h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowDescription(!showDescription)}
-                  >
-                    <span className="inline-flex items-center">
-                      {showDescription ? "Collapse" : "Expend for more"}
-                      {showDescription ? (
-                        <ChevronUp size={16} className="ml-2" />
-                      ) : (
-                        <ChevronDown size={16} className="ml-2" />
-                      )}
-                    </span>
-                  </Button>
-                </div>
-
-                <p className={`text-sm text-gray-600 ${showDescription ? "" : "line-clamp-3"}`}>
-                  {work.description || "The creator has not added a description yet..."}
-                </p>
-
-                {work.tags && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {(work.tags ? work.tags.split(',').map(tag => tag.trim()) : []).map((tag, index) => (
-                      <Badge key={index} variant="outline">#{tag}</Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Video Stats and Description */}
+              <VideoInfoSection
+                views={work.views ?? work.downloads}
+                uploadDate={work.uploadTime ?? work.createdAt}
+                description={work.description}
+                tags={work.tags ? work.tags.split(',').map(tag => tag.trim()) : []}
+              />
             </div>
           </div>
 
