@@ -3,41 +3,41 @@ export const HOMEPAGE_SECTIONS = [
   {
     id: 'trending',
     title: 'Trending contents',
-    showAllLink: '/trending',
+    showAllLink: '/section/trending',
   },
   {
     id: 'featured-artists',
     title: 'Featured Artist for you',
-    showAllLink: '/artists',
+    showAllLink: '/section/featured-artists',
   },
   {
     id: 'new-releases',
     title: 'New Releases',
-    showAllLink: '/new-releases',
+    showAllLink: '/section/new-releases',
   },
   {
     id: 'popular-this-week',
     title: 'Popular This Week',
-    showAllLink: '/popular',
+    showAllLink: '/section/popular-this-week',
   },
   {
     id: 'recommended',
     title: 'Recommended for You',
-    showAllLink: '/recommended',
+    showAllLink: '/section/recommended',
   },
   {
     id: 'top-rated',
     title: 'Top Rated',
-    showAllLink: '/top-rated',
+    showAllLink: '/section/top-rated',
   },
   {
     id: 'rising-creators',
     title: 'Rising Creators',
-    showAllLink: '/rising-creators',
+    showAllLink: '/section/rising-creators',
   },
   {
     id: 'recently-viewed',
     title: 'Recently Viewed',
-    showAllLink: '/history',
+    showAllLink: '/section/recently-viewed',
   },
 ];
