@@ -8,6 +8,8 @@ import {
   Command,
   Frame,
   GalleryVerticalEnd,
+  History,
+  Home,
   Map,
   PieChart,
   Settings2,
@@ -27,34 +29,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { SidebarPlaylistSection } from "./sidebar-playlist-section";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
-    { title: "Home", url: "/", icon: SquareTerminal },
+    { title: "Home", url: "/", icon: Home },
     { title: "Subscriptions", url: "/subscriptions", icon: BookOpen },
+    { title: "History", url: "/history", icon: History },
   ],
   navMain2: [
     { title: "Me", url: "/me", icon: GalleryVerticalEnd },
@@ -89,8 +71,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} title="Main Operations" />
-        <NavMain items={data.navMain2} title="Me" />
-        <NavMain items={data.navMain3} title="Community" />
+        {/* <NavMain items={data.navMain2} title="Me" /> */}
+        {/* <NavMain items={data.navMain3} title="Community" /> */}
+        <SidebarPlaylistSection />
       </SidebarContent>
       <SidebarFooter>
         <NavMain items={data.footer} />

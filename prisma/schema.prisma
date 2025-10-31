@@ -33,6 +33,7 @@ model User {
   following     Follow[]   @relation("UserFollowing")
   workLikes     WorkLike[]
   workDislikes  WorkDislike[]
+  playlists     Playlist[]
 
   @@unique([email])
   @@map("user")
@@ -112,6 +113,7 @@ model Work {
   reviews   Review[]
   workLikes    WorkLike[]
   workDislikes WorkDislike[]
+  playlistEntries PlaylistEntry[]
 
   @@map("works")
 }
@@ -190,4 +192,39 @@ model WorkDislike {
 
   @@unique([userId, workId])
   @@map("work_dislikes")
+}
+
+// 播放列表（用户可以创建多个播放列表）
+model Playlist {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联到用户
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 关联到播放列表条目
+  entries PlaylistEntry[]
+
+  @@map("playlists")
+}
+
+// 播放列表条目（指向具体作品）
+model PlaylistEntry {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+
+  // 关联到播放列表
+  playlistId String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  // 关联到作品
+  workId String
+  work   Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  // 每个播放列表中同一作品只出现一次
+  @@unique([playlistId, workId])
+  @@map("playlist_entries")
 }

@@ -1,8 +1,20 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, ListPlus } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { request } from "@/lib/request";
+import { Button } from "./ui/button";
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -20,6 +32,43 @@ function formatViews(views) {
 
 export default function WorkCard({ work }) {
   const brokenThumbsRef = useRef(new Set());
+  const [playlists, setPlaylists] = useState([]);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+
+  const fetchPlaylists = useCallback(async () => {
+    if (loadingPlaylists) return;
+    setLoadingPlaylists(true);
+    try {
+      const { data } = await request.get("/api/playlists");
+      const list = data?.data || [];
+      setPlaylists(list);
+    } catch (_) {
+      // errors are handled by request
+    } finally {
+      setLoadingPlaylists(false);
+    }
+  }, [loadingPlaylists]);
+
+  const addToPlaylist = useCallback(
+    async (playlistId) => {
+      try {
+        await request.post(`/api/playlists/${playlistId}/entries`, { workId: work?.id });
+        toast.success("Added to playlist");
+        // Notify other parts of the app (e.g., sidebar) to refresh playlists
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("playlist:updated", {
+              detail: { playlistId, workId: work?.id },
+            })
+          );
+        }
+      } catch (err) {
+        // request handles toast for network/app errors; add fallback message
+        if (err?.message) toast.error(err.message);
+      }
+    },
+    [work?.id]
+  );
   const resolveThumb = (url) => {
     if (!url) return "/thumbnail-placeholder.svg";
     return brokenThumbsRef.current.has(url) ? "/thumbnail-placeholder.svg" : url;
@@ -34,7 +83,7 @@ export default function WorkCard({ work }) {
   const durationLabel = work?.duration ? work.duration : (work?.durationSeconds ? formatTime(work.durationSeconds) : "0:00");
 
   return (
-    <Link href={`/content/${work?.id}`} className="group cursor-pointer block">
+    <div href={`/content/${work?.id}`} className="group cursor-pointer block">
       <div className="relative mb-3">
         <div className="aspect-video bg-muted rounded-xl overflow-hidden">
           <img
@@ -44,14 +93,15 @@ export default function WorkCard({ work }) {
             loading="lazy"
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
           />
-          <div className="absolute top-2 left-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
+          <div className="absolute top-34 left-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
             {formatViews(viewsCount)} views
           </div>
-          <div className="absolute top-2 right-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
+          <div className="absolute top-34 right-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
             {durationLabel}
           </div>
         </div>
-
+        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none">
+        </div>
         <div className="flex items-start gap-3 mt-3">
           <Avatar className="h-9 w-9 flex-shrink-0">
             <AvatarImage src={work?.user?.image} />
@@ -62,9 +112,49 @@ export default function WorkCard({ work }) {
               <h3 className="font-semibold text-base md:text-lg line-clamp-2 group-hover:text-primary transition-colors">
                 {work?.title}
               </h3>
-              <button className="text-muted-foreground hover:text-foreground flex-shrink-0" aria-label="More">
-                <MoreVertical size={18} />
-              </button>
+              <DropdownMenu onOpenChange={(open) => { if (open && playlists.length === 0) fetchPlaylists(); }}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground flex-shrink-0"
+                    aria-label="More"
+                    type="button"
+                  // onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  // onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  // onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  >
+                    <MoreVertical size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={6}>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <ListPlus className="size-4" />
+                      <span>Add to playlist</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {loadingPlaylists ? (
+                        <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                      ) : playlists.length > 0 ? (
+                        playlists.map((pl) => (
+                          <DropdownMenuItem
+                            key={pl.id}
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addToPlaylist(pl.id);
+                            }}
+                          >
+                            {pl.name}
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                      )}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
               {work?.user?.name || "Unknown Creator"}
@@ -72,6 +162,6 @@ export default function WorkCard({ work }) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

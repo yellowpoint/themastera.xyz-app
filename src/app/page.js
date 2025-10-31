@@ -11,10 +11,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import WorkCard from "@/components/WorkCard";
 // Move WorkCard and WorkCardSkeleton to module scope to keep stable component identity
 // and avoid unmount/mount on frequent parent re-renders (e.g., during video playback).
-const WorkCard = React.memo(function WorkCard({ work, resolveThumb, handleImgError, formatViews }) {
+const WorkCard2 = React.memo(function WorkCard({ work, resolveThumb, handleImgError, formatViews }) {
   const viewsCount = typeof work.views === 'number' ? work.views : (typeof work.downloads === 'number' ? work.downloads : 0);
   const durationLabel = work.duration ? work.duration : (work.durationSeconds ? formatTime(work.durationSeconds) : '0:00');
 
@@ -336,7 +336,7 @@ export default function HomePage() {
                     </div>
                   ) : (
                     <div
-                      key={w.id}
+                      key={w.id + 'qp' - idx}
                       onClick={() => handleVideoSelect(w)}
                       className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${currentVideo?.id === w.id ? 'bg-primary/10' : 'hover:bg-muted/50'
                         }`}
