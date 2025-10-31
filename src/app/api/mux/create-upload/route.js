@@ -10,12 +10,16 @@ export async function POST(req) {
   try {
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || '*'
 
-    const upload = await mux.video.uploads.create({
-      cors_origin: origin,
-      new_asset_settings: {
-        playback_policies: ['public'],
-      },
-    })
+  const upload = await mux.video.uploads.create({
+    cors_origin: origin,
+    new_asset_settings: {
+      playback_policies: ['public'],
+      // Enable static MP4/M4A renditions via the new API
+      static_renditions: [
+        { resolution: 'highest' },
+      ],
+    },
+  })
 
     return NextResponse.json({
       success: true,

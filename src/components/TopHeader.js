@@ -63,7 +63,7 @@ export default function TopHeader() {
               <DropdownMenu >
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none flex items-center gap-2">
-                    <span className="text-sm">{`Hi, ${user?.user_metadata?.name || user?.email || 'User'}`}</span>
+                    <span className="text-sm">{`Hi, ${user?.name || user?.email || 'User'}`}</span>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>

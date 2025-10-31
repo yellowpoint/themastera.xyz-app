@@ -79,6 +79,32 @@ export default function ContentDetailPage() {
     }
   }, [workId]);
 
+  const handleDownload = async () => {
+    try {
+      if (!workId) return
+      toast.info('Preparing download...')
+      // Trigger browser download via our API route
+      const url = `/api/mux/download?workId=${encodeURIComponent(workId)}`
+      // Use a temporary anchor to avoid interfering with SPA navigation state
+      const a = document.createElement('a')
+      a.href = url
+      a.rel = 'noopener'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+
+      // Best-effort increment downloads stat (ignore errors)
+      try {
+        await request.post('/api/works/stats', { workId, type: 'download' })
+      } catch (e) {
+        // silently ignore
+      }
+    } catch (err) {
+      console.error('Download error:', err)
+      toast.error('Download failed. Please try again later.')
+    }
+  }
+
   const fetchWorkDetails = async () => {
     try {
       setLoading(true);
@@ -301,7 +327,7 @@ export default function ContentDetailPage() {
                 dislikesCount={dislikesCount}
                 onLike={handleLike}
                 onDislike={handleDislike}
-                onDownload={() => toast.info("Download feature coming soon")}
+                onDownload={handleDownload}
               />
 
               {/* Video Stats and Description */}
