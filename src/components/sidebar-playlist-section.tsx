@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ChevronDown, Plus, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { request } from "@/lib/request";
@@ -27,6 +26,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 type PlaylistItem = {
   id: string;
@@ -48,6 +48,8 @@ export function SidebarPlaylistSection() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [visibleNextCount, setVisibleNextCount] = useState<number>(5);
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const fetchPlaylists = useCallback(async () => {
@@ -73,6 +75,27 @@ export function SidebarPlaylistSection() {
     fetchPlaylists();
   }, [fetchPlaylists]);
 
+  // Load previously selected playlist from localStorage
+  useEffect(() => {
+    try {
+      const saved = typeof window !== "undefined" ? window.localStorage.getItem("selectedPlaylistId") : null;
+      if (saved) setSelectedId(saved);
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, []);
+
+  // Persist selected playlist id
+  useEffect(() => {
+    try {
+      if (selectedId && typeof window !== "undefined") {
+        window.localStorage.setItem("selectedPlaylistId", selectedId);
+      }
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [selectedId]);
+
   // Refresh playlists when WorkCard emits an update
   useEffect(() => {
     const handler = () => {
@@ -84,13 +107,50 @@ export function SidebarPlaylistSection() {
     };
   }, [fetchPlaylists]);
 
+  // Listen to global player events to know current playing work
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent;
+      const id = ce?.detail?.workId || ce?.detail?.id;
+      if (typeof id === "string") {
+        setCurrentPlayingId(id);
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("player:now-playing", handler as EventListener);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("player:now-playing", handler as EventListener);
+      }
+    };
+  }, []);
+
   const selected = useMemo(
     () => playlists.find((p) => p.id === selectedId) || null,
     [playlists, selectedId]
   );
 
-  const nowPlaying = selected?.items?.[0] ? [selected.items[0]] : [];
-  const nextQueue = selected?.items?.slice(1) || [];
+  // Compute Now Playing and Next in Queue based on currentPlayingId
+  const { nowPlaying, nextQueue } = useMemo(() => {
+    const items = selected?.items || [];
+    if (!items.length) return { nowPlaying: [], nextQueue: [] };
+
+    const idx = currentPlayingId ? items.findIndex((i) => i.id === currentPlayingId) : -1;
+    if (idx === -1) {
+      // Nothing playing from this playlist: show empty Now Playing, all items in queue
+      return { nowPlaying: [], nextQueue: items };
+    }
+    const now = [items[idx]];
+    const after = items.slice(idx + 1);
+    const before = items.slice(0, idx);
+    return { nowPlaying: now, nextQueue: [...after, ...before] };
+  }, [selected?.items, currentPlayingId]);
+
+  // Reset visible count when playlist or current playing changes
+  useEffect(() => {
+    setVisibleNextCount(5);
+  }, [selectedId, currentPlayingId]);
 
   const handleDeleteItem = useCallback(
     async (workId: string) => {
@@ -223,7 +283,7 @@ export function SidebarPlaylistSection() {
               </div>
               <div className="space-y-3">
                 {nextQueue.length > 0 ? (
-                  nextQueue.map((item) => (
+                  nextQueue.slice(0, visibleNextCount).map((item) => (
                     <PlaylistRow
                       key={item.id}
                       item={item}
@@ -237,11 +297,15 @@ export function SidebarPlaylistSection() {
                 )}
               </div>
             </div>
-
-            <button className="flex items-center gap-2 text-sm text-foreground py-1">
-              <ChevronDown className="size-4" />
-              <span>Show more</span>
-            </button>
+            {nextQueue.length > visibleNextCount ? (
+              <button
+                className="flex items-center gap-2 text-sm text-foreground py-1"
+                onClick={() => setVisibleNextCount((c) => c + 5)}
+              >
+                <ChevronDown className="size-4" />
+                <span>Show more</span>
+              </button>
+            ) : null}
           </div>
         )}
 
@@ -277,9 +341,23 @@ function PlaylistRow({
   item: PlaylistItem;
   onDelete?: () => void;
 }) {
-  console.log("PlaylistRow", item);
+  const router = useRouter();
+  const href = item?.href || `/content/${item.id}`;
+
+  const handleRowClick = () => {
+    if (href) router.push(href);
+  };
+
   return (
-    <div className="flex items-center gap-3">
+    <div
+      className="flex items-center gap-3 rounded-md p-2 hover:bg-muted/30 cursor-pointer"
+      onClick={handleRowClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") handleRowClick();
+      }}
+    >
       <div className="h-12 w-12 rounded-md overflow-hidden bg-muted">
         <img
           className="w-full h-full object-contain"
@@ -295,7 +373,10 @@ function PlaylistRow({
         variant="ghost"
         size="icon"
         className="h-7 w-7 text-red-700"
-        onClick={onDelete}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete?.();
+        }}
         aria-label="Remove"
       >
         <X className="w-4 h-4" />

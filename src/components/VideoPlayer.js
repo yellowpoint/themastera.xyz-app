@@ -245,6 +245,7 @@ export default function VideoPlayer({
                     streamType="on-demand"
                     autoPlay={autoPlay}
                     muted={muted}
+                    playsInline
                     onPlay={handlePlay}
                     onPause={handlePause}
                     onEnded={handleEnded}
@@ -260,6 +261,7 @@ export default function VideoPlayer({
                   autoPlay={autoPlay}
                   muted={muted}
                   preload="metadata"
+                  playsInline
                   controlsList="nodownload"
                   crossOrigin="anonymous"
                   onPlay={handlePlay}

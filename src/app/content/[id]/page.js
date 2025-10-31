@@ -37,7 +37,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoTitleInfo from "@/components/VideoTitleInfo";
 import VideoInfoSection from "@/components/VideoInfoSection";
@@ -47,6 +47,7 @@ import { request } from "@/lib/request";
 export default function ContentDetailPage() {
   const params = useParams();
   const workId = params.id;
+  const router = useRouter();
 
   const [work, setWork] = useState(null);
   const [relatedWorks, setRelatedWorks] = useState([]);
@@ -76,6 +77,14 @@ export default function ContentDetailPage() {
     if (workId) {
       fetchWorkDetails();
       fetchRelatedWorks();
+      // Announce currently playing work to sidebar
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('player:now-playing', { detail: { workId } }));
+        }
+      } catch (_) {
+        // ignore
+      }
     }
   }, [workId]);
 
@@ -115,7 +124,7 @@ export default function ContentDetailPage() {
       if (work) {
         setWork(work);
         setDuration(parseDuration(work.duration || '0:00'));
-        
+
         // Increment view count after successfully loading work details
         try {
           await request.post(`/api/works/${workId}/views`);
@@ -227,6 +236,37 @@ export default function ContentDetailPage() {
     }
   };
 
+  // Autoplay-next: navigate to the next item in selected playlist
+  const handleEnded = async () => {
+    try {
+      // Read selected playlist id from localStorage; fallback to first playlist
+      let selectedPlaylistId = null;
+      if (typeof window !== 'undefined') {
+        selectedPlaylistId = window.localStorage.getItem('selectedPlaylistId');
+      }
+      const res = await fetch('/api/playlists');
+      const json = await res.json();
+      if (!json?.success) return;
+      const pls = json?.data || [];
+      const selected = (selectedPlaylistId ? pls.find(p => p.id === selectedPlaylistId) : null) || pls[0];
+      const items = selected?.items || [];
+      if (!items.length) return;
+      const idx = items.findIndex(i => i.id === workId);
+      let nextItem = null;
+      if (idx >= 0) {
+        nextItem = items[idx + 1] || items[0];
+      } else {
+        // If current work not in selected playlist, try related works as fallback
+        nextItem = relatedWorks?.[0] || null;
+      }
+      if (nextItem?.id) {
+        router.push(`/content/${nextItem.id}`);
+      }
+    } catch (e) {
+      // silently ignore navigation errors
+    }
+  };
+
 
 
   if (loading) {
@@ -307,6 +347,15 @@ export default function ContentDetailPage() {
               isPremium={work.premium}
               userMembership="VIP" // TODO: Get from user status
               className="mb-4"
+              autoPlay={true}
+              onPlay={() => {
+                try {
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('player:now-playing', { detail: { workId } }));
+                  }
+                } catch (_) { }
+              }}
+              onEnded={handleEnded}
             />
 
             {/* Work Information */}

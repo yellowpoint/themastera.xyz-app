@@ -83,7 +83,7 @@ export default function WorkCard({ work }) {
   const durationLabel = work?.duration ? work.duration : (work?.durationSeconds ? formatTime(work.durationSeconds) : "0:00");
 
   return (
-    <div href={`/content/${work?.id}`} className="group cursor-pointer block">
+    <Link href={`/content/${work?.id}`} className="group cursor-pointer block">
       <div className="relative mb-3">
         <div className="aspect-video bg-muted rounded-xl overflow-hidden">
           <img
@@ -162,6 +162,6 @@ export default function WorkCard({ work }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
