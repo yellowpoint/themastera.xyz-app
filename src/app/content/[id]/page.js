@@ -2,12 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Dialog,
   DialogContent,
@@ -17,30 +12,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize,
-  Download,
-  Heart,
-  Share2,
-  Flag,
-  ThumbsUp,
-  ThumbsDown,
-  User,
-  Bell,
-  BellRing,
-  MoreVertical,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoTitleInfo from "@/components/VideoTitleInfo";
 import VideoInfoSection from "@/components/VideoInfoSection";
+import WorkCardList from "@/components/WorkCardList";
 import { toast } from "sonner";
 import { request } from "@/lib/request";
 
@@ -54,14 +35,6 @@ export default function ContentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Player state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(100);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [videoRef, setVideoRef] = useState(null);
-
   // Interaction state
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
@@ -71,7 +44,7 @@ export default function ContentDetailPage() {
   const [authorFollowersCount, setAuthorFollowersCount] = useState(0);
 
   const [isShareOpen, setShareOpen] = useState(false);
-  const [activeMediaTab, setActiveMediaTab] = useState('videos');
+  const [isDescExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     if (workId) {
@@ -123,7 +96,6 @@ export default function ContentDetailPage() {
       const { work, engagement, authorFollow } = data?.data || {};
       if (work) {
         setWork(work);
-        setDuration(parseDuration(work.duration || '0:00'));
 
         // Increment view count after successfully loading work details
         try {
@@ -155,7 +127,6 @@ export default function ContentDetailPage() {
     }
   };
 
-
   const fetchRelatedWorks = async () => {
     try {
       const { data } = await request.get(`/api/works/trending?limit=8&exclude=${workId}`);
@@ -165,28 +136,10 @@ export default function ContentDetailPage() {
     }
   };
 
-  const parseDuration = (durationStr) => {
-    const parts = durationStr.split(':');
-    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-  };
-
   const formatViews = (views) => {
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
     return views.toString();
-  };
-
-  const formatDate = (dateInput) => {
-    try {
-      const d = new Date(dateInput);
-      if (isNaN(d.getTime())) return dateInput || '';
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const yyyy = d.getFullYear();
-      return `${mm}-${dd}-${yyyy}`;
-    } catch (_) {
-      return dateInput || '';
-    }
   };
 
   const handleLike = async () => {
@@ -386,61 +339,78 @@ export default function ContentDetailPage() {
                 description={work.description}
                 tags={work.tags ? work.tags.split(',').map(tag => tag.trim()) : []}
               />
+
+              {/* Discovered on — show four works */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-3">Discovered on</h3>
+                <WorkCardList
+                  items={(relatedWorks || []).slice(0, 4)}
+                  skeletonCount={4}
+                  columnsClass="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  emptyMessage="No related items"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Sidebar - Media Tabs + Queue + Library */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b pb-2">
-              {['videos', 'musics', 'podcasts'].map(tab => (
-                <Button key={tab} variant={activeMediaTab === tab ? 'default' : 'ghost'} size="sm" onClick={() => setActiveMediaTab(tab)} className="capitalize">
-                  {tab}
-                </Button>
-              ))}
+          {/* Sidebar - Artist profile */}
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Artist profile</div>
+              <div className="text-3xl font-bold tracking-tight">{work?.user?.name || 'Unknown Artist'}</div>
+              <div className="text-sm text-muted-foreground">{formatViews(authorFollowersCount)} subscribers</div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground mb-2">Now playing</h3>
-                <div className="flex gap-3 p-2 rounded-lg bg-accent/20">
-                  <div className="w-16 h-16 rounded overflow-hidden bg-muted">
-                    {work.thumbnailUrl && (
-                      <img src={work.thumbnailUrl} alt={work.title} className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium line-clamp-1">{work.title}</div>
-                    <div className="text-xs text-muted-foreground">{work.user.name}</div>
-                  </div>
-                </div>
+            {/* Description card with collapse */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-muted-foreground">Description of this Credit info</h3>
+              <div className="rounded-lg bg-muted/40 p-3">
+                <p className={`text-sm text-muted-foreground ${isDescExpanded ? '' : 'line-clamp-3'}`}>
+                  {work?.description || 'No description available.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setDescExpanded(v => !v)}
+                  className="mt-2 inline-flex items-center gap-2 text-sm"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isDescExpanded ? 'rotate-180' : ''}`} />
+                  {isDescExpanded ? 'Collapse' : 'Expand for more'}
+                </button>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground mb-2">Next in queue</h3>
-                <div className="space-y-2">
-                  {relatedWorks.slice(0, 2).map(item => (
-                    <Link key={item.id} href={`/content/${item.id}`}>
-                      <div className="flex gap-3 p-2 rounded-lg hover:bg-muted/30 cursor-pointer">
-                        <div className="w-16 h-16 rounded overflow-hidden bg-muted">
-                          {item.thumbnailUrl && (
-                            <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium line-clamp-1">{item.title}</div>
-                          <div className="text-xs text-muted-foreground">{item.user.name}</div>
-                        </div>
+            {/* More content list */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground">More content for the artist</h3>
+              <div className="space-y-3">
+                {((relatedWorks || []).filter(item => item?.user?.id === work?.user?.id).length
+                  ? (relatedWorks || []).filter(item => item?.user?.id === work?.user?.id)
+                  : (relatedWorks || [])
+                ).slice(0, 3).map(item => (
+                  <Link key={item.id} href={`/content/${item.id}`}>
+                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
+                      <div className="w-16 h-16 rounded overflow-hidden bg-muted">
+                        {item.thumbnailUrl && (
+                          <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                        )}
                       </div>
-                    </Link>
-                  ))}
-                </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium line-clamp-1">{item.title}</div>
+                        <div className="text-xs text-muted-foreground">{item?.user?.name}</div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
-
-              <div className="rounded-lg border p-3">
-                <h3 className="text-sm font-semibold mb-2">Your library</h3>
-                <p className="text-xs text-muted-foreground mb-3">Create your playlist</p>
-                <Button className="w-full">Create your playlist</Button>
-              </div>
+              {relatedWorks?.length > 3 && (
+                <Link href={`/creator/${work?.user?.id}`}>
+                  <div className="inline-flex items-center gap-2 text-sm hover:underline">
+                    <ChevronRight className="h-4 w-4" />
+                    Show more
+                  </div>
+                </Link>
+              )}
             </div>
           </div>
         </div>

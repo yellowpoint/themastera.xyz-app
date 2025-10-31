@@ -236,7 +236,6 @@ export default function VideoPlayer({
                       // Ensure video covers container without side black bars
                       '--media-object-fit': 'cover',
                       '--media-object-position': 'center'
-
                     }}
                     playbackId={effectivePlaybackId}
                     metadata={{

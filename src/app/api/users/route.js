@@ -29,6 +29,7 @@ export async function GET(request) {
           email: true,
           name: true,
           image: true,
+          description: true,
           level: true,
           points: true,
           createdAt: true,
@@ -79,7 +80,7 @@ export async function POST(request) {
   try {
     const body = await request.json()
     
-    const { id, email, name, image } = body
+    const { id, email, name, image, description } = body
     
     if (!id || !email) {
       return NextResponse.json(
@@ -113,6 +114,7 @@ export async function POST(request) {
         email,
         name: name || null,
         image: image || null,
+        description: description || null,
         level: 'User',
         points: 0
       }

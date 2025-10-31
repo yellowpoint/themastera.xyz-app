@@ -109,6 +109,7 @@ export async function PUT(request, { params }) {
     
     if (body.name !== undefined) updateData.name = body.name
     if (body.image !== undefined) updateData.image = body.image
+    if (body.description !== undefined) updateData.description = body.description
     if (body.level !== undefined) updateData.level = body.level
     if (body.points !== undefined) updateData.points = parseInt(body.points)
 
