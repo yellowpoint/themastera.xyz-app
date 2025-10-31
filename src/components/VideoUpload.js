@@ -92,6 +92,7 @@ export default function VideoUpload({
         throw new Error(assetData?.error || 'Failed to retrieve Mux asset')
       }
       const playbackId = assetData?.asset?.playback_ids?.[0]?.id
+      const durationSec = assetData?.asset?.duration ? Math.round(assetData.asset.duration) : null
       if (!playbackId) {
         throw new Error('No playback ID found on asset')
       }
@@ -106,6 +107,8 @@ export default function VideoUpload({
         originalName: file.name,
         size: file.size,
         type: file.type,
+        durationSeconds: durationSec,
+        duration: formatDuration(durationSec),
       }
 
     } catch (error) {
@@ -321,3 +324,13 @@ export default function VideoUpload({
     </div>
   )
 }
+  const formatDuration = (seconds) => {
+    if (!seconds && seconds !== 0) return null
+    const s = Math.max(0, Math.round(seconds))
+    const h = Math.floor(s / 3600)
+    const m = Math.floor((s % 3600) / 60)
+    const sec = s % 60
+    const mm = h > 0 ? String(m).padStart(2, '0') : String(m)
+    const ss = String(sec).padStart(2, '0')
+    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
+  }

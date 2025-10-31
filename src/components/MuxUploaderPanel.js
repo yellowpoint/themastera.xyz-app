@@ -87,11 +87,12 @@ export default function MuxUploaderPanel({
       throw new Error(assetData?.error || '获取资产信息失败')
     }
     const playbackId = assetData?.asset?.playback_ids?.[0]?.id
+    const durationSec = assetData?.asset?.duration ? Math.round(assetData.asset.duration) : null
     if (!playbackId) {
       throw new Error('资产未包含 playbackId')
     }
     setProgress(100)
-    return { assetId, playbackId, hlsUrl: `https://stream.mux.com/${playbackId}.m3u8` }
+    return { assetId, playbackId, hlsUrl: `https://stream.mux.com/${playbackId}.m3u8`, durationSeconds: durationSec }
   }, [delay])
 
   // 上传成功事件（仅表示文件已成功 PUT 至直传 URL）
@@ -111,6 +112,8 @@ export default function MuxUploaderPanel({
         originalName: 'Uploaded Video',
         size: 0,
         type: 'video',
+        durationSeconds: info.durationSeconds,
+        duration: formatDuration(info.durationSeconds),
       }
       const newUploadedFiles = [...uploadedFiles, newItem]
       setUploadedFiles(newUploadedFiles)
@@ -143,6 +146,17 @@ export default function MuxUploaderPanel({
     const sizes = ['Bytes', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }, [])
+
+  const formatDuration = useCallback((seconds) => {
+    if (!seconds && seconds !== 0) return null
+    const s = Math.max(0, Math.round(seconds))
+    const h = Math.floor(s / 3600)
+    const m = Math.floor((s % 3600) / 60)
+    const sec = s % 60
+    const mm = h > 0 ? String(m).padStart(2, '0') : String(m)
+    const ss = String(sec).padStart(2, '0')
+    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
   }, [])
 
   return (

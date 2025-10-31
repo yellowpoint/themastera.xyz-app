@@ -57,13 +57,15 @@ export default function UploadPage() {
         name: uploadedFiles[0].originalName || 'video.mp4',
         fileUrl: fileUrls,
         playbackId: uploadedFiles[0].playbackId,
-        duration: uploadedFiles[0].duration || '0:00'
+        duration: uploadedFiles[0].duration || '0:00',
+        durationSeconds: uploadedFiles[0].durationSeconds ?? null,
       })
 
       setUploadForm(prev => ({
         ...prev,
         fileUrl: fileUrls,
-        title: prev.title || uploadedFiles[0].originalName?.replace(/\.[^/.]+$/, '') || ''
+        title: prev.title || uploadedFiles[0].originalName?.replace(/\.[^/.]+$/, '') || '',
+        durationSeconds: uploadedFiles[0].durationSeconds ?? null,
       }))
 
       // Try to auto-generate a cover thumbnail from Mux playbackId
@@ -128,7 +130,8 @@ export default function UploadPage() {
       const workData = {
         ...uploadForm,
         userId: user.id,
-        status: 'published'
+        status: 'published',
+        durationSeconds: uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
       }
 
       await createWork(workData)
@@ -155,7 +158,8 @@ export default function UploadPage() {
       const workData = {
         ...uploadForm,
         userId: user.id,
-        status: 'draft'
+        status: 'draft',
+        durationSeconds: uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
       }
 
       await createWork(workData)
@@ -176,7 +180,7 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="bg-background h-full">
+    <div className="h-full light bg-background text-foreground">
       <div className="flex gap-1 h-full">
         {/* Left Sidebar - User Profile Card */}
         <UserProfileSidebar />

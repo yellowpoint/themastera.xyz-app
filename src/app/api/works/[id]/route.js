@@ -137,6 +137,7 @@ export async function PUT(request, { params }) {
     if (body.status !== undefined) updateData.status = body.status
     if (body.fileUrl !== undefined) updateData.fileUrl = body.fileUrl
     if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl
+    if (body.durationSeconds !== undefined) updateData.durationSeconds = parseInt(body.durationSeconds, 10)
 
     // Update work
     const work = await prisma.work.update({

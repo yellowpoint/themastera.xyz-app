@@ -95,6 +95,7 @@ model Work {
   tags         String?
   fileUrl      String?
   thumbnailUrl String?
+  durationSeconds Int?
   status       String?
   earnings     Float    @default(0)
   downloads    Int      @default(0)

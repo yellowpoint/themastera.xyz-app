@@ -125,6 +125,7 @@ export async function POST(request) {
       tags: body.tags || null,
       fileUrl: body.fileUrl || null,
       thumbnailUrl: body.thumbnailUrl || null,
+      durationSeconds: body.durationSeconds !== undefined ? parseInt(body.durationSeconds, 10) : null,
       status: body.status || 'draft',
       isActive: body.isActive !== undefined ? body.isActive : true
     }

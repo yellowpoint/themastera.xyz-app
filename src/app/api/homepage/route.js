@@ -31,7 +31,7 @@ function makeWork(sectionId, idx) {
 
 // Map a Work record to homepage item shape, filling missing UI fields
 function toHomepageItem(work) {
-  const durationSeconds = rnd(60, 360)
+  const durationSeconds = work.durationSeconds ?? rnd(60, 360)
   return {
     id: work.id,
     title: work.title,

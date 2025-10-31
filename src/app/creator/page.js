@@ -11,13 +11,13 @@ import { toast } from 'sonner'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
 } from '@/components/ui/table'
 import {
   DropdownMenu,
@@ -110,7 +110,7 @@ export default function CreatorPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Page title */}
         <div className="mb-8">
@@ -276,7 +276,7 @@ export default function CreatorPage() {
                             <BarChart className="mr-2 h-4 w-4" />
                             Statistics
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => handleDeleteWork(work)}
                           >
