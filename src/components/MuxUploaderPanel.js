@@ -210,7 +210,7 @@ export default function MuxUploaderPanel({
                     <p className="text-sm text-green-600">
                       上传成功 • {formatFileSize(file.size)}
                     </p>
-                    {file.fileUrl && (
+                    {/* {file.fileUrl && (
                       <a
                         href={file.fileUrl}
                         target="_blank"
@@ -219,7 +219,7 @@ export default function MuxUploaderPanel({
                       >
                         预览播放
                       </a>
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <Button

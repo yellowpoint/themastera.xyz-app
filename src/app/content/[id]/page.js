@@ -89,6 +89,14 @@ export default function ContentDetailPage() {
       if (work) {
         setWork(work);
         setDuration(parseDuration(work.duration || '0:00'));
+        
+        // Increment view count after successfully loading work details
+        try {
+          await request.post(`/api/works/${workId}/views`);
+        } catch (viewError) {
+          console.error('Error incrementing view count:', viewError);
+          // Don't show error to user for view count increment failure
+        }
       }
       if (engagement) {
         const { reaction, likesCount, dislikesCount } = engagement;

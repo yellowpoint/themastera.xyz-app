@@ -41,7 +41,7 @@ function toHomepageItem(work) {
       name: work.user?.name || 'Unknown',
       image: work.user?.image || `https://i.pravatar.cc/100?u=${encodeURIComponent(work.user?.id || 'unknown')}`,
     },
-    views: work.downloads || 0,
+    views: work.views || 0,
     downloads: work.downloads || 0,
     duration: formatDuration(durationSeconds),
     durationSeconds,

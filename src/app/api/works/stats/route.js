@@ -30,6 +30,7 @@ export async function GET(request) {
     const stats = {
       totalWorks: works.length,
       totalDownloads: works.reduce((sum, work) => sum + (work.downloads || 0), 0),
+      totalViews: works.reduce((sum, work) => sum + (work.views || 0), 0),
       totalEarnings: works.reduce((sum, work) => sum + (work.earnings || 0), 0),
       averageRating: 0
     }
