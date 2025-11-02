@@ -47,6 +47,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { formatDuration, formatDate, formatViews } from '@/lib/format'
 
 export default function CreatorPage() {
   const router = useRouter()
@@ -60,28 +61,9 @@ export default function CreatorPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
-  // Format duration from seconds to MM:SS
-  const formatDuration = (seconds) => {
-    if (!seconds) return '00:00'
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-
-  // Format date
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${year}-${month}-${day} ${hours}:${minutes}`
-  }
 
   // Filter works based on search and visibility
-  const filteredWorks = [...works, ...works, ...works].filter(work => {
+  const filteredWorks = works.filter(work => {
     const matchesSearch = work.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesVisibility = visibilityFilter === 'all' || work.status === visibilityFilter
     return matchesSearch && matchesVisibility
@@ -94,13 +76,7 @@ export default function CreatorPage() {
     currentPage * itemsPerPage
   )
 
-  // Format number with k suffix
-  const formatNumber = (num) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(2) + ' k'
-    }
-    return num.toString()
-  }
+  // formatters moved to shared module
 
   // Handle delete work
   const handleDeleteWork = async (workId) => {
@@ -269,7 +245,7 @@ export default function CreatorPage() {
                             </TableCell>
                             <TableCell className="text-right whitespace-nowrap">
                               <span className="text-sm text-[#1D2129]">
-                                {formatNumber(work.views || 0)}
+                                {formatViews(work.views || 0)}
                               </span>
                             </TableCell>
                             <TableCell className="whitespace-nowrap">

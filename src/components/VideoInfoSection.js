@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { formatViews, formatDate } from "@/lib/format";
 
 /**
  * VideoInfoSection Component
@@ -16,31 +17,12 @@ export default function VideoInfoSection({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const formatViews = (count) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-    return count.toString();
-  };
-
-  const formatDate = (dateInput) => {
-    try {
-      const d = new Date(dateInput);
-      if (isNaN(d.getTime())) return dateInput || '';
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const yyyy = d.getFullYear();
-      return `${mm}-${dd}-${yyyy}`;
-    } catch (_) {
-      return dateInput || '';
-    }
-  };
-
   return (
     <div className={`flex flex-col gap-2  ${className}`}>
       {/* Stats Row: Views and Date */}
       <div className="px-6">
         <p className=" text-[#FF00FF]">
-          {formatViews(views)} views  {formatDate(uploadDate)}
+          {formatViews(views)} views  {formatDate(uploadDate, 'MM-DD-YYYY')}
         </p>
       </div>
 

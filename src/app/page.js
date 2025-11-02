@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import WorkCard from "@/components/WorkCard";
+import { formatViews } from "@/lib/format";
 // Move WorkCard and WorkCardSkeleton to module scope to keep stable component identity
 // and avoid unmount/mount on frequent parent re-renders (e.g., during video playback).
 const WorkCard2 = React.memo(function WorkCard({ work, resolveThumb, handleImgError, formatViews }) {
@@ -196,11 +197,7 @@ export default function HomePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const formatViews = (views) => {
-    if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
-    if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
-    return views.toString();
-  };
+  // formatViews moved to shared module
 
 
   return (

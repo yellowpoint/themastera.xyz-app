@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { request } from "@/lib/request";
 import { Button } from "./ui/button";
+import { formatViews } from "@/lib/format";
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -23,12 +24,7 @@ function formatTime(seconds) {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-function formatViews(views) {
-  const v = Number.isFinite(views) ? views : 0;
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
-  return v.toString();
-}
+// formatViews moved to shared module
 
 export default function WorkCard({ work }) {
   const brokenThumbsRef = useRef(new Set());

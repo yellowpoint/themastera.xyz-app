@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { formatDuration } from '@/lib/format'
 
 // Helpers
 const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
-const formatDuration = (secs) => {
-  const m = Math.floor(secs / 60)
-  const s = Math.floor(secs % 60)
-  return `${m}:${String(s).padStart(2, '0')}`
-}
 
 function toHomepageItem(work) {
   const durationSeconds = rnd(60, 360)

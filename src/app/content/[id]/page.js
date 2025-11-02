@@ -24,6 +24,7 @@ import VideoInfoSection from "@/components/VideoInfoSection";
 import WorkCardList from "@/components/WorkCardList";
 import { toast } from "sonner";
 import { request } from "@/lib/request";
+import { formatViews } from "@/lib/format";
 
 export default function ContentDetailPage() {
   const params = useParams();
@@ -136,11 +137,7 @@ export default function ContentDetailPage() {
     }
   };
 
-  const formatViews = (views) => {
-    if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
-    if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
-    return views.toString();
-  };
+  // formatViews moved to shared module
 
   const handleLike = async () => {
     try {
