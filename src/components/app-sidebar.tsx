@@ -27,6 +27,7 @@ import {
   SidebarHeader,
   SidebarRail,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { SidebarPlaylistSection } from "./sidebar-playlist-section";
@@ -54,6 +55,19 @@ const data = {
   ],
 };
 
+function SidebarContentWithState() {
+  const { state } = useSidebar();
+  
+  return (
+    <SidebarContent>
+      <NavMain items={data.navMain} title="Main Operations" />
+      {/* <NavMain items={data.navMain2} title="Me" /> */}
+      {/* <NavMain items={data.navMain3} title="Community" /> */}
+      {state === "expanded" && <SidebarPlaylistSection />}
+    </SidebarContent>
+  );
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -69,12 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarTrigger />
         </div> */}
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} title="Main Operations" />
-        {/* <NavMain items={data.navMain2} title="Me" /> */}
-        {/* <NavMain items={data.navMain3} title="Community" /> */}
-        <SidebarPlaylistSection />
-      </SidebarContent>
+      <SidebarContentWithState />
       <SidebarFooter>
         <NavMain items={data.footer} />
         {/* <NavUser user={data.user} /> */}

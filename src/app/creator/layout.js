@@ -1,6 +1,6 @@
 export default function CreatorLayout({ children }) {
   return (
-    <div className="h-full">
+    <div className="">
       {children}
     </div>
   )

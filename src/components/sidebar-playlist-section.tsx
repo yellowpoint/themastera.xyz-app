@@ -78,7 +78,10 @@ export function SidebarPlaylistSection() {
   // Load previously selected playlist from localStorage
   useEffect(() => {
     try {
-      const saved = typeof window !== "undefined" ? window.localStorage.getItem("selectedPlaylistId") : null;
+      const saved =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("selectedPlaylistId")
+          : null;
       if (saved) setSelectedId(saved);
     } catch (_) {
       // ignore storage errors
@@ -121,7 +124,10 @@ export function SidebarPlaylistSection() {
     }
     return () => {
       if (typeof window !== "undefined") {
-        window.removeEventListener("player:now-playing", handler as EventListener);
+        window.removeEventListener(
+          "player:now-playing",
+          handler as EventListener
+        );
       }
     };
   }, []);
@@ -136,7 +142,9 @@ export function SidebarPlaylistSection() {
     const items = selected?.items || [];
     if (!items.length) return { nowPlaying: [], nextQueue: [] };
 
-    const idx = currentPlayingId ? items.findIndex((i) => i.id === currentPlayingId) : -1;
+    const idx = currentPlayingId
+      ? items.findIndex((i) => i.id === currentPlayingId)
+      : -1;
     if (idx === -1) {
       // Nothing playing from this playlist: show empty Now Playing, all items in queue
       return { nowPlaying: [], nextQueue: items };
@@ -283,13 +291,15 @@ export function SidebarPlaylistSection() {
               </div>
               <div className="space-y-3">
                 {nextQueue.length > 0 ? (
-                  nextQueue.slice(0, visibleNextCount).map((item) => (
-                    <PlaylistRow
-                      key={item.id}
-                      item={item}
-                      onDelete={() => handleDeleteItem(item.id)}
-                    />
-                  ))
+                  nextQueue
+                    .slice(0, visibleNextCount)
+                    .map((item) => (
+                      <PlaylistRow
+                        key={item.id}
+                        item={item}
+                        onDelete={() => handleDeleteItem(item.id)}
+                      />
+                    ))
                 ) : (
                   <div className="text-sm text-muted-foreground">
                     No items in queue
