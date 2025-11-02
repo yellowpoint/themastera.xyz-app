@@ -20,22 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell
-} from '@/components/ui/table'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
+import { DataTableWithPagination, DataTable } from '@/components/ui/data-table'
+import { useCreatorColumns } from './columns'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,23 +44,17 @@ export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [searchQuery, setSearchQuery] = useState('')
   const [visibilityFilter, setVisibilityFilter] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5
+  // Pagination moved to DataTable (TanStack) per shadcn docs
 
 
   // Filter works based on search and visibility
-  const filteredWorks = works.filter(work => {
+  const filteredWorks = [...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works,].filter(work => {
     const matchesSearch = work.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesVisibility = visibilityFilter === 'all' || work.status === visibilityFilter
     return matchesSearch && matchesVisibility
   })
 
-  // Pagination
-  const totalPages = Math.ceil(filteredWorks.length / itemsPerPage)
-  const paginatedWorks = filteredWorks.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+
 
   // formatters moved to shared module
 
@@ -178,182 +158,14 @@ export default function CreatorPage() {
                   </Select>
                 </div>
 
-                {/* Table */}
-                <div className="border border-gray-200 rounded-sm overflow-hidden w-full">
-                  <Table className="w-full table-fixed">
-                    <TableHeader>
-                      <TableRow className="bg-gray-100 hover:bg-gray-100">
-                        <TableHead className="font-normal text-[#3B3E3F]">Video</TableHead>
-                        <TableHead className="font-normal text-[#3B3E3F] w-[120px]">Visibility</TableHead>
-                        <TableHead className="font-normal text-[#3B3E3F] text-right w-[120px]">Views</TableHead>
-                        <TableHead className="font-normal text-[#3B3E3F] w-[180px]">Date</TableHead>
-                        <TableHead className="font-normal text-[#3B3E3F] w-[180px]">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedWorks.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                            {worksLoading ? 'Loading...' : 'No works found'}
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        paginatedWorks.map((work) => (
-                          <TableRow key={work.id} className="border-gray-100">
-                            <TableCell className="py-3">
-                              <div className="flex gap-2 items-start min-w-30 h-[72px]">
-                                <div className="relative flex-shrink-0 h-full">
-                                  <div className="w-[100px] h-full bg-gray-200 rounded-lg overflow-hidden">
-                                    <img
-                                      src={work.thumbnailUrl || '/placeholder-video.jpg'}
-                                      alt={work.title}
-                                      className={`w-full h-full object-cover ${work.status === 'draft' ? 'opacity-60' : ''}`}
-                                    />
-                                  </div>
-                                  <div className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-xs px-2 py-0.5 rounded">
-                                    {formatDuration(work.durationSeconds)}
-                                  </div>
-                                </div>
-                                <div className="flex-1 min-w-20 h-full flex flex-col justify-between py-2">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <p className="text-sm font-normal text-[#1D2129] line-clamp-2 mb-1 ">
-                                        {work.title}
-                                      </p>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" className="max-w-xs">
-                                      <p className="text-sm">{work.title}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <p className="text-xs text-[#86909C] truncate line-clamp-2">
-                                        {work.description || 'No description'}
-                                      </p>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" className="max-w-xs">
-                                      <p className="text-sm">{work.description || 'No description'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap">
-                              <span className="text-sm text-[#1D2129] capitalize">
-                                {work.status || 'Draft'}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right whitespace-nowrap">
-                              <span className="text-sm text-[#1D2129]">
-                                {formatViews(work.views || 0)}
-                              </span>
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap">
-                              <span className="text-sm text-[#1D2129]">
-                                {formatDate(work.createdAt)}
-                              </span>
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap">
-                              <div className="flex items-center gap-3">
-                                <button
-                                  onClick={() => router.push(`/creator/edit/${work.id}`)}
-                                  className="text-sm text-[#1D2129] hover:underline whitespace-nowrap"
-                                >
-                                  Edit
-                                </button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="text-[#4E5969] hover:text-[#1D2129]">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => router.push(`/creator/edit/${work.id}`)}>
-                                      Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => router.push(`/content/${work.id}`)}>
-                                      View
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      className="text-red-600"
-                                      onClick={() => handleDeleteWork(work.id)}
-                                    >
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                {/* Data Table (TanStack + shadcn) with doc-style pagination */}
+                <DataTableWithPagination
+                  columns={useCreatorColumns()}
+                  data={filteredWorks}
+                // pageSizeOptions={[5, 10, 20, 50]}
+                />
 
-                {/* Pagination */}
-                <div className="flex justify-end py-2">
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className="text-[#1D2129]">Total {filteredWorks.length} items</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="p-3 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M7.5 9L4.5 6L7.5 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
-                      {[...Array(Math.min(5, totalPages))].map((_, index) => {
-                        const pageNum = index + 1
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`min-w-[36px] h-[36px] px-2 rounded ${currentPage === pageNum
-                              ? 'bg-[#F4E8FF] text-[#805333]'
-                              : 'text-[#4E5969] hover:bg-gray-100'
-                              }`}
-                          >
-                            {pageNum}
-                          </button>
-                        )
-                      })}
-                      <button
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="p-3 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M4.5 3L7.5 6L4.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
-                      <div className="flex items-center gap-2 ml-2">
-                        <Select defaultValue="5">
-                          <SelectTrigger className="w-24 h-9 bg-[#F7F8FA] border-0">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5">5 / Page</SelectItem>
-                            <SelectItem value="10">10 / Page</SelectItem>
-                            <SelectItem value="20">20 / Page</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2 ml-2">
-                        <span className="text-[#86909C] text-sm">Go to</span>
-                        <Input
-                          type="number"
-                          min="1"
-                          max={totalPages}
-                          className="w-16 h-9 text-center bg-[#F7F8FA] border-0"
-                          defaultValue="20"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {/* Pagination handled by DataTableWithPagination per docs */}
               </div>
             </TabsContent>
 
