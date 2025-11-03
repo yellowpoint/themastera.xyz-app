@@ -46,7 +46,7 @@ export default function TopHeader() {
             <>
               <Button
                 variant="secondary"
-                onClick={() => router.push('/creator')}
+                onClick={() => router.push('/creator/upload')}
               >
                 <span className="text-lg">+</span> Create
               </Button>

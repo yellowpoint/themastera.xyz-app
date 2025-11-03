@@ -2,36 +2,36 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
 // datasource db {
-//   provider  = "postgresql"
-//   url       = env("DATABASE_URL")
-//   directUrl = env("DIRECT_URL")
+//   provider = "sqlite"
+//   url      = "file:./dev.db"
 // }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
 model User {
-  id            String     @id
+  id            String        @id
   name          String
   email         String
-  emailVerified Boolean    @default(false)
+  emailVerified Boolean       @default(false)
   image         String?
   description   String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  level         String     @default("User")
-  points        Int        @default(0)
-  earnings      Float      @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  level         String        @default("User")
+  points        Int           @default(0)
+  earnings      Float         @default(0)
   sessions      Session[]
   accounts      Account[]
   works         Work[]
   purchases     Purchase[]
   reviews       Review[]
-  followers     Follow[]   @relation("UserFollowers")
-  following     Follow[]   @relation("UserFollowing")
+  followers     Follow[]      @relation("UserFollowers")
+  following     Follow[]      @relation("UserFollowing")
   workLikes     WorkLike[]
   workDislikes  WorkDislike[]
   playlists     Playlist[]
@@ -88,32 +88,32 @@ model Verification {
 // 应用特定模型
 
 model Work {
-  id           String   @id @default(uuid())
-  title        String
-  description  String?
-  price        Float
-  category     String
-  language     String?
-  tags         String?
-  fileUrl      String?
-  thumbnailUrl String?
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  price           Float
+  category        String
+  language        String?
+  tags            String?
+  fileUrl         String?
+  thumbnailUrl    String?
   durationSeconds Int?
-  status       String?
-  earnings     Float    @default(0)
-  downloads    Int      @default(0)
-  views        Int      @default(0)
-  rating       Float    @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status          String?
+  earnings        Float    @default(0)
+  downloads       Int      @default(0)
+  views           Int      @default(0)
+  rating          Float    @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // 关联
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  purchases Purchase[]
-  reviews   Review[]
-  workLikes    WorkLike[]
-  workDislikes WorkDislike[]
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchases       Purchase[]
+  reviews         Review[]
+  workLikes       WorkLike[]
+  workDislikes    WorkDislike[]
   playlistEntries PlaylistEntry[]
 
   @@map("works")
@@ -204,7 +204,7 @@ model Playlist {
 
   // 关联到用户
   userId String
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // 关联到播放列表条目
   entries PlaylistEntry[]
@@ -214,8 +214,8 @@ model Playlist {
 
 // 播放列表条目（指向具体作品）
 model PlaylistEntry {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
   // 关联到播放列表
   playlistId String
@@ -223,7 +223,7 @@ model PlaylistEntry {
 
   // 关联到作品
   workId String
-  work   Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
 
   // 每个播放列表中同一作品只出现一次
   @@unique([playlistId, workId])

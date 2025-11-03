@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef(null)
-  
+
   // Form state
   const [formData, setFormData] = useState({
     name: user?.name || 'Jacky Q',
@@ -191,7 +191,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-full">
       <div className="max-w-4xl mx-auto py-8 px-4">
         <Card className="w-full">
           <CardContent className="p-8">
@@ -220,7 +220,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Profile Info */}
               <div className="lg:col-span-2 space-y-6">
-            {/* Avatar Section */}
+                {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
                     <div className="w-[168px] h-[168px] rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
@@ -238,7 +238,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                     </div>
-                    
+
                     {isEditing && (
                       <div
                         className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                         )}
                       </div>
                     )}
-                    
+
                     <input
                       ref={fileInputRef}
                       type="file"

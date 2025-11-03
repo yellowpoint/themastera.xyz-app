@@ -38,6 +38,7 @@ const data = {
     { title: "Home", url: "/", icon: Home },
     { title: "Subscriptions", url: "/subscriptions", icon: BookOpen },
     { title: "History", url: "/history", icon: History },
+    { title: "Creator", url: "/creator", icon: SquareTerminal },
   ],
   navMain2: [
     { title: "Me", url: "/me", icon: GalleryVerticalEnd },
@@ -57,7 +58,7 @@ const data = {
 
 function SidebarContentWithState() {
   const { state } = useSidebar();
-  
+
   return (
     <SidebarContent>
       <NavMain items={data.navMain} title="Main Operations" />

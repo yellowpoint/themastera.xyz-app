@@ -7,7 +7,7 @@ const mux = new Mux({
 })
 
 export async function GET(req, { params }) {
-  const { id } = params
+  const { id } = await params
   if (!id) {
     return NextResponse.json({ success: false, error: 'Missing asset id' }, { status: 400 })
   }
