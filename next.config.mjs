@@ -2,13 +2,12 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    // remotePatterns: [new URL('https://image.mux.com/**')],
+    // Allow loading images from Mux CDN. Do not use empty strings.
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'image.mux.com',
-        port: '',
-        pathname: '',
+        pathname: '/**',
       },
     ],
   },

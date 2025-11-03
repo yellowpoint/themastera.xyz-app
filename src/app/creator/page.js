@@ -46,6 +46,9 @@ export default function CreatorPage() {
   const [visibilityFilter, setVisibilityFilter] = useState('all')
   // Pagination moved to DataTable (TanStack) per shadcn docs
 
+  // Columns for DataTable - must be called unconditionally (Rules of Hooks)
+  const columns = useCreatorColumns()
+
 
   // Filter works based on search and visibility
   const filteredWorks = [...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works,].filter(work => {
@@ -160,7 +163,7 @@ export default function CreatorPage() {
 
                 {/* Data Table (TanStack + shadcn) with doc-style pagination */}
                 <DataTableWithPagination
-                  columns={useCreatorColumns()}
+                  columns={columns}
                   data={filteredWorks}
                 // pageSizeOptions={[5, 10, 20, 50]}
                 />
