@@ -185,10 +185,10 @@ export default function UploadPage() {
         {/* Left Sidebar - User Profile Card */}
         <UserProfileSidebar />
 
-        <Separator orientation="vertical" className="h-auto opacity-20" />
+        {/* <Separator orientation="vertical" className="h-auto opacity-20" /> */}
 
         {/* Middle Content - Upload Form */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <div className="flex-1 flex flex-col h-full overflow-hidden pb-18">
           <div className="bg-white px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
             {/* Header */}
             <div className="flex justify-between items-start">
@@ -301,7 +301,7 @@ export default function UploadPage() {
 
                 <div className="py-2">
                   <Select value={uploadForm.category} onValueChange={(val) => setUploadForm(prev => ({ ...prev, category: val }))}>
-                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2">
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
                       <div className="px-3 py-2">
                         <SelectValue placeholder="Select music style" className="text-2xl font-normal" />
                       </div>
@@ -328,7 +328,7 @@ export default function UploadPage() {
 
                 <div className="py-2">
                   <Select value={uploadForm.language} onValueChange={(val) => setUploadForm(prev => ({ ...prev, language: val }))}>
-                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2">
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
                       <div className="px-3 py-2">
                         <SelectValue placeholder="Select language" className="text-2xl font-normal" />
                       </div>
@@ -370,7 +370,7 @@ export default function UploadPage() {
           </div>
 
           {/* Bottom Confirmation Bar */}
-          <div className="bg-white border-t px-6 py-4 flex-shrink-0">
+          <div className="bg-white border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-[300px] right-0 z-999">
             <div className="flex justify-between items-center">
               <Button variant="ghost" className="text-primary text-sm" onClick={handleSaveDraft}>
                 Save a draft
@@ -391,7 +391,7 @@ export default function UploadPage() {
         <Separator orientation="vertical" className="h-auto opacity-20" />
 
         {/* Right Sidebar - Video Status */}
-        <div className="w-[427px] bg-white overflow-y-auto">
+        <div className="flex-none w-[250px] bg-white overflow-y-auto">
           <div className="p-6 space-y-6">
             <h2 className="text-2xl font-normal text-primary">Video status</h2>
 

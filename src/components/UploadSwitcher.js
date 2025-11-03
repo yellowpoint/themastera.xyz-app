@@ -18,7 +18,7 @@ export default function UploadSwitcher({ onUploadComplete }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
         <Button
           variant={method === 'mux-uploader' ? 'solid' : 'flat'}
           color="primary"
@@ -33,7 +33,7 @@ export default function UploadSwitcher({ onUploadComplete }) {
         >
           手动直传（现有方案）
         </Button>
-      </div>
+      </div> */}
 
       {method === 'mux-uploader' ? (
         <MuxUploaderPanel onUploadComplete={onUploadComplete} />

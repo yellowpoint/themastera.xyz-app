@@ -23,7 +23,7 @@ export default function UserProfileSidebar({ className = '' }) {
   }
 
   return (
-    <div className={`w-[413px] bg-white overflow-y-auto ${className}`}>
+    <div className={`flex-none w-[300px] bg-white overflow-y-auto border-r border-dashed border-gray-300 ${className}`}>
       <div className="p-6 space-y-3">
         {/* Profile Header */}
         <div className="flex flex-col items-center gap-4 pb-6">

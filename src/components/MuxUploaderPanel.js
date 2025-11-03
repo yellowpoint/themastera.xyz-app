@@ -162,10 +162,6 @@ export default function MuxUploaderPanel({
   return (
     <div className="w-full space-y-4">
       <div className="border border-gray-200 rounded-lg p-4">
-        <h4 className="font-medium mb-2">Mux Uploader（官方组件）</h4>
-        <p className="text-sm text-gray-500 mb-3">
-          每次上传会自动创建新的直传链接并显示上传进度，上传完成后将自动查询播放信息。
-        </p>
 
         <MuxUploader
           endpoint={getEndpoint}
