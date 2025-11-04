@@ -106,6 +106,14 @@ export default function ContentDetailPage() {
           console.error('Error incrementing view count:', viewError);
           // Don't show error to user for view count increment failure
         }
+
+        // Record watch history (upsert latest viewed timestamp)
+        try {
+          await request.post('/api/history', { workId });
+        } catch (historyError) {
+          // Do not block page on history errors
+          console.error('Error recording watch history:', historyError);
+        }
       }
       if (engagement) {
         const { reaction, likesCount, dislikesCount } = engagement;

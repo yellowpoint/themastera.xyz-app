@@ -35,6 +35,7 @@ model User {
   workLikes     WorkLike[]
   workDislikes  WorkDislike[]
   playlists     Playlist[]
+  watchHistory  WatchHistory[]
 
   @@unique([email])
   @@map("user")
@@ -115,6 +116,7 @@ model Work {
   workLikes       WorkLike[]
   workDislikes    WorkDislike[]
   playlistEntries PlaylistEntry[]
+  watchHistories  WatchHistory[]
 
   @@map("works")
 }
@@ -228,4 +230,18 @@ model PlaylistEntry {
   // 每个播放列表中同一作品只出现一次
   @@unique([playlistId, workId])
   @@map("playlist_entries")
+}
+
+// 观看历史（用户观看过的作品，每个用户每个作品保留单条记录，按最近观看时间更新）
+model WatchHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  workId    String
+  watchedAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@map("watch_history")
 }
