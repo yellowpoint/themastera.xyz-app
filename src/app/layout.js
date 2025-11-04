@@ -7,6 +7,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar'
 import TopHeader from '@/components/TopHeader'
+import AuthRequired from '@/components/auth-required'
 
 export const metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
@@ -53,7 +54,9 @@ export default function RootLayout({ children }) {
             <SidebarInset className="flex flex-col h-screen">
               <TopHeader />
               <div className="flex-1 mt-16 overflow-auto border-t-4 border-l-4 border-secondary">
-                {children}
+                <AuthRequired>
+                  {children}
+                </AuthRequired>
               </div>
             </SidebarInset>
           </SidebarProvider>

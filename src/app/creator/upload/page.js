@@ -366,7 +366,7 @@ export default function UploadPage() {
           </div>
 
           {/* Bottom Confirmation Bar */}
-          <div className="bg-white border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-[300px] right-0 z-999">
+          <div className="bg-white border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
             <div className="flex justify-between items-center">
               <Button variant="ghost" className="text-primary text-sm" onClick={handleSaveDraft}>
                 Save a draft

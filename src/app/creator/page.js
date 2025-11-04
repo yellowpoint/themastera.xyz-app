@@ -22,18 +22,8 @@ import {
 } from '@/components/ui/select'
 import { DataTableWithPagination, DataTable } from '@/components/ui/data-table'
 import { useCreatorColumns } from './columns'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { formatDuration, formatDate, formatViews } from '@/lib/format'
+
+
 
 export default function CreatorPage() {
   const router = useRouter()
@@ -74,28 +64,7 @@ export default function CreatorPage() {
     }
   }
 
-  // If user is not logged in, show login prompt
-  if (!authLoading && !user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4 shadow-lg border">
-          <div className="text-center p-8">
-            <h2 className="text-2xl font-bold mb-4">Creator Center</h2>
-            <p className="text-muted-foreground mb-6">
-              Please login to access creator features
-            </p>
-            <Button
-              size="lg"
-              onClick={() => router.push('/auth/login')}
-              className="w-full"
-            >
-              Login / Register
-            </Button>
-          </div>
-        </Card>
-      </div>
-    )
-  }
+  // Auth handling unified in root layout via AuthRequired
 
   return (
     <div className="min-h-screen bg-gray-50">
