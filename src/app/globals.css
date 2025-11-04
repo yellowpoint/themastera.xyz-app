@@ -125,9 +125,6 @@
 :root {
   --radius: 8px;
 }
-body {
-  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
-}
 
 @layer base {
   * {

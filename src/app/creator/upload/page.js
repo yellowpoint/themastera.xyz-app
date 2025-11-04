@@ -182,10 +182,6 @@ export default function UploadPage() {
   return (
     <div className="h-full light bg-background text-foreground">
       <div className="flex gap-1 h-full">
-        {/* Left Sidebar - User Profile Card */}
-        <UserProfileSidebar />
-
-        {/* <Separator orientation="vertical" className="h-auto opacity-20" /> */}
 
         {/* Middle Content - Upload Form */}
         <div className="flex-1 flex flex-col h-full overflow-hidden pb-18">

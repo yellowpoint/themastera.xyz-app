@@ -1,5 +1,5 @@
 import './globals.css'
-import { Lexend } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Providers } from './providers'
 import { AppSidebar } from '@/components/app-sidebar'
 import {
@@ -15,16 +15,38 @@ export const metadata = {
   authors: [{ name: 'Mastera Team' }],
 }
 
-const lexend = Lexend({
-  subsets: ['latin'],
-  variable: '--font-sans',
+const lexend = localFont({
+  variable: '--default-font-family',
   display: 'swap',
+  preload: true,
+  src: [
+    {
+      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-400-normal.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-500-normal.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-600-normal.woff2',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-700-normal.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
 })
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${lexend.variable} antialiased h-screen overflow-hidden`}>
+    <html lang="en" className={`${lexend.variable} antialiased`} suppressHydrationWarning>
+      <body className={`h-screen overflow-hidden`}>
         <Providers>
           <SidebarProvider>
             <AppSidebar className='pt-16' />
