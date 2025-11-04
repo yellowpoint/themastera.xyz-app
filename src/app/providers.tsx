@@ -7,13 +7,15 @@ import { usePathname } from "next/navigation";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isCreatorPath = pathname?.startsWith("/creator") ?? false;
+  const lightModePaths = ["/creator", "/user"];
+  const isLightModePath =
+    lightModePaths.some((p) => pathname?.startsWith(p)) ?? false;
 
   return (
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      forcedTheme={isCreatorPath ? "light" : "dark"}
+      forcedTheme={isLightModePath ? "light" : "dark"}
       enableSystem={false}
     >
       <AuthProvider>

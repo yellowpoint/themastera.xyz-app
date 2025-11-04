@@ -14,6 +14,7 @@ function makeWork(sectionId, idx) {
     thumbnailUrl: `https://picsum.photos/seed/${encodeURIComponent(sectionId)}-${idx}/800/450`,
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     user: {
+      id: `mock-user-${idx + 1}`,
       name: `Artist ${idx + 1}`,
       image: `https://i.pravatar.cc/100?img=${(idx % 70) + 1}`,
     },
@@ -34,6 +35,7 @@ function toHomepageItem(work) {
     thumbnailUrl: work.thumbnailUrl || `https://picsum.photos/seed/${encodeURIComponent(work.id)}/800/450`,
     videoUrl: work.fileUrl || null,
     user: {
+      id: work.user?.id || null,
       name: work.user?.name || 'Unknown',
       image: work.user?.image || `https://i.pravatar.cc/100?u=${encodeURIComponent(work.user?.id || 'unknown')}`,
     },

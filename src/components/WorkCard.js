@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MoreVertical, ListPlus } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -30,6 +31,7 @@ export default function WorkCard({ work }) {
   const brokenThumbsRef = useRef(new Set());
   const [playlists, setPlaylists] = useState([]);
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  const router = useRouter();
 
   const fetchPlaylists = useCallback(async () => {
     if (loadingPlaylists) return;
@@ -78,6 +80,14 @@ export default function WorkCard({ work }) {
   const viewsCount = typeof work?.views === "number" ? work.views : (typeof work?.downloads === "number" ? work.downloads : 0);
   const durationLabel = work?.duration ? work.duration : (work?.durationSeconds ? formatTime(work.durationSeconds) : "0:00");
 
+  const goToUser = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(work);
+    const id = work?.user?.id;
+    if (id) router.push(`/user/${id}`);
+  }, [router, work?.user?.id, fetchPlaylists]);
+
   return (
     <Link href={`/content/${work?.id}`} className="group cursor-pointer block">
       <div className="relative mb-3">
@@ -99,7 +109,7 @@ export default function WorkCard({ work }) {
         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none">
         </div>
         <div className="flex items-start gap-3 mt-3">
-          <Avatar className="h-9 w-9 flex-shrink-0">
+          <Avatar className="h-9 w-9 flex-shrink-0 cursor-pointer" onClick={goToUser}>
             <AvatarImage src={work?.user?.image} />
             <AvatarFallback>{work?.user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
@@ -152,7 +162,7 @@ export default function WorkCard({ work }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-1 cursor-pointer hover:text-foreground" onClick={goToUser}>
               {work?.user?.name || "Unknown Creator"}
             </p>
           </div>

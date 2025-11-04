@@ -14,6 +14,10 @@ export async function GET(request, { params }) {
             id: true,
             title: true,
             category: true,
+            language: true,
+            fileUrl: true,
+            thumbnailUrl: true,
+            durationSeconds: true,
             status: true,
             downloads: true,
             earnings: true,
@@ -76,10 +80,10 @@ export async function GET(request, { params }) {
   } catch (error) {
     console.error('Error fetching user:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to fetch user',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )
@@ -106,7 +110,7 @@ export async function PUT(request, { params }) {
 
     // 准备更新数据
     const updateData = {}
-    
+
     if (body.name !== undefined) updateData.name = body.name
     if (body.image !== undefined) updateData.image = body.image
     if (body.description !== undefined) updateData.description = body.description
@@ -136,10 +140,10 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error('Error updating user:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to update user',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )
@@ -175,14 +179,14 @@ export async function DELETE(request, { params }) {
     }
 
     // 检查是否有关联数据
-    const hasRelatedData = existingUser._count.works > 0 || 
-                          existingUser._count.purchases > 0 || 
-                          existingUser._count.reviews > 0
+    const hasRelatedData = existingUser._count.works > 0 ||
+      existingUser._count.purchases > 0 ||
+      existingUser._count.reviews > 0
 
     if (hasRelatedData && !force) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'User has related data. Use force=true to delete anyway.',
           relatedData: existingUser._count
         },
@@ -203,10 +207,10 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     console.error('Error deleting user:', error)
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to delete user',
-        message: error.message 
+        message: error.message
       },
       { status: 500 }
     )
