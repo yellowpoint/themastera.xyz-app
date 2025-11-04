@@ -25,6 +25,7 @@ import WorkCardList from "@/components/WorkCardList";
 import { toast } from "sonner";
 import { request } from "@/lib/request";
 import { formatViews } from "@/lib/format";
+import { SidebarPlaylistSection } from "@/components/sidebar-playlist-section";
 
 export default function ContentDetailPage() {
   const params = useParams();
@@ -377,37 +378,9 @@ export default function ContentDetailPage() {
               </div>
             </div>
 
-            {/* More content list */}
+            {/* Playlist moved here from Sidebar */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-muted-foreground">More content for the artist</h3>
-              <div className="space-y-3">
-                {((relatedWorks || []).filter(item => item?.user?.id === work?.user?.id).length
-                  ? (relatedWorks || []).filter(item => item?.user?.id === work?.user?.id)
-                  : (relatedWorks || [])
-                ).slice(0, 3).map(item => (
-                  <Link key={item.id} href={`/content/${item.id}`}>
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
-                      <div className="w-16 h-16 rounded overflow-hidden bg-muted">
-                        {item.thumbnailUrl && (
-                          <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium line-clamp-1">{item.title}</div>
-                        <div className="text-xs text-muted-foreground">{item?.user?.name}</div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              {relatedWorks?.length > 3 && (
-                <Link href={`/creator/${work?.user?.id}`}>
-                  <div className="inline-flex items-center gap-2 text-sm hover:underline">
-                    <ChevronRight className="h-4 w-4" />
-                    Show more
-                  </div>
-                </Link>
-              )}
+              <SidebarPlaylistSection />
             </div>
           </div>
         </div>

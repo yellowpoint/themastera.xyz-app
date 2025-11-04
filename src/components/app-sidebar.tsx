@@ -30,7 +30,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { SidebarPlaylistSection } from "./sidebar-playlist-section";
 
 // This is sample data.
 const data = {
@@ -64,7 +63,7 @@ function SidebarContentWithState() {
       <NavMain items={data.navMain} title="Main Operations" />
       {/* <NavMain items={data.navMain2} title="Me" /> */}
       {/* <NavMain items={data.navMain3} title="Community" /> */}
-      {state === "expanded" && <SidebarPlaylistSection />}
+      {/* Playlist section moved to Content detail page */}
     </SidebarContent>
   );
 }
