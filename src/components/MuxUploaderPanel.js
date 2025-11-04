@@ -161,7 +161,7 @@ export default function MuxUploaderPanel({
 
   return (
     <div className="w-full space-y-4">
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div className="rounded-lg p-8 text-center ">
 
         <MuxUploader
           endpoint={getEndpoint}
@@ -169,7 +169,17 @@ export default function MuxUploaderPanel({
           maxFileSize={maxFileSize / 1024} // kB
           onSuccess={handleSuccess}
           onUploadError={handleUploadError}
-        />
+          noProgress
+          noStatus
+          className="inline-flex flex-col items-center gap-4 w-full [--overlay-background-color:transparent] [--progress-bar-fill-color:#6b7280] border-0!"
+        >
+          <div className="flex flex-col items-center gap-4" slot="file-select">
+            <Video className="w-12 h-12 text-gray-400" />
+            <p className="text-lg">Drag and drop video files to upload</p>
+            <p className="text-sm text-gray-500">Your videos will be private until you publish them</p>
+            <button className="px-5 py-2 rounded bg-[#6E56CF] text-white">Select files</button>
+          </div>
+        </MuxUploader>
 
         {/* 上传进度 */}
         {uploading && (

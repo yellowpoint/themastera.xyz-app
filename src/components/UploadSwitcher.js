@@ -12,7 +12,7 @@ import MuxUploaderPanel from './MuxUploaderPanel'
  * - 官方组件（MuxUploaderPanel）
  */
 export default function UploadSwitcher({ onUploadComplete }) {
-  const [method, setMethod] = useState('mux-uploader') // 'mux-uploader' | 'manual-mux'
+  const [method, setMethod] = useState('manual-mux') // 'mux-uploader' | 'manual-mux'
 
   const handleSwitch = useCallback((next) => setMethod(next), [])
 

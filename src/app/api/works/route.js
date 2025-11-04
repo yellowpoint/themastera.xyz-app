@@ -101,32 +101,47 @@ export async function POST(request) {
 
     const body = await request.json()
 
-    // Validate required fields
-    const { title, description, category } = body
+    // Validate required fields based on status
+    const { title, description, category, status, fileUrl } = body
 
-    if (!title || !description || !category) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required fields',
-          required: ['title', 'description', 'category']
-        },
-        { status: 400 }
-      )
+    // For drafts, only require fileUrl
+    if ((status || 'draft') === 'draft') {
+      if (!fileUrl) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'fileUrl is required for draft'
+          },
+          { status: 400 }
+        )
+      }
+    } else {
+      // For non-draft (e.g., publish), require core fields
+      if (!title || !description || !category) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Missing required fields',
+            required: ['title', 'description', 'category']
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // 准备创建数据，使用cookie中的用户ID
     const createData = {
-      title,
-      description,
-      category,
+      // Only set fields if provided, drafts may omit many fields
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(category && { category }),
       userId,
-      price: parseFloat(body.price) || 0,
+      price: body.price !== undefined ? parseFloat(body.price) : 0,
       tags: body.tags || null,
-      fileUrl: body.fileUrl || null,
+      fileUrl: fileUrl || null,
       thumbnailUrl: body.thumbnailUrl || null,
       durationSeconds: body.durationSeconds !== undefined ? parseInt(body.durationSeconds, 10) : null,
-      status: body.status || 'draft',
+      status: status || 'draft',
       isActive: body.isActive !== undefined ? body.isActive : true
     }
 

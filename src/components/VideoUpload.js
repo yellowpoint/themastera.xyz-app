@@ -4,26 +4,30 @@ import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
-import { Upload, X, Video, Check } from 'lucide-react'
+import { Upload, X, Video, Check, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { formatDate, formatDuration } from '@/lib/format'
 
 export default function VideoUpload({
   onUploadComplete,
   maxSize = 50 * 1024 * 1024, // 50MB
-  bucket = 'data',
-  folder = ''
+  readOnly = false,
+  initialFiles = [],
 }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [dragActive, setDragActive] = useState(false)
   const [error, setError] = useState('')
   const [uploadedFiles, setUploadedFiles] = useState([])
+  const [failedFiles, setFailedFiles] = useState([])
   const fileInputRef = useRef(null)
   const { user } = useAuth()
 
-  // Ensure bucket and folder parameters are valid
-  const storageBucket = bucket || 'data'
-  const storageFolder = folder ? `${folder}/` : ''
+  // Initialize with provided files in read-only mode
+  if (readOnly && uploadedFiles.length === 0 && Array.isArray(initialFiles) && initialFiles.length > 0) {
+    // Set once to avoid re-renders; rely on parent controlling data
+    setUploadedFiles(initialFiles)
+  }
 
   // Upload a single file via Mux Direct Upload
   const uploadFile = async (file) => {
@@ -109,6 +113,7 @@ export default function VideoUpload({
         type: file.type,
         durationSeconds: durationSec,
         duration: formatDuration(durationSec),
+        completedAt: new Date().toISOString(),
       }
 
     } catch (error) {
@@ -119,72 +124,35 @@ export default function VideoUpload({
     }
   }
 
-  // Upload multiple files
-  const uploadFiles = async (files) => {
-    if (!files || files.length === 0) {
-      throw new Error('No files provided')
-    }
-
-    setUploading(true)
-    const results = []
-    const errors = []
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        try {
-          const result = await uploadFile(files[i])
-          results.push(result)
-        } catch (error) {
-          errors.push({ file: files[i].name, error: error.message })
-        }
-      }
-
-      return {
-        results,
-        errors,
-        success: errors.length === 0
-      }
-    } finally {
-      setUploading(false)
-    }
-  }
-
   const handleFileSelect = async (files) => {
-    setError('') // Clear previous errors
+    setError('')
     const fileArray = Array.from(files)
-    
-    // Validate file type (only allow video files)
-    const validFiles = fileArray.filter(file => {
-      if (!file.type.startsWith('video/')) {
-        setError(`File ${file.name} is not a video file`)
-        return false
-      }
-      if (file.size > maxSize) {
-        setError(`File ${file.name} exceeds size limit (${maxSize / 1024 / 1024}MB)`)
-        return false
-      }
-      return true
-    })
+    if (fileArray.length > 1) {
+      setError('Please select only one file')
+      return
+    }
 
-    if (validFiles.length === 0) return
+    const file = fileArray[0]
+    if (!file) return
 
-    // Start uploading automatically
+    if (!file.type.startsWith('video/')) {
+      setError(`File ${file.name} is not a video file`)
+      return
+    }
+    if (file.size > maxSize) {
+      setError(`File ${file.name} exceeds size limit (${maxSize / 1024 / 1024}MB)`)
+      return
+    }
+
     try {
       setUploading(true)
-      const uploadResult = await uploadFiles(validFiles)
-
-      if (uploadResult && uploadResult.results) {
-        const newUploadedFiles = [...uploadedFiles, ...uploadResult.results];
-        setUploadedFiles(newUploadedFiles);
-        
-        // Pass file information
-        onUploadComplete?.(newUploadedFiles);
-        setError('');
-      } else {
-        setError('Upload failed: No valid upload result received')
-      }
+      const result = await uploadFile(file)
+      const newUploadedFiles = [...uploadedFiles, result]
+      setUploadedFiles(newUploadedFiles)
+      onUploadComplete?.(newUploadedFiles)
     } catch (error) {
       console.error('Upload failed:', error)
+      setFailedFiles((prev) => [...prev, { file, error: error.message }])
       setError(error.message || 'Upload failed, please try again')
     } finally {
       setUploading(false)
@@ -207,6 +175,10 @@ export default function VideoUpload({
     setDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      if (e.dataTransfer.files.length > 1) {
+        setError('Please drop only one file')
+        return
+      }
       handleFileSelect(e.dataTransfer.files)
     }
   }
@@ -223,6 +195,24 @@ export default function VideoUpload({
     onUploadComplete?.(newFiles)
   }
 
+  const retryFailed = async (index) => {
+    const item = failedFiles[index]
+    if (!item?.file) return
+    setError('')
+    try {
+      setUploading(true)
+      const result = await uploadFile(item.file)
+      setUploadedFiles((prev) => [...prev, result])
+      setFailedFiles((prev) => prev.filter((_, i) => i !== index))
+      onUploadComplete?.([...uploadedFiles, result])
+    } catch (e) {
+      setFailedFiles((prev) => prev.map((f, i) => i === index ? { ...f, error: e.message || 'Upload failed, please retry' } : f))
+      setError(e.message || 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes'
     const k = 1024
@@ -234,44 +224,69 @@ export default function VideoUpload({
   return (
     <div className="w-full space-y-4">
       {/* Video file upload area */}
-      <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
-          ? 'border-primary bg-primary/10'
-          : 'border-gray-300 hover:border-gray-400'
-          }`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <Video className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <p className="text-lg font-medium mb-2">
-          Click or drag video files here to upload
-        </p>
-        <p className="text-sm text-gray-500">
-          Supported formats: MP4, MOV, AVI, MKV | Max size: {maxSize / 1024 / 1024}MB
-        </p>
+      {!readOnly && (
+        <div
+          className={`rounded-lg p-10 text-center transition-colors cursor-pointer ${dragActive
+            ? 'bg-primary/5'
+            : 'hover:bg-gray-50'
+            }`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div className="w-28 h-28 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+            <Upload className="w-10 h-10 text-gray-400" />
+          </div>
+          <p className="text-xl font-semibold mb-2">
+            Drag and drop a video file to upload
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            Your videos will be private until you publish them
+          </p>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-[#6E56CF] text-white"
+          >
+            Select file
+          </button>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={handleInputChange}
-          className="hidden"
-        />
-      </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            onChange={handleInputChange}
+            className="hidden"
+          />
+        </div>
+      )}
 
-      {/* Error message */}
-      {error && (
-        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+
+
+      {/* Failed uploads list with retry */}
+      {!readOnly && failedFiles.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="font-medium text-red-600">Upload errors:</h4>
+          {failedFiles.map((item, index) => (
+            <Card key={`failed-${index}`} className="border-red-200">
+              <CardContent className="flex items-center justify-between p-3">
+                <div>
+                  <p className="font-medium text-red-800">{item.file?.name || 'Unknown file'}</p>
+                  <p className="text-sm text-red-600">{item.error || 'Upload failed'}</p>
+                </div>
+                <Button size="sm" variant="default" onClick={() => retryFailed(index)}>
+                  <RefreshCw className="w-4 h-4 mr-1" /> Retry
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
       {/* Upload progress */}
-      {uploading && (
+      {!readOnly && uploading && (
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Uploading...</span>
@@ -282,7 +297,7 @@ export default function VideoUpload({
       )}
 
       {/* List of uploaded videos */}
-      {uploadedFiles.length > 0 && (
+      {!readOnly && uploadedFiles.length > 0 && (
         <div className="space-y-2">
           <h4 className="font-medium text-green-600">Uploaded videos:</h4>
           {uploadedFiles.map((file, index) => (
@@ -297,40 +312,25 @@ export default function VideoUpload({
                     <p className="text-sm text-green-600">
                       Upload successful • {formatFileSize(file.size)}
                     </p>
-                    {file.fileUrl && (
-                      <a
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        View Video
-                      </a>
+                    {file.completedAt && (
+                      <p className="text-xs text-gray-500">Completed at {formatDate(file.completedAt)}</p>
                     )}
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => removeFile(index)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                {!readOnly && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => removeFile(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
               </CardContent>
-              </Card>
+            </Card>
           ))}
         </div>
       )}
     </div>
   )
 }
-  const formatDuration = (seconds) => {
-    if (!seconds && seconds !== 0) return null
-    const s = Math.max(0, Math.round(seconds))
-    const h = Math.floor(s / 3600)
-    const m = Math.floor((s % 3600) / 60)
-    const sec = s % 60
-    const mm = h > 0 ? String(m).padStart(2, '0') : String(m)
-    const ss = String(sec).padStart(2, '0')
-    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
-  }

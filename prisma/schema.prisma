@@ -89,10 +89,10 @@ model Verification {
 
 model Work {
   id              String   @id @default(uuid())
-  title           String
+  title           String?
   description     String?
-  price           Float
-  category        String
+  price           Float?
+  category        String?
   language        String?
   tags            String?
   fileUrl         String?

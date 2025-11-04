@@ -146,10 +146,10 @@ export default function ImgUpload({
     <div className="w-full space-y-4">
       {/* Title area */}
       <div className="flex items-center justify-between">
-        <h4 className="font-medium flex items-center gap-2">
+        {/* <h4 className="font-medium flex items-center gap-2">
           <Camera className="w-4 h-4" />
           Work Cover {required && <span className="text-red-500">*</span>}
-        </h4>
+        </h4> */}
         {!coverImage && (
           <Button
             size="sm"
@@ -167,8 +167,8 @@ export default function ImgUpload({
       {!coverImage ? (
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${dragActive
-              ? 'border-primary bg-primary/10'
-              : 'border-gray-300 hover:border-gray-400'
+            ? 'border-primary bg-primary/10'
+            : 'border-gray-300 hover:border-gray-400'
             }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}

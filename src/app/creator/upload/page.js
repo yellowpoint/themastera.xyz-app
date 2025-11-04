@@ -13,8 +13,7 @@ import { toast } from 'sonner'
 import { Copy, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
-import UserProfileSidebar from '@/components/UserProfileSidebar'
-import UploadSwitcher from '@/components/UploadSwitcher'
+import VideoUpload from '@/components/VideoUpload'
 import ImgUpload from '@/components/ImgUpload'
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -152,11 +151,20 @@ export default function UploadPage() {
       return
     }
 
+    // Only require fileUrl for drafts
+    const draftFileUrl = uploadForm?.fileUrl || uploadedVideo?.fileUrl
+    if (!draftFileUrl) {
+      toast.error('Please upload a video file first')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
       const workData = {
-        ...uploadForm,
+        // only minimal fields for draft
+        fileUrl: draftFileUrl,
+        thumbnailUrl: uploadForm?.thumbnailUrl || null,
         userId: user.id,
         status: 'draft',
         durationSeconds: uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
@@ -164,6 +172,7 @@ export default function UploadPage() {
 
       await createWork(workData)
       toast.success('Draft saved successfully!')
+      router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
       toast.error('Save failed, please try again')
@@ -177,6 +186,35 @@ export default function UploadPage() {
       navigator.clipboard.writeText(uploadedVideo.fileUrl)
       toast.success('Video link copied to clipboard')
     }
+  }
+
+  // Step 1: Simple uploader view before details
+  if (!uploadedVideo) {
+    return (
+      <div className="min-h-screen bg-white text-foreground">
+        <div className="px-8 pt-6 pb-4 space-y-4">
+          <div className="flex justify-between items-start">
+            <h1 className="text-4xl font-normal">Upload video</h1>
+          </div>
+          <p className="text-base text-muted-foreground">
+            One sentence to describe The benefit for people to upload videos on Mastera
+          </p>
+        </div>
+
+        <div className="px-8 py-10 flex justify-center">
+          <div className="max-w-[640px] w-full">
+            {/* Use existing uploader component for simplicity */}
+            <div className="rounded-lg p-10">
+              <VideoUpload onUploadComplete={handleVideoUploadComplete} />
+            </div>
+
+            <div className="text-center text-xs text-muted-foreground mt-8">
+              By submitting your videos to Mastera, you acknowledge that you agree to Mastera's Terms of Service and Community Guidelines. Please be sure not to violate others' copyright or privacy rights.
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -373,7 +411,11 @@ export default function UploadPage() {
               </Button>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="bg-[#F2F3F5] text-foreground px-4 h-10" onClick={() => router.back()}>
+                <Button
+                  variant="outline"
+                  className="bg-[#F2F3F5] text-foreground px-4 h-10"
+                  onClick={handleSaveDraft}
+                >
                   Cancel
                 </Button>
                 <Button className="bg-primary text-white px-4 h-10" onClick={handleSubmit} disabled={isSubmitting}>
@@ -393,8 +435,11 @@ export default function UploadPage() {
 
             {/* Video Upload Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-normal">Upload video</h3>
-              <UploadSwitcher onUploadComplete={handleVideoUploadComplete} />
+              <VideoUpload
+                readOnly={true}
+                initialFiles={uploadedVideo ? [uploadedVideo] : []}
+                onUploadComplete={handleVideoUploadComplete}
+              />
             </div>
 
             <Separator className="opacity-20" />
