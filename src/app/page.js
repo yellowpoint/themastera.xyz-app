@@ -7,6 +7,7 @@ import {
   Volume2,
   VolumeX
 } from "lucide-react";
+import MuxPlayer from '@mux/mux-player-react'
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -125,6 +126,7 @@ export default function HomePage() {
           quickPicks,
           sections: data.data?.sections || [],
         });
+        console.log('quickPicks:', quickPicks);
         if (quickPicks.length > 0) {
           setCurrentVideo(quickPicks[0]);
         }
@@ -203,20 +205,34 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {currentVideo && (
-        <div className="fixed inset-x-0 top-16 h-[600px] z-1 overflow-hidden">
-          <video
-            ref={videoRef}
-            src={currentVideo.videoUrl}
-            // poster={currentVideo.thumbnailUrl}
-            className="w-[100vw] h-full object-cover cursor-pointer"
-            autoPlay
-            muted={isMuted}
-            loop
-            playsInline
-            onClick={handlePlayPause}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-          />
+        <div className="fixed inset-x-0 top-16 h-[600px] z-1 overflow-hidden w-full" onClick={handlePlayPause}>
+          {(() => {
+            const fileUrl = currentVideo?.fileUrl || ''
+            const muxMatch = fileUrl.match(/stream\.mux\.com\/([^.?]+)/)
+            const playbackId = muxMatch?.[1]
+            // Use MuxPlayer when playbackId can be determined, otherwise fall back to MuxPlayer with src
+            return (
+              <MuxPlayer
+                ref={videoRef}
+                className="w-[100vw] h-full cursor-pointer"
+                style={{
+                  '--controls': 'none',
+                  '--media-object-fit': 'cover',
+                  '--media-object-position': 'center'
+                }}
+                // Prefer playbackId if extractable
+                {...(playbackId ? { playbackId } : { src: fileUrl })}
+                streamType="on-demand"
+                autoPlay
+                muted={isMuted}
+                loop
+                playsInline
+                controls={false}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+              />
+            )
+          })()}
           {/* 顶部操作栏：播放/静音与进度 */}
           <div className="absolute left-70 right-110 top-4 z-10">
             <div className=" flex items-center gap-3 ">
@@ -321,19 +337,24 @@ export default function HomePage() {
                 <h4 className="font-semibold">Quick picks</h4>
                 <button className="text-muted-foreground"><MoreVertical size={16} /></button>
               </div>
-              <div className="mt-4 space-y-3">
-                {(loading ? Array.from({ length: 4 }) : (homepage.quickPicks || []).slice(0, 4)).map((w, idx) => (
-                  loading ? (
-                    <div key={`qp-${idx}`} className="flex items-center gap-3">
+              {/* 加载骨架屏 */}
+              {loading ? (
+                <div className="mt-4 space-y-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={`qp-skeleton-${idx}`} className="flex items-center gap-3">
                       <Skeleton className="w-14 h-14 rounded" />
                       <div className="flex-1 space-y-2">
                         <Skeleton className="h-3 w-3/4" />
                         <Skeleton className="h-3 w-1/2" />
                       </div>
                     </div>
-                  ) : (
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {(homepage.quickPicks || []).slice(0, 4).map((w) => (
                     <div
-                      key={w.id + 'qp' - idx}
+                      key={w.id}
                       onClick={() => handleVideoSelect(w)}
                       className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${currentVideo?.id === w.id ? 'bg-primary/10' : 'hover:bg-muted/50'
                         }`}
@@ -341,9 +362,11 @@ export default function HomePage() {
                       <div className="relative">
                         <img
                           src={resolveThumb(w.thumbnailUrl)}
-                          alt="thumb" className="w-14 h-14 object-cover rounded"
+                          alt="thumb"
+                          className="w-14 h-14 object-cover rounded"
                           loading="lazy"
-                          onError={(e) => handleImgError(w.thumbnailUrl, e)} />
+                          onError={(e) => handleImgError(w.thumbnailUrl, e)}
+                        />
                         {currentVideo?.id === w.id && (
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
                             <Play className="w-5 h-5 text-white fill-white" />
@@ -363,19 +386,12 @@ export default function HomePage() {
                         <MoreVertical size={16} />
                       </button>
                     </div>
-                  )
-                ))}
-              </div>
-              <Link href="/quick-picks" className="mt-3 block text-xs text-muted-foreground hover:text-foreground">Expand for more quick picks</Link>
+                  ))}
+                </div>
+              )}
+
             </div>
 
-            {/* Your library */}
-            <div className="bg-card border border-border rounded-2xl p-4">
-              <h4 className="font-semibold">Your library</h4>
-              <div className="mt-2 text-sm text-muted-foreground">Create your playlist</div>
-              <div className="mt-1 text-xs text-muted-foreground">a sentence why you need a play list</div>
-              <Button className="mt-4 w-full">+ Create your playlist</Button>
-            </div>
           </div>
         </div>
       </main>

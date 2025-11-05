@@ -1,49 +1,24 @@
 import { NextResponse } from 'next/server'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import { prisma } from '@/lib/prisma'
-import { formatDuration } from '@/lib/format'
-
-// Mock helpers
-const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
-
-function makeWork(sectionId, idx) {
-  const durationSeconds = rnd(60, 360)
-  return {
-    id: `${sectionId}-${idx}-${rnd(1000, 9999)}`,
-    title: `Sample Content ${idx + 1} · ${sectionId.replace(/-/g, ' ')}`,
-    thumbnailUrl: `https://picsum.photos/seed/${encodeURIComponent(sectionId)}-${idx}/800/450`,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    user: {
-      id: `mock-user-${idx + 1}`,
-      name: `Artist ${idx + 1}`,
-      image: `https://i.pravatar.cc/100?img=${(idx % 70) + 1}`,
-    },
-    views: rnd(1200, 200000),
-    downloads: rnd(100, 5000),
-    duration: formatDuration(durationSeconds),
-    durationSeconds,
-    tags: ['pop', 'featured', 'new'].join(', '),
-  }
-}
+// No mock data; return raw database records
 
 // Map a Work record to homepage item shape, filling missing UI fields
 function toHomepageItem(work) {
-  const durationSeconds = work.durationSeconds ?? rnd(60, 360)
   return {
     id: work.id,
     title: work.title,
-    thumbnailUrl: work.thumbnailUrl || `https://picsum.photos/seed/${encodeURIComponent(work.id)}/800/450`,
-    videoUrl: work.fileUrl || null,
-    user: {
-      id: work.user?.id || null,
-      name: work.user?.name || 'Unknown',
-      image: work.user?.image || `https://i.pravatar.cc/100?u=${encodeURIComponent(work.user?.id || 'unknown')}`,
-    },
-    views: work.views || 0,
-    downloads: work.downloads || 0,
-    duration: formatDuration(durationSeconds),
-    durationSeconds,
-    tags: work.tags || '',
+    thumbnailUrl: work.thumbnailUrl ?? null,
+    fileUrl: work.fileUrl ?? null,
+    user: work.user
+      ? { id: work.user.id, name: work.user.name, image: work.user.image }
+      : null,
+    views: work.views ?? 0,
+    downloads: work.downloads ?? 0,
+    duration: work.duration ?? null,
+    durationSeconds: work.durationSeconds ?? null,
+    tags: work.tags ?? '',
+    language: work.language ?? null,
   }
 }
 
@@ -114,15 +89,7 @@ export async function GET(request) {
       })
 
       // Transform to homepage items
-      let items = works.map(toHomepageItem)
-
-      // Fallback to mock if not enough real data
-      if (items.length < 3) {
-        const needed = 3 - items.length
-        const mocks = Array.from({ length: needed }, (_, i) => makeWork(sectionId, i))
-        items = items.concat(mocks)
-      }
-
+      const items = works.map(toHomepageItem)
       return items
     }
 
@@ -133,10 +100,56 @@ export async function GET(request) {
       sections.push({ id: s.id, title: s.title, showAllLink: s.showAllLink, items })
     }
 
-    // Quick picks: take first 8 mixed items from sections
-    const quickPicks = sections
-      .flatMap((sec) => sec.items.map((w) => ({ ...w })))
-      .slice(0, 8)
+    // Quick picks: prioritize works tagged as "quickPicks"
+    const quickPicksTagged = await prisma.work.findMany({
+      where: {
+        status: 'published',
+        tags: { contains: 'quickPicks' },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: 'desc' }, { downloads: 'desc' }, { rating: 'desc' }],
+      take: 24,
+    })
+
+    // Ensure exact CSV token match (case-insensitive)
+    const filteredTagged = quickPicksTagged.filter((work) => {
+      const tokens = (work.tags || '')
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean)
+      return tokens.includes('quickpicks')
+    })
+
+    let quickPicks = filteredTagged.map(toHomepageItem).slice(0, 8)
+
+    // Fallback: fill with latest works, ensuring no duplicates and max 8 items
+    if (quickPicks.length < 8) {
+      const seenIds = quickPicks.map((i) => i.id)
+      const remaining = 8 - quickPicks.length
+      const latestWorks = await prisma.work.findMany({
+        where: {
+          status: 'published',
+          isActive: true,
+          id: { notIn: seenIds },
+        },
+        include: {
+          user: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+        take: remaining,
+      })
+      quickPicks = [...quickPicks, ...latestWorks.map(toHomepageItem)]
+    }
 
     return NextResponse.json({
       success: true,

@@ -230,6 +230,7 @@ export default function VideoPlayer({
                 const effectivePlaybackId = playbackId || (videoUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1])
                 return (
                   <MuxPlayer
+                    accent-color="var(--primary)"
                     style={{
                       width: '100%',
                       height: '100%',
