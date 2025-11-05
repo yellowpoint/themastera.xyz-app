@@ -30,11 +30,15 @@ export default function UserDetailPage() {
         const u = data?.data || null;
         if (!ignore) {
           setUser(u);
-          const list = Array.isArray(u?.works) ? u.works.map(w => ({
-            ...w,
-            // attach basic user info for card avatar
-            user: u ? { id: u.id, name: u.name, image: u.image } : undefined,
-          })) : [];
+          const list = Array.isArray(u?.works)
+            ? u.works.map((w) => ({
+                ...w,
+                // attach basic user info for card avatar
+                user: u
+                  ? { id: u.id, name: u.name, image: u.image }
+                  : undefined,
+              }))
+            : [];
           setWorks(list);
         }
       } catch (err) {
@@ -44,7 +48,9 @@ export default function UserDetailPage() {
       }
     }
     if (userId) fetchUser();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [userId]);
 
   const sortedWorks = useMemo(() => {
@@ -53,11 +59,29 @@ export default function UserDetailPage() {
       case "popular":
         return list.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
       case "oldest":
-        return list.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        return list.sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
       default:
-        return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return list.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
     }
   }, [works, sort]);
+
+  const handleSubscribeChanged = (action) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const followed = action === "follow";
+      const delta = followed ? 1 : -1;
+      const nextFollowers = Math.max(0, (prev.followersCount || 0) + delta);
+      return {
+        ...prev,
+        isFollowing: followed,
+        followersCount: nextFollowers,
+      };
+    });
+  };
 
   return (
     <div className="min-h-screen">
@@ -66,7 +90,9 @@ export default function UserDetailPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-semibold">{user?.name || "User"}</h1>
-            <p className="text-sm text-muted-foreground">Browse this creator's works.</p>
+            <p className="text-sm text-muted-foreground">
+              Browse this creator's works.
+            </p>
           </div>
           <Link href="/">
             <Button variant="outline" size="sm">
@@ -82,7 +108,7 @@ export default function UserDetailPage() {
       {/* Main split layout */}
       <div className="container mx-auto px-4 py-6 flex gap-6">
         {/* Left: Profile Sidebar */}
-        <UserProfileSidebar className="border border-dashed rounded-md" />
+        <UserProfileSidebar user={user} onSubscribeChanged={handleSubscribeChanged} />
 
         {/* Right: Works and filters */}
         <div className="flex-1 min-w-0">
@@ -129,17 +155,21 @@ export default function UserDetailPage() {
               {/* Left thumbnail placeholder to mimic design */}
               <div className="aspect-video bg-muted rounded-xl overflow-hidden">
                 <img
-                  src={sortedWorks[0]?.thumbnailUrl || "/thumbnail-placeholder.svg"}
+                  src={
+                    sortedWorks[0]?.thumbnailUrl || "/thumbnail-placeholder.svg"
+                  }
                   alt={sortedWorks[0]?.title || "Featured"}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold">
-                  {sortedWorks[0]?.title || "Featured work title can span two lines"}
+                  {sortedWorks[0]?.title ||
+                    "Featured work title can span two lines"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  We transform complex data into clear, actionable growth decisions—bridging media, retail, and customer insights.
+                  We transform complex data into clear, actionable growth
+                  decisions—bridging media, retail, and customer insights.
                 </p>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Grid2x2 className="h-4 w-4" />
