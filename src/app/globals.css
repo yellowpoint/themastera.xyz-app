@@ -165,3 +165,9 @@ button,
 } */
 
 /* https://www.mux.com/docs/guides/player-customize-look-and-feel#hiding-controls-with-css */
+
+input::placeholder,
+textarea::placeholder {
+  color: #86909c;
+  opacity: 1; /* ensure exact color, no default dimming */
+}

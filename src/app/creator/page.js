@@ -1,73 +1,82 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Search, MoreHorizontal } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
-import { useWorks } from '@/hooks/useWorks'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { useState, useEffect } from "react";
+import { Search, MoreHorizontal } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorks } from "@/hooks/useWorks";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // shadcn/ui components
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { DataTableWithPagination, DataTable } from '@/components/ui/data-table'
-import { useCreatorColumns } from './columns'
-
-
+} from "@/components/ui/select";
+import { DataTableWithPagination, DataTable } from "@/components/ui/data-table";
+import { useCreatorColumns } from "./columns";
 
 export default function CreatorPage() {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
-  const { works, loading: worksLoading, deleteWork } = useWorks()
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { works, loading: worksLoading, deleteWork } = useWorks();
 
   // State
-  const [activeTab, setActiveTab] = useState('overview')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [visibilityFilter, setVisibilityFilter] = useState('all')
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
   // Pagination moved to DataTable (TanStack) per shadcn docs
 
   // Columns for DataTable - must be called unconditionally (Rules of Hooks)
-  const columns = useCreatorColumns()
-
+  const columns = useCreatorColumns();
 
   // Filter works based on search and visibility
-  const filteredWorks = [...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works, ...works,].filter(work => {
-    const matchesSearch = work.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesVisibility = visibilityFilter === 'all' || work.status === visibilityFilter
-    return matchesSearch && matchesVisibility
-  })
-
-
+  const filteredWorks = [
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+    ...works,
+  ].filter((work) => {
+    const matchesSearch = work.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesVisibility =
+      visibilityFilter === "all" || work.status === visibilityFilter;
+    return matchesSearch && matchesVisibility;
+  });
 
   // formatters moved to shared module
 
   // Handle delete work
   const handleDeleteWork = async (workId) => {
-    if (!confirm('Are you sure you want to delete this work?')) return
+    if (!confirm("Are you sure you want to delete this work?")) return;
 
     try {
-      await deleteWork(workId)
-      toast.success('Work deleted successfully!')
+      await deleteWork(workId);
+      toast.success("Work deleted successfully!");
     } catch (error) {
-      console.error('Error deleting work:', error)
-      toast.error('Failed to delete work')
+      console.error("Error deleting work:", error);
+      toast.error("Failed to delete work");
     }
-  }
+  };
 
   // Auth handling unified in root layout via AuthRequired
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-full bg-gray-50">
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-8 py-6">
           {/* Page Title */}
@@ -118,7 +127,10 @@ export default function CreatorPage() {
                       className="pl-9 border-gray-300"
                     />
                   </div>
-                  <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                  <Select
+                    value={visibilityFilter}
+                    onValueChange={setVisibilityFilter}
+                  >
                     <SelectTrigger className="w-40 border-gray-300">
                       <SelectValue placeholder="All visibility" />
                     </SelectTrigger>
@@ -134,7 +146,7 @@ export default function CreatorPage() {
                 <DataTableWithPagination
                   columns={columns}
                   data={filteredWorks}
-                // pageSizeOptions={[5, 10, 20, 50]}
+                  // pageSizeOptions={[5, 10, 20, 50]}
                 />
 
                 {/* Pagination handled by DataTableWithPagination per docs */}
@@ -165,5 +177,5 @@ export default function CreatorPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

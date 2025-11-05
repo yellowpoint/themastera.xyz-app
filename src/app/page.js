@@ -129,7 +129,7 @@ export default function HomePage() {
   // formatViews moved to shared module
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full">
       {currentVideo && (
         <div
           className="fixed inset-x-0 top-16 h-[600px] z-1 overflow-hidden w-full"

@@ -20,7 +20,9 @@ export default function SectionPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   const sectionMeta = useMemo(() => {
-    return HOMEPAGE_SECTIONS.find((s) => s.id === sectionId) || { title: sectionId };
+    return (
+      HOMEPAGE_SECTIONS.find((s) => s.id === sectionId) || { title: sectionId }
+    );
   }, [sectionId]);
 
   useEffect(() => {
@@ -29,12 +31,19 @@ export default function SectionPage() {
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-        const res = await fetch(`/api/homepage/section/${sectionId}?${params.toString()}`);
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+        });
+        const res = await fetch(
+          `/api/homepage/section/${sectionId}?${params.toString()}`
+        );
         const json = await res.json();
         if (!ignore) {
           if (json.success) {
-            setItems((prev) => page === 1 ? (json.data || []) : [...prev, ...(json.data || [])]);
+            setItems((prev) =>
+              page === 1 ? json.data || [] : [...prev, ...(json.data || [])]
+            );
             setTotalPages(json.pagination?.totalPages || 1);
           } else {
             setError(json.error || "Failed to load items");
@@ -47,18 +56,24 @@ export default function SectionPage() {
       }
     }
     if (sectionId) fetchPage();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [sectionId, page, limit]);
 
   const canLoadMore = page < totalPages;
 
   return (
-    <div className="min-h-screen container mx-auto px-4 py-6">
+    <div className="h-full container mx-auto px-4 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold">{sectionMeta.title || "Section"}</h1>
-          <p className="text-sm text-muted-foreground">Browse all items in this section.</p>
+          <h1 className="text-2xl font-semibold">
+            {sectionMeta.title || "Section"}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Browse all items in this section.
+          </p>
         </div>
         <Link href="/">
           <Button variant="outline" size="sm">

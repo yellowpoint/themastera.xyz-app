@@ -12,10 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -54,8 +51,10 @@ export default function ContentDetailPage() {
       fetchRelatedWorks();
       // Announce currently playing work to sidebar
       try {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('player:now-playing', { detail: { workId } }));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("player:now-playing", { detail: { workId } })
+          );
         }
       } catch (_) {
         // ignore
@@ -65,29 +64,29 @@ export default function ContentDetailPage() {
 
   const handleDownload = async () => {
     try {
-      if (!workId) return
-      toast.info('Preparing download...')
+      if (!workId) return;
+      toast.info("Preparing download...");
       // Trigger browser download via our API route
-      const url = `/api/mux/download?workId=${encodeURIComponent(workId)}`
+      const url = `/api/mux/download?workId=${encodeURIComponent(workId)}`;
       // Use a temporary anchor to avoid interfering with SPA navigation state
-      const a = document.createElement('a')
-      a.href = url
-      a.rel = 'noopener'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+      const a = document.createElement("a");
+      a.href = url;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
       // Best-effort increment downloads stat (ignore errors)
       try {
-        await request.post('/api/works/stats', { workId, type: 'download' })
+        await request.post("/api/works/stats", { workId, type: "download" });
       } catch (e) {
         // silently ignore
       }
     } catch (err) {
-      console.error('Download error:', err)
-      toast.error('Download failed. Please try again later.')
+      console.error("Download error:", err);
+      toast.error("Download failed. Please try again later.");
     }
-  }
+  };
 
   const fetchWorkDetails = async () => {
     try {
@@ -103,35 +102,34 @@ export default function ContentDetailPage() {
         try {
           await request.post(`/api/works/${workId}/views`);
         } catch (viewError) {
-          console.error('Error incrementing view count:', viewError);
+          console.error("Error incrementing view count:", viewError);
           // Don't show error to user for view count increment failure
         }
 
         // Record watch history (upsert latest viewed timestamp)
         try {
-          await request.post('/api/history', { workId });
+          await request.post("/api/history", { workId });
         } catch (historyError) {
           // Do not block page on history errors
-          console.error('Error recording watch history:', historyError);
+          console.error("Error recording watch history:", historyError);
         }
       }
       if (engagement) {
         const { reaction, likesCount, dislikesCount } = engagement;
-        setIsLiked(reaction === 'like');
-        setIsDisliked(reaction === 'dislike');
-        if (typeof likesCount === 'number') setLikesCount(likesCount);
-        if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+        setIsLiked(reaction === "like");
+        setIsDisliked(reaction === "dislike");
+        if (typeof likesCount === "number") setLikesCount(likesCount);
+        if (typeof dislikesCount === "number") setDislikesCount(dislikesCount);
       }
       if (authorFollow) {
         setIsFollowing(!!authorFollow.isFollowing);
-        if (typeof authorFollow.followersCount === 'number') {
+        if (typeof authorFollow.followersCount === "number") {
           setAuthorFollowersCount(authorFollow.followersCount);
         }
       }
-
     } catch (err) {
-      console.error('Error fetching work details:', err);
-      setError(err.message || 'Network error, please try again later');
+      console.error("Error fetching work details:", err);
+      setError(err.message || "Network error, please try again later");
     } finally {
       setLoading(false);
     }
@@ -139,10 +137,12 @@ export default function ContentDetailPage() {
 
   const fetchRelatedWorks = async () => {
     try {
-      const { data } = await request.get(`/api/works/trending?limit=8&exclude=${workId}`);
+      const { data } = await request.get(
+        `/api/works/trending?limit=8&exclude=${workId}`
+      );
       setRelatedWorks(data?.data || []);
     } catch (err) {
-      console.error('Error fetching related works:', err);
+      console.error("Error fetching related works:", err);
     }
   };
 
@@ -150,31 +150,34 @@ export default function ContentDetailPage() {
 
   const handleLike = async () => {
     try {
-      const action = isLiked ? 'unlike' : 'like';
-      const { data } = await request.post(`/api/works/${workId}/engagement`, { action })
+      const action = isLiked ? "unlike" : "like";
+      const { data } = await request.post(`/api/works/${workId}/engagement`, {
+        action,
+      });
 
       const { reaction, likesCount, dislikesCount } = data?.data || {};
-      setIsLiked(reaction === 'like');
-      setIsDisliked(reaction === 'dislike');
-      if (typeof likesCount === 'number') setLikesCount(likesCount);
-      if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
-
+      setIsLiked(reaction === "like");
+      setIsDisliked(reaction === "dislike");
+      if (typeof likesCount === "number") setLikesCount(likesCount);
+      if (typeof dislikesCount === "number") setDislikesCount(dislikesCount);
     } catch (err) {
-      console.error('Error updating like:', err);
+      console.error("Error updating like:", err);
     }
   };
 
   const handleDislike = async () => {
     try {
-      const action = isDisliked ? 'undislike' : 'dislike';
-      const { data } = await request.post(`/api/works/${workId}/engagement`, { action })
+      const action = isDisliked ? "undislike" : "dislike";
+      const { data } = await request.post(`/api/works/${workId}/engagement`, {
+        action,
+      });
       const { reaction, likesCount, dislikesCount } = data?.data || {};
-      setIsLiked(reaction === 'like');
-      setIsDisliked(reaction === 'dislike');
-      if (typeof likesCount === 'number') setLikesCount(likesCount);
-      if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount);
+      setIsLiked(reaction === "like");
+      setIsDisliked(reaction === "dislike");
+      if (typeof likesCount === "number") setLikesCount(likesCount);
+      if (typeof dislikesCount === "number") setDislikesCount(dislikesCount);
     } catch (err) {
-      console.error('Error updating dislike:', err);
+      console.error("Error updating dislike:", err);
     }
   };
 
@@ -182,16 +185,18 @@ export default function ContentDetailPage() {
 
   const handleFollow = async () => {
     try {
-      await request.post(`/api/users/${work.user.id}/follow`, { action: isFollowing ? 'unfollow' : 'follow' })
+      await request.post(`/api/users/${work.user.id}/follow`, {
+        action: isFollowing ? "unfollow" : "follow",
+      });
       const next = !isFollowing;
       setIsFollowing(next);
       setAuthorFollowersCount((prev) => {
         const updated = next ? prev + 1 : Math.max(0, prev - 1);
         return updated;
       });
-      toast.success(next ? 'Followed the creator' : 'Unfollowed the creator');
+      toast.success(next ? "Followed the creator" : "Unfollowed the creator");
     } catch (err) {
-      console.error('Error following user:', err);
+      console.error("Error following user:", err);
     }
   };
 
@@ -200,17 +205,20 @@ export default function ContentDetailPage() {
     try {
       // Read selected playlist id from localStorage; fallback to first playlist
       let selectedPlaylistId = null;
-      if (typeof window !== 'undefined') {
-        selectedPlaylistId = window.localStorage.getItem('selectedPlaylistId');
+      if (typeof window !== "undefined") {
+        selectedPlaylistId = window.localStorage.getItem("selectedPlaylistId");
       }
-      const res = await fetch('/api/playlists');
+      const res = await fetch("/api/playlists");
       const json = await res.json();
       if (!json?.success) return;
       const pls = json?.data || [];
-      const selected = (selectedPlaylistId ? pls.find(p => p.id === selectedPlaylistId) : null) || pls[0];
+      const selected =
+        (selectedPlaylistId
+          ? pls.find((p) => p.id === selectedPlaylistId)
+          : null) || pls[0];
       const items = selected?.items || [];
       if (!items.length) return;
-      const idx = items.findIndex(i => i.id === workId);
+      const idx = items.findIndex((i) => i.id === workId);
       let nextItem = null;
       if (idx >= 0) {
         nextItem = items[idx + 1] || items[0];
@@ -226,11 +234,9 @@ export default function ContentDetailPage() {
     }
   };
 
-
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-content-bg">
+      <div className="h-full bg-content-bg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
@@ -263,29 +269,29 @@ export default function ContentDetailPage() {
 
   if (error || !work) {
     return (
-      <div className="min-h-screen bg-content-bg flex items-center justify-center">
+      <div className="h-full bg-content-bg flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">
-            {error?.includes('not found') || error?.includes('deleted') ? '😕' : '⚠️'}
+            {error?.includes("not found") || error?.includes("deleted")
+              ? "😕"
+              : "⚠️"}
           </div>
           <h2 className="text-2xl font-bold mb-2">
-            {error?.includes('not found') || error?.includes('deleted') ? 'Work Not Found' : 'Failed to Load'}
+            {error?.includes("not found") || error?.includes("deleted")
+              ? "Work Not Found"
+              : "Failed to Load"}
           </h2>
           <p className="text-gray-500 mb-6">
-            {error || 'Could not find the requested work'}
+            {error || "Could not find the requested work"}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/content">
-              <Button variant="default">
-                Browse Other Works
-              </Button>
+              <Button variant="default">Browse Other Works</Button>
             </Link>
 
             <Link href="/">
-              <Button variant="ghost">
-                Back to Home
-              </Button>
+              <Button variant="ghost">Back to Home</Button>
             </Link>
           </div>
         </div>
@@ -294,7 +300,7 @@ export default function ContentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-content-bg">
+    <div className="h-full bg-content-bg">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content Area */}
@@ -309,10 +315,14 @@ export default function ContentDetailPage() {
               autoPlay={true}
               onPlay={() => {
                 try {
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('player:now-playing', { detail: { workId } }));
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(
+                      new CustomEvent("player:now-playing", {
+                        detail: { workId },
+                      })
+                    );
                   }
-                } catch (_) { }
+                } catch (_) {}
               }}
               onEnded={handleEnded}
             />
@@ -343,7 +353,9 @@ export default function ContentDetailPage() {
                 views={work.views ?? work.downloads}
                 uploadDate={work.uploadTime ?? work.createdAt}
                 description={work.description}
-                tags={work.tags ? work.tags.split(',').map(tag => tag.trim()) : []}
+                tags={
+                  work.tags ? work.tags.split(",").map((tag) => tag.trim()) : []
+                }
               />
 
               {/* Discovered on — show four works */}
@@ -363,25 +375,37 @@ export default function ContentDetailPage() {
           <div className="space-y-6">
             {/* Header */}
             <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Artist profile</div>
-              <div className="text-3xl font-bold tracking-tight">{work?.user?.name || 'Unknown Artist'}</div>
-              <div className="text-sm text-muted-foreground">{formatViews(authorFollowersCount)} subscribers</div>
+              <div className="text-sm text-muted-foreground">
+                Artist profile
+              </div>
+              <div className="text-3xl font-bold tracking-tight">
+                {work?.user?.name || "Unknown Artist"}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {formatViews(authorFollowersCount)} subscribers
+              </div>
             </div>
 
             {/* Description card with collapse */}
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground">Description of this Credit info</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Description of this Credit info
+              </h3>
               <div className="rounded-lg bg-muted/40 p-3">
-                <p className={`text-sm text-muted-foreground ${isDescExpanded ? '' : 'line-clamp-3'}`}>
-                  {work?.description || 'No description available.'}
+                <p
+                  className={`text-sm text-muted-foreground ${isDescExpanded ? "" : "line-clamp-3"}`}
+                >
+                  {work?.description || "No description available."}
                 </p>
                 <button
                   type="button"
-                  onClick={() => setDescExpanded(v => !v)}
+                  onClick={() => setDescExpanded((v) => !v)}
                   className="mt-2 inline-flex items-center gap-2 text-sm"
                 >
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isDescExpanded ? 'rotate-180' : ''}`} />
-                  {isDescExpanded ? 'Collapse' : 'Expand for more'}
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isDescExpanded ? "rotate-180" : ""}`}
+                  />
+                  {isDescExpanded ? "Collapse" : "Expand for more"}
                 </button>
               </div>
             </div>
@@ -399,14 +423,29 @@ export default function ContentDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share Work</DialogTitle>
-            <DialogDescription>Copy the link or share via social apps.</DialogDescription>
+            <DialogDescription>
+              Copy the link or share via social apps.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Share Link</label>
               <div className="flex gap-2">
-                <Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`} readOnly />
-                <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`)}>Copy</Button>
+                <Input
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/content/${workId}`}
+                  readOnly
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      `${typeof window !== "undefined" ? window.location.origin : ""}/content/${workId}`
+                    )
+                  }
+                >
+                  Copy
+                </Button>
               </div>
             </div>
             <div className="flex gap-2">
@@ -416,7 +455,9 @@ export default function ContentDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShareOpen(false)}>Close</Button>
+            <Button variant="ghost" onClick={() => setShareOpen(false)}>
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

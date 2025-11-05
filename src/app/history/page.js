@@ -56,7 +56,7 @@ export default function WatchHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-content-bg">
+    <div className="h-full bg-content-bg">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold">Watch History</h1>
@@ -86,7 +86,12 @@ export default function WatchHistoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((item) => {
               const w = item?.work || {};
-              const viewsCount = typeof w?.views === "number" ? w.views : (typeof w?.downloads === "number" ? w.downloads : 0);
+              const viewsCount =
+                typeof w?.views === "number"
+                  ? w.views
+                  : typeof w?.downloads === "number"
+                    ? w.downloads
+                    : 0;
               return (
                 <div key={item.id} className="group">
                   <Link href={`/content/${w.id}`} className="block">

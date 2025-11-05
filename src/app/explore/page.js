@@ -13,7 +13,10 @@ export default function ExplorePage() {
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(12);
 
-  const musicCategoriesWithAll = useMemo(() => ["all", ...MUSIC_CATEGORIES], []);
+  const musicCategoriesWithAll = useMemo(
+    () => ["all", ...MUSIC_CATEGORIES],
+    []
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -44,7 +47,9 @@ export default function ExplorePage() {
       }
     }
     fetchTrending();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [category]);
 
   const filteredWorks = useMemo(() => {
@@ -58,10 +63,12 @@ export default function ExplorePage() {
   const visibleWorks = filteredWorks.slice(0, visibleCount);
 
   return (
-    <div className="min-h-screen container mx-auto px-4 py-6">
+    <div className="h-full container mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Explore</h1>
-        <p className="text-sm text-muted-foreground">Discover trending works by category and language.</p>
+        <p className="text-sm text-muted-foreground">
+          Discover trending works by category and language.
+        </p>
       </div>
 
       {/* Filters */}
