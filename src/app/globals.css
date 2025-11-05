@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --radius: 6px;
+}
 @theme inline {
   --color-content-bg: #0b011e;
   --color-background: var(--background);
@@ -50,10 +53,10 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
 }
 
 .light {
@@ -121,9 +124,6 @@
   --sidebar-accent-foreground: oklch(0% 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.38 0.189 293.745);
-}
-:root {
-  --radius: 8px;
 }
 
 @layer base {

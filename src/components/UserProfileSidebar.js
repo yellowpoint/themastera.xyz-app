@@ -9,7 +9,7 @@ import { Copy, Crown } from "lucide-react";
 import { toast } from "sonner";
 import SubscribeButton from "@/components/SubscribeButton";
 
-export default function UserProfileSidebar({ user, className = "", onSubscribeChanged }) {
+export default function UserProfileSidebar({ user, onSubscribeChanged }) {
   const handleCopyId = () => {
     if (!user?.id) return;
     navigator.clipboard.writeText(user.id);
@@ -23,12 +23,10 @@ export default function UserProfileSidebar({ user, className = "", onSubscribeCh
       <div className="p-6 space-y-3">
         {/* Profile Header */}
         <div className="flex flex-col items-center gap-4 pb-6">
-          <div className="w-[168px] h-[168px] rounded-full overflow-hidden bg-gray-200">
-            <Avatar className="w-full h-full">
-              <AvatarImage src={user?.image} />
-              <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
-            </Avatar>
-          </div>
+          <Avatar className="size-32 rounded-xl overflow-hidden">
+            <AvatarImage src={user?.image} />
+            <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
+          </Avatar>
 
           <div className="flex flex-col items-center gap-1 w-full">
             <h2 className="text-2xl font-normal">{user?.name || "Unnamed"}</h2>

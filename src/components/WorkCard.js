@@ -50,7 +50,9 @@ export default function WorkCard({ work }) {
   const addToPlaylist = useCallback(
     async (playlistId) => {
       try {
-        await request.post(`/api/playlists/${playlistId}/entries`, { workId: work?.id });
+        await request.post(`/api/playlists/${playlistId}/entries`, {
+          workId: work?.id,
+        });
         toast.success("Added to playlist");
         // Notify other parts of the app (e.g., sidebar) to refresh playlists
         if (typeof window !== "undefined") {
@@ -69,7 +71,9 @@ export default function WorkCard({ work }) {
   );
   const resolveThumb = (url) => {
     if (!url) return "/thumbnail-placeholder.svg";
-    return brokenThumbsRef.current.has(url) ? "/thumbnail-placeholder.svg" : url;
+    return brokenThumbsRef.current.has(url)
+      ? "/thumbnail-placeholder.svg"
+      : url;
   };
   const handleImgError = (url, e) => {
     brokenThumbsRef.current.add(url);
@@ -77,21 +81,38 @@ export default function WorkCard({ work }) {
     e.currentTarget.src = "/thumbnail-placeholder.svg";
   };
 
-  const viewsCount = typeof work?.views === "number" ? work.views : (typeof work?.downloads === "number" ? work.downloads : 0);
-  const durationLabel = work?.duration ? work.duration : (work?.durationSeconds ? formatTime(work.durationSeconds) : "0:00");
+  const viewsCount =
+    typeof work?.views === "number"
+      ? work.views
+      : typeof work?.downloads === "number"
+        ? work.downloads
+        : 0;
+  const durationLabel = work?.duration
+    ? work.duration
+    : work?.durationSeconds
+      ? formatTime(work.durationSeconds)
+      : "0:00";
 
-  const goToUser = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(work);
-    const id = work?.user?.id;
-    if (id) router.push(`/user/${id}`);
-  }, [router, work?.user?.id, fetchPlaylists]);
+  const goToUser = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log(work);
+      const id = work?.user?.id;
+      if (id) router.push(`/user/${id}`);
+    },
+    [router, work?.user?.id, fetchPlaylists]
+  );
 
   return (
-    <Link href={`/content/${work?.id}`} className="group cursor-pointer block">
+    <div
+      className="group cursor-pointer block"
+      onClick={() => {
+        router.push(`/content/${work?.id}`);
+      }}
+    >
       <div className="relative mb-3">
-        <div className="aspect-video bg-muted rounded-xl overflow-hidden">
+        <div className="aspect-video bg-muted rounded-xl overflow-hidden relative">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || "Untitled"}
@@ -99,75 +120,84 @@ export default function WorkCard({ work }) {
             loading="lazy"
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
           />
-          <div className="absolute top-34 left-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
+          <div className="absolute bottom-2 left-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
             {formatViews(viewsCount)} views
           </div>
-          <div className="absolute top-34 right-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
+          <div className="absolute bottom-2 right-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
             {durationLabel}
           </div>
         </div>
-        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none">
-        </div>
-        <div className="flex items-start gap-3 mt-3">
-          <Avatar className="h-9 w-9 flex-shrink-0 cursor-pointer" onClick={goToUser}>
-            <AvatarImage src={work?.user?.image} />
-            <AvatarFallback>{work?.user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
-          </Avatar>
+        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none"></div>
+        <div className="flex items-center gap-3 mt-3">
+          <div className="flex-shrink-0">
+            <Avatar
+              className="size-10 flex-shrink-0 cursor-pointer rounded-md border border-primary"
+              onClick={goToUser}
+            >
+              <AvatarImage src={work?.user?.image} />
+              <AvatarFallback>
+                {work?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-base md:text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                {work?.title}
-              </h3>
-              <DropdownMenu onOpenChange={(open) => { if (open && playlists.length === 0) fetchPlaylists(); }}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-muted-foreground hover:text-foreground flex-shrink-0"
-                    aria-label="More"
-                    type="button"
-                  // onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  // onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  // onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  >
-                    <MoreVertical size={18} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={6}>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <ListPlus className="size-4" />
-                      <span>Add to playlist</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      {loadingPlaylists ? (
-                        <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
-                      ) : playlists.length > 0 ? (
-                        playlists.map((pl) => (
-                          <DropdownMenuItem
-                            key={pl.id}
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToPlaylist(pl.id);
-                            }}
-                          >
-                            {pl.name}
-                          </DropdownMenuItem>
-                        ))
-                      ) : (
-                        <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
-                      )}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-1 cursor-pointer hover:text-foreground" onClick={goToUser}>
+            <h3 className="text-xl truncate">{work?.title}</h3>
+            <p
+              className="text-sm text-muted-foreground truncate hover:underline"
+              onClick={goToUser}
+            >
               {work?.user?.name || "Unknown Creator"}
             </p>
           </div>
+          <div className="flex-shrink-0 self-start">
+            <DropdownMenu
+              onOpenChange={(open) => {
+                if (open && playlists.length === 0) fetchPlaylists();
+              }}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-foreground flex-shrink-0"
+                  aria-label="More"
+                  type="button"
+                >
+                  <MoreVertical size={18} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={6}>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <ListPlus className="size-4" />
+                    <span>Add to playlist</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {loadingPlaylists ? (
+                      <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                    ) : playlists.length > 0 ? (
+                      playlists.map((pl) => (
+                        <DropdownMenuItem
+                          key={pl.id}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToPlaylist(pl.id);
+                          }}
+                        >
+                          {pl.name}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                    )}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

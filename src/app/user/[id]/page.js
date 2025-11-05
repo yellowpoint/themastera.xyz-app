@@ -84,43 +84,18 @@ export default function UserDetailPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Top header area */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-semibold">{user?.name || "User"}</h1>
-            <p className="text-sm text-muted-foreground">
-              Browse this creator's works.
-            </p>
-          </div>
-          <Link href="/">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <Separator />
-
+    <div className="h-full">
       {/* Main split layout */}
-      <div className="container mx-auto px-4 py-6 flex gap-6">
+      <div className="container mx-auto px-4 py-6 flex gap-6 h-full">
         {/* Left: Profile Sidebar */}
-        <UserProfileSidebar user={user} onSubscribeChanged={handleSubscribeChanged} />
+        <UserProfileSidebar
+          user={user}
+          onSubscribeChanged={handleSubscribeChanged}
+        />
 
         {/* Right: Works and filters */}
         <div className="flex-1 min-w-0">
-          {/* Tabs and controls */}
           <div className="flex items-center justify-between mb-4">
-            <Tabs value="videos" className="w-auto">
-              <TabsList>
-                <TabsTrigger value="videos">Videos</TabsTrigger>
-                <TabsTrigger value="musics">Musics</TabsTrigger>
-                <TabsTrigger value="podcasts">Podcasts</TabsTrigger>
-              </TabsList>
-            </Tabs>
             <div className="flex items-center gap-2">
               <Button
                 variant={sort === "popular" ? "default" : "outline"}
@@ -143,41 +118,11 @@ export default function UserDetailPage() {
               >
                 Oldest
               </Button>
-              <Button variant="outline" size="icon" aria-label="Search">
+              <Button variant="outline" size="icon-sm" aria-label="Search">
                 <Search className="h-4 w-4" />
               </Button>
             </div>
           </div>
-
-          {/* Featured row (optional preview card) */}
-          {sortedWorks.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mb-6">
-              {/* Left thumbnail placeholder to mimic design */}
-              <div className="aspect-video bg-muted rounded-xl overflow-hidden">
-                <img
-                  src={
-                    sortedWorks[0]?.thumbnailUrl || "/thumbnail-placeholder.svg"
-                  }
-                  alt={sortedWorks[0]?.title || "Featured"}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold">
-                  {sortedWorks[0]?.title ||
-                    "Featured work title can span two lines"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  We transform complex data into clear, actionable growth
-                  decisions—bridging media, retail, and customer insights.
-                </p>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Grid2x2 className="h-4 w-4" />
-                  <span>{sortedWorks[0]?.downloads || 0} views</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Works grid */}
           <WorkCardList

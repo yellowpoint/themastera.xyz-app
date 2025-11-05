@@ -23,6 +23,7 @@ export async function GET(request, { params }) {
             downloads: true,
             earnings: true,
             rating: true,
+            views: true,
             createdAt: true,
           },
           orderBy: {
@@ -95,7 +96,10 @@ export async function PUT(request, { params }) {
     const { userId } = await getAuthSession(request);
     if (userId !== id) {
       return NextResponse.json(
-        { success: false, error: "Forbidden: You can only update your own profile" },
+        {
+          success: false,
+          error: "Forbidden: You can only update your own profile",
+        },
         { status: 403 }
       );
     }
@@ -168,7 +172,10 @@ export async function DELETE(request, { params }) {
     const { userId } = await getAuthSession(request);
     if (userId !== id) {
       return NextResponse.json(
-        { success: false, error: "Forbidden: You can only delete your own account" },
+        {
+          success: false,
+          error: "Forbidden: You can only delete your own account",
+        },
         { status: 403 }
       );
     }
