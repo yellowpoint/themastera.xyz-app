@@ -84,10 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div> */}
       </SidebarHeader>
       <SidebarContentWithState />
-      <SidebarFooter>
-        <NavMain items={data.footer} />
-        {/* <NavUser user={data.user} /> */}
-      </SidebarFooter>
+      <SidebarFooter>{/* <NavMain items={data.footer} /> */}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
