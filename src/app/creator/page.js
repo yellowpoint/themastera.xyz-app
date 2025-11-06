@@ -54,8 +54,8 @@ export default function CreatorPage() {
   }, [fetchWorks]);
 
   return (
-    <div className="h-full bg-gray-50">
-      <div className="bg-white">
+    <div className="h-full">
+      <div className="">
         <div className="max-w-7xl mx-auto px-8 py-6">
           {/* Page Title */}
           <div className="mb-10">

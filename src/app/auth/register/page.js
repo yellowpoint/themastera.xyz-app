@@ -71,7 +71,10 @@ export default function RegisterPage() {
       });
 
       if (result?.error) {
-        const msg = typeof result.error === "string" ? result.error : result.error?.message;
+        const msg =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message;
         setError(msg || "Registration failed, please try again later");
       } else {
         setSuccess(
@@ -88,8 +91,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-full flex items-center justify-center light">
-      <div className="w-full max-w-md" >
+    <div className="min-h-full flex items-center justify-center">
+      <div className="w-full max-w-md">
         <Card>
           <CardHeader>
             <CardTitle>Create an account</CardTitle>
@@ -143,7 +146,9 @@ export default function RegisterPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
+                  <FieldLabel htmlFor="confirm-password">
+                    Confirm Password
+                  </FieldLabel>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -153,7 +158,9 @@ export default function RegisterPage() {
                     }
                     required
                   />
-                  <FieldDescription>Please confirm your password.</FieldDescription>
+                  <FieldDescription>
+                    Please confirm your password.
+                  </FieldDescription>
                 </Field>
 
                 {error && (
@@ -171,11 +178,14 @@ export default function RegisterPage() {
                   <Field>
                     <div className="flex gap-3">
                       <Button type="submit" disabled={isSubmitting || loading}>
-                        {isSubmitting || loading ? "Creating..." : "Create Account"}
+                        {isSubmitting || loading
+                          ? "Creating..."
+                          : "Create Account"}
                       </Button>
                     </div>
                     <FieldDescription className="px-6 text-center">
-                      Already have an account? <Link href="/auth/login">Sign in</Link>
+                      Already have an account?{" "}
+                      <Link href="/auth/login">Sign in</Link>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -183,7 +193,7 @@ export default function RegisterPage() {
             </form>
           </CardContent>
         </Card>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

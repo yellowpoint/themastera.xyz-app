@@ -132,15 +132,15 @@ export function useCreatorColumns() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          className="w-full text-right"
+          className="w-full"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Views
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
-        <span className="text-sm text-[#1D2129] block text-right">
+        <span className="text-sm text-[#1D2129] block text-center">
           {formatViews(row.original.views || 0)}
         </span>
       ),

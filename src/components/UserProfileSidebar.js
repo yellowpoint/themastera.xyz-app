@@ -18,7 +18,7 @@ export default function UserProfileSidebar({ user, onSubscribeChanged }) {
 
   return (
     <div
-      className={`flex-none w-[300px] bg-white overflow-y-auto border-r border-dashed border-gray-300`}
+      className={`flex-none w-[300px] overflow-y-auto border-r border-dashed border-gray-300`}
     >
       <div className="p-6 space-y-3">
         {/* Profile Header */}
@@ -77,7 +77,7 @@ export default function UserProfileSidebar({ user, onSubscribeChanged }) {
 
         {/* Description */}
         <div className="pt-2">
-          <p className="text-sm font-light text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {user?.description || "No description provided yet."}
           </p>
         </div>

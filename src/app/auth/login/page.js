@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
   CardContent,
   CardTitle,
   CardDescription,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldGroup,
   FieldLabel,
   FieldDescription,
-} from '@/components/ui/field';
-import { useAuth } from '@/hooks/useAuth';
+} from "@/components/ui/field";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, loading } = useAuth();
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -33,15 +33,15 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.email.trim()) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return;
     }
 
     if (!formData.password) {
-      setError('Please enter your password');
+      setError("Please enter your password");
       return;
     }
 
@@ -57,23 +57,24 @@ export default function LoginPage() {
       if (result?.error) {
         setError(getErrorMessage(result.error));
       } else {
-        router.push('/');
+        router.push("/");
       }
     } catch (err) {
-      setError('Login failed, please try again later');
-      console.error('Login error:', err);
+      setError("Login failed, please try again later");
+      console.error("Login error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const getErrorMessage = (error) => {
-    const errorString = typeof error === 'string' ? error : error?.message || '';
-    return errorString || 'Login failed, please try again later';
+    const errorString =
+      typeof error === "string" ? error : error?.message || "";
+    return errorString || "Login failed, please try again later";
   };
 
   return (
-    <div className="min-h-full flex items-center justify-center light">
+    <div className="min-h-full flex items-center justify-center">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader>
@@ -92,7 +93,7 @@ export default function LoginPage() {
                     type="email"
                     placeholder="m@example.com"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     required
                   />
                 </Field>
@@ -110,12 +111,16 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     required
                   />
                 </Field>
                 {error && (
-                  <FieldDescription className="text-red-500">{error}</FieldDescription>
+                  <FieldDescription className="text-red-500">
+                    {error}
+                  </FieldDescription>
                 )}
                 <Field>
                   <Button
@@ -123,12 +128,13 @@ export default function LoginPage() {
                     className="w-full"
                     loading={isSubmitting || loading}
                   >
-                    {isSubmitting || loading ? 'Logging in...' : 'Login'}
+                    {isSubmitting || loading ? "Logging in..." : "Login"}
                   </Button>
                 </Field>
                 <Field>
                   <FieldDescription className="text-center">
-                    Don&apos;t have an account? <Link href="/auth/register">Sign up</Link>
+                    Don&apos;t have an account?{" "}
+                    <Link href="/auth/register">Sign up</Link>
                   </FieldDescription>
                 </Field>
               </FieldGroup>

@@ -218,9 +218,9 @@ export default function UploadPage() {
   };
   // Step 1: Simple uploader view before details
   // Show simple uploader until a video is uploaded
-  if (!uploadedVideo) {
+  if (uploadedVideo) {
     return (
-      <div className="h-full bg-white text-foreground">
+      <div className="h-full">
         <div className="px-8 pt-6 pb-4 space-y-4">
           <div className="flex justify-between items-start">
             <h1 className="text-4xl font-normal">Upload video</h1>
@@ -250,11 +250,11 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="h-full light bg-background text-foreground">
+    <div className="h-full">
       <div className="flex gap-1 h-full">
         {/* Middle Content - Upload Form */}
         <div className="flex-1 flex flex-col h-full overflow-hidden pb-18">
-          <div className="bg-white px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
+          <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
@@ -610,7 +610,7 @@ export default function UploadPage() {
           </div>
 
           {/* Bottom Confirmation Bar */}
-          <div className="bg-white border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
+          <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
             <div className="flex justify-between items-center">
               <Button
                 variant="ghost"
@@ -643,7 +643,7 @@ export default function UploadPage() {
         <Separator orientation="vertical" className="h-auto opacity-20" />
 
         {/* Right Sidebar - Video Status */}
-        <div className="flex-none w-[250px] bg-white overflow-y-auto">
+        <div className="flex-none w-[250px] overflow-y-auto">
           <div className="p-6 space-y-6">
             <h2 className="text-2xl font-normal text-primary">Video status</h2>
 

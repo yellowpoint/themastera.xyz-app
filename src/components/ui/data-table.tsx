@@ -74,20 +74,19 @@ export function DataTableWithPagination<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="overflow-hidden border border-gray-200 rounded-sm">
+      <div className="overflow-hidden border rounded-sm">
         <Table className="w-full table-fixed">
-          <TableHeader>
+          <TableHeader className="bg-muted">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className="bg-gray-100 hover:bg-gray-100"
-              >
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const size = typeof header.getSize === "function" ? header.getSize() : (header.column?.getSize?.() ?? undefined);
+                  const size =
+                    typeof header.getSize === "function"
+                      ? header.getSize()
+                      : (header.column?.getSize?.() ?? undefined);
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-normal text-[#3B3E3F]"
                       style={size ? { width: `${size}px` } : undefined}
                     >
                       {header.isPlaceholder
@@ -107,9 +106,15 @@ export function DataTableWithPagination<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="border-gray-100">
                   {row.getVisibleCells().map((cell) => {
-                    const size = typeof cell.column.getSize === "function" ? cell.column.getSize() : undefined;
+                    const size =
+                      typeof cell.column.getSize === "function"
+                        ? cell.column.getSize()
+                        : undefined;
                     return (
-                      <TableCell key={cell.id} style={size ? { width: `${size}px` } : undefined}>
+                      <TableCell
+                        key={cell.id}
+                        style={size ? { width: `${size}px` } : undefined}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
