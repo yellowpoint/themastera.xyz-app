@@ -82,19 +82,23 @@ export function DataTableWithPagination<TData, TValue>({
                 key={headerGroup.id}
                 className="bg-gray-100 hover:bg-gray-100"
               >
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="font-normal text-[#3B3E3F]"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const size = typeof header.getSize === "function" ? header.getSize() : (header.column?.getSize?.() ?? undefined);
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className="font-normal text-[#3B3E3F]"
+                      style={size ? { width: `${size}px` } : undefined}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -102,14 +106,17 @@ export function DataTableWithPagination<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="border-gray-100">
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const size = typeof cell.column.getSize === "function" ? cell.column.getSize() : undefined;
+                    return (
+                      <TableCell key={cell.id} style={size ? { width: `${size}px` } : undefined}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (

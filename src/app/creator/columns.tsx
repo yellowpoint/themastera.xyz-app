@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -17,6 +17,20 @@ import {
 } from "@/components/ui/tooltip";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { formatDuration, formatDate, formatViews } from "@/lib/format";
+import { api } from "@/lib/request";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { Trash } from "lucide-react";
 
 export type WorkRow = {
   id: string;
@@ -32,6 +46,24 @@ export type WorkRow = {
 
 export function useCreatorColumns() {
   const router = useRouter();
+  const handleDeleteWork = async (workId: string) => {
+    try {
+      const res = await api.delete(`/api/works/${workId}`);
+      const result = res.data || {};
+      if (res.ok === false || result.success === false) {
+        throw new Error(result.error || "Failed to delete work");
+      }
+      toast.success("Work deleted successfully!");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("work-deleted", { detail: { id: workId } })
+        );
+      }
+    } catch (error: any) {
+      console.error("Error deleting work:", error);
+      toast.error("Failed to delete work");
+    }
+  };
 
   const columns: ColumnDef<WorkRow>[] = [
     {
@@ -91,7 +123,7 @@ export function useCreatorColumns() {
           {row.original.status || "Draft"}
         </span>
       ),
-      size: 120,
+      size: 50,
     },
     {
       id: "views",
@@ -112,7 +144,7 @@ export function useCreatorColumns() {
           {formatViews(row.original.views || 0)}
         </span>
       ),
-      size: 120,
+      size: 50,
     },
     {
       id: "date",
@@ -122,7 +154,7 @@ export function useCreatorColumns() {
           {formatDate(row.original.createdAt)}
         </span>
       ),
-      size: 180,
+      size: 80,
     },
     {
       id: "action",
@@ -141,7 +173,7 @@ export function useCreatorColumns() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-[#4E5969] hover:text-[#1D2129]"
+                  // className="text-[#4E5969] hover:text-[#1D2129]"
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -157,15 +189,37 @@ export function useCreatorColumns() {
                 >
                   View
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => alert("Delete action")}>
-                  Delete
-                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem variant="destructive">
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete work</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete the work and remove its data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className={buttonVariants({ variant: "destructive" })}
+                        onClick={() => handleDeleteWork(work.id)}
+                      >
+                        <Trash className="mr-2 h-4 w-4" /> Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );
       },
-      size: 180,
+      size: 80,
     },
   ];
 

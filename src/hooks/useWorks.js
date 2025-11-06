@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { api } from '@/lib/request'
 
 export const useWorks = () => {
   const [works, setWorks] = useState([])
@@ -135,20 +136,11 @@ export const useWorks = () => {
     setError(null)
 
     try {
-      const response = await fetch(`/api/works/${workId}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (!result.success) {
+      const res = await api.delete(`/api/works/${workId}`)
+      const result = res.data || {}
+      if (res.ok === false || result.success === false) {
         throw new Error(result.error || 'Failed to delete work')
       }
-
       setWorks(prev => prev.filter(work => work.id !== workId))
     } catch (err) {
       setError(err.message)
