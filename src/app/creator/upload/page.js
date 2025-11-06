@@ -31,6 +31,8 @@ import {
   FieldContent,
   FieldSet,
   FieldLegend,
+  FieldGroup,
+  FieldSeparator,
 } from "@/components/ui/field";
 
 export default function UploadPage() {
@@ -214,9 +216,9 @@ export default function UploadPage() {
       toast.success("Video link copied to clipboard");
     }
   };
-
   // Step 1: Simple uploader view before details
-  if (uploadedVideo) {
+  // Show simple uploader until a video is uploaded
+  if (!uploadedVideo) {
     return (
       <div className="h-full bg-white text-foreground">
         <div className="px-8 pt-6 pb-4 space-y-4">
@@ -271,260 +273,298 @@ export default function UploadPage() {
 
           {/* Scrollable Form Content */}
           <div className="flex-1 overflow-y-auto px-8 py-2">
-            <div className="space-y-4 max-w-[800px]">
-              {/* Video Details Section */}
-              <div className="space-y-4 py-2">
-                <h2 className="text-2xl font-normal text-primary">
-                  Video details
-                </h2>
-
-                {/* Title Field */}
-                <Field
-                  className="bg-[#F7F8FA] rounded-lg p-2"
-                  orientation="vertical"
-                >
-                  <div className="px-3 py-2">
-                    <FieldLabel className="text-lg text-muted-foreground">
-                      Title <span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <FieldDescription>
-                      Add a clear, descriptive title.
-                    </FieldDescription>
-                  </div>
-                  <FieldContent>
-                    <div className="flex justify-between items-center px-3">
-                      <Input
-                        placeholder="Add a title for your video"
-                        value={uploadForm.title}
-                        onChange={(e) =>
-                          setUploadForm((prev) => ({
-                            ...prev,
-                            title: e.target.value,
-                          }))
-                        }
-                        maxLength={200}
-                        required
-                        aria-invalid={
-                          showErrors && !uploadForm.title ? true : undefined
-                        }
-                      />
-                      <span className="text-base text-muted-foreground ml-2">
-                        {uploadForm.title.length}/200
-                      </span>
-                    </div>
-                    <div className="px-3">
-                      <FieldError
-                        errors={
-                          showErrors && !uploadForm.title
-                            ? [{ message: "Title is required" }]
-                            : []
-                        }
-                      />
-                    </div>
-                  </FieldContent>
-                </Field>
-
-                {/* Description Field */}
-                <Field
-                  className="bg-[#F7F8FA] rounded-lg p-2 h-[180px]"
-                  orientation="vertical"
-                >
-                  <div className="px-3 py-2">
-                    <FieldLabel className="text-lg text-muted-foreground">
-                      Description <span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <FieldDescription>
-                      Explain what your video covers.
-                    </FieldDescription>
-                  </div>
-                  <FieldContent>
-                    <div className="flex flex-col h-[calc(100%-48px)] px-3">
-                      <Textarea
-                        placeholder="Tell viewer about your video"
-                        value={uploadForm.description}
-                        onChange={(e) =>
-                          setUploadForm((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        maxLength={200}
-                        required
-                        aria-invalid={
-                          showErrors && !uploadForm.description
-                            ? true
-                            : undefined
-                        }
-                      />
-                      <span className="text-base text-muted-foreground text-right">
-                        {uploadForm.description.length}/200
-                      </span>
-                      <FieldError
-                        errors={
-                          showErrors && !uploadForm.description
-                            ? [{ message: "Description is required" }]
-                            : []
-                        }
-                      />
-                    </div>
-                  </FieldContent>
-                </Field>
-
-                {/* Paid Content Toggle */}
-                <Field orientation="horizontal" className="py-2">
-                  <Switch
-                    disabled
-                    className="mt-2"
-                    id="isPaid"
-                    checked={uploadForm.isPaid}
-                    onCheckedChange={(checked) =>
-                      setUploadForm((prev) => ({ ...prev, isPaid: checked }))
-                    }
-                  />
-                  <FieldContent>
-                    <FieldLabel
-                      className="text-2xl font-normal text-primary cursor-pointer"
-                      htmlFor="isPaid"
+            <div className="max-w-[800px]">
+              <FieldGroup>
+                {/* Video Details Section */}
+                <FieldSet>
+                  <FieldLegend className="text-2xl font-normal text-primary">
+                    Video details
+                  </FieldLegend>
+                  <FieldGroup>
+                    {/* Title Field */}
+                    <Field
+                      className="bg-[#F7F8FA] rounded-lg p-2"
+                      orientation="vertical"
+                      data-invalid={
+                        showErrors && !uploadForm.title ? true : undefined
+                      }
                     >
-                      Paid Content
-                    </FieldLabel>
-                    <FieldDescription>
-                      This is the description of why people paid to view, and
-                      how creator have reward from this, such as for each
-                      review, the create can have 10 mastera points reward.
-                    </FieldDescription>
-                  </FieldContent>
-                </Field>
-              </div>
+                      <div className="px-3 py-2">
+                        <FieldLabel className="text-lg text-muted-foreground">
+                          Title <span className="text-destructive">*</span>
+                        </FieldLabel>
+                        <FieldDescription>
+                          Add a clear, descriptive title.
+                        </FieldDescription>
+                      </div>
+                      <FieldContent>
+                        <div className="flex justify-between items-center px-3">
+                          <Input
+                            placeholder="Add a title for your video"
+                            value={uploadForm.title}
+                            onChange={(e) =>
+                              setUploadForm((prev) => ({
+                                ...prev,
+                                title: e.target.value,
+                              }))
+                            }
+                            maxLength={200}
+                            required
+                            aria-invalid={
+                              showErrors && !uploadForm.title ? true : undefined
+                            }
+                          />
+                          <span className="text-base text-muted-foreground ml-2">
+                            {uploadForm.title.length}/200
+                          </span>
+                        </div>
+                        <div className="px-3">
+                          <FieldError
+                            errors={
+                              showErrors && !uploadForm.title
+                                ? [{ message: "Title is required" }]
+                                : []
+                            }
+                          />
+                        </div>
+                      </FieldContent>
+                    </Field>
 
-              <Separator className="opacity-20" />
+                    {/* Description Field */}
+                    <Field
+                      className="bg-[#F7F8FA] rounded-lg p-2 h-[180px]"
+                      orientation="vertical"
+                      data-invalid={
+                        showErrors && !uploadForm.description ? true : undefined
+                      }
+                    >
+                      <div className="px-3 py-2">
+                        <FieldLabel className="text-lg text-muted-foreground">
+                          Description{" "}
+                          <span className="text-destructive">*</span>
+                        </FieldLabel>
+                        <FieldDescription>
+                          Explain what your video covers.
+                        </FieldDescription>
+                      </div>
+                      <FieldContent>
+                        <div className="flex flex-col h-[calc(100%-48px)] px-3">
+                          <Textarea
+                            placeholder="Tell viewer about your video"
+                            value={uploadForm.description}
+                            onChange={(e) =>
+                              setUploadForm((prev) => ({
+                                ...prev,
+                                description: e.target.value,
+                              }))
+                            }
+                            maxLength={200}
+                            required
+                            aria-invalid={
+                              showErrors && !uploadForm.description
+                                ? true
+                                : undefined
+                            }
+                          />
+                          <span className="text-base text-muted-foreground text-right">
+                            {uploadForm.description.length}/200
+                          </span>
+                          <FieldError
+                            errors={
+                              showErrors && !uploadForm.description
+                                ? [{ message: "Description is required" }]
+                                : []
+                            }
+                          />
+                        </div>
+                      </FieldContent>
+                    </Field>
 
-              {/* Thumbnail Section */}
-              <div className="space-y-4 py-2">
-                <Field className="space-y-2">
-                  <FieldLabel className="text-2xl font-normal text-primary">
-                    Thumbnail <span className="text-destructive">*</span>
-                  </FieldLabel>
+                    {/* Paid Content Toggle */}
+                    <Field orientation="horizontal" className="py-2">
+                      <Switch
+                        disabled
+                        className="mt-2"
+                        id="isPaid"
+                        checked={uploadForm.isPaid}
+                        onCheckedChange={(checked) =>
+                          setUploadForm((prev) => ({
+                            ...prev,
+                            isPaid: checked,
+                          }))
+                        }
+                      />
+                      <FieldContent>
+                        <FieldLabel
+                          className="text-2xl font-normal text-primary cursor-pointer"
+                          htmlFor="isPaid"
+                        >
+                          Paid Content
+                        </FieldLabel>
+                        <FieldDescription>
+                          This is the description of why people paid to view,
+                          and how creator have reward from this, such as for
+                          each review, the create can have 10 mastera points
+                          reward.
+                        </FieldDescription>
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
+
+                <FieldSeparator />
+
+                {/* Thumbnail Section */}
+                <FieldSet>
+                  <FieldLegend className="text-2xl font-normal text-primary">
+                    Thumbnail
+                  </FieldLegend>
                   <FieldDescription>
                     Set a thumbnail that stands out and draws viewers'
                     attention.
                   </FieldDescription>
-                  <FieldContent>
-                    <ImgUpload
-                      onUploadComplete={handleCoverUploadComplete}
-                      required={true}
-                      initialImage={autoCover}
-                    />
-                    <FieldError
-                      errors={
+                  <FieldGroup>
+                    <Field
+                      className="space-y-2"
+                      data-invalid={
                         showErrors && !uploadForm.thumbnailUrl
-                          ? [{ message: "Thumbnail is required" }]
-                          : []
+                          ? true
+                          : undefined
                       }
-                    />
-                  </FieldContent>
-                </Field>
-              </div>
+                    >
+                      <FieldContent>
+                        <ImgUpload
+                          onUploadComplete={handleCoverUploadComplete}
+                          required={true}
+                          initialImage={autoCover}
+                        />
+                        <FieldError
+                          errors={
+                            showErrors && !uploadForm.thumbnailUrl
+                              ? [{ message: "Thumbnail is required" }]
+                              : []
+                          }
+                        />
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
 
-              <Separator className="opacity-20" />
+                <FieldSeparator />
 
-              {/* Music Style Section */}
-              <div className="space-y-4 py-2">
-                <Field className="space-y-2">
-                  <FieldLabel className="text-2xl font-normal text-primary">
-                    Music style <span className="text-destructive">*</span>
-                  </FieldLabel>
+                {/* Music Style Section */}
+                <FieldSet>
+                  <FieldLegend className="text-2xl font-normal text-primary">
+                    Music style
+                  </FieldLegend>
                   <FieldDescription>
                     Let people know what kind of music style you create.
                   </FieldDescription>
-                  <FieldContent className="py-2">
-                    <Select
-                      value={uploadForm.category}
-                      onValueChange={(val) =>
-                        setUploadForm((prev) => ({ ...prev, category: val }))
+                  <FieldGroup>
+                    <Field
+                      className="py-2"
+                      data-invalid={
+                        showErrors && !uploadForm.category ? true : undefined
                       }
                     >
-                      <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
-                        <div className="px-3 py-2">
-                          <SelectValue
-                            placeholder="Select music style"
-                            className="text-2xl font-normal"
-                          />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.key} value={category.key}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError
-                      errors={
-                        showErrors && !uploadForm.category
-                          ? [{ message: "Music style is required" }]
-                          : []
-                      }
-                    />
-                  </FieldContent>
-                </Field>
-              </div>
+                      <FieldContent>
+                        <Select
+                          value={uploadForm.category}
+                          onValueChange={(val) =>
+                            setUploadForm((prev) => ({
+                              ...prev,
+                              category: val,
+                            }))
+                          }
+                        >
+                          <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
+                            <div className="px-3 py-2">
+                              <SelectValue
+                                placeholder="Select music style"
+                                className="text-2xl font-normal"
+                              />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.key}
+                                value={category.key}
+                              >
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FieldError
+                          errors={
+                            showErrors && !uploadForm.category
+                              ? [{ message: "Music style is required" }]
+                              : []
+                          }
+                        />
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
 
-              {/* Language Section */}
-              <div className="space-y-4">
-                <Field
-                  className="space-y-2"
-                  data-invalid={
-                    showErrors && !uploadForm.language ? true : undefined
-                  }
-                >
-                  <FieldLabel className="text-2xl font-normal text-primary">
-                    Language and captions certification{" "}
-                    <span className="text-destructive">*</span>
-                  </FieldLabel>
+                {/* Language Section */}
+                <FieldSet>
+                  <FieldLegend className="text-2xl font-normal text-primary">
+                    Language and captions certification
+                  </FieldLegend>
                   <FieldDescription>
                     Select your video's language and, if needed, a caption
                     certification.
                   </FieldDescription>
-                  <FieldContent className="py-2">
-                    <Select
-                      value={uploadForm.language}
-                      onValueChange={(val) =>
-                        setUploadForm((prev) => ({ ...prev, language: val }))
+                  <FieldGroup>
+                    <Field
+                      className="py-2"
+                      data-invalid={
+                        showErrors && !uploadForm.language ? true : undefined
                       }
                     >
-                      <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
-                        <div className="px-3 py-2">
-                          <SelectValue
-                            placeholder="Select language"
-                            className="text-2xl font-normal"
-                          />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LANGUAGE_CATEGORIES.map((language) => (
-                          <SelectItem key={language} value={language}>
-                            {language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError
-                      errors={
-                        showErrors && !uploadForm.language
-                          ? [{ message: "Language is required" }]
-                          : []
-                      }
-                    />
-                  </FieldContent>
-                </Field>
-              </div>
+                      <FieldContent>
+                        <Select
+                          value={uploadForm.language}
+                          onValueChange={(val) =>
+                            setUploadForm((prev) => ({
+                              ...prev,
+                              language: val,
+                            }))
+                          }
+                        >
+                          <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
+                            <div className="px-3 py-2">
+                              <SelectValue
+                                placeholder="Select language"
+                                className="text-2xl font-normal"
+                              />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LANGUAGE_CATEGORIES.map((language) => (
+                              <SelectItem key={language} value={language}>
+                                {language}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FieldError
+                          errors={
+                            showErrors && !uploadForm.language
+                              ? [{ message: "Language is required" }]
+                              : []
+                          }
+                        />
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
 
-              <Separator className="opacity-20" />
+                <FieldSeparator />
 
-              {/* Audience Section */}
-              <div className="space-y-4 py-2">
+                {/* Audience Section */}
                 <FieldSet>
                   <FieldLegend className="text-2xl font-normal text-primary">
                     Audience
@@ -534,36 +574,38 @@ export default function UploadPage() {
                     comply with COPPA and/or other laws. Tell us whether your
                     videos are made for kids.
                   </FieldDescription>
-                  <RadioGroup
-                    value={uploadForm.isForKids ? "yes" : "no"}
-                    onValueChange={(val) =>
-                      setUploadForm((prev) => ({
-                        ...prev,
-                        isForKids: val === "yes",
-                      }))
-                    }
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="kids-yes" />
-                      <Label
-                        htmlFor="kids-yes"
-                        className="text-base font-normal cursor-pointer"
-                      >
-                        Yes, this content is for kids
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="kids-no" />
-                      <Label
-                        htmlFor="kids-no"
-                        className="text-base font-normal cursor-pointer"
-                      >
-                        No, this content is not made for kids
-                      </Label>
-                    </div>
-                  </RadioGroup>
+                  <FieldGroup>
+                    <RadioGroup
+                      value={uploadForm.isForKids ? "yes" : "no"}
+                      onValueChange={(val) =>
+                        setUploadForm((prev) => ({
+                          ...prev,
+                          isForKids: val === "yes",
+                        }))
+                      }
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="kids-yes" />
+                        <Label
+                          htmlFor="kids-yes"
+                          className="text-base font-normal cursor-pointer"
+                        >
+                          Yes, this content is for kids
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="kids-no" />
+                        <Label
+                          htmlFor="kids-no"
+                          className="text-base font-normal cursor-pointer"
+                        >
+                          No, this content is not made for kids
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FieldGroup>
                 </FieldSet>
-              </div>
+              </FieldGroup>
             </div>
           </div>
 

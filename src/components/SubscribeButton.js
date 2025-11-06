@@ -19,7 +19,7 @@ export default function SubscribeButton({
   onChanged, // (action: 'follow' | 'unfollow') => void
   className = "",
   size = "default",
-  variant = "default",
+  variant = isFollowing ? "secondary" : "default",
   disabled = false,
 }) {
   const router = useRouter();
@@ -76,12 +76,12 @@ export default function SubscribeButton({
       variant={variant}
       onClick={handleClick}
       disabled={pending || disabled}
-      aria-label={following ? "Subscribed" : "Subscribe"}
+      aria-label={following ? "Unsubscribe" : "Subscribe"}
     >
       {following ? (
         <span className="inline-flex items-center gap-2">
           <BellRing className="w-4 h-4" />
-          Subscribed
+          Unsubscribe
         </span>
       ) : (
         <span className="inline-flex items-center gap-2">

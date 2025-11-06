@@ -10,19 +10,63 @@ export async function GET(request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    const history = await prisma.watchHistory.findMany({
-      where: { userId },
-      orderBy: { watchedAt: 'desc' },
-      include: {
-        work: {
-          include: {
-            user: {
-              select: { id: true, name: true, image: true }
-            }
-          }
-        }
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.max(1, Math.min(50, parseInt(searchParams.get('limit') || '18')))
+    const search = (searchParams.get('search') || '').trim()
+    const start = searchParams.get('start') // ISO date string
+    const end = searchParams.get('end') // ISO date string
+
+    const skip = (page - 1) * limit
+
+    // Date range filter
+    const dateFilter = {}
+    if (start || end) {
+      dateFilter.watchedAt = {}
+      if (start) {
+        const sd = new Date(start)
+        if (!isNaN(sd.getTime())) dateFilter.watchedAt.gte = sd
       }
-    })
+      if (end) {
+        const ed = new Date(end)
+        if (!isNaN(ed.getTime())) dateFilter.watchedAt.lte = ed
+      }
+    }
+
+    // Search filter on work title or author name
+    const searchFilter = search
+      ? {
+          OR: [
+            { work: { is: { title: { contains: search } } } },
+            { work: { is: { user: { is: { name: { contains: search } } } } } },
+          ],
+        }
+      : {}
+
+    const where = {
+      userId,
+      ...dateFilter,
+      ...searchFilter,
+    }
+
+    const [history, total] = await Promise.all([
+      prisma.watchHistory.findMany({
+        where,
+        orderBy: { watchedAt: 'desc' },
+        include: {
+          work: {
+            include: {
+              user: {
+                select: { id: true, name: true, image: true },
+              },
+            },
+          },
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.watchHistory.count({ where }),
+    ])
 
     const data = history.map((h) => ({
       id: h.id,
@@ -38,7 +82,16 @@ export async function GET(request) {
       },
     }))
 
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({
+      success: true,
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
   } catch (error) {
     console.error('GET /api/history error:', error)
     return NextResponse.json(
