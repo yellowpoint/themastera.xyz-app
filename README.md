@@ -186,6 +186,27 @@ src/
 └── utils/                 # 工具函数
 ```
 
+## 🧭 现有页面一览
+
+当前仓库中的页面（基于 App Router，下列路径均为实际可访问的路由）：
+
+- `/` 首页（src/app/page.js）
+- `/auth/login` 登录（src/app/auth/login/page.js）
+- `/auth/register` 注册（src/app/auth/register/page.js）
+- `/creator` 创作者仪表板（src/app/creator/page.js）
+- `/creator/upload` 创作者内容上传（src/app/creator/upload/page.js）
+- `/explore` 内容探索/发现（src/app/explore/page.js）
+- `/history` 浏览历史（src/app/history/page.js）
+- `/profile` 个人资料（src/app/profile/page.js）
+- `/subscriptions` 订阅与会员（src/app/subscriptions/page.js）
+- `/content/[id]` 作品详情（动态路由，src/app/content/[id]/page.js）
+- `/section/[id]` 分区/分类详情（动态路由，src/app/section/[id]/page.js）
+- `/user/[id]` 用户主页（动态路由，src/app/user/[id]/page.js）
+
+说明：
+- 上述带 `[id]` 的为动态路由，实际访问时请替换为具体资源 ID，例如 `/content/123`。
+- `auth/verify-email/[email]` 目前为目录占位，尚未包含 `page.js`，因此未列入可访问页面。
+
 ## 🛠️ 可用脚本
 
 - `pnpm dev` - 启动开发服务器（使用 Turbopack）
@@ -278,6 +299,8 @@ src/
 - 保持色彩搭配简洁清爽
 - 界面语言使用英语
 - 使用 PNPM 进行包管理
+- 不使用 Next.js 的 `next/image` 组件，统一使用原生 `<img>` 标签
+- 统一使用公共请求封装：`src/lib/request.js`，避免在页面/组件中直接调用 `fetch`
 
 ### 数据库操作
 

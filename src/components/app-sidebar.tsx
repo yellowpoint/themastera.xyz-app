@@ -38,6 +38,7 @@ const data = {
     { title: "Subscriptions", url: "/subscriptions", icon: BookOpen },
     { title: "History", url: "/history", icon: History },
     { title: "Creator", url: "/creator", icon: SquareTerminal },
+    { title: "Explore", url: "/explore", icon: Command },
   ],
   navMain2: [
     { title: "Me", url: "/me", icon: GalleryVerticalEnd },
