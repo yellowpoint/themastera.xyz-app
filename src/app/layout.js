@@ -56,7 +56,8 @@ export default function RootLayout({ children }) {
             <AppSidebar className="pt-16" />
             <SidebarInset className="flex flex-col h-screen">
               <TopHeader />
-              <div className="flex-1 mt-16 overflow-auto border-t-4 border-l-4 border-secondary">
+              {/* border-t-4 border-l-4 border-secondary */}
+              <div className="flex-1 mt-16 overflow-auto">
                 <AuthRequired>{children}</AuthRequired>
               </div>
             </SidebarInset>

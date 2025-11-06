@@ -114,7 +114,7 @@ body {
   --chart-3: #5d5fef;
   --chart-4: #7c75fa;
   --chart-5: #4740b3;
-  --sidebar: #f0f0fa;
+  --sidebar: var(--background);
   --sidebar-foreground: #2a2a4a;
   --sidebar-primary: #6e56cf;
   --sidebar-primary-foreground: #ffffff;
@@ -179,7 +179,7 @@ body {
   --chart-3: #64b5f6;
   --chart-4: #4db6ac;
   --chart-5: #ff79c6;
-  --sidebar: #1a1a2e;
+  --sidebar: var(--background);
   --sidebar-foreground: #e2e2f5;
   --sidebar-primary: #a48fff;
   --sidebar-primary-foreground: #0f0f1a;

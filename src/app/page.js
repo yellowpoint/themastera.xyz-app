@@ -131,10 +131,7 @@ export default function HomePage() {
   return (
     <div className="h-full">
       {currentVideo && (
-        <div
-          className="fixed inset-x-0 top-16 h-[600px] z-1 overflow-hidden w-full"
-          onClick={handlePlayPause}
-        >
+        <div className="fixed left-0 right-4 top-16 h-[400px] z-0 overflow-hidden pointer-events-none">
           {(() => {
             const fileUrl = currentVideo?.fileUrl || "";
             const muxMatch = fileUrl.match(/stream\.mux\.com\/([^.?]+)/);
@@ -143,7 +140,7 @@ export default function HomePage() {
             return (
               <MuxPlayer
                 ref={videoRef}
-                className="w-[100vw] h-full cursor-pointer"
+                className="w-[100vw] h-full cursor-pointer pointer-events-none"
                 style={{
                   "--controls": "none",
                   "--media-object-fit": "cover",
@@ -162,12 +159,24 @@ export default function HomePage() {
               />
             );
           })()}
-          {/* 顶部操作栏：播放/静音与进度 */}
-          <div className="absolute left-70 right-110 top-4 z-10">
-            <div className=" flex items-center gap-3 ">
+        </div>
+      )}
+
+      <main className="relative z-10  ">
+        <div className="h-[500px] relative" onClick={handlePlayPause}>
+          {/* Controls bar */}
+          <div className="absolute left-4 right-[320px] bottom-6">
+            <div className="mb-2 text-white">
+              <h2 className="text-2xl line-clamp-1">{currentVideo?.title}</h2>
+              <p className="text-sm opacity-80">{currentVideo?.user?.name}</p>
+            </div>
+            <div
+              className="flex items-center gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 onClick={handlePlayPause}
-                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors "
               >
                 {isPlaying ? (
                   <Pause className="w-5 h-5 text-white" />
@@ -202,144 +211,111 @@ export default function HomePage() {
                 {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
-            <div className="mt-2 text-white">
-              <h2 className="text-2xl font-bold line-clamp-1">
-                {currentVideo.title || "No Title"}
-              </h2>
-              <p className="text-sm opacity-80">{currentVideo.user?.name}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <main className="relative z-10 top-100 bg-black/70">
-        {/* 主体两列：内容 + 右侧栏 */}
-        <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto  px-4 py-6">
-          {/* 主内容 9 列 */}
-          <div className="col-span-12 md:col-span-9 space-y-8">
-            {/* 加载状态下渲染栏目骨架；数据加载后渲染真实栏目 */}
-            {loading
-              ? Array.from({ length: 8 }).map((_, sectionIndex) => (
-                  <div key={`section-skeleton-${sectionIndex}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <Skeleton className="h-5 w-32" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {Array.from({ length: 3 }).map((_, idx) => (
-                        <WorkCardSkeletonLite
-                          key={`section-${sectionIndex}-card-${idx}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))
-              : (homepage.sections || []).map((section, sectionIndex) => (
-                  <div key={section.id || `section-${sectionIndex}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold">{section.title}</h3>
-                      {section.showAllLink && (
-                        <Link
-                          href={section.showAllLink}
-                          className="text-sm text-muted-foreground hover:text-foreground"
-                        >
-                          Show all
-                        </Link>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {(section.items || [])
-                        .slice(0, 3)
-                        .map((w) =>
-                          w ? (
-                            <WorkCard
-                              key={w.id}
-                              work={w}
-                              resolveThumb={resolveThumb}
-                              handleImgError={handleImgError}
-                              formatViews={formatViews}
-                            />
-                          ) : null
-                        )}
-                    </div>
-                  </div>
-                ))}
           </div>
 
-          {/* 右侧栏：在大屏固定到右上角 */}
-          <div className="col-span-12 md:col-span-3 space-y-6 md:fixed md:right-6 md:top-16 md:w-[280px] md:z-20">
-            {/* Quick picks */}
-            <div className="bg-card border border-border rounded-2xl p-4">
+          {/* Quick picks overlay on the right */}
+          <div className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl  pointer-events-auto">
+            <div className="p-4 text-white">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold">Quick picks</h4>
-                <button className="text-muted-foreground">
+                <button className="opacity-80 hover:opacity-100">
                   <MoreVertical size={16} />
                 </button>
               </div>
-              {/* 加载骨架屏 */}
-              {loading ? (
-                <div className="mt-4 space-y-3">
-                  {Array.from({ length: 4 }).map((_, idx) => (
-                    <div
-                      key={`qp-skeleton-${idx}`}
-                      className="flex items-center gap-3"
-                    >
-                      <Skeleton className="w-14 h-14 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-3 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
+              <div className="mt-4 space-y-3">
+                {(homepage.quickPicks || []).slice(0, 4).map((w) => (
+                  <div
+                    key={w.id}
+                    onClick={() => handleVideoSelect(w)}
+                    className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${
+                      currentVideo?.id === w.id
+                        ? "bg-white/10"
+                        : "hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="relative">
+                      <img
+                        src={resolveThumb(w.thumbnailUrl)}
+                        alt="thumb"
+                        className="w-14 h-14 object-cover rounded"
+                        loading="lazy"
+                        onError={(e) => handleImgError(w.thumbnailUrl, e)}
+                      />
+                      {currentVideo?.id === w.id && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
+                          <Play className="w-5 h-5 text-white fill-white" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm leading-tight line-clamp-2">
+                        {w.title}
+                      </div>
+                      <div className="text-xs opacity-80 leading-tight mt-1">
+                        {w.user.name}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-4 space-y-3">
-                  {(homepage.quickPicks || []).slice(0, 4).map((w) => (
-                    <div
-                      key={w.id}
-                      onClick={() => handleVideoSelect(w)}
-                      className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${
-                        currentVideo?.id === w.id
-                          ? "bg-primary/10"
-                          : "hover:bg-muted/50"
-                      }`}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      className="opacity-80 hover:opacity-100"
                     >
-                      <div className="relative">
-                        <img
-                          src={resolveThumb(w.thumbnailUrl)}
-                          alt="thumb"
-                          className="w-14 h-14 object-cover rounded"
-                          loading="lazy"
-                          onError={(e) => handleImgError(w.thumbnailUrl, e)}
-                        />
-                        {currentVideo?.id === w.id && (
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
-                            <Play className="w-5 h-5 text-white fill-white" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm leading-tight line-clamp-2">
-                          {w.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground leading-tight mt-1">
-                          {w.user.name}
-                        </div>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="text-muted-foreground"
-                      >
-                        <MoreVertical size={16} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+        <div className="px-4 py-6 space-y-8 bg-black/40 backdrop-blur-sm rounded-2xl w-[calc(100%-300px)]">
+          {loading
+            ? Array.from({ length: 8 }).map((_, sectionIndex) => (
+                <div key={`section-skeleton-${sectionIndex}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {Array.from({ length: 3 }).map((_, idx) => (
+                      <WorkCardSkeletonLite
+                        key={`section-${sectionIndex}-card-${idx}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
+            : (homepage.sections || []).map((section, sectionIndex) => (
+                <div key={section.id || `section-${sectionIndex}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold">{section.title}</h3>
+                    {section.showAllLink && (
+                      <Link
+                        href={section.showAllLink}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        Show all
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {(section.items || [])
+                      .slice(0, 3)
+                      .map((w) =>
+                        w ? (
+                          <WorkCard
+                            key={w.id}
+                            work={w}
+                            resolveThumb={resolveThumb}
+                            handleImgError={handleImgError}
+                            formatViews={formatViews}
+                          />
+                        ) : null
+                      )}
+                  </div>
+                </div>
+              ))}
         </div>
       </main>
     </div>
