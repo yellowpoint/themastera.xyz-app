@@ -104,7 +104,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(
       apiSuccess({
-        comments: formattedComments,
+        items: formattedComments,
         pagination: {
           page,
           limit,

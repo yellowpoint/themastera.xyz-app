@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import { z } from 'zod'
-import { createApiResponseSchema, ApiFailureSchema } from '@/contracts/types/common'
+import { createApiResponseSchema, ApiFailureSchema, createPaginatedSchema } from '@/contracts/types/common'
 import { PlaylistCardSchema } from '@/contracts/domain/playlist'
 
 const c = initContract()
@@ -8,11 +8,11 @@ const c = initContract()
 // Common schemas
 const PaginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
-  pageSize: z.coerce.number().int().min(1).max(100).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
 })
 
 // Response payload schemas
-const ListPlaylistsDataSchema = z.array(PlaylistCardSchema)
+const ListPlaylistsDataSchema = createPaginatedSchema(PlaylistCardSchema)
 
 const CreatePlaylistBodySchema = z.object({ name: z.string().min(1) })
 const CreatePlaylistDataSchema = PlaylistCardSchema // aligns with current API returning id, name, items

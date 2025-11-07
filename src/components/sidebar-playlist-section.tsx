@@ -61,7 +61,7 @@ export function SidebarPlaylistSection() {
     setError(null);
     try {
       const { data } = await request.get("/api/playlists");
-      const list: Playlist[] = (data?.data || []) as Playlist[];
+      const list: Playlist[] = (data?.data?.items || []) as Playlist[];
       setPlaylists(list);
       setSelectedId((prev) => prev || list[0]?.id || null);
     } catch (e: any) {

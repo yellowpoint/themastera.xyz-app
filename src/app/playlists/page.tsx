@@ -50,8 +50,8 @@ export default function PlaylistsPage() {
   const fetchPlaylists = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await request.get<Playlist[]>("/api/playlists");
-      setPlaylists(data?.success ? data.data : []);
+      const { data } = await request.get<{ items: Playlist[] }>("/api/playlists");
+      setPlaylists(data?.success ? (data.data?.items || []) : []);
     } catch (err) {
       // Errors handled by request helper
     } finally {

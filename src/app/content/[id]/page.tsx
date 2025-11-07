@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { AlertTriangle, ChevronDown, Frown } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -141,7 +141,7 @@ export default function ContentDetailPage() {
       const { data } = await request.get(
         `/api/works/trending?limit=8&exclude=${workId}`
       );
-      setRelatedWorks(data?.data || []);
+      setRelatedWorks((data as any)?.data?.items || []);
     } catch (err) {
       console.error("Error fetching related works:", err);
     }
@@ -211,7 +211,7 @@ export default function ContentDetailPage() {
       }
       const { data } = await request.get("/api/playlists");
       if (!data?.success) return;
-      const pls = (data?.data as any[]) || [];
+      const pls = (data?.data?.items as any[]) || [];
       const selected =
         (selectedPlaylistId
           ? pls.find((p) => p.id === selectedPlaylistId)
@@ -271,10 +271,12 @@ export default function ContentDetailPage() {
     return (
       <div className="h-full bg-content-bg flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="text-6xl mb-4">
-            {error?.includes("not found") || error?.includes("deleted")
-              ? "😕"
-              : "⚠️"}
+          <div className="text-6xl mb-4 flex items-center justify-center text-muted-foreground">
+            {error?.includes("not found") || error?.includes("deleted") ? (
+              <Frown className="w-12 h-12" />
+            ) : (
+              <AlertTriangle className="w-12 h-12" />
+            )}
           </div>
           <h2 className="text-2xl font-bold mb-2">
             {error?.includes("not found") || error?.includes("deleted")

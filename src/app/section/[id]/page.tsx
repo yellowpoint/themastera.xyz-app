@@ -42,11 +42,11 @@ export default function SectionPage() {
         );
         if (!ignore) {
           if (data?.success) {
-            const payload = data.data as any[];
+            const payload = (data.data as any)?.items as any[];
             setItems((prev) =>
               page === 1 ? (payload || []) : [...prev, ...(payload || [])]
             );
-            setTotalPages((data as any)?.pagination?.totalPages || 1);
+            setTotalPages((data.data as any)?.pagination?.totalPages || 1);
           } else {
             setError((data as any)?.error || "Failed to load items");
           }

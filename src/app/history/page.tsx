@@ -60,8 +60,8 @@ export default function WatchHistoryPage() {
         if (dateRange?.to)
           params.set("end", new Date(dateRange.to).toISOString());
         const { data } = await request.get(`/api/history?${params.toString()}`);
-        const list = (data as any)?.data || [];
-        const pg = (data as any)?.pagination || {};
+        const list = (data as any)?.data?.items || [];
+        const pg = (data as any)?.data?.pagination || {};
         setTotalPages(pg.totalPages || 1);
         setItems((prev) => (nextPage === 1 ? list : [...prev, ...list]));
       } catch (err) {

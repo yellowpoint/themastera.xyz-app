@@ -57,3 +57,31 @@ export function apiSuccess<T>(data: T): ApiSuccess<T> {
 export function apiFailure(code: ErrorCode, message: string, details?: any): ApiFailure {
   return { success: false, data: null, error: { code, message, details } }
 }
+
+// Pagination helpers and shared types for standardized paged responses
+export type Pagination = {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export type Paginated<T> = {
+  items: T[]
+  pagination: Pagination
+}
+
+// Convenience zod schemas if needed downstream
+export const PaginationSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+})
+
+export function createPaginatedSchema<T extends z.ZodTypeAny>(itemSchema: T) {
+  return z.object({
+    items: z.array(itemSchema),
+    pagination: PaginationSchema,
+  })
+}

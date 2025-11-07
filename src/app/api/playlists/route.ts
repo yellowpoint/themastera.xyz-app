@@ -14,6 +14,11 @@ export async function GET(request: Request) {
       })
     }
 
+    // Parse pagination query params
+    const url = new URL(request.url)
+    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'))
+    const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get('limit') || '50')))
+
     const playlists = await prisma.playlist.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
@@ -27,8 +32,14 @@ export async function GET(request: Request) {
         },
       },
     })
+    const total = playlists.length
+    const totalPages = Math.max(1, Math.ceil(total / limit))
+    const start = (page - 1) * limit
+    const end = start + limit
 
-    const items = playlists.map((pl) => ({
+    const pageSlice = playlists.slice(start, end)
+
+    const items = pageSlice.map((pl) => ({
       id: pl.id,
       name: pl.name,
       items: pl.entries.map((e) => ({
@@ -39,7 +50,13 @@ export async function GET(request: Request) {
         href: `/content/${e.work.id}`,
       })),
     }))
-    return NextResponse.json(apiSuccess(items), { status: 200 })
+    return NextResponse.json(
+      apiSuccess({
+        items,
+        pagination: { page, limit, total, totalPages },
+      }),
+      { status: 200 }
+    )
   } catch (error: any) {
     console.error('GET /api/playlists error:', error)
     return NextResponse.json(

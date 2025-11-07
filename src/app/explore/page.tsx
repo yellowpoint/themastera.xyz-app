@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import WorkCardList from "@/components/WorkCardList";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
 import { request } from "@/lib/request";
+import type { Paginated } from "@/contracts/types/common";
 import type { Work, WorkFilters } from "@/contracts/domain/work";
 
 export default function ExplorePage() {
@@ -28,10 +29,10 @@ export default function ExplorePage() {
       try {
         const params = new URLSearchParams();
         if (category && category !== "all") params.set("category", category);
-        const { data } = await request.get<Work[]>(`/api/works/trending?${params.toString()}`);
+        const { data } = await request.get<Paginated<Work>>(`/api/works/trending?${params.toString()}`);
         if (!ignore) {
           if (data?.success) {
-            setWorks((data.data as any) || []);
+            setWorks(((data as any)?.data?.items) || []);
             setVisibleCount(12);
           } else {
             setWorks([]);

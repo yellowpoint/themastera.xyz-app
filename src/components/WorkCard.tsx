@@ -49,8 +49,8 @@ export default function WorkCard({ work }: WorkCardProps) {
     if (loadingPlaylists) return
     setLoadingPlaylists(true)
     try {
-      const { data } = await request.get<PlaylistSummary[]>('/api/playlists')
-      const list = (data?.data || []) as PlaylistSummary[]
+      const { data } = await request.get<{ items: PlaylistSummary[] }>('/api/playlists')
+      const list = (data?.data?.items || []) as PlaylistSummary[]
       setPlaylists(list)
     } catch (_) {
       // errors are handled by request

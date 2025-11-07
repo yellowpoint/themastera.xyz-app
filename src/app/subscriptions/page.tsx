@@ -59,9 +59,9 @@ export default function SubscriptionsPage() {
       if (search.trim()) params.set("search", search.trim());
       const { data } = await request.get(`/api/subscriptions?${params.toString()}`);
       if (data?.success) {
-        const list = Array.isArray(data.data) ? data.data : [];
+        const list = Array.isArray((data as any)?.data?.items) ? (data as any).data.items : [];
         setItems(list.map((u) => ({ ...u, isFollowing: !!u.isFollowing })));
-        const pg = (data as any)?.pagination || {};
+        const pg = (data as any)?.data?.pagination || {};
         setTotal(pg.total || 0);
         setTotalPages(pg.totalPages || 1);
       }

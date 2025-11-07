@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { api, type RequestResult } from "@/lib/request";
+import type { Paginated } from "@/contracts/types/common";
 import type { Work, WorkFilters } from "@/contracts/domain/work";
 
 export const useWorks = () => {
@@ -19,7 +20,7 @@ export const useWorks = () => {
       if (filters.page) params.append("page", String(filters.page));
       if (filters.limit) params.append("limit", String(filters.limit));
 
-      const res: RequestResult<Work[]> = await api.get(
+      const res: RequestResult<Paginated<Work>> = await api.get(
         `/api/works?${params.toString()}`,
       );
       const result = res.data;
@@ -27,7 +28,8 @@ export const useWorks = () => {
         const msg = result?.error?.message || "Failed to fetch works";
         throw new Error(msg);
       }
-      setWorks(result?.data || []);
+      const items = (result as any)?.data?.items || [];
+      setWorks(items);
       return result;
     } catch (err: any) {
       setError(err.message);
