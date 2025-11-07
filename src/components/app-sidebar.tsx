@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 import {
   AudioWaveform,
   BookOpen,
@@ -14,12 +14,10 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-} from "lucide-react";
+} from 'lucide-react'
 
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { NavMain } from '@/components/nav-main'
+
 import {
   Sidebar,
   SidebarContent,
@@ -28,37 +26,37 @@ import {
   SidebarRail,
   SidebarTrigger,
   useSidebar,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
+} from '@/components/ui/sidebar'
+import Link from 'next/link'
 
 // This is sample data.
 const data = {
   navMain: [
-    { title: "Home", url: "/", icon: Home },
-    { title: "Subscriptions", url: "/subscriptions", icon: BookOpen },
-    { title: "History", url: "/history", icon: History },
-    { title: "Creator", url: "/creator", icon: SquareTerminal },
-    { title: "Explore", url: "/explore", icon: Command },
-    { title: "Playlists", url: "/playlists", icon: AudioWaveform },
+    { title: 'Home', url: '/', icon: Home },
+    { title: 'Subscriptions', url: '/subscriptions', icon: BookOpen },
+    { title: 'History', url: '/history', icon: History },
+    { title: 'Creator', url: '/creator', icon: SquareTerminal },
+    { title: 'Explore', url: '/explore', icon: Command },
+    { title: 'Playlists', url: '/playlists', icon: AudioWaveform },
   ],
   navMain2: [
-    { title: "Me", url: "/me", icon: GalleryVerticalEnd },
-    { title: "History", url: "/history", icon: Map },
-    { title: "Explore", url: "/explore", icon: Command },
-    { title: "Broadcast", url: "/broadcast", icon: Bot },
+    { title: 'Me', url: '/me', icon: GalleryVerticalEnd },
+    { title: 'History', url: '/history', icon: Map },
+    { title: 'Explore', url: '/explore', icon: Command },
+    { title: 'Broadcast', url: '/broadcast', icon: Bot },
   ],
   navMain3: [
-    { title: "Community", url: "/community", icon: PieChart },
-    { title: "Explorer", url: "/explorer", icon: Frame },
+    { title: 'Community', url: '/community', icon: PieChart },
+    { title: 'Explorer', url: '/explorer', icon: Frame },
   ],
   footer: [
-    { title: "Settings", url: "/settings", icon: Settings2 },
-    { title: "Report history", url: "/report-history", icon: Frame },
+    { title: 'Settings', url: '/settings', icon: Settings2 },
+    { title: 'Report history', url: '/report-history', icon: Frame },
   ],
-};
+}
 
 function SidebarContentWithState() {
-  const { state } = useSidebar();
+  const { state } = useSidebar()
 
   return (
     <SidebarContent>
@@ -67,7 +65,7 @@ function SidebarContentWithState() {
       {/* <NavMain items={data.navMain3} title="Community" /> */}
       {/* Playlist section moved to Content detail page */}
     </SidebarContent>
-  );
+  )
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -89,5 +87,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>{/* <NavMain items={data.footer} /> */}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }
