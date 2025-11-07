@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api as request } from "@/lib/request";
+import type { PlaylistCard } from "@/contracts/domain/playlist";
 import AuthRequired from "@/components/auth-required";
 import { Card } from "@/components/ui/card";
 import {
@@ -30,19 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trash2, ArrowLeft, PlaySquare } from "lucide-react";
 import { toast } from "sonner";
 
-type Item = {
-  id: string;
-  title?: string | null;
-  author?: string | null;
-  thumbnail?: string | null;
-  href?: string;
-};
-
-type PlaylistDetail = {
-  id: string;
-  name: string;
-  items: Item[];
-};
+type PlaylistDetail = PlaylistCard;
 
 export default function PlaylistDetailPage() {
   const params = useParams<{ id: string }>();
@@ -60,8 +49,8 @@ export default function PlaylistDetailPage() {
     if (!playlistId) return;
     setLoading(true);
     try {
-      const { data } = await request.get(`/api/playlists/${playlistId}`);
-      setPlaylist(data.data);
+      const { data } = await request.get<PlaylistDetail>(`/api/playlists/${playlistId}`);
+      setPlaylist(data?.success ? data.data : null);
     } catch (err) {
       // handled by request
     } finally {

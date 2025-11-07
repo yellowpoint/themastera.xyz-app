@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import { z } from 'zod'
 
 // GET /api/playlists - list playlists for current user
-export async function GET(request) {
+export async function GET(request: Request) {
   try {
     const { userId } = await getAuthSession(request)
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        apiFailure('UNAUTHORIZED', 'Unauthorized'),
+        { status: 401 }
+      )
     }
 
     const playlists = await prisma.playlist.findMany({
@@ -24,7 +29,7 @@ export async function GET(request) {
       },
     })
 
-    const data = playlists.map((pl) => ({
+    const items = playlists.map((pl) => ({
       id: pl.id,
       name: pl.name,
       items: pl.entries.map((e) => ({
@@ -35,35 +40,45 @@ export async function GET(request) {
         href: `/content/${e.work.id}`,
       })),
     }))
-
-    return NextResponse.json({ success: true, data })
-  } catch (error) {
+    return NextResponse.json(apiSuccess(items), { status: 200 })
+  } catch (error: any) {
     console.error('GET /api/playlists error:', error)
-    return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
+    return NextResponse.json(
+      apiFailure('INTERNAL_ERROR', 'Server error', { message: error?.message }),
+      { status: 500 }
+    )
   }
 }
 
 // POST /api/playlists - create a new playlist for current user
-export async function POST(request) {
+export async function POST(request: Request) {
   // Ensure auth
   const unauthorized = await requireAuth(request)
   if (unauthorized) return unauthorized
 
   try {
     const body = await request.json()
-    const name = (body?.name || '').trim()
-    if (!name) {
-      return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 })
+    const BodySchema = z.object({ name: z.string().min(1) })
+    const parsed = BodySchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Name is required'),
+        { status: 400 }
+      )
     }
 
     const { userId } = await getAuthSession(request)
     const created = await prisma.playlist.create({
-      data: { name, userId },
+      data: { name: parsed.data.name, userId },
     })
 
-    return NextResponse.json({ success: true, data: { id: created.id, name: created.name, items: [] } }, { status: 201 })
-  } catch (error) {
+    const createdCard = { id: created.id, name: created.name, items: [] as Array<any> }
+    return NextResponse.json(apiSuccess(createdCard), { status: 201 })
+  } catch (error: any) {
     console.error('POST /api/playlists error:', error)
-    return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
+    return NextResponse.json(
+      apiFailure('INTERNAL_ERROR', 'Server error', { message: error?.message }),
+      { status: 500 }
+    )
   }
 }

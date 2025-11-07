@@ -165,9 +165,7 @@ export function SidebarPlaylistSection() {
     async (workId: string) => {
       if (!selectedId) return;
       try {
-        await request.delete(`/api/playlists/${selectedId}/entries`, {
-          body: { workId },
-        });
+        await request.delete(`/api/playlists/${selectedId}/entries`, { workId });
         // Optimistic update: remove item locally
         setPlaylists((prev) =>
           prev.map((pl) =>

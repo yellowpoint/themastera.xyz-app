@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { api as request } from "@/lib/request";
+import type { PlaylistCard } from "@/contracts/domain/playlist";
 import { createPlaylistApi } from "@/components/sidebar-playlist-section";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
@@ -34,19 +35,8 @@ import { Skeleton } from "@/components/ui/skeleton";
  
 import { toast } from "sonner";
 
-type PlaylistItem = {
-  id: string;
-  title?: string | null;
-  author?: string | null;
-  thumbnail?: string | null;
-  href?: string;
-};
-
-type Playlist = {
-  id: string;
-  name: string;
-  items: PlaylistItem[];
-};
+// Use shared contract types
+type Playlist = PlaylistCard;
 
 export default function PlaylistsPage() {
   const [playlists, setPlaylists] = React.useState<Playlist[]>([]);
@@ -60,8 +50,8 @@ export default function PlaylistsPage() {
   const fetchPlaylists = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await request.get("/api/playlists");
-      setPlaylists(data?.data || []);
+      const { data } = await request.get<Playlist[]>("/api/playlists");
+      setPlaylists(data?.success ? data.data : []);
     } catch (err) {
       // Errors handled by request helper
     } finally {

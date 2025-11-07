@@ -49,9 +49,10 @@ export function useCreatorColumns() {
   const handleDeleteWork = async (workId: string) => {
     try {
       const res = await api.delete(`/api/works/${workId}`);
-      const result = res.data || {};
-      if (res.ok === false || result.success === false) {
-        throw new Error(result.error || "Failed to delete work");
+      const result = res.data;
+      if (res.ok === false || result?.success === false) {
+        const msg = result?.error?.message || "Failed to delete work";
+        throw new Error(msg);
       }
       toast.success("Work deleted successfully!");
       if (typeof window !== "undefined") {
