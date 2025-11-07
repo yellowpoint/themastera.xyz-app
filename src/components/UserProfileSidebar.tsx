@@ -9,7 +9,20 @@ import { Copy, Crown } from "lucide-react";
 import { toast } from "sonner";
 import SubscribeButton from "@/components/SubscribeButton";
 
-export default function UserProfileSidebar({ user, onSubscribeChanged }) {
+import type { AuthUser } from "@/hooks/useAuth";
+
+type UserProfileSidebarProps = {
+  user?: (AuthUser & {
+    followingCount?: number
+    followersCount?: number
+    isFollowing?: boolean
+    description?: string
+    level?: string
+  }) | null
+  onSubscribeChanged?: (action: 'follow' | 'unfollow') => void
+}
+
+export default function UserProfileSidebar({ user, onSubscribeChanged }: UserProfileSidebarProps) {
   const handleCopyId = () => {
     if (!user?.id) return;
     navigator.clipboard.writeText(user.id);

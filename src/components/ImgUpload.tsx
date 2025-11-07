@@ -7,6 +7,24 @@ import { Camera, X, ImageIcon, Upload } from "lucide-react";
 import { supabase, getStorageUrl } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 
+type CoverImage = {
+  fileUrl: string
+  fullPath?: string
+  fileName?: string
+  originalName?: string
+  size?: number
+  type?: string
+}
+
+type ImgUploadProps = {
+  onUploadComplete?: (result: CoverImage | null) => void
+  maxSize?: number
+  bucket?: string
+  folder?: string
+  required?: boolean
+  initialImage?: CoverImage | null
+}
+
 export default function ImgUpload({
   onUploadComplete,
   maxSize = 10 * 1024 * 1024, // 10MB
@@ -14,12 +32,12 @@ export default function ImgUpload({
   folder = "",
   required = true, // Whether it is required
   initialImage = null, // Prefilled cover image (e.g., Mux thumbnail)
-}) {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-  const [coverImage, setCoverImage] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
-  const fileInputRef = useRef(null);
+}: ImgUploadProps) {
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [coverImage, setCoverImage] = useState<CoverImage | null>(null);
+  const [dragActive, setDragActive] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuth();
 
   // 确保 bucket 和 folder 参数有效
@@ -31,18 +49,18 @@ export default function ImgUpload({
     if (initialImage && !coverImage) {
       setCoverImage(initialImage);
     }
-  }, [initialImage]);
+  }, [initialImage, coverImage]);
 
   // 上传封面图
-  const uploadCoverImage = async (file) => {
+  const uploadCoverImage = async (file: File): Promise<CoverImage> => {
     if (!file) return null;
 
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `cover_${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = storageFolder
-        ? `${storageFolder}${user.id}/covers/${fileName}`
-        : `${user.id}/covers/${fileName}`;
+        ? `${storageFolder}${user!.id}/covers/${fileName}`
+        : `${user!.id}/covers/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from(storageBucket)
@@ -67,11 +85,11 @@ export default function ImgUpload({
       };
     } catch (error) {
       console.error("Cover upload error:", error);
-      throw error;
+      throw error as Error;
     }
   };
 
-  const handleFileSelect = async (files) => {
+  const handleFileSelect = async (files: FileList) => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
@@ -104,7 +122,7 @@ export default function ImgUpload({
     }
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -114,7 +132,7 @@ export default function ImgUpload({
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -124,7 +142,7 @@ export default function ImgUpload({
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFileSelect(e.target.files);
     }
@@ -135,7 +153,7 @@ export default function ImgUpload({
     onUploadComplete?.(null);
   };
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];

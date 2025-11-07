@@ -8,13 +8,21 @@ import { formatViews, formatDate } from "@/lib/format";
  * Displays video stats (views, date) and expandable description
  * Based on Figma design: Frame 3480666
  */
+type VideoInfoSectionProps = {
+  views?: number
+  uploadDate?: string | Date
+  description?: string
+  tags?: string[]
+  className?: string
+}
+
 export default function VideoInfoSection({
   views = 0,
   uploadDate,
   description = "",
   tags = [],
   className = "",
-}) {
+}: VideoInfoSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (

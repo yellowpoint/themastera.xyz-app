@@ -20,12 +20,12 @@ export const MUSIC_CATEGORIES = [
   'Classical',
   'Folk&Singer-Songwriter',
   'Blues',
-  'Original'
-];
+  'Original',
+]
 
 // Language classifications
 export const LANGUAGE_CATEGORIES = [
-  "None",
+  'None',
   'English',
   'Chinese',
   'Spanish',
@@ -35,28 +35,28 @@ export const LANGUAGE_CATEGORIES = [
   'German',
   'Italian',
   'Portuguese',
-  'Cantonese'
-];
+  'Cantonese',
+]
 
 // Get all categories
 export const getAllCategories = () => {
-  return MUSIC_CATEGORIES;
-};
+  return MUSIC_CATEGORIES
+}
 
 // Get all languages
 export const getAllLanguages = () => {
-  return LANGUAGE_CATEGORIES;
-};
+  return LANGUAGE_CATEGORIES
+}
 
 // Validate if category is valid
-export const isValidCategory = (category) => {
-  return MUSIC_CATEGORIES.includes(category);
-};
+export const isValidCategory = (category: string) => {
+  return MUSIC_CATEGORIES.includes(category)
+}
 
 // Validate if language is valid
-export const isValidLanguage = (language) => {
-  return LANGUAGE_CATEGORIES.includes(language);
-};
+export const isValidLanguage = (language: string) => {
+  return LANGUAGE_CATEGORIES.includes(language)
+}
 
 export default {
   MUSIC_CATEGORIES,
@@ -64,5 +64,5 @@ export default {
   getAllCategories,
   getAllLanguages,
   isValidCategory,
-  isValidLanguage
-};
+  isValidLanguage,
+}

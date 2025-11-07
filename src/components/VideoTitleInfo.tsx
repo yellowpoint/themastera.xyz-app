@@ -11,6 +11,35 @@ import Link from "next/link";
  * Displays video title, creator info, subscribe button, and interaction buttons
  * Based on Figma design: Frame 3480659
  */
+type VideoTitleInfoProps = {
+  // Video info
+  title?: string
+  isPremium?: boolean
+
+  // Creator info
+  creatorId?: string
+  creatorName?: string
+  creatorAvatar?: string
+  subscribersCount?: number
+
+  // Follow state
+  isFollowing?: boolean
+  onFollow?: () => void
+
+  // Like/Dislike state
+  isLiked?: boolean
+  isDisliked?: boolean
+  likesCount?: number
+  dislikesCount?: number
+  onLike?: () => void
+  onDislike?: () => void
+
+  // Download
+  onDownload?: () => void
+
+  className?: string
+}
+
 export default function VideoTitleInfo({
   // Video info
   title = "Video Title",
@@ -38,7 +67,7 @@ export default function VideoTitleInfo({
   onDownload,
 
   className = "",
-}) {
+}: VideoTitleInfoProps) {
   const formatCount = (count) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;

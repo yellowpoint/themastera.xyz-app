@@ -1,10 +1,10 @@
-"use client";
-import React, { useState, useEffect } from "react";
+'use client'
+import React, { useState, useEffect } from 'react'
 import MuxPlayer from '@mux/mux-player-react'
 // shadcn/ui replacements
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -12,87 +12,112 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Play, Lock, Crown, Star, Zap } from "lucide-react";
+} from '@/components/ui/dialog'
+import { Play, Lock, Crown, Star, Zap } from 'lucide-react'
 
-const MEMBERSHIP_LEVELS = {
-  Free: { name: "Free User", icon: null, color: "default" },
-  "Creator+": { name: "Creator+", icon: Crown, color: "warning" },
-  ArtCircle: { name: "ArtCircle", icon: Star, color: "secondary" },
-  VIP: { name: "VIP", icon: Zap, color: "success" }
-};
+const MEMBERSHIP_LEVELS: Record<
+  string,
+  { name: string; icon: React.ComponentType<any> | null; color: string }
+> = {
+  Free: { name: 'Free User', icon: null, color: 'default' },
+  'Creator+': { name: 'Creator+', icon: Crown, color: 'warning' },
+  ArtCircle: { name: 'ArtCircle', icon: Star, color: 'secondary' },
+  VIP: { name: 'VIP', icon: Zap, color: 'success' },
+}
+
+type MembershipLevel = 'Free' | 'Creator+' | 'ArtCircle' | 'VIP'
+
+type VideoPlayerProps = {
+  videoUrl?: string
+  playbackId?: string
+  thumbnailUrl?: string
+  title?: string
+  description?: string
+  isPremium?: boolean
+  requiredLevel?: MembershipLevel
+  userLevel?: MembershipLevel
+  width?: string | number
+  height?: string | number
+  className?: string
+  onPlay?: () => void
+  onPause?: () => void
+  onEnded?: () => void
+  showControls?: boolean
+  autoPlay?: boolean
+  muted?: boolean
+}
 
 export default function VideoPlayer({
   videoUrl,
   playbackId,
   thumbnailUrl,
-  title = "Video Content",
+  title = 'Video Content',
   description,
   isPremium = false,
-  requiredLevel = "Free",
-  userLevel = "Free",
-  width = "100%",
-  height = "400px",
-  className = "",
+  requiredLevel = 'Free',
+  userLevel = 'Free',
+  width = '100%',
+  height = '400px',
+  className = '',
   onPlay,
   onPause,
   onEnded,
   showControls = true,
   autoPlay = false,
-  muted = false
-}) {
-  const [error, setError] = useState(null);
-  const [hasAccess, setHasAccess] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  muted = false,
+}: VideoPlayerProps) {
+  const [error, setError] = useState<string | null>(null)
+  const [hasAccess, setHasAccess] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
   // Check user access
   useEffect(() => {
     const checkAccess = () => {
       if (!isPremium) {
-        setHasAccess(true);
-        return;
+        setHasAccess(true)
+        return
       }
 
-      const levelHierarchy = ["Free", "Creator+", "ArtCircle", "VIP"];
-      const userLevelIndex = levelHierarchy.indexOf(userLevel);
-      const requiredLevelIndex = levelHierarchy.indexOf(requiredLevel);
+      const levelHierarchy = ['Free', 'Creator+', 'ArtCircle', 'VIP']
+      const userLevelIndex = levelHierarchy.indexOf(userLevel)
+      const requiredLevelIndex = levelHierarchy.indexOf(requiredLevel)
 
-      setHasAccess(userLevelIndex >= requiredLevelIndex);
-    };
+      setHasAccess(userLevelIndex >= requiredLevelIndex)
+    }
 
-    checkAccess();
-  }, [isPremium, userLevel, requiredLevel]);
+    checkAccess()
+  }, [isPremium, userLevel, requiredLevel])
 
   // Directly return the video URL (already a full link)
   // Removed ReactPlayer helper; use native <video> for non-Mux playback
 
   // Handle play event
   const handlePlay = () => {
-    onPlay && onPlay();
-  };
+    onPlay && onPlay()
+  }
 
   const handlePause = () => {
-    onPause && onPause();
-  };
+    onPause && onPause()
+  }
 
   const handleEnded = () => {
-    onEnded && onEnded();
-  };
+    onEnded && onEnded()
+  }
 
-  const handleError = (error) => {
-    console.log('Video URL:', videoUrl);
-    console.log('Error details:', error);
-    setError('Video failed to load, please try again later');
-  };
+  const handleError = (error: any) => {
+    console.log('Video URL:', videoUrl)
+    console.log('Error details:', error)
+    setError('Video failed to load, please try again later')
+  }
 
   const handleReady = () => {
     // ReactPlayer is ready
-  };
+  }
 
   // Upgrade membership prompt
   const UpgradePrompt = () => {
-    const requiredMembership = MEMBERSHIP_LEVELS[requiredLevel];
-    const RequiredIcon = requiredMembership.icon;
+    const requiredMembership = MEMBERSHIP_LEVELS[requiredLevel]
+    const RequiredIcon = requiredMembership.icon
 
     return (
       <div className="relative">
@@ -121,9 +146,9 @@ export default function VideoPlayer({
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-white/80">Requires</span>
               <Badge
-                className={`${requiredMembership.color === "warning" ? "bg-yellow-500 text-white" : ""}
-                  ${requiredMembership.color === "secondary" ? "bg-secondary text-secondary-foreground" : ""}
-                  ${requiredMembership.color === "success" ? "bg-green-600 text-white" : ""}`}
+                className={`${requiredMembership.color === 'warning' ? 'bg-yellow-500 text-white' : ''}
+                  ${requiredMembership.color === 'secondary' ? 'bg-secondary text-secondary-foreground' : ''}
+                  ${requiredMembership.color === 'success' ? 'bg-green-600 text-white' : ''}`}
               >
                 {RequiredIcon && <RequiredIcon className="mr-1 h-4 w-4" />}
                 {requiredMembership.name}
@@ -141,23 +166,28 @@ export default function VideoPlayer({
           </div>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   // If there is no video source, display an error message
   if (!videoUrl && !playbackId) {
     return (
       <Card className={className}>
         <CardContent className="p-0">
-          <div style={{ width, height }} className="flex items-center justify-center bg-gray-100 rounded-lg">
+          <div
+            style={{ width, height }}
+            className="flex items-center justify-center bg-gray-100 rounded-lg"
+          >
             <div className="text-center">
               <p className="text-gray-500 mb-2">Video file does not exist</p>
-              <p className="text-sm text-gray-400">Please check if the video file has been uploaded</p>
+              <p className="text-sm text-gray-400">
+                Please check if the video file has been uploaded
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   // If there is no access, display the upgrade prompt
@@ -176,7 +206,8 @@ export default function VideoPlayer({
             <DialogHeader>
               <DialogTitle>Upgrade Membership</DialogTitle>
               <DialogDescription>
-                Upgrade to {MEMBERSHIP_LEVELS[requiredLevel].name} to watch this content
+                Upgrade to {MEMBERSHIP_LEVELS[requiredLevel].name} to watch this
+                content
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 mt-2">
@@ -199,15 +230,14 @@ export default function VideoPlayer({
           </DialogContent>
         </Dialog>
       </Card>
-    );
+    )
   }
 
   // Show video player when there is access
   return (
-    <Card className='rounded-none bg-black'>
+    <Card className="rounded-none bg-black">
       <CardContent className="p-0  ">
         <div style={{ width, height }} className="relative">
-
           {error ? (
             <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
               <div className="text-center">
@@ -216,7 +246,7 @@ export default function VideoPlayer({
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    setError(null);
+                    setError(null)
                   }}
                 >
                   Retry
@@ -225,18 +255,19 @@ export default function VideoPlayer({
             </div>
           ) : (
             (() => {
-              const isMuxPlayback = Boolean(playbackId) || (videoUrl && videoUrl.includes('stream.mux.com'))
+              const isMuxPlayback =
+                Boolean(playbackId) ||
+                (videoUrl && videoUrl.includes('stream.mux.com'))
               if (isMuxPlayback) {
-                const effectivePlaybackId = playbackId || (videoUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1])
+                const effectivePlaybackId =
+                  playbackId ||
+                  videoUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1]
                 return (
                   <MuxPlayer
                     accent-color="var(--primary)"
                     style={{
                       width: '100%',
                       height: '100%',
-                      // Ensure video covers container without side black bars
-                      '--media-object-fit': 'cover',
-                      '--media-object-position': 'center'
                     }}
                     playbackId={effectivePlaybackId}
                     metadata={{
@@ -256,7 +287,12 @@ export default function VideoPlayer({
               return (
                 <video
                   src={videoUrl}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
                   controls={showControls}
                   autoPlay={autoPlay}
                   muted={muted}
@@ -275,5 +311,5 @@ export default function VideoPlayer({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
