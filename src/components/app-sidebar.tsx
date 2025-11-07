@@ -39,6 +39,7 @@ const data = {
     { title: "History", url: "/history", icon: History },
     { title: "Creator", url: "/creator", icon: SquareTerminal },
     { title: "Explore", url: "/explore", icon: Command },
+    { title: "Playlists", url: "/playlists", icon: AudioWaveform },
   ],
   navMain2: [
     { title: "Me", url: "/me", icon: GalleryVerticalEnd },

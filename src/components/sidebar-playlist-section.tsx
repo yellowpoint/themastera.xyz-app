@@ -41,7 +41,10 @@ type Playlist = {
   name: string;
   items: PlaylistItem[];
 };
-
+export async function createPlaylistApi(name: string) {
+  const { data } = await request.post("/api/playlists", { name: name.trim() });
+  return (data?.data as Playlist);
+}
 export function SidebarPlaylistSection() {
   const { user } = useAuth();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -57,12 +60,10 @@ export function SidebarPlaylistSection() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/playlists");
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error || "Failed to load");
-      const data: Playlist[] = json.data || [];
-      setPlaylists(data);
-      setSelectedId((prev) => prev || data[0]?.id || null);
+      const { data } = await request.get("/api/playlists");
+      const list: Playlist[] = (data?.data || []) as Playlist[];
+      setPlaylists(list);
+      setSelectedId((prev) => prev || list[0]?.id || null);
     } catch (e: any) {
       setError(e?.message || "Failed to load playlists");
     } finally {
@@ -192,23 +193,32 @@ export function SidebarPlaylistSection() {
   const onCreate = async () => {
     if (!newName.trim()) return;
     try {
-      const res = await fetch("/api/playlists", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim() }),
+      const { data } = await request.post("/api/playlists", {
+        name: newName.trim(),
       });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error || "Create failed");
-      const created: Playlist = json.data;
+      const created: Playlist = (data?.data as Playlist);
       const updated = [created, ...playlists];
       setPlaylists(updated);
       setSelectedId(created.id);
       setCreateOpen(false);
       setNewName("");
+      // Notify other parts of the app
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("playlist:updated", {
+            detail: { playlistId: created.id },
+          })
+        );
+      }
+      toast.success("Playlist created");
     } catch (e: any) {
       setError(e?.message || "Failed to create playlist");
+      toast.error(e?.message || "Failed to create playlist");
     }
   };
+
+  // Export a helper to create playlist for reuse in other pages
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Playlist</SidebarGroupLabel>
