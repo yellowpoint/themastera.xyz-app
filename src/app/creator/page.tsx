@@ -1,59 +1,60 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Search, MoreHorizontal } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useWorks } from "@/hooks/useWorks";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from 'react'
+import { Search, MoreHorizontal } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { useWorks } from '@/hooks/useWorks'
+import { useRouter } from 'next/navigation'
 // import { toast } from "sonner";
 
 // shadcn/ui components
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { DataTableWithPagination } from "@/components/ui/data-table";
-import { useCreatorColumns } from "./columns";
+} from '@/components/ui/select'
+import { DataTableWithPagination } from '@/components/ui/data-table'
+import { useCreatorColumns } from './columns'
 
-import type { Work } from "@/contracts/domain/work";
+import type { Work } from '@/contracts/domain/work'
 
 export default function CreatorPage() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks();
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [visibilityFilter, setVisibilityFilter] = useState<string>("all");
+  const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
+  const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks()
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [visibilityFilter, setVisibilityFilter] = useState<string>('all')
 
-  const columns = useCreatorColumns();
+  const columns = useCreatorColumns()
 
   // Filter works based on search and visibility
   const filteredWorks: Work[] = works.filter((work: Work) => {
-    const matchesSearch = work.title
+    const matchesSearch = work?.title
       .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      .includes(searchQuery.toLowerCase())
     const matchesVisibility =
-      visibilityFilter === "all" || work.status === visibilityFilter;
-    return matchesSearch && matchesVisibility;
-  });
+      visibilityFilter === 'all' || work.status === visibilityFilter
+    return matchesSearch && matchesVisibility
+  })
 
   // formatters moved to shared module
 
   // Handle delete work
   useEffect(() => {
     const onDeleted = () => {
-      fetchWorks();
-    };
-    window.addEventListener("work-deleted", onDeleted as EventListener);
-    return () => window.removeEventListener("work-deleted", onDeleted as EventListener);
-  }, [fetchWorks]);
+      fetchWorks()
+    }
+    window.addEventListener('work-deleted', onDeleted as EventListener)
+    return () =>
+      window.removeEventListener('work-deleted', onDeleted as EventListener)
+  }, [fetchWorks])
 
   return (
     <div className="h-full">
@@ -96,5 +97,5 @@ export default function CreatorPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

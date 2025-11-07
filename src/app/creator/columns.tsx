@@ -1,25 +1,25 @@
-"use client";
+'use client'
 
-import { ColumnDef } from "@tanstack/react-table";
-import type { Work } from "@/contracts/domain/work";
-import { useRouter } from "next/navigation";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ColumnDef } from '@tanstack/react-table'
+import type { Work } from '@/contracts/domain/work'
+import { useRouter } from 'next/navigation'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { formatDuration, formatDate, formatViews } from "@/lib/format";
-import { api } from "@/lib/request";
-import { toast } from "sonner";
+} from '@/components/ui/tooltip'
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { formatDuration, formatDate, formatViews } from '@/lib/format'
+import { api } from '@/lib/request'
+import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -30,46 +30,46 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { Trash } from "lucide-react";
+} from '@/components/ui/alert-dialog'
+import { Trash } from 'lucide-react'
 
 export function useCreatorColumns() {
-  const router = useRouter();
+  const router = useRouter()
   const handleDeleteWork = async (workId: string) => {
     try {
-      const res = await api.delete(`/api/works/${workId}`);
-      const result = res.data;
+      const res = await api.delete(`/api/works/${workId}`)
+      const result = res.data
       if (res.ok === false || result?.success === false) {
-        const msg = result?.error?.message || "Failed to delete work";
-        throw new Error(msg);
+        const msg = result?.error?.message || 'Failed to delete work'
+        throw new Error(msg)
       }
-      toast.success("Work deleted successfully!");
-      if (typeof window !== "undefined") {
+      toast.success('Work deleted successfully!')
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("work-deleted", { detail: { id: workId } })
-        );
+          new CustomEvent('work-deleted', { detail: { id: workId } })
+        )
       }
     } catch (error: any) {
-      console.error("Error deleting work:", error);
-      toast.error("Failed to delete work");
+      console.error('Error deleting work:', error)
+      toast.error('Failed to delete work')
     }
-  };
+  }
 
   const columns: ColumnDef<Work>[] = [
     {
-      id: "video",
+      id: 'video',
       header: () => <span>Video</span>,
       cell: ({ row }) => {
-        const work = row.original;
+        const work = row.original
         return (
           <div className="flex gap-2 items-start min-w-30 h-[72px]">
             <div className="relative flex-shrink-0 h-full">
-              <div className="w-[100px] h-full bg-gray-200 rounded-lg overflow-hidden">
+              <div className="w-[100px] h-full bg-gray-200  ">
                 <img
-                  src={work.thumbnailUrl || "/placeholder-video.jpg"}
+                  src={work.thumbnailUrl || '/placeholder-video.jpg'}
                   alt={work.title}
-                  className={`w-full h-full object-cover ${
-                    work.status === "draft" ? "opacity-60" : ""
+                  className={`w-full h-full object-cover rounded-lg ${
+                    work.status === 'draft' ? 'opacity-60' : ''
                   }`}
                 />
               </div>
@@ -91,39 +91,39 @@ export function useCreatorColumns() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="text-xs text-[#86909C] truncate line-clamp-2">
-                    {work.description || "No description"}
+                    {work.description || 'No description'}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">
                   <p className="text-sm">
-                    {work.description || "No description"}
+                    {work.description || 'No description'}
                   </p>
                 </TooltipContent>
               </Tooltip>
             </div>
           </div>
-        );
+        )
       },
     },
     {
-      id: "visibility",
+      id: 'visibility',
       header: () => <span>Visibility</span>,
       cell: ({ row }) => (
         <span className="text-sm text-[#1D2129] capitalize">
-          {row.original.status || "Draft"}
+          {row.original.status || 'Draft'}
         </span>
       ),
       size: 50,
     },
     {
-      id: "views",
+      id: 'views',
       accessorFn: (row) => row.views ?? 0,
       enableSorting: true,
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="w-full"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Views
           <ArrowUpDown className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function useCreatorColumns() {
       size: 50,
     },
     {
-      id: "date",
+      id: 'date',
       header: () => <span>Date</span>,
       cell: ({ row }) => (
         <span className="text-sm text-[#1D2129]">
@@ -147,10 +147,10 @@ export function useCreatorColumns() {
       size: 80,
     },
     {
-      id: "action",
+      id: 'action',
       header: () => <span>Action</span>,
       cell: ({ row }) => {
-        const work = row.original;
+        const work = row.original
         return (
           <div className="flex items-center gap-3">
             <button
@@ -196,7 +196,7 @@ export function useCreatorColumns() {
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        className={buttonVariants({ variant: "destructive" })}
+                        className={buttonVariants({ variant: 'destructive' })}
                         onClick={() => handleDeleteWork(work.id)}
                       >
                         <Trash className="mr-2 h-4 w-4" /> Delete
@@ -207,11 +207,11 @@ export function useCreatorColumns() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        );
+        )
       },
       size: 80,
     },
-  ];
+  ]
 
-  return columns;
+  return columns
 }

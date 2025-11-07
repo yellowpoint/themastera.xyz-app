@@ -1,152 +1,145 @@
-"use client";
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
-import Link from "next/link";
-import { Trash2, Clock, Search, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
+'use client'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import Link from 'next/link'
+import { Trash2, Clock, Search, Calendar } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar as ShadCalendar } from "@/components/ui/calendar";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/popover'
+import { Calendar as ShadCalendar } from '@/components/ui/calendar'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import {
   Empty,
   EmptyDescription,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { request } from "@/lib/request";
-import { formatViews } from "@/lib/format";
-import type { DateRange } from "react-day-picker";
+} from '@/components/ui/empty'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { request } from '@/lib/request'
+import { formatViews } from '@/lib/format'
+import type { DateRange } from 'react-day-picker'
 
 export default function WatchHistoryPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const [page, setPage] = useState<number>(1);
-  const [limit] = useState<number>(18);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const observingRef = useRef<IntersectionObserver | null>(null);
+  const [items, setItems] = useState<any[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState<string>('')
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+  const [page, setPage] = useState<number>(1)
+  const [limit] = useState<number>(18)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const observingRef = useRef<IntersectionObserver | null>(null)
 
   const fetchHistory = useCallback(
     async (opts: { pageOverride?: number } = {}) => {
-      const { pageOverride } = opts;
-      const nextPage = pageOverride ?? page;
+      const { pageOverride } = opts
+      const nextPage = pageOverride ?? page
       try {
-        setLoading(true);
-        setError(null);
-        const params = new URLSearchParams();
-        params.set("page", String(nextPage));
-        params.set("limit", String(limit));
-        if (debouncedSearch.trim())
-          params.set("search", debouncedSearch.trim());
+        setLoading(true)
+        setError(null)
+        const params = new URLSearchParams()
+        params.set('page', String(nextPage))
+        params.set('limit', String(limit))
+        if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim())
         if (dateRange?.from)
-          params.set("start", new Date(dateRange.from).toISOString());
+          params.set('start', new Date(dateRange.from).toISOString())
         if (dateRange?.to)
-          params.set("end", new Date(dateRange.to).toISOString());
-        const { data } = await request.get(`/api/history?${params.toString()}`);
-        const list = (data as any)?.data?.items || [];
-        const pg = (data as any)?.data?.pagination || {};
-        setTotalPages(pg.totalPages || 1);
-        setItems((prev) => (nextPage === 1 ? list : [...prev, ...list]));
+          params.set('end', new Date(dateRange.to).toISOString())
+        const { data } = await request.get(`/api/history?${params.toString()}`)
+        const list = (data as any)?.data?.items || []
+        const pg = (data as any)?.data?.pagination || {}
+        setTotalPages(pg.totalPages || 1)
+        setItems((prev) => (nextPage === 1 ? list : [...prev, ...list]))
       } catch (err) {
-        const msg = (err as any)?.message || "Failed to load watch history";
-        setError(msg);
+        const msg = (err as any)?.message || 'Failed to load watch history'
+        setError(msg)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [page, limit, debouncedSearch, dateRange]
-  );
+  )
 
   // Debounced search handled by Input component via onDebouncedValueChange
 
   // Initial load
   useEffect(() => {
-    fetchHistory({ pageOverride: 1 });
-  }, []);
+    fetchHistory({ pageOverride: 1 })
+  }, [])
 
   // Re-fetch when filters change
   useEffect(() => {
-    setPage(1);
-    fetchHistory({ pageOverride: 1 });
-  }, [debouncedSearch, dateRange?.from, dateRange?.to]);
+    setPage(1)
+    fetchHistory({ pageOverride: 1 })
+  }, [debouncedSearch, dateRange?.from, dateRange?.to])
 
   // Infinite scroll via IntersectionObserver
   useEffect(() => {
-    if (!loadMoreRef.current) return;
+    if (!loadMoreRef.current) return
     if (observingRef.current) {
-      observingRef.current.disconnect?.();
-      observingRef.current = null;
+      observingRef.current.disconnect?.()
+      observingRef.current = null
     }
     const observer = new IntersectionObserver((entries) => {
-      const first = entries[0];
+      const first = entries[0]
       if (first?.isIntersecting && !loading && page < totalPages) {
-        const next = page + 1;
-        setPage(next);
-        fetchHistory({ pageOverride: next });
+        const next = page + 1
+        setPage(next)
+        fetchHistory({ pageOverride: next })
       }
-    });
-    observingRef.current = observer;
-    observer.observe(loadMoreRef.current);
+    })
+    observingRef.current = observer
+    observer.observe(loadMoreRef.current)
     return () => {
-      observer.disconnect();
-    };
-  }, [loadMoreRef.current, loading, page, totalPages, fetchHistory]);
+      observer.disconnect()
+    }
+  }, [loadMoreRef.current, loading, page, totalPages, fetchHistory])
 
   const removeItem = async (workId: string | number) => {
     try {
-      await request.delete(`/api/history/${workId}`);
-      setItems((prev) => prev.filter((it) => it?.work?.id !== workId));
+      await request.delete(`/api/history/${workId}`)
+      setItems((prev) => prev.filter((it) => it?.work?.id !== workId))
     } catch (err) {
       // request util should handle toasts; keep UI minimal
     }
-  };
+  }
 
   const resolveThumb = (url?: string) => {
-    if (!url) return "/thumbnail-placeholder.svg";
-    return url;
-  };
+    if (!url) return '/thumbnail-placeholder.svg'
+    return url
+  }
 
   const formatTime = (s?: string | number | Date | null) => {
-    if (!s) return "";
-    const d = new Date(s);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-  };
+    if (!s) return ''
+    const d = new Date(s)
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mi = String(d.getMinutes()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+  }
 
   const groupsByDay = useMemo(() => {
-    const groups = {};
+    const groups = {}
     for (const it of items) {
-      const d = new Date(it?.watchedAt);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      const key = `${yyyy}-${mm}-${dd}`;
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(it);
+      const d = new Date(it?.watchedAt)
+      const yyyy = d.getFullYear()
+      const mm = String(d.getMonth() + 1).padStart(2, '0')
+      const dd = String(d.getDate()).padStart(2, '0')
+      const key = `${yyyy}-${mm}-${dd}`
+      if (!groups[key]) groups[key] = []
+      groups[key].push(it)
     }
-    return groups;
-  }, [items]);
+    return groups
+  }, [items])
 
   const renderFilters = () => (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
@@ -169,7 +162,7 @@ export default function WatchHistoryPage() {
               <Calendar className="h-4 w-4 mr-2" />
               {dateRange?.from && dateRange?.to
                 ? `${new Date(dateRange.from).toLocaleDateString()} - ${new Date(dateRange.to).toLocaleDateString()}`
-                : "Date Range"}
+                : 'Date Range'}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
@@ -194,7 +187,7 @@ export default function WatchHistoryPage() {
         </Popover>
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="h-full bg-content-bg">
@@ -237,22 +230,22 @@ export default function WatchHistoryPage() {
             {/* Left: Grid of items */}
             <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               {items.map((item) => {
-                const w = item?.work || {};
+                const w = item?.work || {}
                 const viewsCount =
-                  typeof w?.views === "number"
+                  typeof w?.views === 'number'
                     ? w.views
-                    : typeof w?.downloads === "number"
+                    : typeof w?.downloads === 'number'
                       ? w.downloads
-                      : 0;
+                      : 0
                 return (
                   <div key={item.id} className="group">
                     <Link href={`/content/${w.id}`} className="block">
                       <div className="relative mb-3">
-                        <div className="aspect-video bg-muted rounded-xl overflow-hidden">
+                        <div className="aspect-video">
                           <img
                             src={resolveThumb(w?.thumbnailUrl)}
-                            alt={w?.title || "Untitled"}
-                            className="w-full h-full object-cover"
+                            alt={w?.title || 'Untitled'}
+                            className="w-full h-full object-cover rounded-xl"
                             loading="lazy"
                           />
                           <div className="absolute top-34 left-2 bg-[#1D2129CC] text-white text-xs px-2 py-1 rounded-sm">
@@ -265,7 +258,7 @@ export default function WatchHistoryPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-base md:text-lg line-clamp-2">
-                            {w?.title || "Untitled"}
+                            {w?.title || 'Untitled'}
                           </h3>
                           <Button
                             variant="ghost"
@@ -278,7 +271,7 @@ export default function WatchHistoryPage() {
                           </Button>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                          {w?.user?.name || "Unknown Creator"}
+                          {w?.user?.name || 'Unknown Creator'}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                           <Clock className="size-3" />
@@ -287,7 +280,7 @@ export default function WatchHistoryPage() {
                       </div>
                     </div>
                   </div>
-                );
+                )
               })}
               {/* Sentinel for infinite scroll */}
               <div ref={loadMoreRef} />
@@ -314,12 +307,12 @@ export default function WatchHistoryPage() {
                             <Clock className="h-3 w-3" />
                             <span>
                               {new Date(it.watchedAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
+                                hour: '2-digit',
+                                minute: '2-digit',
                               })}
                             </span>
                             <span className="truncate">
-                              — {it?.work?.title || "Untitled"}
+                              — {it?.work?.title || 'Untitled'}
                             </span>
                           </div>
                         ))}
@@ -332,5 +325,5 @@ export default function WatchHistoryPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

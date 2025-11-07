@@ -49,7 +49,9 @@ export default function WorkCard({ work }: WorkCardProps) {
     if (loadingPlaylists) return
     setLoadingPlaylists(true)
     try {
-      const { data } = await request.get<{ items: PlaylistSummary[] }>('/api/playlists')
+      const { data } = await request.get<{ items: PlaylistSummary[] }>(
+        '/api/playlists'
+      )
       const list = (data?.data?.items || []) as PlaylistSummary[]
       setPlaylists(list)
     } catch (_) {
@@ -127,11 +129,11 @@ export default function WorkCard({ work }: WorkCardProps) {
       }}
     >
       <div className="relative mb-3">
-        <div className="aspect-video bg-muted rounded-xl overflow-hidden relative">
+        <div className=" relative ">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || 'Untitled'}
-            className="w-full h-full object-cover"
+            className="aspect-video w-full rounded-lg object-cover"
             loading="lazy"
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
           />

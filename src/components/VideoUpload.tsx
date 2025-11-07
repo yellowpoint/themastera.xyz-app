@@ -4,10 +4,20 @@ import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
-import { Upload, X, Video, Check, RefreshCw } from 'lucide-react'
+import {
+  Upload,
+  X,
+  Video,
+  Check,
+  RefreshCw,
+  Pause,
+  Play,
+  AlertCircle,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { formatDate, formatDuration } from '@/lib/format'
 import { request } from '@/lib/request'
+import { createUpload as createUpChunkUpload } from '@mux/upchunk'
 
 export type UploadedVideo = {
   fileUrl: string
@@ -28,6 +38,7 @@ type FailedUpload = {
 
 type VideoUploadProps = {
   onUploadComplete?: (files: UploadedVideo[]) => void
+  onUploadingChange?: (uploading: boolean) => void
   maxSize?: number
   readOnly?: boolean
   initialFiles?: UploadedVideo[]
@@ -35,17 +46,24 @@ type VideoUploadProps = {
 
 export default function VideoUpload({
   onUploadComplete,
+  onUploadingChange,
   maxSize = 50 * 1024 * 1024, // 50MB
   readOnly = false,
   initialFiles = [],
 }: VideoUploadProps) {
   const [uploading, setUploading] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
+  const [uploadSpeed, setUploadSpeed] = useState<number | null>(null) // bytes/sec
   const [dragActive, setDragActive] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [uploadedFiles, setUploadedFiles] = useState<UploadedVideo[]>([])
   const [failedFiles, setFailedFiles] = useState<FailedUpload[]>([])
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  // Guard to prevent double-opening the system file picker
+  const selectingRef = useRef<boolean>(false)
+  // Keep a reference to the active UpChunk upload instance for pause/resume
+  const currentUploadRef = useRef<any | null>(null)
+  const [isPaused, setIsPaused] = useState<boolean>(false)
   const { user } = useAuth()
 
   // Initialize with provided files in read-only mode
@@ -86,21 +104,69 @@ export default function VideoUpload({
       }
 
       // Step 2: PUT the file to Mux direct upload URL
-      setProgress(5)
-      const putRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type || 'video/mp4',
-        },
-        body: file,
-      })
+      // Step 2: Upload via Mux UpChunk (chunked, resumable) with real-time progress
+      await new Promise<void>((resolve, reject) => {
+        // Use direct signed upload URL with UpChunk. The correct option is `uploadUrl`, not `endpoint`.
+        const upload = createUpChunkUpload({
+          endpoint: uploadUrl,
+          file,
+          // Reduce chunk size to increase progress event frequency (KB). Default is 5120 (5MB).
+          chunkSize: 2048,
+        })
 
-      if (!putRes.ok) {
-        throw new Error(
-          `Mux upload failed: ${putRes.status} ${putRes.statusText}`
-        )
-      }
-      setProgress(60)
+        currentUploadRef.current = upload
+        setIsPaused(false)
+
+        const last = { percent: 0, bytes: 0, time: Date.now() }
+
+        upload.on('progress', (event: any) => {
+          const d = event?.detail ?? event
+          const percent = Math.max(
+            0,
+            Math.min(
+              100,
+              Number(d?.percent ?? d?.percentage ?? d?.progress ?? 0)
+            )
+          )
+          const percentUpload = Math.floor((percent / 100) * 70) // 0–70% reserved for upload
+          setProgress((p) => (percentUpload > p ? percentUpload : p))
+
+          // Approximate uploaded bytes based on percent and total size
+          const uploadedBytes = Math.floor(
+            Number(d?.uploadedBytes ?? (percent / 100) * file.size) as number
+          )
+          const now = Date.now()
+          const deltaBytes = uploadedBytes - last.bytes
+          const deltaMs = now - last.time
+          if (deltaMs > 0 && deltaBytes >= 0) {
+            const speedBytesPerSec = (deltaBytes / deltaMs) * 1000
+            setUploadSpeed(speedBytesPerSec)
+            last.percent = percent
+            last.bytes = uploadedBytes
+            last.time = now
+          }
+        })
+
+        // Optional: mark chunk boundaries (can be useful for debugging perceived stalls)
+        upload.on('chunkSuccess', () => {
+          // Small nudge forward to ensure UI feels responsive even if percent is sparse
+          setProgress((p) => (p < 70 ? Math.min(p + 1, 70) : p))
+        })
+
+        upload.on('success', () => {
+          setProgress((p) => (p < 75 ? 75 : p))
+          setUploadSpeed(null)
+          currentUploadRef.current = null
+          setIsPaused(false)
+          resolve()
+        })
+
+        upload.on('error', (e: any) => {
+          currentUploadRef.current = null
+          setIsPaused(false)
+          reject(new Error(e?.detail?.message || 'Mux upload failed'))
+        })
+      })
 
       // Step 3: Poll upload status until asset is created
       let assetId: string | null = null
@@ -122,7 +188,8 @@ export default function VideoUpload({
           break
         }
         await delay(1000)
-        setProgress((p) => Math.min(p + 5, 85))
+        // Polling phase progresses from 75% to 95%
+        setProgress((p) => (p < 95 ? Math.min(p + 2, 95) : p))
       }
 
       if (!assetId) {
@@ -165,7 +232,12 @@ export default function VideoUpload({
       console.error('Upload error:', error)
       throw error as Error
     } finally {
-      setTimeout(() => setProgress(0), 1000)
+      setTimeout(() => {
+        setProgress(0)
+        setUploadSpeed(null)
+        currentUploadRef.current = null
+        setIsPaused(false)
+      }, 1000)
     }
   }
 
@@ -193,6 +265,7 @@ export default function VideoUpload({
 
     try {
       setUploading(true)
+      onUploadingChange?.(true)
       const result = await uploadFile(file)
       const newUploadedFiles = [...uploadedFiles, result]
       setUploadedFiles(newUploadedFiles)
@@ -203,6 +276,7 @@ export default function VideoUpload({
       setError(error.message || 'Upload failed, please try again')
     } finally {
       setUploading(false)
+      onUploadingChange?.(false)
     }
   }
 
@@ -230,9 +304,43 @@ export default function VideoUpload({
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileSelect(e.target.files)
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Prevent duplicate dialogs and uploads when already handling a selection
+    if (uploading || selectingRef.current) {
+      e.preventDefault()
+      return
+    }
+    const files = e.target.files
+    if (files && files[0]) {
+      selectingRef.current = true
+      try {
+        await handleFileSelect(files)
+      } finally {
+        // Reset input value to allow re-selecting the same file and avoid spurious re-opens
+        selectingRef.current = false
+        e.target.value = ''
+      }
+    }
+  }
+
+  // Pause/resume controls for UpChunk
+  const pauseUpload = () => {
+    if (
+      currentUploadRef.current &&
+      typeof currentUploadRef.current.pause === 'function'
+    ) {
+      currentUploadRef.current.pause()
+      setIsPaused(true)
+    }
+  }
+
+  const resumeUpload = () => {
+    if (
+      currentUploadRef.current &&
+      typeof currentUploadRef.current.resume === 'function'
+    ) {
+      currentUploadRef.current.resume()
+      setIsPaused(false)
     }
   }
 
@@ -248,6 +356,7 @@ export default function VideoUpload({
     setError('')
     try {
       setUploading(true)
+      onUploadingChange?.(true)
       const result = await uploadFile(item.file)
       setUploadedFiles((prev) => [...prev, result])
       setFailedFiles((prev) => prev.filter((_, i) => i !== index))
@@ -263,6 +372,7 @@ export default function VideoUpload({
       setError(e.message || 'Upload failed')
     } finally {
       setUploading(false)
+      onUploadingChange?.(false)
     }
   }
 
@@ -274,6 +384,16 @@ export default function VideoUpload({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
+  const formatSpeed = (bytesPerSec: number | null) => {
+    if (!bytesPerSec || bytesPerSec <= 0) return ''
+    const k = 1024
+    if (bytesPerSec < k) return `${bytesPerSec.toFixed(0)} B/s`
+    const kb = bytesPerSec / k
+    if (kb < k) return `${kb.toFixed(1)} KB/s`
+    const mb = kb / k
+    return `${mb.toFixed(2)} MB/s`
+  }
+
   return (
     <div className="w-full space-y-4">
       {/* Video file upload area */}
@@ -281,12 +401,18 @@ export default function VideoUpload({
         <div
           className={`rounded-lg p-10 text-center transition-colors cursor-pointer ${
             dragActive ? 'bg-primary/5' : 'hover:bg-gray-50'
-          }`}
+          } ${uploading ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (!uploading) {
+              fileInputRef.current?.click()
+            }
+          }}
+          aria-disabled={uploading}
         >
           <div className="w-28 h-28 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
             <Upload className="w-10 h-10 text-gray-400" />
@@ -299,8 +425,14 @@ export default function VideoUpload({
           </p>
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-[#6E56CF] text-white"
+            onClick={(e) => {
+              e.stopPropagation()
+              if (!uploading) {
+                fileInputRef.current?.click()
+              }
+            }}
+            className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-[#6E56CF] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={uploading}
           >
             Select file
           </button>
@@ -346,11 +478,30 @@ export default function VideoUpload({
       {/* Upload progress */}
       {!readOnly && uploading && (
         <div className="space-y-2">
+          <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
+            <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
+            <div className="text-sm text-yellow-700">
+              Upload in progress. Please do not refresh or close this page.
+            </div>
+          </div>
           <div className="flex justify-between text-sm">
             <span>Uploading...</span>
-            <span>{progress}%</span>
+            <span>
+              {progress}%{uploadSpeed ? ` • ${formatSpeed(uploadSpeed)}` : ''}
+            </span>
           </div>
-          <Progress value={progress} className="w-full" />
+          <div className="flex items-center gap-3">
+            <Progress value={progress} className="flex-1" />
+            {!isPaused ? (
+              <Button size="sm" variant="outline" onClick={pauseUpload}>
+                <Pause className="w-4 h-4 mr-1" /> Pause
+              </Button>
+            ) : (
+              <Button size="sm" variant="default" onClick={resumeUpload}>
+                <Play className="w-4 h-4 mr-1" /> Resume
+              </Button>
+            )}
+          </div>
         </div>
       )}
 

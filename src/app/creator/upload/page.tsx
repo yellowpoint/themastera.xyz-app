@@ -1,28 +1,28 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { Copy, ChevronDown } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useWorks } from "@/hooks/useWorks";
-import VideoUpload, { UploadedVideo } from "@/components/VideoUpload";
-import ImgUpload from "@/components/ImgUpload";
-import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { toast } from 'sonner'
+import { Copy, ChevronDown, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { useWorks } from '@/hooks/useWorks'
+import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
+import ImgUpload from '@/components/ImgUpload'
+import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   Field,
   FieldLabel,
@@ -33,7 +33,7 @@ import {
   FieldLegend,
   FieldGroup,
   FieldSeparator,
-} from "@/components/ui/field";
+} from '@/components/ui/field'
 
 // Use UploadedVideo type from VideoUpload for consistency
 
@@ -54,95 +54,108 @@ type UploadFormState = {
   isForKids: boolean
   fileUrl: string
   thumbnailUrl: string
-  status: "draft" | "published"
+  status: 'draft' | 'published'
   durationSeconds?: number | null
 }
 
 export default function UploadPage() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const { createWork } = useWorks();
+  const router = useRouter()
+  const { user } = useAuth()
+  const { createWork } = useWorks()
 
   const [uploadForm, setUploadForm] = useState<UploadFormState>({
-    title: "",
-    description: "",
-    category: "",
-    language: "",
-    tags: "",
+    title: '',
+    description: '',
+    category: '',
+    language: '',
+    tags: '',
     isPaid: false,
     isForKids: true,
-    fileUrl: "",
-    thumbnailUrl: "",
-    status: "draft",
-  });
+    fileUrl: '',
+    thumbnailUrl: '',
+    status: 'draft',
+  })
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [uploadedVideo, setUploadedVideo] = useState<UploadedVideo | null>(null);
-  const [autoCover, setAutoCover] = useState<CoverImage | null>(null);
-  const [showErrors, setShowErrors] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [uploadedVideo, setUploadedVideo] = useState<UploadedVideo | null>(null)
+  const [autoCover, setAutoCover] = useState<CoverImage | null>(null)
+  const [showErrors, setShowErrors] = useState<boolean>(false)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
+
+  // Unified beforeunload warning: during upload or when details are being edited (unsaved changes)
+  const hasUnsavedChanges = !!uploadedVideo && !isSubmitting
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+      return ''
+    }
+    if (isUploading || hasUnsavedChanges) {
+      window.addEventListener('beforeunload', handler)
+      return () => window.removeEventListener('beforeunload', handler)
+    }
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isUploading, hasUnsavedChanges])
 
   const categories = MUSIC_CATEGORIES.map((category) => ({
     key: category,
     label: category,
-  }));
+  }))
 
   // Handle video upload completion
   const handleVideoUploadComplete = (uploadedFiles: UploadedVideo[]) => {
-    console.log("Video upload results:", uploadedFiles);
+    console.log('Video upload results:', uploadedFiles)
 
     if (uploadedFiles && uploadedFiles.length > 0) {
-      const first = uploadedFiles[0];
-      setUploadedVideo(first);
+      const first = uploadedFiles[0]
+      setUploadedVideo(first)
 
       setUploadForm((prev) => ({
         ...prev,
         fileUrl: first.fileUrl,
-        title:
-          prev.title ||
-          first.originalName?.replace(/\.[^/.]+$/, "") ||
-          "",
+        title: prev.title || first.originalName?.replace(/\.[^/.]+$/, '') || '',
         durationSeconds: first.durationSeconds ?? null,
-      }));
+      }))
 
       // Try to auto-generate a cover thumbnail from Mux playbackId
-      const withPlayback = uploadedFiles.find((f) => !!f.playbackId);
+      const withPlayback = uploadedFiles.find((f) => !!f.playbackId)
       if (withPlayback?.playbackId) {
-        const playbackId = withPlayback.playbackId;
-        const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`;
+        const playbackId = withPlayback.playbackId
+        const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`
 
         const initialImage: CoverImage = {
           fileUrl: thumbUrl,
-          originalName: "Auto thumbnail",
+          originalName: 'Auto thumbnail',
           size: 0,
-          type: "image/webp",
-        };
-        setAutoCover(initialImage);
+          type: 'image/webp',
+        }
+        setAutoCover(initialImage)
 
         setUploadForm((prev) => ({
           ...prev,
           thumbnailUrl: thumbUrl,
-        }));
+        }))
       }
     }
-  };
+  }
 
   // Handle cover upload completion
   const handleCoverUploadComplete = (coverImage: CoverImage | null) => {
-    console.log("Cover upload result:", coverImage);
+    console.log('Cover upload result:', coverImage)
 
     setUploadForm((prev) => ({
       ...prev,
-      thumbnailUrl: coverImage ? coverImage.fileUrl : "",
-    }));
-  };
+      thumbnailUrl: coverImage ? coverImage.fileUrl : '',
+    }))
+  }
 
   // Shared submit implementation
   const submitWork = async () => {
-    setShowErrors(true);
+    setShowErrors(true)
 
     if (!user) {
-      toast.error("Please login first");
-      return;
+      toast.error('Please login first')
+      return
     }
 
     if (
@@ -151,103 +164,115 @@ export default function UploadPage() {
       !uploadForm.category ||
       !uploadForm.language
     ) {
-      toast.error("Please fill in required information");
-      return;
+      toast.error('Please fill in required information')
+      return
     }
 
     if (!uploadForm.fileUrl) {
-      toast.error("Please upload video file");
-      return;
+      toast.error('Please upload video file')
+      return
     }
 
     if (!uploadForm.thumbnailUrl) {
-      toast.error("Please upload cover image");
-      return;
+      toast.error('Please upload cover image')
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
       const workData = {
         ...uploadForm,
         userId: user.id,
-        status: "published",
+        status: 'published',
         durationSeconds:
           uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
-      };
+      }
 
-      await createWork(workData);
-      toast.success("Work published successfully!");
-      router.push("/creator");
+      await createWork(workData)
+      toast.success('Work published successfully!')
+      router.push('/creator')
     } catch (error) {
-      console.error("Publish failed:", error);
-      toast.error("Publish failed, please try again");
+      console.error('Publish failed:', error)
+      toast.error('Publish failed, please try again')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   // Publish work via form submit
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await submitWork();
-  };
+    e.preventDefault()
+    await submitWork()
+  }
 
   // Publish work via button click
-  const handleSubmitClick = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    await submitWork();
-  };
+  const handleSubmitClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    await submitWork()
+  }
 
   // Save draft
   const handleSaveDraft = async () => {
     if (!user) {
-      toast.error("Please login first");
-      return;
+      toast.error('Please login first')
+      return
     }
 
     // Only require fileUrl for drafts
-    const draftFileUrl = uploadForm?.fileUrl || uploadedVideo?.fileUrl;
+    const draftFileUrl = uploadForm?.fileUrl || uploadedVideo?.fileUrl
     if (!draftFileUrl) {
-      toast.error("Please upload a video file first");
-      return;
+      toast.error('Please upload a video file first')
+      return
     }
 
-    setIsSubmitting(true);
+    // Build a draft title if available; otherwise allow empty
+    const draftTitleCandidate = (
+      uploadForm?.title?.trim() ||
+      uploadedVideo?.originalName?.replace(/\.[^/.]+$/, '') ||
+      ''
+    ).trim()
+
+    setIsSubmitting(true)
 
     try {
       const workData = {
         // only minimal fields for draft
         fileUrl: draftFileUrl,
         thumbnailUrl: uploadForm?.thumbnailUrl || null,
+        title: draftTitleCandidate,
+        description: uploadForm?.description ?? '',
+        category: uploadForm?.category ?? '',
+        language: uploadForm?.language ?? '',
+        tags: uploadForm?.tags ?? '',
+        isPaid: uploadForm?.isPaid ?? false,
+        isForKids: uploadForm?.isForKids ?? true,
         userId: user.id,
-        status: "draft",
+        status: 'draft',
         durationSeconds:
           uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
-      };
+      }
 
-      await createWork(workData);
-      toast.success("Draft saved successfully!");
-      router.push("/creator");
+      await createWork(workData)
+      toast.success('Draft saved successfully!')
+      router.push('/creator')
     } catch (error) {
-      console.error("Error saving draft:", error);
-      toast.error("Save failed, please try again");
+      console.error('Error saving draft:', error)
+      toast.error('Save failed, please try again')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleCopyLink = () => {
     if (uploadedVideo?.fileUrl) {
-      navigator.clipboard.writeText(uploadedVideo.fileUrl);
-      toast.success("Video link copied to clipboard");
+      navigator.clipboard.writeText(uploadedVideo.fileUrl)
+      toast.success('Video link copied to clipboard')
     }
-  };
+  }
   // Step 1: Simple uploader view before details
   // Show simple uploader until a video is uploaded
-  if (uploadedVideo) {
+  if (!uploadedVideo) {
     return (
       <div className="h-full">
         <div className="px-8 pt-6 pb-4 space-y-4">
@@ -258,13 +283,24 @@ export default function UploadPage() {
             One sentence to describe The benefit for people to upload videos on
             Mastera
           </p>
+          {/* {isUploading && (
+            <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
+              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
+              <div className="text-sm text-yellow-700">
+                Upload in progress. Please do not refresh or close this page.
+              </div>
+            </div>
+          )} */}
         </div>
 
         <div className="px-8 py-10 flex justify-center">
           <div className="max-w-[640px] w-full">
             {/* Use existing uploader component for simplicity */}
             <div className="rounded-lg p-10">
-              <VideoUpload onUploadComplete={handleVideoUploadComplete} />
+              <VideoUpload
+                onUploadComplete={handleVideoUploadComplete}
+                onUploadingChange={setIsUploading}
+              />
             </div>
 
             <div className="text-center text-xs text-muted-foreground mt-8">
@@ -275,7 +311,7 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -296,6 +332,17 @@ export default function UploadPage() {
               One sentence to describe The benefit for people to upload videos
               on Mastera
             </p>
+
+            {/* Unified warning during details editing (unsaved changes) */}
+            {/* {hasUnsavedChanges && (
+              <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
+                <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
+                <div className="text-sm text-yellow-700">
+                  You have unsaved changes. Please do not refresh or close this
+                  page.
+                </div>
+              </div>
+            )} */}
 
             <Separator className="opacity-20" />
           </div>
@@ -351,7 +398,7 @@ export default function UploadPage() {
                           <FieldError
                             errors={
                               showErrors && !uploadForm.title
-                                ? [{ message: "Title is required" }]
+                                ? [{ message: 'Title is required' }]
                                 : []
                             }
                           />
@@ -369,7 +416,7 @@ export default function UploadPage() {
                     >
                       <div className="px-3 py-2">
                         <FieldLabel className="text-lg text-muted-foreground">
-                          Description{" "}
+                          Description{' '}
                           <span className="text-destructive">*</span>
                         </FieldLabel>
                         <FieldDescription>
@@ -401,7 +448,7 @@ export default function UploadPage() {
                           <FieldError
                             errors={
                               showErrors && !uploadForm.description
-                                ? [{ message: "Description is required" }]
+                                ? [{ message: 'Description is required' }]
                                 : []
                             }
                           />
@@ -470,7 +517,7 @@ export default function UploadPage() {
                         <FieldError
                           errors={
                             showErrors && !uploadForm.thumbnailUrl
-                              ? [{ message: "Thumbnail is required" }]
+                              ? [{ message: 'Thumbnail is required' }]
                               : []
                           }
                         />
@@ -528,7 +575,7 @@ export default function UploadPage() {
                         <FieldError
                           errors={
                             showErrors && !uploadForm.category
-                              ? [{ message: "Music style is required" }]
+                              ? [{ message: 'Music style is required' }]
                               : []
                           }
                         />
@@ -582,7 +629,7 @@ export default function UploadPage() {
                         <FieldError
                           errors={
                             showErrors && !uploadForm.language
-                              ? [{ message: "Language is required" }]
+                              ? [{ message: 'Language is required' }]
                               : []
                           }
                         />
@@ -605,11 +652,11 @@ export default function UploadPage() {
                   </FieldDescription>
                   <FieldGroup>
                     <RadioGroup
-                      value={uploadForm.isForKids ? "yes" : "no"}
+                      value={uploadForm.isForKids ? 'yes' : 'no'}
                       onValueChange={(val) =>
                         setUploadForm((prev) => ({
                           ...prev,
-                          isForKids: val === "yes",
+                          isForKids: val === 'yes',
                         }))
                       }
                     >
@@ -662,7 +709,7 @@ export default function UploadPage() {
                   onClick={handleSubmitClick}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Uploading..." : "Upload"}
+                  {isSubmitting ? 'Uploading...' : 'Upload'}
                 </Button>
               </div>
             </div>
@@ -678,11 +725,11 @@ export default function UploadPage() {
 
             {/* Video Upload Section */}
             <div className="space-y-4">
-                <VideoUpload
-                  readOnly={true}
-                  initialFiles={uploadedVideo ? [uploadedVideo] : []}
-                  onUploadComplete={handleVideoUploadComplete}
-                />
+              <VideoUpload
+                readOnly={true}
+                initialFiles={uploadedVideo ? [uploadedVideo] : []}
+                onUploadComplete={handleVideoUploadComplete}
+              />
             </div>
 
             <Separator className="opacity-20" />
@@ -713,7 +760,7 @@ export default function UploadPage() {
                   <div>
                     <h3 className="text-lg font-normal mb-1">File name</h3>
                     <p className="text-sm text-muted-foreground">
-                    {uploadedVideo.originalName}
+                      {uploadedVideo.originalName}
                     </p>
                   </div>
 
@@ -738,5 +785,5 @@ export default function UploadPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

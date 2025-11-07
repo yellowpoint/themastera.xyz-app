@@ -1,171 +1,147 @@
-"use client";
+'use client'
 
-import { ChevronDown, Plus, Search, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { request } from "@/lib/request";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Plus, Search, X, PlayCircle } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { request } from '@/lib/request'
+import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
-} from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
+} from '@/components/ui/sidebar'
+import { useAuth } from '@/hooks/useAuth'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/dialog'
+import { useRouter } from 'next/navigation'
 
 type PlaylistItem = {
-  id: string;
-  title: string;
-  author: string;
-  thumbnail?: string | null;
-  href?: string;
-};
+  id: string
+  title: string
+  author: string
+  thumbnail?: string | null
+  href?: string
+}
 
 type Playlist = {
-  id: string;
-  name: string;
-  items: PlaylistItem[];
-};
+  id: string
+  name: string
+  items: PlaylistItem[]
+}
 export async function createPlaylistApi(name: string) {
-  const { data } = await request.post("/api/playlists", { name: name.trim() });
-  return (data?.data as Playlist);
+  const { data } = await request.post('/api/playlists', { name: name.trim() })
+  return data?.data as Playlist
 }
 export function SidebarPlaylistSection() {
-  const { user } = useAuth();
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
-  const [visibleNextCount, setVisibleNextCount] = useState<number>(5);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [newName, setNewName] = useState("");
+  const { user } = useAuth()
+  const [playlists, setPlaylists] = useState<Playlist[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newName, setNewName] = useState('')
   const fetchPlaylists = useCallback(async () => {
-    if (!user?.id) return;
-    setLoading(true);
-    setError(null);
+    if (!user?.id) return
+    setLoading(true)
+    setError(null)
     try {
-      const { data } = await request.get("/api/playlists");
-      const list: Playlist[] = (data?.data?.items || []) as Playlist[];
-      setPlaylists(list);
-      setSelectedId((prev) => prev || list[0]?.id || null);
+      const { data } = await request.get('/api/playlists')
+      const list: Playlist[] = (data?.data?.items || []) as Playlist[]
+      setPlaylists(list)
+      setSelectedId((prev) => prev || list[0]?.id || null)
     } catch (e: any) {
-      setError(e?.message || "Failed to load playlists");
+      setError(e?.message || 'Failed to load playlists')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [user?.id]);
+  }, [user?.id])
 
   // Initial fetch
   useEffect(() => {
-    fetchPlaylists();
-  }, [fetchPlaylists]);
+    fetchPlaylists()
+  }, [fetchPlaylists])
 
   // Load previously selected playlist from localStorage
   useEffect(() => {
     try {
       const saved =
-        typeof window !== "undefined"
-          ? window.localStorage.getItem("selectedPlaylistId")
-          : null;
-      if (saved) setSelectedId(saved);
+        typeof window !== 'undefined'
+          ? window.localStorage.getItem('selectedPlaylistId')
+          : null
+      if (saved) setSelectedId(saved)
     } catch (_) {
       // ignore storage errors
     }
-  }, []);
+  }, [])
 
   // Persist selected playlist id
   useEffect(() => {
     try {
-      if (selectedId && typeof window !== "undefined") {
-        window.localStorage.setItem("selectedPlaylistId", selectedId);
+      if (selectedId && typeof window !== 'undefined') {
+        window.localStorage.setItem('selectedPlaylistId', selectedId)
       }
     } catch (_) {
       // ignore storage errors
     }
-  }, [selectedId]);
+  }, [selectedId])
 
   // Refresh playlists when WorkCard emits an update
   useEffect(() => {
     const handler = () => {
-      fetchPlaylists();
-    };
-    window.addEventListener("playlist:updated", handler as EventListener);
+      fetchPlaylists()
+    }
+    window.addEventListener('playlist:updated', handler as EventListener)
     return () => {
-      window.removeEventListener("playlist:updated", handler as EventListener);
-    };
-  }, [fetchPlaylists]);
+      window.removeEventListener('playlist:updated', handler as EventListener)
+    }
+  }, [fetchPlaylists])
 
   // Listen to global player events to know current playing work
   useEffect(() => {
     const handler = (e: Event) => {
-      const ce = e as CustomEvent;
-      const id = ce?.detail?.workId || ce?.detail?.id;
-      if (typeof id === "string") {
-        setCurrentPlayingId(id);
+      const ce = e as CustomEvent
+      const id = ce?.detail?.workId || ce?.detail?.id
+      if (typeof id === 'string') {
+        setCurrentPlayingId(id)
       }
-    };
-    if (typeof window !== "undefined") {
-      window.addEventListener("player:now-playing", handler as EventListener);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('player:now-playing', handler as EventListener)
     }
     return () => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.removeEventListener(
-          "player:now-playing",
+          'player:now-playing',
           handler as EventListener
-        );
+        )
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const selected = useMemo(
     () => playlists.find((p) => p.id === selectedId) || null,
     [playlists, selectedId]
-  );
-
-  // Compute Now Playing and Next in Queue based on currentPlayingId
-  const { nowPlaying, nextQueue } = useMemo(() => {
-    const items = selected?.items || [];
-    if (!items.length) return { nowPlaying: [], nextQueue: [] };
-
-    const idx = currentPlayingId
-      ? items.findIndex((i) => i.id === currentPlayingId)
-      : -1;
-    if (idx === -1) {
-      // Nothing playing from this playlist: show empty Now Playing, all items in queue
-      return { nowPlaying: [], nextQueue: items };
-    }
-    const now = [items[idx]];
-    const after = items.slice(idx + 1);
-    const before = items.slice(0, idx);
-    return { nowPlaying: now, nextQueue: [...after, ...before] };
-  }, [selected?.items, currentPlayingId]);
-
-  // Reset visible count when playlist or current playing changes
-  useEffect(() => {
-    setVisibleNextCount(5);
-  }, [selectedId, currentPlayingId]);
+  )
 
   const handleDeleteItem = useCallback(
     async (workId: string) => {
-      if (!selectedId) return;
+      if (!selectedId) return
       try {
-        await request.delete(`/api/playlists/${selectedId}/entries`, { workId });
+        await request.delete(`/api/playlists/${selectedId}/entries`, { workId })
         // Optimistic update: remove item locally
         setPlaylists((prev) =>
           prev.map((pl) =>
@@ -173,47 +149,47 @@ export function SidebarPlaylistSection() {
               ? { ...pl, items: pl.items.filter((i) => i.id !== workId) }
               : pl
           )
-        );
-        toast.success("Removed from playlist");
-        if (typeof window !== "undefined") {
+        )
+        toast.success('Removed from playlist')
+        if (typeof window !== 'undefined') {
           window.dispatchEvent(
-            new CustomEvent("playlist:updated", {
+            new CustomEvent('playlist:updated', {
               detail: { playlistId: selectedId, workId },
             })
-          );
+          )
         }
       } catch (e: any) {
-        toast.error(e?.message || "Failed to remove item");
+        toast.error(e?.message || 'Failed to remove item')
       }
     },
     [selectedId]
-  );
+  )
   const onCreate = async () => {
-    if (!newName.trim()) return;
+    if (!newName.trim()) return
     try {
-      const { data } = await request.post("/api/playlists", {
+      const { data } = await request.post('/api/playlists', {
         name: newName.trim(),
-      });
-      const created: Playlist = (data?.data as Playlist);
-      const updated = [created, ...playlists];
-      setPlaylists(updated);
-      setSelectedId(created.id);
-      setCreateOpen(false);
-      setNewName("");
+      })
+      const created: Playlist = data?.data as Playlist
+      const updated = [created, ...playlists]
+      setPlaylists(updated)
+      setSelectedId(created.id)
+      setCreateOpen(false)
+      setNewName('')
       // Notify other parts of the app
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("playlist:updated", {
+          new CustomEvent('playlist:updated', {
             detail: { playlistId: created.id },
           })
-        );
+        )
       }
-      toast.success("Playlist created");
+      toast.success('Playlist created')
     } catch (e: any) {
-      setError(e?.message || "Failed to create playlist");
-      toast.error(e?.message || "Failed to create playlist");
+      setError(e?.message || 'Failed to create playlist')
+      toast.error(e?.message || 'Failed to create playlist')
     }
-  };
+  }
 
   // Export a helper to create playlist for reuse in other pages
 
@@ -272,58 +248,23 @@ export function SidebarPlaylistSection() {
           </div>
         ) : (
           <div className="space-y-3">
-            <div>
-              <div className="text-base font-medium text-muted-foreground mb-2">
-                Now playing
-              </div>
-              <div className="space-y-3">
-                {nowPlaying.length > 0 ? (
-                  nowPlaying.map((item) => (
-                    <PlaylistRow
-                      key={item.id}
-                      item={item}
-                      onDelete={() => handleDeleteItem(item.id)}
-                    />
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    No item playing
-                  </div>
-                )}
-              </div>
+            <div className="text-base font-medium text-muted-foreground mb-2">
+              Items
             </div>
-
-            <div>
-              <div className="text-base font-medium text-muted-foreground mb-2">
-                Next in Queue
-              </div>
-              <div className="space-y-3">
-                {nextQueue.length > 0 ? (
-                  nextQueue
-                    .slice(0, visibleNextCount)
-                    .map((item) => (
-                      <PlaylistRow
-                        key={item.id}
-                        item={item}
-                        onDelete={() => handleDeleteItem(item.id)}
-                      />
-                    ))
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    No items in queue
-                  </div>
-                )}
-              </div>
+            <div className="space-y-3">
+              {selected?.items?.length ? (
+                selected.items.map((item) => (
+                  <PlaylistRow
+                    key={item.id}
+                    item={item}
+                    isPlaying={item.id === currentPlayingId}
+                    onDelete={() => handleDeleteItem(item.id)}
+                  />
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground">No items</div>
+              )}
             </div>
-            {nextQueue.length > visibleNextCount ? (
-              <button
-                className="flex items-center gap-2 text-sm text-foreground py-1"
-                onClick={() => setVisibleNextCount((c) => c + 5)}
-              >
-                <ChevronDown className="size-4" />
-                <span>Show more</span>
-              </button>
-            ) : null}
           </div>
         )}
 
@@ -349,22 +290,24 @@ export function SidebarPlaylistSection() {
         </Dialog>
       </SidebarGroupContent>
     </SidebarGroup>
-  );
+  )
 }
 
 function PlaylistRow({
   item,
+  isPlaying,
   onDelete,
 }: {
-  item: PlaylistItem;
-  onDelete?: () => void;
+  item: PlaylistItem
+  isPlaying?: boolean
+  onDelete?: () => void
 }) {
-  const router = useRouter();
-  const href = item?.href || `/content/${item.id}`;
+  const router = useRouter()
+  const href = item?.href || `/content/${item.id}`
 
   const handleRowClick = () => {
-    if (href) router.push(href);
-  };
+    if (href) router.push(href)
+  }
 
   return (
     <div
@@ -373,15 +316,20 @@ function PlaylistRow({
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter") handleRowClick();
+        if (e.key === 'Enter') handleRowClick()
       }}
     >
-      <div className="h-12 w-12 rounded-md overflow-hidden bg-muted">
+      <div className="h-12 w-12  relative">
         <img
-          className="w-full h-full object-contain"
-          src={item?.thumbnail || "/thumbnail-placeholder.svg"}
+          className="w-full h-full object-contain mx-auto"
+          src={item?.thumbnail || '/thumbnail-placeholder.svg'}
           alt={item.title}
         />
+        {isPlaying ? (
+          <div className="absolute w-full h-full inset-0 bg-black/50 flex items-center justify-center">
+            <PlayCircle className="size-6 text-white" />
+          </div>
+        ) : null}
       </div>
       <div className="flex-1 leading-tight">
         <div className="text-lg">{item.title}</div>
@@ -392,13 +340,13 @@ function PlaylistRow({
         size="icon"
         className="h-7 w-7 text-red-700"
         onClick={(e) => {
-          e.stopPropagation();
-          onDelete?.();
+          e.stopPropagation()
+          onDelete?.()
         }}
         aria-label="Remove"
       >
         <X className="w-4 h-4" />
       </Button>
     </div>
-  );
+  )
 }
