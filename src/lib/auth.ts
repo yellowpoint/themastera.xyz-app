@@ -1,18 +1,19 @@
-import { betterAuth } from "better-auth"
-import { prismaAdapter } from "better-auth/adapters/prisma"
-import { nextCookies } from "better-auth/next-js"
-import { Resend } from "resend"
-import { prisma } from "./prisma"
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { nextCookies } from 'better-auth/next-js'
+import { Resend } from 'resend'
+import { prisma } from './prisma'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Minimal typing to keep compatibility; Better Auth types are inferred
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: process.env.NODE_ENV === "production" ? "postgresql" : "sqlite",
+    provider: process.env.NODE_ENV === 'production' ? 'postgresql' : 'sqlite',
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true, // Enable email verification
+    requireEmailVerification: true,
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
@@ -41,7 +42,7 @@ export const auth = betterAuth({
               </p>
             </div>
           `,
-          text: `Welcome to TheMastera! Please click the following link to verify your email address: ${url}`
+          text: `Welcome to TheMastera! Please click the following link to verify your email address: ${url}`,
         })
         console.log('Verification email sent to:', user.email)
       } catch (error) {
@@ -50,9 +51,7 @@ export const auth = betterAuth({
       }
     },
   },
-  socialProviders: {
-
-  },
+  socialProviders: {},
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 days
     updateAge: 60 * 60 * 24 * 1, // 1 day
@@ -60,18 +59,18 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       level: {
-        type: "string",
-        defaultValue: "User",
+        type: 'string',
+        defaultValue: 'User',
       },
       points: {
-        type: "number",
+        type: 'number',
         defaultValue: 0,
       },
       earnings: {
-        type: "number",
+        type: 'number',
         defaultValue: 0,
       },
     },
   },
-  plugins: [nextCookies()], // Add the nextCookies plugin to automatically handle cookies
+  plugins: [nextCookies()],
 })

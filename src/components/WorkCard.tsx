@@ -1,9 +1,8 @@
-"use client";
-import React, { useRef, useState, useCallback } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { MoreVertical, ListPlus } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+'use client'
+import React, { useRef, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { MoreVertical, ListPlus } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -12,110 +11,115 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
-import { request } from "@/lib/request";
-import { Button } from "./ui/button";
-import { formatViews } from "@/lib/format";
+} from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
+import { request } from '@/lib/request'
+import { Button } from './ui/button'
+import { formatViews } from '@/lib/format'
+import { Work } from '@/hooks/useWorks'
 
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+type PlaylistSummary = { id: string; name: string }
+
+function formatTime(seconds?: number): string {
+  if (!Number.isFinite(Number(seconds))) return '0:00'
+  const s = Math.max(0, Math.round(Number(seconds)))
+  const mins = Math.floor(s / 60)
+  const secs = Math.floor(s % 60)
+  return `${mins}:${String(secs).padStart(2, '0')}`
 }
 
-// formatViews moved to shared module
-
-export default function WorkCard({ work }) {
-  const brokenThumbsRef = useRef(new Set());
-  const [playlists, setPlaylists] = useState([]);
-  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
-  const router = useRouter();
+export default function WorkCard({ work }: { work: Work }) {
+  const brokenThumbsRef = useRef<Set<string>>(new Set())
+  const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
+  const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
+  const router = useRouter()
 
   const fetchPlaylists = useCallback(async () => {
-    if (loadingPlaylists) return;
-    setLoadingPlaylists(true);
+    if (loadingPlaylists) return
+    setLoadingPlaylists(true)
     try {
-      const { data } = await request.get("/api/playlists");
-      const list = data?.data || [];
-      setPlaylists(list);
+      const { data } = await request.get<PlaylistSummary[]>('/api/playlists')
+      const list = (data?.data || []) as PlaylistSummary[]
+      setPlaylists(list)
     } catch (_) {
       // errors are handled by request
     } finally {
-      setLoadingPlaylists(false);
+      setLoadingPlaylists(false)
     }
-  }, [loadingPlaylists]);
+  }, [loadingPlaylists])
 
   const addToPlaylist = useCallback(
-    async (playlistId) => {
+    async (playlistId: string) => {
       try {
         await request.post(`/api/playlists/${playlistId}/entries`, {
           workId: work?.id,
-        });
-        toast.success("Added to playlist");
-        // Notify other parts of the app (e.g., sidebar) to refresh playlists
-        if (typeof window !== "undefined") {
+        })
+        toast.success('Added to playlist')
+        if (typeof window !== 'undefined') {
           window.dispatchEvent(
-            new CustomEvent("playlist:updated", {
+            new CustomEvent('playlist:updated', {
               detail: { playlistId, workId: work?.id },
             })
-          );
+          )
         }
-      } catch (err) {
-        // request handles toast for network/app errors; add fallback message
-        if (err?.message) toast.error(err.message);
+      } catch (err: any) {
+        if (err?.message) toast.error(err.message)
       }
     },
     [work?.id]
-  );
-  const resolveThumb = (url) => {
-    if (!url) return "/thumbnail-placeholder.svg";
-    return brokenThumbsRef.current.has(url)
-      ? "/thumbnail-placeholder.svg"
-      : url;
-  };
-  const handleImgError = (url, e) => {
-    brokenThumbsRef.current.add(url);
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = "/thumbnail-placeholder.svg";
-  };
+  )
+
+  const resolveThumb = (url?: string | null) => {
+    if (!url) return '/thumbnail-placeholder.svg'
+    return brokenThumbsRef.current.has(url) ? '/thumbnail-placeholder.svg' : url
+  }
+
+  const handleImgError = (
+    url?: string | null,
+    e?: React.SyntheticEvent<HTMLImageElement>
+  ) => {
+    if (!url || !e) return
+    brokenThumbsRef.current.add(url)
+    const target = e.currentTarget
+    target.onerror = null
+    target.src = '/thumbnail-placeholder.svg'
+  }
 
   const viewsCount =
-    typeof work?.views === "number"
+    typeof work?.views === 'number'
       ? work.views
-      : typeof work?.downloads === "number"
-        ? work.downloads
-        : 0;
+      : typeof work?.downloads === 'number'
+        ? work.downloads!
+        : 0
+
   const durationLabel = work?.duration
     ? work.duration
     : work?.durationSeconds
       ? formatTime(work.durationSeconds)
-      : "0:00";
+      : '0:00'
 
   const goToUser = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log(work);
-      const id = work?.user?.id;
-      if (id) router.push(`/user/${id}`);
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const id = work?.user?.id
+      if (id) router.push(`/user/${id}`)
     },
-    [router, work?.user?.id, fetchPlaylists]
-  );
+    [router, work?.user?.id]
+  )
 
   return (
     <div
       className="group cursor-pointer block"
       onClick={() => {
-        router.push(`/content/${work?.id}`);
+        router.push(`/content/${work?.id}`)
       }}
     >
       <div className="relative mb-3">
         <div className="aspect-video bg-muted rounded-xl overflow-hidden relative">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
-            alt={work?.title || "Untitled"}
+            alt={work?.title || 'Untitled'}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
@@ -134,9 +138,9 @@ export default function WorkCard({ work }) {
               className="size-10 flex-shrink-0 cursor-pointer rounded-md border border-primary"
               onClick={goToUser}
             >
-              <AvatarImage src={work?.user?.image} />
+              <AvatarImage src={work?.user?.image || undefined} />
               <AvatarFallback>
-                {work?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                {work?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -146,13 +150,13 @@ export default function WorkCard({ work }) {
               className="text-sm text-muted-foreground truncate hover:underline"
               onClick={goToUser}
             >
-              {work?.user?.name || "Unknown Creator"}
+              {work?.user?.name || 'Unknown Creator'}
             </p>
           </div>
           <div className="flex-shrink-0 self-start">
             <DropdownMenu
               onOpenChange={(open) => {
-                if (open && playlists.length === 0) fetchPlaylists();
+                if (open && playlists.length === 0) fetchPlaylists()
               }}
             >
               <DropdownMenuTrigger asChild>
@@ -180,9 +184,9 @@ export default function WorkCard({ work }) {
                         <DropdownMenuItem
                           key={pl.id}
                           onSelect={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            addToPlaylist(pl.id);
+                            e.preventDefault()
+                            e.stopPropagation()
+                            addToPlaylist(pl.id)
                           }}
                         >
                           {pl.name}
@@ -199,5 +203,5 @@ export default function WorkCard({ work }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
