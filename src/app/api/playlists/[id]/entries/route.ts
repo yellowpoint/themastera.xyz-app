@@ -5,7 +5,10 @@ import { apiSuccess, apiFailure } from '@/contracts/types/common'
 import { z } from 'zod'
 
 // POST /api/playlists/[id]/entries - add a work to a playlist
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await requireAuth(request)
     if (authResult) return authResult
@@ -27,41 +30,38 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Verify playlist ownership
     const playlist = await prisma.playlist.findUnique({
       where: { id: playlistId },
-      select: { id: true, userId: true }
+      select: { id: true, userId: true },
     })
 
     if (!playlist) {
-      return NextResponse.json(
-        apiFailure('NOT_FOUND', 'Playlist not found'),
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), {
+        status: 404,
+      })
     }
 
     if (playlist.userId !== userId) {
-      return NextResponse.json(
-        apiFailure('FORBIDDEN', 'Forbidden'),
-        { status: 403 }
-      )
+      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), {
+        status: 403,
+      })
     }
 
     // Verify work exists
     const work = await prisma.work.findUnique({
       where: { id: parsed.data.workId },
-      select: { id: true }
+      select: { id: true },
     })
 
     if (!work) {
-      return NextResponse.json(
-        apiFailure('NOT_FOUND', 'Work not found'),
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), {
+        status: 404,
+      })
     }
 
     // Add work to playlist (idempotent)
     const entry = await prisma.playlistEntry.upsert({
       where: { playlistId_workId: { playlistId, workId: parsed.data.workId } },
       update: {},
-      create: { playlistId, workId: parsed.data.workId }
+      create: { playlistId, workId: parsed.data.workId },
     })
 
     // Touch playlist updatedAt
@@ -71,14 +71,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   } catch (error) {
     console.error('POST /api/playlists/[id]/entries error:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Server error', { message: (error as any)?.message }),
+      apiFailure('INTERNAL_ERROR', 'Server error', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
     )
   }
 }
 
 // DELETE /api/playlists/[id]/entries - remove a work from a playlist
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await requireAuth(request)
     if (authResult) return authResult
@@ -100,32 +105,32 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // Verify playlist ownership
     const playlist = await prisma.playlist.findUnique({
       where: { id: playlistId },
-      select: { id: true, userId: true }
+      select: { id: true, userId: true },
     })
 
     if (!playlist) {
-      return NextResponse.json(
-        apiFailure('NOT_FOUND', 'Playlist not found'),
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), {
+        status: 404,
+      })
     }
 
     if (playlist.userId !== userId) {
-      return NextResponse.json(
-        apiFailure('FORBIDDEN', 'Forbidden'),
-        { status: 403 }
-      )
+      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), {
+        status: 403,
+      })
     }
 
     // Delete entry if exists (idempotent)
     const existing = await prisma.playlistEntry.findUnique({
       where: { playlistId_workId: { playlistId, workId: parsed.data.workId } },
-      select: { id: true }
+      select: { id: true },
     })
 
     if (existing) {
       await prisma.playlistEntry.delete({
-        where: { playlistId_workId: { playlistId, workId: parsed.data.workId } }
+        where: {
+          playlistId_workId: { playlistId, workId: parsed.data.workId },
+        },
       })
     }
 
@@ -136,7 +141,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   } catch (error) {
     console.error('DELETE /api/playlists/[id]/entries error:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Server error', { message: (error as any)?.message }),
+      apiFailure('INTERNAL_ERROR', 'Server error', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
     )
   }

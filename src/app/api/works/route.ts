@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import type { Prisma } from '@prisma/client'
 
 // GET /api/works - Get works list
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     // 验证用户是否已登录
     const authResult = await requireAuth(request)
@@ -19,7 +21,7 @@ export async function GET(request) {
     const { userId } = await getAuthSession(request)
 
     // Build query conditions
-    const where = {}
+    const where: Prisma.WorkWhereInput = {}
 
     if (userId) {
       where.userId = userId
@@ -65,32 +67,29 @@ export async function GET(request) {
     // 获取总数
     const total = await prisma.work.count({ where })
 
-    return NextResponse.json({
-      success: true,
-      data: works,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    })
+    return NextResponse.json(
+      apiSuccess({
+        items: works,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      })
+    )
 
   } catch (error) {
     console.error('Error fetching works:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch works',
-        message: error.message
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch works', { message: (error as any)?.message }),
       { status: 500 }
     )
   }
 }
 
 // POST /api/works - Create new work
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     // 验证用户是否已登录
     const authResult = await requireAuth(request)
@@ -108,10 +107,7 @@ export async function POST(request) {
     if ((status || 'draft') === 'draft') {
       if (!fileUrl) {
         return NextResponse.json(
-          {
-            success: false,
-            error: 'fileUrl is required for draft'
-          },
+          apiFailure('VALIDATION_FAILED', 'fileUrl is required for draft'),
           { status: 400 }
         )
       }
@@ -119,11 +115,7 @@ export async function POST(request) {
       // For non-draft (e.g., publish), require core fields
       if (!title || !description || !category) {
         return NextResponse.json(
-          {
-            success: false,
-            error: 'Missing required fields',
-            required: ['title', 'description', 'category']
-          },
+          apiFailure('VALIDATION_FAILED', 'Missing required fields', { required: ['title', 'description', 'category'] }),
           { status: 400 }
         )
       }
@@ -159,19 +151,12 @@ export async function POST(request) {
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: work
-    }, { status: 201 })
+    return NextResponse.json(apiSuccess(work), { status: 201 })
 
   } catch (error) {
     console.error('Error creating work:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to create work',
-        message: error.message
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to create work', { message: (error as any)?.message }),
       { status: 500 }
     )
   }

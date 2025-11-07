@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
 // No mock data; return raw database records
 
 // Map a Work record to homepage item shape, filling missing UI fields
-function toHomepageItem(work) {
+function toHomepageItem(work: any) {
   return {
     id: work.id,
     title: work.title,
@@ -22,15 +23,15 @@ function toHomepageItem(work) {
   }
 }
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     // Helper: get works for a section with specific query
-    async function fetchSectionItems(sectionId) {
-      const baseWhere = { status: 'published', isActive: true }
+    async function fetchSectionItems(sectionId: string) {
+      const baseWhere: Prisma.WorkWhereInput = { status: 'published', isActive: true }
 
       // Build per-section query
-      let where = { ...baseWhere }
-      let orderBy = [{ createdAt: 'desc' }]
+      let where: Prisma.WorkWhereInput = { ...baseWhere }
+      let orderBy: Prisma.WorkOrderByWithRelationInput[] = [{ createdAt: 'desc' }]
 
       const now = new Date()
       const sevenDaysAgo = new Date(now)
@@ -94,7 +95,7 @@ export async function GET(request) {
     }
 
     // Build sections with up to 3 items each
-    const sections = []
+    const sections: Array<{ id: string; title: string; showAllLink?: string; items: any[] }> = []
     for (const s of HOMEPAGE_SECTIONS) {
       const items = await fetchSectionItems(s.id)
       sections.push({ id: s.id, title: s.title, showAllLink: s.showAllLink, items })

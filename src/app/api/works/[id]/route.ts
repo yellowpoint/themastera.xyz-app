@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import type { Prisma } from '@prisma/client'
 
 // GET /api/works/[id] - Get single work
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -41,10 +43,7 @@ export async function GET(request, { params }) {
     })
 
     if (!work) {
-      return NextResponse.json(
-        { success: false, error: 'Work not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     // Get current user session for personalized fields
@@ -79,37 +78,29 @@ export async function GET(request, { params }) {
       ? await prisma.follow.count({ where: { followingId: authorId } })
       : 0
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      apiSuccess({
         work,
         engagement: {
           likesCount,
           dislikesCount,
-          reaction, // 'like' | 'dislike' | null
+          reaction,
         },
         authorFollow: {
           isFollowing,
           followersCount,
         },
-      }
-    })
+      })
+    )
 
   } catch (error) {
     console.error('Error fetching work:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch work',
-        message: error.message 
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to fetch work'), { status: 500 })
   }
 }
 
 // PUT /api/works/[id] - Update work
-export async function PUT(request, { params }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
     const body = await request.json()
@@ -120,14 +111,11 @@ export async function PUT(request, { params }) {
     })
 
     if (!existingWork) {
-      return NextResponse.json(
-        { success: false, error: 'Work not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     // Prepare update data
-    const updateData = {}
+    const updateData: Prisma.WorkUpdateInput = {}
     
     if (body.title !== undefined) updateData.title = body.title
     if (body.description !== undefined) updateData.description = body.description
@@ -154,26 +142,16 @@ export async function PUT(request, { params }) {
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: work
-    })
+    return NextResponse.json(apiSuccess(work))
 
   } catch (error) {
     console.error('Error updating work:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update work',
-        message: error.message 
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to update work'), { status: 500 })
   }
 }
 
 // DELETE /api/works/[id] - Delete work
-export async function DELETE(request, { params }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -183,10 +161,7 @@ export async function DELETE(request, { params }) {
     })
 
     if (!existingWork) {
-      return NextResponse.json(
-        { success: false, error: 'Work not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     // Delete the work (Note: this will cascade delete related reviews and purchases)
@@ -194,20 +169,10 @@ export async function DELETE(request, { params }) {
       where: { id }
     })
 
-    return NextResponse.json({
-      success: true,
-      message: 'Work deleted successfully'
-    })
+    return NextResponse.json(apiSuccess({ message: 'Work deleted successfully' }))
 
   } catch (error) {
     console.error('Error deleting work:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete work',
-        message: error.message 
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to delete work'), { status: 500 })
   }
 }

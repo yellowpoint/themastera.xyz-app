@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-function extractPlaybackId(url) {
+function extractPlaybackId(url: string | null | undefined): string | null {
   if (!url) return null
   const match = url.match(/stream\.mux\.com\/([^.?]+)/)
   return match ? match[1] : null
 }
 
-function safeFilename(name, fallback = 'video') {
+function safeFilename(name: string | null | undefined, fallback: string = 'video'): string {
   const raw = (name ?? fallback).toString()
   const cleaned = raw
     // 保留 Unicode 字母与数字，以及常见安全字符；移除 emoji/特殊符号
@@ -21,7 +21,7 @@ function safeFilename(name, fallback = 'video') {
   return base || fallback
 }
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const playbackIdParam = searchParams.get('playbackId')
@@ -49,7 +49,7 @@ export async function GET(request) {
 
     // Redirect to Mux so the browser downloads directly from the CDN
     return NextResponse.redirect(mp4Url, { status: 302 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Mux download error:', error)
     return NextResponse.json(
       { success: false, error: 'Unexpected error while downloading MP4', message: error.message },

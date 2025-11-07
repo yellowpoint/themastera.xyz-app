@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import type { Prisma } from '@prisma/client'
 
 // GET /api/works/stats - 获取作品统计数据
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     // 验证用户是否已登录
     const authResult = await requireAuth(request)
@@ -80,29 +82,16 @@ export async function GET(request) {
       completionRate: 96 // 这需要额外的逻辑来计算
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...stats,
-        ...monthlyStats
-      }
-    })
+    return NextResponse.json(apiSuccess({ ...stats, ...monthlyStats }), { status: 200 })
 
   } catch (error) {
     console.error('Error fetching work stats:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch work stats',
-        message: error.message
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to fetch work stats'), { status: 500 })
   }
 }
 
 // POST /api/works/stats - 更新作品统计（如下载量、收益等）
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     // 验证用户是否已登录
     const authResult = await requireAuth(request)
@@ -112,13 +101,7 @@ export async function POST(request) {
     const { workId, type, value } = body
 
     if (!workId || !type) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required fields: workId, type'
-        },
-        { status: 400 }
-      )
+      return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Missing required fields: workId, type'), { status: 400 })
     }
 
     // 检查作品是否存在
@@ -133,7 +116,7 @@ export async function POST(request) {
       )
     }
 
-    let updateData = {}
+    let updateData: Prisma.WorkUpdateInput = {}
 
     switch (type) {
       case 'download':
@@ -147,10 +130,7 @@ export async function POST(request) {
         // 可能需要单独的视图跟踪表
         break
       default:
-        return NextResponse.json(
-          { success: false, error: 'Invalid type' },
-          { status: 400 }
-        )
+        return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Invalid type'), { status: 400 })
     }
 
     // 更新作品统计
@@ -159,20 +139,10 @@ export async function POST(request) {
       data: updateData
     })
 
-    return NextResponse.json({
-      success: true,
-      data: updatedWork
-    })
+    return NextResponse.json(apiSuccess(updatedWork), { status: 200 })
 
   } catch (error) {
     console.error('Error updating work stats:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update work stats',
-        message: error.message
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to update work stats'), { status: 500 })
   }
 }

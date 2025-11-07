@@ -9,10 +9,9 @@ export async function GET(request: Request) {
   try {
     const { userId } = await getAuthSession(request)
     if (!userId) {
-      return NextResponse.json(
-        apiFailure('UNAUTHORIZED', 'Unauthorized'),
-        { status: 401 }
-      )
+      return NextResponse.json(apiFailure('UNAUTHORIZED', 'Unauthorized'), {
+        status: 401,
+      })
     }
 
     const playlists = await prisma.playlist.findMany({
@@ -72,7 +71,11 @@ export async function POST(request: Request) {
       data: { name: parsed.data.name, userId },
     })
 
-    const createdCard = { id: created.id, name: created.name, items: [] as Array<any> }
+    const createdCard = {
+      id: created.id,
+      name: created.name,
+      items: [] as Array<any>,
+    }
     return NextResponse.json(apiSuccess(createdCard), { status: 201 })
   } catch (error: any) {
     console.error('POST /api/playlists error:', error)

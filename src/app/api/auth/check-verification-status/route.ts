@@ -1,15 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
 
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     // Get user email from request
-    const body = await request.json()
+    const body = await request.json() as { email?: string }
     const { email } = body
 
     if (!email) {
       return NextResponse.json(
-        { error: 'Email is required' },
+        apiFailure('VALIDATION_FAILED', 'Email is required'),
         { status: 400 }
       )
     }
@@ -29,24 +30,24 @@ export async function POST(request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        apiFailure('NOT_FOUND', 'User not found'),
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { 
+      apiSuccess({
         verified: user.emailVerified,
         email: user.email,
-        name: user.name
-      },
+        name: user.name,
+      }),
       { status: 200 }
     )
 
   } catch (error) {
     console.error('Failed to check email verification status:', error)
     return NextResponse.json(
-      { error: 'Server error, please try again later' },
+      apiFailure('INTERNAL_ERROR', 'Server error, please try again later'),
       { status: 500 }
     )
   }

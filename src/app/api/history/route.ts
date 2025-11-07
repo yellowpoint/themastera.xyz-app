@@ -1,13 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import type { Prisma } from '@prisma/client'
 
 // GET /api/history - list watch history for current user
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { userId } = await getAuthSession(request)
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(apiFailure('UNAUTHORIZED', 'Unauthorized'), { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -20,7 +22,7 @@ export async function GET(request) {
     const skip = (page - 1) * limit
 
     // Date range filter
-    const dateFilter = {}
+    const dateFilter: { watchedAt?: { gte?: Date; lte?: Date } } = {}
     if (start || end) {
       dateFilter.watchedAt = {}
       if (start) {
@@ -34,7 +36,7 @@ export async function GET(request) {
     }
 
     // Search filter on work title or author name
-    const searchFilter = search
+    const searchFilter: Prisma.WatchHistoryWhereInput = search
       ? {
           OR: [
             { work: { is: { title: { contains: search } } } },
@@ -43,7 +45,7 @@ export async function GET(request) {
         }
       : {}
 
-    const where = {
+    const where: Prisma.WatchHistoryWhereInput = {
       userId,
       ...dateFilter,
       ...searchFilter,
@@ -82,27 +84,28 @@ export async function GET(request) {
       },
     }))
 
-    return NextResponse.json({
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    })
+    return NextResponse.json(
+      apiSuccess({
+        items: data,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      })
+    )
   } catch (error) {
     console.error('GET /api/history error:', error)
     return NextResponse.json(
-      { success: false, error: 'Server error', message: error.message },
+      apiFailure('INTERNAL_ERROR', 'Server error', { message: (error as any)?.message }),
       { status: 500 }
     )
   }
 }
 
 // POST /api/history - add or update watch history for current user
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     const authResult = await requireAuth(request)
     if (authResult) return authResult
@@ -112,12 +115,12 @@ export async function POST(request) {
     const { workId } = body
 
     if (!workId) {
-      return NextResponse.json({ success: false, error: 'Missing required field: workId' }, { status: 400 })
+      return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Missing required field: workId'), { status: 400 })
     }
 
     const work = await prisma.work.findUnique({ where: { id: workId } })
     if (!work) {
-      return NextResponse.json({ success: false, error: 'Work not found' }, { status: 404 })
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     const now = new Date()
@@ -136,11 +139,11 @@ export async function POST(request) {
       }
     })
 
-    return NextResponse.json({ success: true, data: entry }, { status: 201 })
+    return NextResponse.json(apiSuccess(entry), { status: 201 })
   } catch (error) {
     console.error('POST /api/history error:', error)
     return NextResponse.json(
-      { success: false, error: 'Server error', message: error.message },
+      apiFailure('INTERNAL_ERROR', 'Server error', { message: (error as any)?.message }),
       { status: 500 }
     )
   }

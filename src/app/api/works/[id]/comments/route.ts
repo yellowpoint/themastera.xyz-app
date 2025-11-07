@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
 
 // GET /api/works/[id]/comments - 获取作品评论
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workId } = await params
     const { searchParams } = new URL(request.url)
@@ -18,10 +19,7 @@ export async function GET(request, { params }) {
     })
 
     if (!work) {
-      return NextResponse.json(
-        { success: false, error: 'Work not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     // 构建排序条件
@@ -104,65 +102,47 @@ export async function GET(request, { params }) {
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      apiSuccess({
         comments: formattedComments,
         pagination: {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
+          totalPages: Math.ceil(total / limit),
         },
         stats: {
           totalComments: total,
           averageRating: avgRating._avg.rating ? parseFloat(avgRating._avg.rating.toFixed(1)) : 0,
-          ratingDistribution
-        }
-      }
-    })
+          ratingDistribution,
+        },
+      })
+    )
 
   } catch (error) {
     console.error('Error fetching comments:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch comments',
-        message: error.message
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to fetch comments', (error as any)?.message), { status: 500 })
   }
 }
 
 // POST /api/works/[id]/comments - 添加评论
-export async function POST(request, { params }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workId } = await params
     const body = await request.json()
-    const { userId, rating, comment } = body
+    const { userId, rating, comment } = body as { userId?: string; rating?: number; comment?: string | null }
 
     // 验证必需字段
-    if (!userId || !rating) {
+    if (!userId || rating == null) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required fields',
-          required: ['userId', 'rating']
-        },
+        apiFailure('VALIDATION_FAILED', 'Missing required fields: userId, rating'),
         { status: 400 }
       )
     }
 
     // 验证评分范围
     if (rating < 1 || rating > 5) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Rating must be between 1 and 5'
-        },
-        { status: 400 }
-      )
+      return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Rating must be between 1 and 5'), { status: 400 })
     }
 
     // 检查作品是否存在
@@ -171,10 +151,7 @@ export async function POST(request, { params }) {
     })
 
     if (!work) {
-      return NextResponse.json(
-        { success: false, error: 'Work not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), { status: 404 })
     }
 
     // 检查用户是否已经评论过
@@ -188,13 +165,7 @@ export async function POST(request, { params }) {
     })
 
     if (existingReview) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User has already reviewed this work'
-        },
-        { status: 409 }
-      )
+      return NextResponse.json(apiFailure('CONFLICT', 'User has already reviewed this work'), { status: 409 })
     }
 
     // 创建评论
@@ -250,29 +221,19 @@ export async function POST(request, { params }) {
       replies: 0
     }
 
-    return NextResponse.json({
-      success: true,
-      data: formattedComment
-    }, { status: 201 })
+    return NextResponse.json(apiSuccess(formattedComment), { status: 201 })
 
   } catch (error) {
     console.error('Error creating comment:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to create comment',
-        message: error.message
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to create comment'), { status: 500 })
   }
 }
 
 // 辅助函数：格式化时间
-function formatTimeAgo(date) {
+function formatTimeAgo(date: string | Date): string {
   const now = new Date()
   const created = new Date(date)
-  const diffInMinutes = Math.floor((now - created) / (1000 * 60))
+  const diffInMinutes = Math.floor((now.getTime() - created.getTime()) / (1000 * 60))
 
   if (diffInMinutes < 1) return 'Just now'
   if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`

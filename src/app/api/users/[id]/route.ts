@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthSession, requireAuth } from "@/middleware/auth";
+import { apiSuccess, apiFailure } from "@/contracts/types/common";
+import type { Prisma } from "@prisma/client";
 
 // GET /api/users/[id] - 获取单个用户信息
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -34,10 +36,7 @@ export async function GET(request, { params }) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
     }
 
     // Follow counts
@@ -61,45 +60,37 @@ export async function GET(request, { params }) {
       isFollowing = !!followRelation;
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      apiSuccess({
         ...user,
         followersCount,
         followingCount,
         isFollowing,
-      },
-    });
+      })
+    );
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch user",
-        message: error.message,
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch user', { message: (error as any)?.message }),
       { status: 500 }
     );
   }
 }
 
 // PUT /api/users/[id] - 更新用户信息
-export async function PUT(request, { params }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Require auth
     const authResult = await requireAuth(request);
     if (authResult) return authResult;
 
     const { id } = await params;
-    const body = await request.json();
+    const body: Partial<{ name: string; image: string; description: string; level: string; points: number | string }> = await request.json();
 
     const { userId } = await getAuthSession(request);
     if (userId !== id) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Forbidden: You can only update your own profile",
-        },
+        apiFailure('FORBIDDEN', 'Forbidden: You can only update your own profile'),
         { status: 403 }
       );
     }
@@ -110,21 +101,18 @@ export async function PUT(request, { params }) {
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
     }
 
     // 准备更新数据
-    const updateData = {};
+    const updateData: Prisma.UserUpdateInput = {};
 
     if (body.name !== undefined) updateData.name = body.name;
     if (body.image !== undefined) updateData.image = body.image;
     if (body.description !== undefined)
       updateData.description = body.description;
     if (body.level !== undefined) updateData.level = body.level;
-    if (body.points !== undefined) updateData.points = parseInt(body.points);
+    if (body.points !== undefined) updateData.points = typeof body.points === 'string' ? parseInt(body.points, 10) : body.points;
 
     // 更新用户
     const user = await prisma.user.update({
@@ -141,25 +129,18 @@ export async function PUT(request, { params }) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: user,
-    });
+    return NextResponse.json(apiSuccess(user));
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to update user",
-        message: error.message,
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to update user', { message: (error as any)?.message }),
       { status: 500 }
     );
   }
 }
 
 // DELETE /api/users/[id] - 删除用户（软删除或硬删除）
-export async function DELETE(request, { params }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Require auth
     const authResult = await requireAuth(request);
@@ -172,10 +153,7 @@ export async function DELETE(request, { params }) {
     const { userId } = await getAuthSession(request);
     if (userId !== id) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Forbidden: You can only delete your own account",
-        },
+        apiFailure('FORBIDDEN', 'Forbidden: You can only delete your own account'),
         { status: 403 }
       );
     }
@@ -195,10 +173,7 @@ export async function DELETE(request, { params }) {
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
     }
 
     // 检查是否有关联数据
@@ -209,11 +184,7 @@ export async function DELETE(request, { params }) {
 
     if (hasRelatedData && !force) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "User has related data. Use force=true to delete anyway.",
-          relatedData: existingUser._count,
-        },
+        apiFailure('CONFLICT', 'User has related data. Use force=true to delete anyway.', { relatedData: existingUser._count }),
         { status: 409 }
       );
     }
@@ -223,18 +194,11 @@ export async function DELETE(request, { params }) {
       where: { id },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "User deleted successfully",
-    });
+    return NextResponse.json(apiSuccess({ deleted: true }));
   } catch (error) {
     console.error("Error deleting user:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to delete user",
-        message: error.message,
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to delete user', { message: (error as any)?.message }),
       { status: 500 }
     );
   }

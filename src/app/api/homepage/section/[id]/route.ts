@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { formatDuration } from '@/lib/format'
+import type { Prisma } from '@prisma/client'
 
 // Helpers
-const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
+const rnd = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
 
-function toHomepageItem(work) {
+function toHomepageItem(work: any) {
   const durationSeconds = rnd(60, 360)
   return {
     id: work.id,
@@ -25,7 +26,7 @@ function toHomepageItem(work) {
   }
 }
 
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { searchParams } = new URL(request.url)
     const { id: sectionId } = await params
@@ -33,9 +34,9 @@ export async function GET(request, { params }) {
     const limit = parseInt(searchParams.get('limit') || '24')
     const skip = (page - 1) * limit
 
-    const baseWhere = { status: 'published', isActive: true }
-    let where = { ...baseWhere }
-    let orderBy = [{ createdAt: 'desc' }]
+    const baseWhere: Prisma.WorkWhereInput = { status: 'published', isActive: true }
+    let where: Prisma.WorkWhereInput = { ...baseWhere }
+    let orderBy: Prisma.WorkOrderByWithRelationInput[] = [{ createdAt: 'desc' }]
 
     const now = new Date()
     const sevenDaysAgo = new Date(now)

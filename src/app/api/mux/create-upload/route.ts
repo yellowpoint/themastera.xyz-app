@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import Mux from '@mux/mux-node'
 
 const mux = new Mux({
@@ -6,7 +6,7 @@ const mux = new Mux({
   tokenSecret: process.env.MUX_TOKEN_SECRET,
 })
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || '*'
 
@@ -26,7 +26,7 @@ export async function POST(req) {
       id: upload.id,
       url: upload.url,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Mux create upload error:', error)
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to create Mux upload' },

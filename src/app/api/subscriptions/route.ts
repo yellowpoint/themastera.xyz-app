@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
 
 // GET /api/subscriptions - List creators the current user is following
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(request)
     if (authResult) return authResult
@@ -90,23 +91,24 @@ export async function GET(request) {
       total = await prisma.follow.count({ where: { followerId: userId } })
     }
 
-    return NextResponse.json({
-      success: true,
-      data: filtered.map((u) => ({
-        ...u,
-        isFollowing: true,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    })
+    return NextResponse.json(
+      apiSuccess({
+        items: filtered.map((u) => ({
+          ...u,
+          isFollowing: true,
+        })),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      })
+    )
   } catch (error) {
     console.error('Error fetching subscriptions:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch subscriptions', message: error.message },
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch subscriptions', { message: (error as any)?.message }),
       { status: 500 }
     )
   }

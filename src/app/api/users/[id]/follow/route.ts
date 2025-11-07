@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
 
 // POST /api/users/[id]/follow - 关注/取消关注用户
-export async function POST(request, { params }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: targetUserId } = await params
     const body = await request.json()
@@ -18,7 +19,7 @@ export async function POST(request, { params }) {
     // 验证必需字段
     if (!action) {
       return NextResponse.json(
-        { success: false, error: 'Missing required field: action' },
+        apiFailure('VALIDATION_FAILED', 'Missing required field: action'),
         { status: 400 }
       )
     }
@@ -26,10 +27,7 @@ export async function POST(request, { params }) {
     // 验证action值
     if (!['follow', 'unfollow'].includes(action)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid action. Must be "follow" or "unfollow"'
-        },
+        apiFailure('VALIDATION_FAILED', 'Invalid action. Must be "follow" or "unfollow"'),
         { status: 400 }
       )
     }
@@ -37,10 +35,7 @@ export async function POST(request, { params }) {
     // 不能关注自己
     if (userId === targetUserId) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Cannot follow yourself'
-        },
+        apiFailure('VALIDATION_FAILED', 'Cannot follow yourself'),
         { status: 400 }
       )
     }
@@ -52,7 +47,7 @@ export async function POST(request, { params }) {
 
     if (!targetUser) {
       return NextResponse.json(
-        { success: false, error: 'Target user not found' },
+        apiFailure('NOT_FOUND', 'Target user not found'),
         { status: 404 }
       )
     }
@@ -61,7 +56,7 @@ export async function POST(request, { params }) {
     const currentUser = await prisma.user.findUnique({ where: { id: userId } })
     if (!currentUser) {
       return NextResponse.json(
-        { success: false, error: 'Current user not found' },
+        apiFailure('NOT_FOUND', 'Current user not found'),
         { status: 404 }
       )
     }
@@ -79,10 +74,7 @@ export async function POST(request, { params }) {
 
       if (existingFollow) {
         return NextResponse.json(
-          {
-            success: false,
-            error: 'Already following this user'
-          },
+          apiFailure('CONFLICT', 'Already following this user'),
           { status: 409 }
         )
       }
@@ -95,15 +87,14 @@ export async function POST(request, { params }) {
         }
       })
 
-      return NextResponse.json({
-        success: true,
-        message: 'Successfully followed user',
-        data: {
+      return NextResponse.json(
+        apiSuccess({
+          message: 'Successfully followed user',
           action: 'follow',
           followerId: userId,
-          followingId: targetUserId
-        }
-      })
+          followingId: targetUserId,
+        })
+      )
 
     } else { // unfollow
       // 检查是否已经关注
@@ -118,10 +109,7 @@ export async function POST(request, { params }) {
 
       if (!existingFollow) {
         return NextResponse.json(
-          {
-            success: false,
-            error: 'Not following this user'
-          },
+          apiFailure('CONFLICT', 'Not following this user'),
           { status: 409 }
         )
       }
@@ -136,32 +124,27 @@ export async function POST(request, { params }) {
         }
       })
 
-      return NextResponse.json({
-        success: true,
-        message: 'Successfully unfollowed user',
-        data: {
+      return NextResponse.json(
+        apiSuccess({
+          message: 'Successfully unfollowed user',
           action: 'unfollow',
           followerId: userId,
-          followingId: targetUserId
-        }
-      })
+          followingId: targetUserId,
+        })
+      )
     }
 
   } catch (error) {
     console.error('Error handling follow action:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to handle follow action',
-        message: error.message
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to handle follow action', { message: (error as any)?.message }),
       { status: 500 }
     )
   }
 }
 
 // GET /api/users/[id]/follow - 获取关注状态和统计
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: targetUserId } = await params
     const { userId } = await getAuthSession(request)
@@ -172,10 +155,7 @@ export async function GET(request, { params }) {
     })
 
     if (!targetUser) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 })
     }
 
     // 获取关注统计
@@ -225,27 +205,22 @@ export async function GET(request, { params }) {
       followedAt: follow.createdAt
     }))
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      apiSuccess({
         targetUserId,
         isFollowing,
         stats: {
           followersCount,
-          followingCount
+          followingCount,
         },
-        recentFollowers: formattedFollowers
-      }
-    })
+        recentFollowers: formattedFollowers,
+      })
+    )
 
   } catch (error) {
     console.error('Error fetching follow data:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch follow data',
-        message: error.message
-      },
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch follow data', { message: (error as any)?.message }),
       { status: 500 }
     )
   }

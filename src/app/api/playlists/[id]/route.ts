@@ -4,16 +4,24 @@ import { getAuthSession, requireAuth } from '@/middleware/auth'
 import { apiSuccess, apiFailure } from '@/contracts/types/common'
 
 // GET /api/playlists/[id] - get single playlist details for current user
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { userId } = await getAuthSession(request)
     if (!userId) {
-      return NextResponse.json(apiFailure('UNAUTHORIZED', 'Unauthorized'), { status: 401 })
+      return NextResponse.json(apiFailure('UNAUTHORIZED', 'Unauthorized'), {
+        status: 401,
+      })
     }
 
     const { id: playlistId } = await params
     if (!playlistId) {
-      return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Playlist id is required'), { status: 400 })
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Playlist id is required'),
+        { status: 400 }
+      )
     }
 
     const pl = await prisma.playlist.findUnique({
@@ -28,11 +36,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     if (!pl) {
-      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), { status: 404 })
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), {
+        status: 404,
+      })
     }
 
     if (pl.userId !== userId) {
-      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), { status: 403 })
+      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), {
+        status: 403,
+      })
     }
 
     const data = {
@@ -50,19 +62,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(apiSuccess(data), { status: 200 })
   } catch (error) {
     console.error('GET /api/playlists/[id] error:', error)
-    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Server error'), { status: 500 })
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Server error'), {
+      status: 500,
+    })
   }
 }
 
 // DELETE /api/playlists/[id] - delete a playlist owned by current user
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await requireAuth(request)
     if (authResult) return authResult
 
     const { id: playlistId } = await params
     if (!playlistId) {
-      return NextResponse.json(apiFailure('VALIDATION_FAILED', 'Playlist id is required'), { status: 400 })
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Playlist id is required'),
+        { status: 400 }
+      )
     }
 
     const { userId } = await getAuthSession(request)
@@ -73,11 +93,15 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     })
 
     if (!playlist) {
-      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), { status: 404 })
+      return NextResponse.json(apiFailure('NOT_FOUND', 'Playlist not found'), {
+        status: 404,
+      })
     }
 
     if (playlist.userId !== userId) {
-      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), { status: 403 })
+      return NextResponse.json(apiFailure('FORBIDDEN', 'Forbidden'), {
+        status: 403,
+      })
     }
 
     await prisma.playlist.delete({ where: { id: playlistId } })
@@ -85,6 +109,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     return NextResponse.json(apiSuccess({ deleted: true }), { status: 200 })
   } catch (error) {
     console.error('DELETE /api/playlists/[id] error:', error)
-    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Server error', { message: (error as any)?.message }), { status: 500 })
+    return NextResponse.json(
+      apiFailure('INTERNAL_ERROR', 'Server error', {
+        message: (error as any)?.message,
+      }),
+      { status: 500 }
+    )
   }
 }

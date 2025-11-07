@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import type { Prisma } from '@prisma/client'
 
 // GET /api/works/trending - Get trending works
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
@@ -10,7 +12,7 @@ export async function GET(request) {
     const timeframe = searchParams.get('timeframe') || '7d' // 7d, 30d, all
 
     // Calculate time range
-    let dateFilter = {}
+    let dateFilter: Prisma.WorkWhereInput = {}
     if (timeframe !== 'all') {
       const days = timeframe === '7d' ? 7 : 30
       const startDate = new Date()
@@ -23,7 +25,7 @@ export async function GET(request) {
     }
 
     // Build query conditions
-    const where = {
+    const where: Prisma.WorkWhereInput = {
       status: 'published',
       isActive: true,
       ...dateFilter
@@ -103,31 +105,26 @@ export async function GET(request) {
     // 按热门度排序
     formattedWorks.sort((a, b) => b.trendingScore - a.trendingScore)
 
-    return NextResponse.json({
-      success: true,
-      data: formattedWorks,
-      meta: {
-        total: formattedWorks.length,
-        timeframe,
-        category: category || 'all'
-      }
-    })
+    return NextResponse.json(
+      apiSuccess({
+        items: formattedWorks,
+        meta: {
+          total: formattedWorks.length,
+          timeframe,
+          category: category || 'all',
+        },
+      }),
+      { status: 200 }
+    )
 
   } catch (error) {
     console.error('Error fetching trending works:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch trending works',
-        message: error.message
-      },
-      { status: 500 }
-    )
+    return NextResponse.json(apiFailure('INTERNAL_ERROR', 'Failed to fetch trending works'), { status: 500 })
   }
 }
 
 // Helper: generate mock duration
-function generateDuration(category) {
+function generateDuration(category?: string): string {
   const durations = {
     'Visual Arts': ['2:30', '4:15', '6:45', '3:20'],
     'Music': ['3:45', '4:22', '5:18', '2:55'],
@@ -137,15 +134,15 @@ function generateDuration(category) {
     'Illustration': ['6:45', '8:20', '4:35', '11:15']
   }
 
-  const categoryDurations = durations[category] || ['3:30', '5:20', '4:45', '6:15']
+  const categoryDurations = (category ? durations[category] : undefined) || ['3:30', '5:20', '4:45', '6:15']
   return categoryDurations[Math.floor(Math.random() * categoryDurations.length)]
 }
 
 // Helper: format upload time
-function formatUploadTime(createdAt) {
+function formatUploadTime(createdAt: string | Date): string {
   const now = new Date()
   const created = new Date(createdAt)
-  const diffInHours = Math.floor((now - created) / (1000 * 60 * 60))
+  const diffInHours = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60))
 
   if (diffInHours < 1) return 'Just now'
   if (diffInHours < 24) return `${diffInHours} hours ago`
