@@ -28,22 +28,23 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { request } from "@/lib/request";
 import { formatViews } from "@/lib/format";
+import type { DateRange } from "react-day-picker";
 
 export default function WatchHistoryPage() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [page, setPage] = useState(1);
-  const [limit] = useState(18);
-  const [totalPages, setTotalPages] = useState(1);
-  const loadMoreRef = useRef(null);
-  const observingRef = useRef(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [page, setPage] = useState<number>(1);
+  const [limit] = useState<number>(18);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const observingRef = useRef<IntersectionObserver | null>(null);
 
   const fetchHistory = useCallback(
-    async (opts = {}) => {
+    async (opts: { pageOverride?: number } = {}) => {
       const { pageOverride } = opts;
       const nextPage = pageOverride ?? page;
       try {
@@ -59,12 +60,13 @@ export default function WatchHistoryPage() {
         if (dateRange?.to)
           params.set("end", new Date(dateRange.to).toISOString());
         const { data } = await request.get(`/api/history?${params.toString()}`);
-        const list = data?.data || [];
-        const pg = data?.pagination || {};
+        const list = (data as any)?.data || [];
+        const pg = (data as any)?.pagination || {};
         setTotalPages(pg.totalPages || 1);
         setItems((prev) => (nextPage === 1 ? list : [...prev, ...list]));
       } catch (err) {
-        setError(err?.message || "Failed to load watch history");
+        const msg = (err as any)?.message || "Failed to load watch history";
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -107,7 +109,7 @@ export default function WatchHistoryPage() {
     };
   }, [loadMoreRef.current, loading, page, totalPages, fetchHistory]);
 
-  const removeItem = async (workId) => {
+  const removeItem = async (workId: string | number) => {
     try {
       await request.delete(`/api/history/${workId}`);
       setItems((prev) => prev.filter((it) => it?.work?.id !== workId));
@@ -116,12 +118,12 @@ export default function WatchHistoryPage() {
     }
   };
 
-  const resolveThumb = (url) => {
+  const resolveThumb = (url?: string) => {
     if (!url) return "/thumbnail-placeholder.svg";
     return url;
   };
 
-  const formatTime = (s) => {
+  const formatTime = (s?: string | number | Date | null) => {
     if (!s) return "";
     const d = new Date(s);
     const yyyy = d.getFullYear();
@@ -175,14 +177,14 @@ export default function WatchHistoryPage() {
               <ShadCalendar
                 mode="range"
                 selected={dateRange}
-                onSelect={(r) => setDateRange(r || { from: null, to: null })}
+                onSelect={(r) => setDateRange(r || undefined)}
                 numberOfMonths={2}
               />
               <div className="flex justify-end gap-2 mt-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setDateRange({ from: null, to: null })}
+                  onClick={() => setDateRange(undefined)}
                 >
                   Reset
                 </Button>

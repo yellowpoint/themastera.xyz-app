@@ -1,151 +1,170 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Play, MoreVertical, Pause, Volume2, VolumeX } from "lucide-react";
-import MuxPlayer from "@mux/mux-player-react";
-import Link from "next/link";
+'use client'
+import React, { useState, useEffect, useRef } from 'react'
+import { Play, MoreVertical, Pause, Volume2, VolumeX } from 'lucide-react'
+import MuxPlayer from '@mux/mux-player-react'
+import Link from 'next/link'
 
-import { Skeleton } from "@/components/ui/skeleton";
-import WorkCard from "@/components/WorkCard";
-import { formatViews } from "@/lib/format";
-import { WorkCardSkeletonLite } from "@/components/WorkCardSkeleton";
+import { Skeleton } from '@/components/ui/skeleton'
+import WorkCard from '@/components/WorkCard'
+import { formatViews } from '@/lib/format'
+import { WorkCardSkeletonLite } from '@/components/WorkCardSkeleton'
+import type { HomepageItem } from '@/contracts/domain/work'
+import { request } from '@/lib/request'
 
 export default function HomePage() {
-  const [homepage, setHomepage] = useState({ quickPicks: [], sections: [] });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [homepage, setHomepage] = useState<{
+    quickPicks: HomepageItem[]
+    sections: Array<{
+      id: string
+      title?: string
+      showAllLink?: string
+      items: HomepageItem[]
+    }>
+  }>({ quickPicks: [], sections: [] })
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Video player states
-  const [currentVideo, setCurrentVideo] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const videoRef = useRef(null);
+  const [currentVideo, setCurrentVideo] = useState<HomepageItem | null>(null)
+  const [isPlaying, setIsPlaying] = useState<boolean>(true)
+  const [isMuted, setIsMuted] = useState<boolean>(true)
+  const [currentTime, setCurrentTime] = useState<number>(0)
+  const [duration, setDuration] = useState<number>(0)
+  const videoRef = useRef<any>(null)
   // Track broken thumbnail URLs to avoid re-request loops
-  const brokenThumbsRef = useRef(new Set());
-  const resolveThumb = (url) => {
-    if (!url) return "/thumbnail-placeholder.svg";
-    return brokenThumbsRef.current.has(url)
-      ? "/thumbnail-placeholder.svg"
-      : url;
-  };
-  const handleImgError = (url, e) => {
-    brokenThumbsRef.current.add(url);
+  const brokenThumbsRef = useRef<Set<string>>(new Set())
+  const resolveThumb = (url?: string | null) => {
+    if (!url) return '/thumbnail-placeholder.svg'
+    return brokenThumbsRef.current.has(url) ? '/thumbnail-placeholder.svg' : url
+  }
+  const handleImgError = (
+    url?: string | null,
+    e?: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    brokenThumbsRef.current.add(url)
     // Prevent onError loops and immediately swap to placeholder
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = "/thumbnail-placeholder.svg";
-  };
+    if (e?.currentTarget) {
+      e.currentTarget.onerror = null
+      e.currentTarget.src = '/thumbnail-placeholder.svg'
+    }
+  }
 
   useEffect(() => {
-    fetchHomepageData();
-  }, []);
+    fetchHomepageData()
+  }, [])
 
   const fetchHomepageData = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
-      const response = await fetch(`/api/homepage`);
-      const data = await response.json();
+      const { data } = await request.get<{
+        quickPicks: HomepageItem[]
+        sections: Array<{
+          id: string
+          title: string
+          showAllLink?: string
+          items: HomepageItem[]
+        }>
+      }>(`/api/homepage`)
 
-      if (data.success) {
-        const quickPicks = data.data?.quickPicks || [];
+      if (data?.success) {
+        const quickPicks = data.data?.quickPicks || []
         setHomepage({
           quickPicks,
-          sections: data.data?.sections || [],
-        });
-        console.log("quickPicks:", quickPicks);
+          sections: (data.data?.sections as any) || [],
+        })
+        console.log('quickPicks:', quickPicks)
         if (quickPicks.length > 0) {
-          setCurrentVideo(quickPicks[0]);
+          setCurrentVideo(quickPicks[0])
         }
       } else {
-        setError(data.error || "Failed to fetch homepage data");
+        setError((data as any)?.error || 'Failed to fetch homepage data')
       }
     } catch (err) {
-      console.error("Error fetching homepage data:", err);
-      setError("Network error, please try again later");
+      console.error('Error fetching homepage data:', err)
+      setError('Network error, please try again later')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Video control functions
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause();
+        videoRef.current.pause()
       } else {
-        videoRef.current.play();
+        videoRef.current.play()
       }
-      setIsPlaying(!isPlaying);
+      setIsPlaying(!isPlaying)
     }
-  };
+  }
 
   const handleMuteToggle = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
     }
-  };
+  }
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime || 0);
+      setCurrentTime(videoRef.current.currentTime || 0)
     }
-  };
+  }
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0);
+      setDuration(videoRef.current.duration || 0)
     }
-  };
+  }
 
-  const handleSeek = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, clickX / rect.width));
-    const newTime = (duration || 0) * pct;
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const pct = Math.max(0, Math.min(1, clickX / rect.width))
+    const newTime = (duration || 0) * pct
     if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
+      // MuxPlayer has HTMLMediaElement interface
+      ;(videoRef.current as any).currentTime = newTime
+      setCurrentTime(newTime)
     }
-  };
+  }
 
-  const formatTime = (s) => {
-    if (!Number.isFinite(s)) return "0:00";
-    const mins = Math.floor(s / 60);
-    const secs = Math.floor(s % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  const formatTime = (s: number) => {
+    if (!Number.isFinite(s)) return '0:00'
+    const mins = Math.floor(s / 60)
+    const secs = Math.floor(s % 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
-  const handleVideoSelect = (video) => {
-    setCurrentVideo(video);
-    setIsPlaying(true);
-    setIsMuted(false);
+  const handleVideoSelect = (video: HomepageItem) => {
+    setCurrentVideo(video)
+    setIsPlaying(true)
+    setIsMuted(false)
     // Scroll to top to show the video player
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // formatViews moved to shared module
 
   return (
     <div className="h-full">
       {currentVideo && (
-        <div className="fixed left-0 right-4 top-16 h-[400px] z-0 overflow-hidden pointer-events-none">
+        <div
+          id="MuxPlayer_home_container"
+          className="fixed left-0 right-4 top-16 h-[400px] z-0 overflow-hidden pointer-events-none"
+        >
           {(() => {
-            const fileUrl = currentVideo?.fileUrl || "";
-            const muxMatch = fileUrl.match(/stream\.mux\.com\/([^.?]+)/);
-            const playbackId = muxMatch?.[1];
+            const fileUrl = currentVideo?.fileUrl || ''
+            const muxMatch = fileUrl.match(/stream\.mux\.com\/([^.?]+)/)
+            const playbackId = muxMatch?.[1]
             // Use MuxPlayer when playbackId can be determined, otherwise fall back to MuxPlayer with src
             return (
               <MuxPlayer
                 ref={videoRef}
                 className="w-[100vw] h-full cursor-pointer pointer-events-none"
-                style={{
-                  "--controls": "none",
-                  "--media-object-fit": "cover",
-                  "--media-object-position": "center",
-                }}
                 // Prefer playbackId if extractable
                 {...(playbackId ? { playbackId } : { src: fileUrl })}
                 streamType="on-demand"
@@ -153,11 +172,10 @@ export default function HomePage() {
                 muted={isMuted}
                 loop
                 playsInline
-                controls={false}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
               />
-            );
+            )
           })()}
         </div>
       )}
@@ -229,8 +247,8 @@ export default function HomePage() {
                     onClick={() => handleVideoSelect(w)}
                     className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${
                       currentVideo?.id === w.id
-                        ? "bg-white/10"
-                        : "hover:bg-white/10"
+                        ? 'bg-white/10'
+                        : 'hover:bg-white/10'
                     }`}
                   >
                     <div className="relative">
@@ -257,7 +275,7 @@ export default function HomePage() {
                     </div>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation()
                       }}
                       className="opacity-80 hover:opacity-100"
                     >
@@ -319,5 +337,5 @@ export default function HomePage() {
         </div>
       </main>
     </div>
-  );
+  )
 }

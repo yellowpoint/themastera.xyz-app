@@ -6,15 +6,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { CheckCircle, XCircle } from "lucide-react";
+import { request } from "@/lib/request";
 
 export default function VerifyEmailPage() {
-  const [status, setStatus] = useState("verifying"); // 'verifying', 'success', 'error'
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
+  const [message, setMessage] = useState<string>("");
   const router = useRouter();
   const params = useParams();
 
   // Get email from route parameters
-  const email = decodeURIComponent(params.email);
+  const email = decodeURIComponent((params as any).email as string);
 
   useEffect(() => {
     if (email) {
@@ -26,20 +27,13 @@ export default function VerifyEmailPage() {
     }
   }, [email]);
 
-  const checkEmailVerificationStatus = async (email) => {
+  const checkEmailVerificationStatus = async (email: string) => {
     try {
-      const response = await fetch("/api/auth/check-verification-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const { data } = await request.post<{ verified: boolean }>("/api/auth/check-verification-status", { email });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        if (data.verified) {
+      if ((data as any) && (data as any).verified !== undefined ? true : (data?.success ?? false)) {
+        const payload: any = (data as any).data ?? data;
+        if (payload.verified) {
           setStatus("success");
           setMessage(
             "Your email has been successfully verified! You can now use all features."
@@ -56,7 +50,7 @@ export default function VerifyEmailPage() {
         }
       } else {
         setStatus("error");
-        setMessage(data.error || "Failed to check verification status");
+        setMessage(((data as any)?.error) || "Failed to check verification status");
       }
     } catch (error) {
       console.error("Error checking email verification status:", error);
@@ -71,22 +65,13 @@ export default function VerifyEmailPage() {
         setMessage("Unable to get email address, please register again");
         return;
       }
-
-      const response = await fetch("/api/auth/resend-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
+      const { data } = await request.post("/api/auth/resend-verification", { email });
+      if ((data as any)?.success ?? true) {
         setMessage(
           "Verification email has been resent, please check your inbox"
         );
       } else {
-        const data = await response.json();
-        setMessage(data.error || "Resend failed, please try again later");
+        setMessage(((data as any)?.error) || "Resend failed, please try again later");
       }
     } catch (error) {
       setMessage("Network error, please try again later");

@@ -20,20 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTableWithPagination, DataTable } from "@/components/ui/data-table";
+import { DataTableWithPagination } from "@/components/ui/data-table";
 import { useCreatorColumns } from "./columns";
+
+import type { Work } from "@/contracts/domain/work";
 
 export default function CreatorPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [visibilityFilter, setVisibilityFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [visibilityFilter, setVisibilityFilter] = useState<string>("all");
 
   const columns = useCreatorColumns();
 
   // Filter works based on search and visibility
-  const filteredWorks = works.filter((work) => {
+  const filteredWorks: Work[] = works.filter((work: Work) => {
     const matchesSearch = work.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
@@ -49,8 +51,8 @@ export default function CreatorPage() {
     const onDeleted = () => {
       fetchWorks();
     };
-    window.addEventListener("work-deleted", onDeleted);
-    return () => window.removeEventListener("work-deleted", onDeleted);
+    window.addEventListener("work-deleted", onDeleted as EventListener);
+    return () => window.removeEventListener("work-deleted", onDeleted as EventListener);
   }, [fetchWorks]);
 
   return (

@@ -1,12 +1,13 @@
 import './globals.css'
 import localFont from 'next/font/local'
+import type { Metadata } from 'next'
 import { Providers } from './providers'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import Header from '@/components/Header'
 import AuthRequired from '@/components/auth-required'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
   description:
     'A creative platform connecting creators and fans, allowing everyone to discover and share exciting content. Supports multiple content types, a membership tier system, a points-based reward mechanism, and community interaction features.',
@@ -43,7 +44,7 @@ const lexend = localFont({
   ],
 })
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"

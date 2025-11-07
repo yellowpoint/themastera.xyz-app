@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEffect, useState, useRef } from 'react'
 import { Separator } from '@/components/ui/separator'
@@ -11,16 +11,19 @@ import { Copy, ChevronDown, Edit, Save, X, Camera } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase, getStorageUrl } from '@/lib/supabase'
+import { request } from '@/lib/request'
+import type { AuthUser } from '@/hooks/useAuth'
 
 export default function ProfilePage() {
   const { user } = useAuth()
-  const [isEditing, setIsEditing] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [dragActive, setDragActive] = useState(false)
-  const fileInputRef = useRef(null)
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [uploading, setUploading] = useState<boolean>(false)
+  const [dragActive, setDragActive] = useState<boolean>(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{ name: string; description: string; avatar: string | null }>(
+    {
     name: user?.name || 'Jacky Q',
     description: '',
     avatar: user?.image || null,
@@ -31,10 +34,9 @@ export default function ProfilePage() {
     const fetchUser = async () => {
       if (!user?.id) return
       try {
-        const res = await fetch(`/api/users/${user.id}`)
-        const json = await res.json()
-        if (json?.success && json?.data) {
-          const u = json.data
+        const { data } = await request.get<AuthUser>(`/api/users/${user.id}`)
+        if (data?.success && (data.data as any)) {
+          const u: any = data.data
           setFormData((prev) => ({
             ...prev,
             name: u.name || prev.name,
@@ -60,14 +62,14 @@ export default function ProfilePage() {
     toast.success('Invite code copied to clipboard')
   }
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: 'name' | 'description' | 'avatar', value: string | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }))
   }
 
-  const uploadAvatar = async (file) => {
+  const uploadAvatar = async (file: File) => {
     if (!file || !user?.id) return null
 
     try {
@@ -94,7 +96,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleAvatarUpload = async (files) => {
+  const handleAvatarUpload = async (files: FileList) => {
     if (!files || files.length === 0) return
 
     const file = files[0]
@@ -124,7 +126,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleDrag = (e) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -134,7 +136,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
@@ -144,7 +146,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleFileInputChange = (e) => {
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleAvatarUpload(e.target.files)
     }
@@ -161,15 +163,9 @@ export default function ProfilePage() {
         image: formData.avatar || null,
         description: formData.description || null,
       }
-
-      const res = await fetch(`/api/users/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      const json = await res.json()
-      if (!json?.success) {
-        throw new Error(json?.error || 'Update failed')
+      const { data } = await request.put(`/api/users/${user.id}`, payload)
+      if (!data?.success) {
+        throw new Error((data as any)?.error || 'Update failed')
       }
 
       toast.success('Profile updated successfully')

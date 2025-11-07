@@ -37,13 +37,13 @@ import SubscribeButton from "@/components/SubscribeButton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function SubscriptionsPage() {
-  const [items, setItems] = useState([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(12);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(12);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const [search, setSearch] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     loadData();
@@ -57,11 +57,11 @@ export default function SubscriptionsPage() {
       params.set("page", String(page));
       params.set("limit", String(limit));
       if (search.trim()) params.set("search", search.trim());
-      const { data } = await request(`/api/subscriptions?${params.toString()}`);
+      const { data } = await request.get(`/api/subscriptions?${params.toString()}`);
       if (data?.success) {
         const list = Array.isArray(data.data) ? data.data : [];
         setItems(list.map((u) => ({ ...u, isFollowing: !!u.isFollowing })));
-        const pg = data.pagination || {};
+        const pg = (data as any)?.pagination || {};
         setTotal(pg.total || 0);
         setTotalPages(pg.totalPages || 1);
       }
@@ -72,13 +72,13 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
     loadData();
   };
 
-  const handleSubscribeChanged = (userId, action) => {
+  const handleSubscribeChanged = (userId: string, action: "follow" | "unfollow") => {
     setItems((prev) =>
       prev.map((u) =>
         u.id === userId ? { ...u, isFollowing: action === "follow" } : u

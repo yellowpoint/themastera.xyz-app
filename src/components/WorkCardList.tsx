@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import WorkCard from '@/components/WorkCard'
-import { Work } from '@/hooks/useWorks'
+import type { Work } from '@/contracts/domain/work'
 import { Button } from '@/components/ui/button'
 import WorkCardSkeleton, {
   WorkCardSkeletonLite,

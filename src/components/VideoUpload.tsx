@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { formatDate, formatDuration } from '@/lib/format'
 import { request } from '@/lib/request'
 
-type UploadedVideo = {
+export type UploadedVideo = {
   fileUrl: string
   playbackId: string
   assetId: string

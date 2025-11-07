@@ -16,7 +16,7 @@ import { toast } from 'sonner'
 import { request } from '@/lib/request'
 import { Button } from './ui/button'
 import { formatViews } from '@/lib/format'
-import { Work } from '@/hooks/useWorks'
+import type { Work } from '@/contracts/domain/work'
 
 type PlaylistSummary = { id: string; name: string }
 
@@ -28,7 +28,18 @@ function formatTime(seconds?: number): string {
   return `${mins}:${String(secs).padStart(2, '0')}`
 }
 
-export default function WorkCard({ work }: { work: Work }) {
+type WorkCardProps = {
+  work: Work
+  // Optional props for compatibility; currently unused within component
+  resolveThumb?: (url?: string | null) => string
+  handleImgError?: (
+    url?: string | null,
+    e?: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => void
+  formatViews?: (n: number) => string
+}
+
+export default function WorkCard({ work }: WorkCardProps) {
   const brokenThumbsRef = useRef<Set<string>>(new Set())
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)

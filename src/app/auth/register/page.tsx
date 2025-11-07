@@ -20,22 +20,29 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { generateVerifyEmailCallbackURL } from "@/utils/auth";
 
+type RegisterFormData = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
 export default function RegisterPage() {
   const { signUp, loading } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [formData, setFormData] = useState({
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
-  const handleChange = (field, value) =>
+  const handleChange = (field: keyof RegisterFormData, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");

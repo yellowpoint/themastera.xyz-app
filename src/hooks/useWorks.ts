@@ -2,27 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { api, type RequestResult } from "@/lib/request";
-
-export type Work = {
-  id: string;
-  title: string;
-  description?: string;
-  thumbnailUrl?: string | null;
-  durationSeconds?: number;
-  duration?: string;
-  status?: string;
-  views?: number;
-  downloads?: number;
-  createdAt?: string;
-  user?: { id?: string; name?: string; image?: string | null } | null;
-};
-
-export type WorkFilters = {
-  category?: string;
-  status?: string;
-  page?: number;
-  limit?: number;
-};
+import type { Work, WorkFilters } from "@/contracts/domain/work";
 
 export const useWorks = () => {
   const [works, setWorks] = useState<Work[]>([]);

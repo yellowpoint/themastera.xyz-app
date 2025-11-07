@@ -20,18 +20,23 @@ import {
 } from "@/components/ui/field";
 import { useAuth } from "@/hooks/useAuth";
 
+type LoginFormData = {
+  email: string
+  password: string
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, loading } = useAuth();
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -61,15 +66,16 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError("Login failed, please try again later");
+      // eslint-disable-next-line no-console
       console.error("Login error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getErrorMessage = (error) => {
-    const errorString =
-      typeof error === "string" ? error : error?.message || "";
+  const getErrorMessage = (error: unknown) => {
+    const errObj = error as { message?: string } | string | undefined
+    const errorString = typeof errObj === "string" ? errObj : errObj?.message || "";
     return errorString || "Login failed, please try again later";
   };
 

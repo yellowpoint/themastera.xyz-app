@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import type { Work } from "@/contracts/domain/work";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,18 +33,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
 
-export type WorkRow = {
-  id: string;
-  title: string;
-  description?: string;
-  thumbnailUrl?: string | null;
-  durationSeconds?: number;
-  status?: string;
-  views?: number;
-  createdAt?: string;
-  user?: { name?: string } | null;
-};
-
 export function useCreatorColumns() {
   const router = useRouter();
   const handleDeleteWork = async (workId: string) => {
@@ -66,7 +55,7 @@ export function useCreatorColumns() {
     }
   };
 
-  const columns: ColumnDef<WorkRow>[] = [
+  const columns: ColumnDef<Work>[] = [
     {
       id: "video",
       header: () => <span>Video</span>,

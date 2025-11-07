@@ -6,18 +6,20 @@ import { ArrowLeft, Grid2x2 } from "lucide-react";
 import Link from "next/link";
 import WorkCardList from "@/components/WorkCardList";
 import { HOMEPAGE_SECTIONS } from "@/config/sections";
+import { request } from "@/lib/request";
+import type { Work, Pagination } from "@/contracts/domain/work";
 
 export default function SectionPage() {
   const params = useParams();
-  const sectionId = params?.id;
+  const sectionId = (params as any)?.id as string;
   const searchParams = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1");
-  const [page, setPage] = useState(initialPage);
-  const [limit] = useState(24);
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState<number>(initialPage);
+  const [limit] = useState<number>(24);
+  const [items, setItems] = useState<Work[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   const sectionMeta = useMemo(() => {
     return (
@@ -35,18 +37,18 @@ export default function SectionPage() {
           page: String(page),
           limit: String(limit),
         });
-        const res = await fetch(
+        const { data } = await request.get<Work>(
           `/api/homepage/section/${sectionId}?${params.toString()}`
         );
-        const json = await res.json();
         if (!ignore) {
-          if (json.success) {
+          if (data?.success) {
+            const payload = data.data as any[];
             setItems((prev) =>
-              page === 1 ? json.data || [] : [...prev, ...(json.data || [])]
+              page === 1 ? (payload || []) : [...prev, ...(payload || [])]
             );
-            setTotalPages(json.pagination?.totalPages || 1);
+            setTotalPages((data as any)?.pagination?.totalPages || 1);
           } else {
-            setError(json.error || "Failed to load items");
+            setError((data as any)?.error || "Failed to load items");
           }
         }
       } catch (e) {
@@ -85,13 +87,10 @@ export default function SectionPage() {
 
       {/* Grid */}
       <WorkCardList
-        items={items}
-        loading={loading}
-        error={error}
-        skeletonCount={24}
-        canLoadMore={canLoadMore}
+        works={items}
+        isLoading={loading}
+        hasMore={canLoadMore}
         onLoadMore={() => setPage((p) => p + 1)}
-        loadMoreLabel="Load More"
       />
     </div>
   );

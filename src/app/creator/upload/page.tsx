@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Copy, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorks } from "@/hooks/useWorks";
-import VideoUpload from "@/components/VideoUpload";
+import VideoUpload, { UploadedVideo } from "@/components/VideoUpload";
 import ImgUpload from "@/components/ImgUpload";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
 import {
@@ -35,12 +35,35 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 
+// Use UploadedVideo type from VideoUpload for consistency
+
+type CoverImage = {
+  fileUrl: string
+  originalName?: string
+  size?: number
+  type?: string
+}
+
+type UploadFormState = {
+  title: string
+  description: string
+  category: string
+  language: string
+  tags: string
+  isPaid: boolean
+  isForKids: boolean
+  fileUrl: string
+  thumbnailUrl: string
+  status: "draft" | "published"
+  durationSeconds?: number | null
+}
+
 export default function UploadPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { createWork } = useWorks();
 
-  const [uploadForm, setUploadForm] = useState({
+  const [uploadForm, setUploadForm] = useState<UploadFormState>({
     title: "",
     description: "",
     category: "",
@@ -53,10 +76,10 @@ export default function UploadPage() {
     status: "draft",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadedVideo, setUploadedVideo] = useState(null);
-  const [autoCover, setAutoCover] = useState(null);
-  const [showErrors, setShowErrors] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [uploadedVideo, setUploadedVideo] = useState<UploadedVideo | null>(null);
+  const [autoCover, setAutoCover] = useState<CoverImage | null>(null);
+  const [showErrors, setShowErrors] = useState<boolean>(false);
 
   const categories = MUSIC_CATEGORIES.map((category) => ({
     key: category,
@@ -64,28 +87,21 @@ export default function UploadPage() {
   }));
 
   // Handle video upload completion
-  const handleVideoUploadComplete = (uploadedFiles) => {
+  const handleVideoUploadComplete = (uploadedFiles: UploadedVideo[]) => {
     console.log("Video upload results:", uploadedFiles);
 
     if (uploadedFiles && uploadedFiles.length > 0) {
-      const fileUrls = uploadedFiles.map((file) => file.fileUrl).join(",");
-
-      setUploadedVideo({
-        name: uploadedFiles[0].originalName || "video.mp4",
-        fileUrl: fileUrls,
-        playbackId: uploadedFiles[0].playbackId,
-        duration: uploadedFiles[0].duration || "0:00",
-        durationSeconds: uploadedFiles[0].durationSeconds ?? null,
-      });
+      const first = uploadedFiles[0];
+      setUploadedVideo(first);
 
       setUploadForm((prev) => ({
         ...prev,
-        fileUrl: fileUrls,
+        fileUrl: first.fileUrl,
         title:
           prev.title ||
-          uploadedFiles[0].originalName?.replace(/\.[^/.]+$/, "") ||
+          first.originalName?.replace(/\.[^/.]+$/, "") ||
           "",
-        durationSeconds: uploadedFiles[0].durationSeconds ?? null,
+        durationSeconds: first.durationSeconds ?? null,
       }));
 
       // Try to auto-generate a cover thumbnail from Mux playbackId
@@ -94,7 +110,7 @@ export default function UploadPage() {
         const playbackId = withPlayback.playbackId;
         const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`;
 
-        const initialImage = {
+        const initialImage: CoverImage = {
           fileUrl: thumbUrl,
           originalName: "Auto thumbnail",
           size: 0,
@@ -111,7 +127,7 @@ export default function UploadPage() {
   };
 
   // Handle cover upload completion
-  const handleCoverUploadComplete = (coverImage) => {
+  const handleCoverUploadComplete = (coverImage: CoverImage | null) => {
     console.log("Cover upload result:", coverImage);
 
     setUploadForm((prev) => ({
@@ -120,9 +136,8 @@ export default function UploadPage() {
     }));
   };
 
-  // Publish work
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Shared submit implementation
+  const submitWork = async () => {
     setShowErrors(true);
 
     if (!user) {
@@ -170,6 +185,20 @@ export default function UploadPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Publish work via form submit
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await submitWork();
+  };
+
+  // Publish work via button click
+  const handleSubmitClick = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    await submitWork();
   };
 
   // Save draft
@@ -630,7 +659,7 @@ export default function UploadPage() {
                 </Button>
                 <Button
                   className="bg-primary text-white px-4 h-10"
-                  onClick={handleSubmit}
+                  onClick={handleSubmitClick}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Uploading..." : "Upload"}
@@ -649,11 +678,11 @@ export default function UploadPage() {
 
             {/* Video Upload Section */}
             <div className="space-y-4">
-              <VideoUpload
-                readOnly={true}
-                initialFiles={uploadedVideo ? [uploadedVideo] : []}
-                onUploadComplete={handleVideoUploadComplete}
-              />
+                <VideoUpload
+                  readOnly={true}
+                  initialFiles={uploadedVideo ? [uploadedVideo] : []}
+                  onUploadComplete={handleVideoUploadComplete}
+                />
             </div>
 
             <Separator className="opacity-20" />
@@ -684,7 +713,7 @@ export default function UploadPage() {
                   <div>
                     <h3 className="text-lg font-normal mb-1">File name</h3>
                     <p className="text-sm text-muted-foreground">
-                      {uploadedVideo.name}
+                    {uploadedVideo.originalName}
                     </p>
                   </div>
 

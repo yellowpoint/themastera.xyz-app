@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { toast } from 'sonner'
 import type { ApiResponse } from '@/contracts/types/common'

@@ -26,7 +26,8 @@ import { SidebarPlaylistSection } from "@/components/sidebar-playlist-section";
 
 export default function ContentDetailPage() {
   const params = useParams();
-  const workId = params.id;
+  const rawId = (params as any)?.id;
+  const workId: string = Array.isArray(rawId) ? rawId[0] : (rawId || "");
   const router = useRouter();
 
   const [work, setWork] = useState(null);
@@ -204,14 +205,13 @@ export default function ContentDetailPage() {
   const handleEnded = async () => {
     try {
       // Read selected playlist id from localStorage; fallback to first playlist
-      let selectedPlaylistId = null;
+      let selectedPlaylistId: string | null = null;
       if (typeof window !== "undefined") {
         selectedPlaylistId = window.localStorage.getItem("selectedPlaylistId");
       }
-      const res = await fetch("/api/playlists");
-      const json = await res.json();
-      if (!json?.success) return;
-      const pls = json?.data || [];
+      const { data } = await request.get("/api/playlists");
+      if (!data?.success) return;
+      const pls = (data?.data as any[]) || [];
       const selected =
         (selectedPlaylistId
           ? pls.find((p) => p.id === selectedPlaylistId)
@@ -310,7 +310,8 @@ export default function ContentDetailPage() {
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
               isPremium={work.premium}
-              userMembership="VIP" // TODO: Get from user status
+              requiredLevel="VIP"
+              userLevel="Free" // TODO: replace with actual user membership level
               className="mb-4"
               autoPlay={true}
               onPlay={() => {
@@ -362,10 +363,7 @@ export default function ContentDetailPage() {
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-3">Discovered on</h3>
                 <WorkCardList
-                  items={(relatedWorks || []).slice(0, 4)}
-                  skeletonCount={4}
-                  columnsClass="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                  emptyMessage="No related items"
+                  works={(relatedWorks || []).slice(0, 4)}
                 />
               </div>
             </div>

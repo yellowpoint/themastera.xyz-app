@@ -4,14 +4,16 @@ import { Music, Globe, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WorkCardList from "@/components/WorkCardList";
 import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
+import { request } from "@/lib/request";
+import type { Work, WorkFilters } from "@/contracts/domain/work";
 
 export default function ExplorePage() {
-  const [category, setCategory] = useState("all");
-  const [language, setLanguage] = useState("None");
-  const [works, setWorks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [category, setCategory] = useState<string>("all");
+  const [language, setLanguage] = useState<string>("None");
+  const [works, setWorks] = useState<Work[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(12);
 
   const musicCategoriesWithAll = useMemo(
     () => ["all", ...MUSIC_CATEGORIES],
@@ -26,15 +28,14 @@ export default function ExplorePage() {
       try {
         const params = new URLSearchParams();
         if (category && category !== "all") params.set("category", category);
-        const res = await fetch(`/api/works/trending?${params.toString()}`);
-        const json = await res.json();
+        const { data } = await request.get<Work[]>(`/api/works/trending?${params.toString()}`);
         if (!ignore) {
-          if (json.success) {
-            setWorks(json.data || []);
+          if (data?.success) {
+            setWorks((data.data as any) || []);
             setVisibleCount(12);
           } else {
             setWorks([]);
-            setError(json.error || "Failed to load works");
+            setError((data as any)?.error || "Failed to load works");
           }
         }
       } catch (e) {
@@ -55,7 +56,7 @@ export default function ExplorePage() {
   const filteredWorks = useMemo(() => {
     if (!language || language === "None") return works;
     return works.filter((w) => {
-      const lang = w?.language || w?.work?.language; // fallback if nested
+      const lang = w?.language;
       return lang ? lang === language : true;
     });
   }, [works, language]);
@@ -118,13 +119,10 @@ export default function ExplorePage() {
 
       {/* Works grid */}
       <WorkCardList
-        items={visibleWorks.map((w) => w.work || w)}
-        loading={loading}
-        error={error}
-        skeletonCount={12}
-        canLoadMore={visibleCount < filteredWorks.length}
+        works={visibleWorks}
+        isLoading={loading}
+        hasMore={visibleCount < filteredWorks.length}
         onLoadMore={() => setVisibleCount((c) => c + 12)}
-        loadMoreLabel="Load More"
       />
     </div>
   );

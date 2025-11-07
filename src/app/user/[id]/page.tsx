@@ -9,16 +9,17 @@ import { Search, Grid2x2, ArrowLeft } from "lucide-react";
 import UserProfileSidebar from "@/components/UserProfileSidebar";
 import WorkCardList from "@/components/WorkCardList";
 import { request } from "@/lib/request";
+import type { Work } from "@/contracts/domain/work";
 
 export default function UserDetailPage() {
   const params = useParams();
-  const userId = params?.id?.toString?.() || "";
+  const userId = (params as Record<string, string>)?.id?.toString?.() || "";
 
-  const [user, setUser] = useState(null);
-  const [works, setWorks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [sort, setSort] = useState("latest"); // latest | popular | oldest
+  const [user, setUser] = useState<any>(null);
+  const [works, setWorks] = useState<Work[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [sort, setSort] = useState<"latest" | "popular" | "oldest">("latest");
 
   useEffect(() => {
     let ignore = false;
@@ -31,7 +32,7 @@ export default function UserDetailPage() {
         if (!ignore) {
           setUser(u);
           const list = Array.isArray(u?.works)
-            ? u.works.map((w) => ({
+            ? u.works.map((w: any) => ({
                 ...w,
                 // attach basic user info for card avatar
                 user: u
@@ -39,10 +40,11 @@ export default function UserDetailPage() {
                   : undefined,
               }))
             : [];
-          setWorks(list);
+          setWorks(list as Work[]);
         }
       } catch (err) {
-        if (!ignore) setError(err?.message || "Failed to load user");
+        const msg = (err as any)?.message || "Failed to load user";
+        if (!ignore) setError(msg);
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -54,22 +56,22 @@ export default function UserDetailPage() {
   }, [userId]);
 
   const sortedWorks = useMemo(() => {
-    const list = Array.isArray(works) ? [...works] : [];
+    const list: Work[] = Array.isArray(works) ? [...works] : [];
     switch (sort) {
       case "popular":
         return list.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
       case "oldest":
         return list.sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          (a, b) => new Date(a.createdAt as any).getTime() - new Date(b.createdAt as any).getTime()
         );
       default:
         return list.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()
         );
     }
   }, [works, sort]);
 
-  const handleSubscribeChanged = (action) => {
+  const handleSubscribeChanged = (action: "follow" | "unfollow") => {
     setUser((prev) => {
       if (!prev) return prev;
       const followed = action === "follow";
@@ -126,11 +128,8 @@ export default function UserDetailPage() {
 
           {/* Works grid */}
           <WorkCardList
-            items={sortedWorks}
-            loading={loading}
-            error={error}
-            skeletonCount={12}
-            loadMoreLabel="Load More"
+            works={sortedWorks}
+            isLoading={loading}
           />
         </div>
       </div>
