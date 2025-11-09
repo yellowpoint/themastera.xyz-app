@@ -47,7 +47,7 @@ type VideoUploadProps = {
 export default function VideoUpload({
   onUploadComplete,
   onUploadingChange,
-  maxSize = 50 * 1024 * 1024, // 50MB
+  maxSize = 10 * 1024 * 1024 * 1024, // 10GB
   readOnly = false,
   initialFiles = [],
 }: VideoUploadProps) {
@@ -65,6 +65,36 @@ export default function VideoUpload({
   const currentUploadRef = useRef<any | null>(null)
   const [isPaused, setIsPaused] = useState<boolean>(false)
   const { user } = useAuth()
+  const [currentFileMeta, setCurrentFileMeta] = useState<{
+    name: string
+    size: number
+  } | null>(null)
+  const [localFileDurationSec, setLocalFileDurationSec] = useState<number | null>(null)
+
+  // Read video duration locally via HTMLVideoElement + Object URL
+  const getLocalVideoDuration = (file: File): Promise<number | null> => {
+    return new Promise((resolve) => {
+      try {
+        const url = URL.createObjectURL(file)
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        video.src = url
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(url)
+          const d = Number.isFinite(video.duration)
+            ? Math.round(video.duration)
+            : null
+          resolve(d)
+        }
+        video.onerror = () => {
+          URL.revokeObjectURL(url)
+          resolve(null)
+        }
+      } catch (e) {
+        resolve(null)
+      }
+    })
+  }
 
   // Initialize with provided files in read-only mode
   if (
@@ -207,9 +237,12 @@ export default function VideoUpload({
       }
       const asset = (assetData as any)?.data?.asset ?? (assetData as any)?.asset
       const playbackId: string | undefined = asset?.playback_ids?.[0]?.id
-      const durationSec: number | null = asset?.duration
-        ? Math.round(asset.duration as number)
-        : null
+      const durationSec: number | null =
+        localFileDurationSec !== null
+          ? localFileDurationSec
+          : asset?.duration
+          ? Math.round(asset.duration as number)
+          : null
       if (!playbackId) {
         throw new Error('No playback ID found on asset')
       }
@@ -258,14 +291,19 @@ export default function VideoUpload({
     }
     if (file.size > maxSize) {
       setError(
-        `File ${file.name} exceeds size limit (${maxSize / 1024 / 1024}MB)`
+        `File ${file.name} exceeds size limit (max ${formatFileSize(maxSize)})`
       )
       return
     }
 
     try {
+      // Try to read local duration before starting upload
+      const localDur = await getLocalVideoDuration(file)
+      setLocalFileDurationSec(localDur)
+
       setUploading(true)
       onUploadingChange?.(true)
+      setCurrentFileMeta({ name: file.name, size: file.size })
       const result = await uploadFile(file)
       const newUploadedFiles = [...uploadedFiles, result]
       setUploadedFiles(newUploadedFiles)
@@ -277,6 +315,8 @@ export default function VideoUpload({
     } finally {
       setUploading(false)
       onUploadingChange?.(false)
+      setCurrentFileMeta(null)
+      setLocalFileDurationSec(null)
     }
   }
 
@@ -357,6 +397,7 @@ export default function VideoUpload({
     try {
       setUploading(true)
       onUploadingChange?.(true)
+      setCurrentFileMeta({ name: item.file.name, size: item.file.size })
       const result = await uploadFile(item.file)
       setUploadedFiles((prev) => [...prev, result])
       setFailedFiles((prev) => prev.filter((_, i) => i !== index))
@@ -373,6 +414,7 @@ export default function VideoUpload({
     } finally {
       setUploading(false)
       onUploadingChange?.(false)
+      setCurrentFileMeta(null)
     }
   }
 
@@ -423,6 +465,10 @@ export default function VideoUpload({
           <p className="text-sm text-gray-500 mb-6">
             Your videos will be private until you publish them
           </p>
+          <p className="text-xs text-muted-foreground mb-6">
+            Max file size {formatFileSize(maxSize)} • Common formats: MP4, MOV,
+            WebM
+          </p>
           <button
             type="button"
             onClick={(e) => {
@@ -444,6 +490,14 @@ export default function VideoUpload({
             onChange={handleInputChange}
             className="hidden"
           />
+        </div>
+      )}
+
+      {/* Error message */}
+      {!readOnly && error && (
+        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" />
+          <span>{error}</span>
         </div>
       )}
 
@@ -485,13 +539,24 @@ export default function VideoUpload({
             </div>
           </div>
           <div className="flex justify-between text-sm">
-            <span>Uploading...</span>
+            <span
+              className="truncate max-w-[65%]"
+              title={currentFileMeta?.name || ''}
+            >
+              {currentFileMeta?.name || 'Uploading...'}
+            </span>
             <span>
-              {progress}%{uploadSpeed ? ` • ${formatSpeed(uploadSpeed)}` : ''}
+              {currentFileMeta ? formatFileSize(currentFileMeta.size) : ''}
+              {localFileDurationSec !== null
+                ? ` • ${formatDuration(localFileDurationSec)}`
+                : ''}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <Progress value={progress} className="flex-1" />
+            <span className="flex-none">
+              {progress}%{uploadSpeed ? ` • ${formatSpeed(uploadSpeed)}` : ''}
+            </span>
             {!isPaused ? (
               <Button size="sm" variant="outline" onClick={pauseUpload}>
                 <Pause className="w-4 h-4 mr-1" /> Pause

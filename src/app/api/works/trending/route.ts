@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
         // tags: work.tags ? work.tags.split(',').map(tag => tag.trim()) : [],
         duration: generateDuration(work.category), // 模拟时长
         uploadTime: formatUploadTime(work.createdAt),
-        premium: work.price > 100 // 简单的premium判断逻辑
+        // premium removed; frontend will derive paid status from price > 0
       }
     })
 

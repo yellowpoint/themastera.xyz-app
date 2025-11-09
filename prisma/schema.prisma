@@ -100,6 +100,7 @@ model Work {
   thumbnailUrl    String?
   durationSeconds Int?
   status          String?
+  isForKids       Boolean  @default(true)
   earnings        Float    @default(0)
   downloads       Int      @default(0)
   views           Int      @default(0)

@@ -1,45 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Copy, ChevronDown, AlertCircle } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
 import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
-import ImgUpload from '@/components/ImgUpload'
-import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  Field,
-  FieldLabel,
-  FieldDescription,
-  FieldError,
-  FieldContent,
-  FieldSet,
-  FieldLegend,
-  FieldGroup,
-  FieldSeparator,
-} from '@/components/ui/field'
-import WorkDetailsForm, {
-  UploadFormState as DetailsFormState,
-  CoverImage as DetailsCoverImage,
-} from '@/components/creator/WorkDetailsForm'
-
-// Use UploadedVideo type from VideoUpload for consistency
+import WorkDetailsForm from '@/components/creator/WorkDetailsForm'
+import { api } from '@/lib/request'
 
 type CoverImage = {
   fileUrl: string
@@ -62,10 +35,12 @@ type UploadFormState = {
   durationSeconds?: number | null
 }
 
-export default function UploadPage() {
+export default function EditWorkPage() {
   const router = useRouter()
+  const params = useParams<{ id: string }>()
+  const workId = params?.id
   const { user } = useAuth()
-  const { createWork } = useWorks()
+  const { updateWork } = useWorks()
 
   const [uploadForm, setUploadForm] = useState<UploadFormState>({
     title: '',
@@ -86,30 +61,69 @@ export default function UploadPage() {
   const [showErrors, setShowErrors] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState<boolean>(false)
 
-  // Unified beforeunload warning: during upload or when details are being edited (unsaved changes)
-  const hasUnsavedChanges = !!uploadedVideo && !isSubmitting
+  // Load existing work details
   useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-      e.returnValue = ''
-      return ''
-    }
-    if (isUploading || hasUnsavedChanges) {
-      window.addEventListener('beforeunload', handler)
-      return () => window.removeEventListener('beforeunload', handler)
-    }
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [isUploading, hasUnsavedChanges])
+    const loadWork = async () => {
+      if (!workId) return
+      try {
+        const res = await api.get<any>(`/api/works/${workId}`)
+        const result = res.data as any
+        if (!res.ok || !result?.data?.work) {
+          throw new Error(result?.error?.message || 'Failed to load work')
+        }
+        const work = result.data.work
+        // Initialize form with existing data
+        setUploadForm((prev) => ({
+          ...prev,
+          title: work.title || '',
+          description: work.description || '',
+          category: work.category || '',
+          language: work.language || '',
+          tags: work.tags || '',
+          fileUrl: work.fileUrl || '',
+          thumbnailUrl: work.thumbnailUrl || '',
+          status: (work.status as 'draft' | 'published') || 'draft',
+          durationSeconds: work.durationSeconds ?? null,
+        }))
 
-  const categories = MUSIC_CATEGORIES.map((category) => ({
-    key: category,
-    label: category,
-  }))
+        // Prepare video state so the full form shows up
+        if (work.fileUrl) {
+          const initialVideo: UploadedVideo = {
+            fileUrl: work.fileUrl,
+            playbackId: '',
+            assetId: '',
+            originalName: work.title || 'Video',
+            size: 0,
+            type: 'video',
+            durationSeconds: work.durationSeconds ?? null,
+            duration: null,
+            completedAt: work.createdAt || new Date().toISOString(),
+          }
+          setUploadedVideo(initialVideo)
+        }
 
-  // Handle video upload completion
+        // Initial cover from existing thumbnail
+        if (work.thumbnailUrl) {
+          const initialImage: CoverImage = {
+            fileUrl: work.thumbnailUrl,
+            originalName: 'Current thumbnail',
+            size: 0,
+            type: 'image',
+          }
+          setAutoCover(initialImage)
+        }
+      } catch (err: any) {
+        console.error('Error loading work:', err)
+        toast.error(err?.message || 'Failed to load work')
+      }
+    }
+    loadWork()
+  }, [workId])
+
+  // Form details are now handled by WorkDetailsForm
+
+  // Handle video upload completion (allow replacing video)
   const handleVideoUploadComplete = (uploadedFiles: UploadedVideo[]) => {
-    console.log('Video upload results:', uploadedFiles)
-
     if (uploadedFiles && uploadedFiles.length > 0) {
       const first = uploadedFiles[0]
       setUploadedVideo(first)
@@ -145,20 +159,23 @@ export default function UploadPage() {
 
   // Handle cover upload completion
   const handleCoverUploadComplete = (coverImage: CoverImage | null) => {
-    console.log('Cover upload result:', coverImage)
-
     setUploadForm((prev) => ({
       ...prev,
       thumbnailUrl: coverImage ? coverImage.fileUrl : '',
     }))
   }
 
-  // Shared submit implementation
+  // Shared submit implementation (Update existing work)
   const submitWork = async () => {
     setShowErrors(true)
 
     if (!user) {
       toast.error('Please login first')
+      return
+    }
+
+    if (!workId) {
+      toast.error('Invalid work ID')
       return
     }
 
@@ -185,20 +202,19 @@ export default function UploadPage() {
     setIsSubmitting(true)
 
     try {
-      const workData = {
+      const updates = {
         ...uploadForm,
-        userId: user.id,
-        status: 'published',
+        status: 'published' as const,
         durationSeconds:
           uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
       }
 
-      await createWork(workData)
-      toast.success('Work published successfully!')
+      await updateWork(workId, updates)
+      toast.success('Changes saved!')
       router.push('/creator')
     } catch (error) {
-      console.error('Publish failed:', error)
-      toast.error('Publish failed, please try again')
+      console.error('Update failed:', error)
+      toast.error('Update failed, please try again')
     } finally {
       setIsSubmitting(false)
     }
@@ -216,21 +232,23 @@ export default function UploadPage() {
     await submitWork()
   }
 
-  // Save draft
+  // Save as draft (update)
   const handleSaveDraft = async () => {
     if (!user) {
       toast.error('Please login first')
       return
     }
+    if (!workId) {
+      toast.error('Invalid work ID')
+      return
+    }
 
-    // Only require fileUrl for drafts
     const draftFileUrl = uploadForm?.fileUrl || uploadedVideo?.fileUrl
     if (!draftFileUrl) {
       toast.error('Please upload a video file first')
       return
     }
 
-    // Build a draft title if available; otherwise allow empty
     const draftTitleCandidate = (
       uploadForm?.title?.trim() ||
       uploadedVideo?.originalName?.replace(/\.[^/.]+$/, '') ||
@@ -240,8 +258,7 @@ export default function UploadPage() {
     setIsSubmitting(true)
 
     try {
-      const workData = {
-        // only minimal fields for draft
+      const updates = {
         fileUrl: draftFileUrl,
         thumbnailUrl: uploadForm?.thumbnailUrl || null,
         title: draftTitleCandidate,
@@ -251,14 +268,13 @@ export default function UploadPage() {
         tags: uploadForm?.tags ?? '',
         isPaid: uploadForm?.isPaid ?? false,
         isForKids: uploadForm?.isForKids ?? true,
-        userId: user.id,
-        status: 'draft',
+        status: 'draft' as const,
         durationSeconds:
           uploadForm.durationSeconds ?? uploadedVideo?.durationSeconds ?? null,
       }
 
-      await createWork(workData)
-      toast.success('Draft saved successfully!')
+      await updateWork(workId, updates)
+      toast.success('Draft saved!')
       router.push('/creator')
     } catch (error) {
       console.error('Error saving draft:', error)
@@ -274,32 +290,22 @@ export default function UploadPage() {
       toast.success('Video link copied to clipboard')
     }
   }
-  // Step 1: Simple uploader view before details
-  // Show simple uploader until a video is uploaded
+
+  // If we haven't loaded an existing video yet, show a simple uploader to allow replacing/adding
   if (!uploadedVideo) {
     return (
       <div className="h-full">
         <div className="px-8 pt-6 pb-4 space-y-4">
           <div className="flex justify-between items-start">
-            <h1 className="text-4xl font-normal">Upload video</h1>
+            <h1 className="text-4xl font-normal">Edit video</h1>
           </div>
           <p className="text-base text-muted-foreground">
-            One sentence to describe The benefit for people to upload videos on
-            Mastera
+            Upload or replace your video to start editing details.
           </p>
-          {/* {isUploading && (
-            <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
-              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-              <div className="text-sm text-yellow-700">
-                Upload in progress. Please do not refresh or close this page.
-              </div>
-            </div>
-          )} */}
         </div>
 
         <div className="px-8 py-10 flex justify-center">
           <div className="max-w-[640px] w-full">
-            {/* Use existing uploader component for simplicity */}
             <div className="rounded-lg p-10">
               <VideoUpload
                 onUploadComplete={handleVideoUploadComplete}
@@ -308,9 +314,8 @@ export default function UploadPage() {
             </div>
 
             <div className="text-center text-xs text-muted-foreground mt-8">
-              By submitting your videos to Mastera, you acknowledge that you
-              agree to Mastera's Terms of Service and Community Guidelines.
-              Please be sure not to violate others' copyright or privacy rights.
+              By editing your videos on Mastera, you acknowledge that you agree
+              to Mastera's Terms of Service and Community Guidelines.
             </div>
           </div>
         </div>
@@ -327,26 +332,14 @@ export default function UploadPage() {
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-normal">Upload video</h1>
+                <h1 className="text-4xl font-normal">Edit video</h1>
               </div>
             </div>
 
             {/* Subtitle */}
             <p className="text-base text-muted-foreground">
-              One sentence to describe The benefit for people to upload videos
-              on Mastera
+              Update your video details before saving.
             </p>
-
-            {/* Unified warning during details editing (unsaved changes) */}
-            {/* {hasUnsavedChanges && (
-              <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
-                <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-                <div className="text-sm text-yellow-700">
-                  You have unsaved changes. Please do not refresh or close this
-                  page.
-                </div>
-              </div>
-            )} */}
 
             <Separator className="opacity-20" />
           </div>
@@ -376,40 +369,40 @@ export default function UploadPage() {
                 onVideoUploadComplete={handleVideoUploadComplete}
                 onCopyLink={handleCopyLink}
               />
-          </div>
 
-          {/* Bottom Confirmation Bar */}
-          <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
-            <div className="flex justify-between items-center">
-              <Button
-                variant="ghost"
-                className="text-primary text-sm"
-                onClick={handleSaveDraft}
-              >
-                Save a draft
-              </Button>
+              {/* Footer Actions */}
+              <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
+                <div className="flex justify-between items-center">
+                  <Button
+                    variant="ghost"
+                    className="text-primary text-sm"
+                    onClick={handleSaveDraft}
+                  >
+                    Save as draft
+                  </Button>
 
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="bg-[#F2F3F5] text-foreground px-4 h-10"
-                  onClick={handleSaveDraft}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="bg-primary text-white px-4 h-10"
-                  onClick={handleSubmitClick}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Uploading...' : 'Upload'}
-                </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="bg-[#F2F3F5] text-foreground px-4 h-10"
+                      onClick={() => router.push('/creator')}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="bg-primary text-white px-4 h-10"
+                      onClick={handleSubmitClick}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Saving...' : 'Save changes'}
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
           </div>
-        </div>
 
-        {/* Right Sidebar removed; now inside WorkDetailsForm */}
+          {/* Vertical separator removed; WorkDetailsForm now handles layout */}
+        </div>
       </div>
     </div>
   )

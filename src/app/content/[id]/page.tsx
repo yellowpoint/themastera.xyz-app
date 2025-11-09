@@ -316,7 +316,7 @@ export default function ContentDetailPage() {
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
-              isPremium={work.premium}
+              isPremium={!!work.price && work.price > 0}
               requiredLevel="VIP"
               userLevel="Free" // TODO: replace with actual user membership level
               className="mb-4"
@@ -340,7 +340,7 @@ export default function ContentDetailPage() {
               {/* Video Title and Creator Info using new component */}
               <VideoTitleInfo
                 title={work.title}
-                isPremium={work.premium}
+                isPremium={!!work.price && work.price > 0}
                 creatorId={work.user.id}
                 creatorName={work.user.name}
                 creatorAvatar={work.user.image}

@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Validate required fields based on status
-    const { title, description, category, status, fileUrl } = body
+    const { title, description, category, language, status, fileUrl } = body
 
     // For drafts, only require fileUrl
     if ((status || 'draft') === 'draft') {
@@ -127,6 +127,7 @@ export async function POST(request: NextRequest) {
       ...(title && { title }),
       ...(description && { description }),
       ...(category && { category }),
+      ...(language && { language }),
       userId,
       price: body.price !== undefined ? parseFloat(body.price) : 0,
       tags: body.tags || null,
@@ -134,7 +135,9 @@ export async function POST(request: NextRequest) {
       thumbnailUrl: body.thumbnailUrl || null,
       durationSeconds: body.durationSeconds !== undefined ? parseInt(body.durationSeconds, 10) : null,
       status: status || 'draft',
-      isActive: body.isActive !== undefined ? body.isActive : true
+      isActive: body.isActive !== undefined ? body.isActive : true,
+      // Audience flag
+      isForKids: body.isForKids ?? true,
     }
 
     // 创建作品

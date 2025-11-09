@@ -126,6 +126,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.fileUrl !== undefined) updateData.fileUrl = body.fileUrl
     if (body.thumbnailUrl !== undefined) updateData.thumbnailUrl = body.thumbnailUrl
     if (body.durationSeconds !== undefined) updateData.durationSeconds = parseInt(body.durationSeconds, 10)
+    if (body.language !== undefined) updateData.language = body.language
+    if (body.isForKids !== undefined) updateData.isForKids = body.isForKids
 
     // Update work
     const work = await prisma.work.update({

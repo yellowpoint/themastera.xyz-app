@@ -20,8 +20,10 @@ export const WorkSchema = z.object({
   views: z.number().optional(),
   downloads: z.number().optional(),
   createdAt: z.string().optional(),
+  category: z.string().nullable().optional(),
   language: z.string().nullable().optional(),
   tags: z.string().optional(),
+  isForKids: z.boolean().optional(),
   user: WorkUserSchema.nullable().optional(),
 })
 export type Work = z.infer<typeof WorkSchema>
