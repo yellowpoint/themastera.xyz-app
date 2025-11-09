@@ -2,36 +2,36 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
 // datasource db {
-//   provider  = "postgresql"
-//   url       = env("DATABASE_URL")
-//   directUrl = env("DIRECT_URL")
+//   provider = "sqlite"
+//   url      = "file:./dev.db"
 // }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
 model User {
-  id            String        @id
+  id            String         @id
   name          String
   email         String
-  emailVerified Boolean       @default(false)
+  emailVerified Boolean        @default(false)
   image         String?
   description   String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  level         String        @default("User")
-  points        Int           @default(0)
-  earnings      Float         @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  level         String         @default("User")
+  points        Int            @default(0)
+  earnings      Float          @default(0)
   sessions      Session[]
   accounts      Account[]
   works         Work[]
   purchases     Purchase[]
   reviews       Review[]
-  followers     Follow[]      @relation("UserFollowers")
-  following     Follow[]      @relation("UserFollowing")
+  followers     Follow[]       @relation("UserFollowers")
+  following     Follow[]       @relation("UserFollowing")
   workLikes     WorkLike[]
   workDislikes  WorkDislike[]
   playlists     Playlist[]
@@ -239,8 +239,8 @@ model WatchHistory {
   workId    String
   watchedAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work Work @relation(fields: [workId], references: [id], onDelete: Cascade)
 
   @@unique([userId, workId])
   @@map("watch_history")
