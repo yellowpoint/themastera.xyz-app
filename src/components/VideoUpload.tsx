@@ -63,16 +63,20 @@ export default function VideoUpload({
   const selectingRef = useRef<boolean>(false)
   // Keep a reference to the active UpChunk upload instance for pause/resume
   const currentUploadRef = useRef<any | null>(null)
+  // Progress is driven directly by UpChunk's `progress` event (detail: 0..100)
   const [isPaused, setIsPaused] = useState<boolean>(false)
   const { user } = useAuth()
   const [currentFileMeta, setCurrentFileMeta] = useState<{
     name: string
     size: number
   } | null>(null)
-  const [localFileDurationSec, setLocalFileDurationSec] = useState<number | null>(null)
+  const [localFileDurationSec, setLocalFileDurationSec] = useState<
+    number | null
+  >(null)
 
   // Read video duration locally via HTMLVideoElement + Object URL
   const getLocalVideoDuration = (file: File): Promise<number | null> => {
+    // Simplified version: rely on onloadedmetadata only
     return new Promise((resolve) => {
       try {
         const url = URL.createObjectURL(file)
@@ -108,7 +112,10 @@ export default function VideoUpload({
   }
 
   // Upload a single file via Mux Direct Upload
-  const uploadFile = async (file: File): Promise<UploadedVideo> => {
+  const uploadFile = async (
+    file: File,
+    localDurationSec?: number | null
+  ): Promise<UploadedVideo> => {
     if (!file) {
       throw new Error('No file provided')
     }
@@ -136,7 +143,7 @@ export default function VideoUpload({
       // Step 2: PUT the file to Mux direct upload URL
       // Step 2: Upload via Mux UpChunk (chunked, resumable) with real-time progress
       await new Promise<void>((resolve, reject) => {
-        // Use direct signed upload URL with UpChunk. The correct option is `uploadUrl`, not `endpoint`.
+        // Use direct signed upload URL with UpChunk via the `endpoint` option (string or function).
         const upload = createUpChunkUpload({
           endpoint: uploadUrl,
           file,
@@ -150,21 +157,21 @@ export default function VideoUpload({
         const last = { percent: 0, bytes: 0, time: Date.now() }
 
         upload.on('progress', (event: any) => {
-          const d = event?.detail ?? event
-          const percent = Math.max(
-            0,
-            Math.min(
-              100,
-              Number(d?.percent ?? d?.percentage ?? d?.progress ?? 0)
+          // UpChunk emits CustomEvent with numeric detail in [0..100]
+          const percentRaw = Number(event?.detail)
+          if (!Number.isFinite(percentRaw)) {
+            // If detail isn't a number, log once for diagnosis and skip this tick
+            console.warn(
+              'UpChunk progress event has non-numeric detail:',
+              event
             )
-          )
-          // Use real upload percentage directly for the progress bar.
-          setProgress(Math.floor(percent))
+            return
+          }
+          const percent = Math.max(0, Math.min(100, percentRaw))
+          setProgress(Math.round(percent))
 
           // Approximate uploaded bytes based on percent and total size
-          const uploadedBytes = Math.floor(
-            Number(d?.uploadedBytes ?? (percent / 100) * file.size) as number
-          )
+          const uploadedBytes = Math.floor((percent / 100) * file.size)
           const now = Date.now()
           const deltaBytes = uploadedBytes - last.bytes
           const deltaMs = now - last.time
@@ -220,24 +227,44 @@ export default function VideoUpload({
       }
       // Keep progress at 100% once upload is complete; asset processing is handled separately.
 
-      // Step 4: Get asset details to fetch playbackId
-      const assetRes = await request.get<any>(`/api/mux/asset/${assetId}`)
-      const assetData: any = assetRes.data as any
-      if (!assetRes.ok) {
-        throw new Error(
-          (assetData as any)?.error?.message || 'Failed to retrieve Mux asset'
-        )
+      // Step 4: Poll asset until ready to fetch playbackId and duration reliably
+      let playbackId: string | undefined
+      let muxDurationSec: number | null = null
+      const assetPollMax = 20
+      for (let i = 0; i < assetPollMax; i++) {
+        const assetRes = await request.get<any>(`/api/mux/asset/${assetId}`)
+        const assetData: any = assetRes.data as any
+        if (!assetRes.ok) {
+          throw new Error(
+            (assetData as any)?.error?.message || 'Failed to retrieve Mux asset'
+          )
+        }
+        const asset =
+          (assetData as any)?.data?.asset ?? (assetData as any)?.asset
+        playbackId = asset?.playback_ids?.[0]?.id || playbackId
+        const status: string | undefined = asset?.status
+        if (Number.isFinite(Number(asset?.duration))) {
+          muxDurationSec = Math.round(Number(asset.duration))
+        }
+        // Exit early if asset is ready or both playbackId and duration are available
+        if (status === 'ready' && playbackId && muxDurationSec) {
+          break
+        }
+        await delay(1500)
       }
-      const asset = (assetData as any)?.data?.asset ?? (assetData as any)?.asset
-      const playbackId: string | undefined = asset?.playback_ids?.[0]?.id
-      // Use local file duration exclusively, as requested. Do not fall back to Mux asset duration.
-      const durationSec: number | null = localFileDurationSec
+      if (!playbackId) {
+        throw new Error('No playback ID found on asset')
+      }
+      // Prefer passed local duration; fallback to mux asset duration if local is unavailable
+      const durationSec: number | null =
+        localDurationSec && localDurationSec > 0
+          ? localDurationSec
+          : muxDurationSec
       if (!playbackId) {
         throw new Error('No playback ID found on asset')
       }
 
       const hlsUrl = `https://stream.mux.com/${playbackId}.m3u8`
-      setProgress(100)
 
       return {
         fileUrl: hlsUrl,
@@ -247,7 +274,10 @@ export default function VideoUpload({
         size: file.size,
         type: file.type,
         durationSeconds: durationSec,
-        duration: formatDuration(durationSec),
+        duration:
+          typeof durationSec === 'number' && durationSec > 0
+            ? formatDuration(durationSec)
+            : null,
         completedAt: new Date().toISOString(),
       }
     } catch (error) {
@@ -293,7 +323,7 @@ export default function VideoUpload({
       setUploading(true)
       onUploadingChange?.(true)
       setCurrentFileMeta({ name: file.name, size: file.size })
-      const result = await uploadFile(file)
+      const result = await uploadFile(file, localDur)
       const newUploadedFiles = [...uploadedFiles, result]
       setUploadedFiles(newUploadedFiles)
       onUploadComplete?.(newUploadedFiles)
@@ -387,7 +417,9 @@ export default function VideoUpload({
       setUploading(true)
       onUploadingChange?.(true)
       setCurrentFileMeta({ name: item.file.name, size: item.file.size })
-      const result = await uploadFile(item.file)
+      // Recompute local duration for retry and pass through to uploadFile
+      const localDur = await getLocalVideoDuration(item.file)
+      const result = await uploadFile(item.file, localDur)
       setUploadedFiles((prev) => [...prev, result])
       setFailedFiles((prev) => prev.filter((_, i) => i !== index))
       onUploadComplete?.([...uploadedFiles, result])
@@ -536,7 +568,8 @@ export default function VideoUpload({
             </span>
             <span>
               {currentFileMeta ? formatFileSize(currentFileMeta.size) : ''}
-              {localFileDurationSec !== null
+              {typeof localFileDurationSec === 'number' &&
+              localFileDurationSec > 0
                 ? ` • ${formatDuration(localFileDurationSec)}`
                 : ''}
             </span>
