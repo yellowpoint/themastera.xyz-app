@@ -158,8 +158,8 @@ export default function VideoUpload({
               Number(d?.percent ?? d?.percentage ?? d?.progress ?? 0)
             )
           )
-          const percentUpload = Math.floor((percent / 100) * 70) // 0–70% reserved for upload
-          setProgress((p) => (percentUpload > p ? percentUpload : p))
+          // Use real upload percentage directly for the progress bar.
+          setProgress(Math.floor(percent))
 
           // Approximate uploaded bytes based on percent and total size
           const uploadedBytes = Math.floor(
@@ -177,14 +177,9 @@ export default function VideoUpload({
           }
         })
 
-        // Optional: mark chunk boundaries (can be useful for debugging perceived stalls)
-        upload.on('chunkSuccess', () => {
-          // Small nudge forward to ensure UI feels responsive even if percent is sparse
-          setProgress((p) => (p < 70 ? Math.min(p + 1, 70) : p))
-        })
-
         upload.on('success', () => {
-          setProgress((p) => (p < 75 ? 75 : p))
+          // Upload finished; set to 100%.
+          setProgress(100)
           setUploadSpeed(null)
           currentUploadRef.current = null
           setIsPaused(false)
@@ -218,14 +213,12 @@ export default function VideoUpload({
           break
         }
         await delay(1000)
-        // Polling phase progresses from 75% to 95%
-        setProgress((p) => (p < 95 ? Math.min(p + 2, 95) : p))
       }
 
       if (!assetId) {
         throw new Error('Timed out waiting for asset to be created')
       }
-      setProgress(90)
+      // Keep progress at 100% once upload is complete; asset processing is handled separately.
 
       // Step 4: Get asset details to fetch playbackId
       const assetRes = await request.get<any>(`/api/mux/asset/${assetId}`)
@@ -237,12 +230,8 @@ export default function VideoUpload({
       }
       const asset = (assetData as any)?.data?.asset ?? (assetData as any)?.asset
       const playbackId: string | undefined = asset?.playback_ids?.[0]?.id
-      const durationSec: number | null =
-        localFileDurationSec !== null
-          ? localFileDurationSec
-          : asset?.duration
-          ? Math.round(asset.duration as number)
-          : null
+      // Use local file duration exclusively, as requested. Do not fall back to Mux asset duration.
+      const durationSec: number | null = localFileDurationSec
       if (!playbackId) {
         throw new Error('No playback ID found on asset')
       }
