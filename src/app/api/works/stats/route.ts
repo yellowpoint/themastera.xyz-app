@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const works = await prisma.work.findMany({
       where: {
         userId,
-        isActive: true
+        status: 'published'
       },
       include: {
         reviews: {

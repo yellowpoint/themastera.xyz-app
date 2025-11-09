@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
     // Base filters: only published and active works are publicly searchable
     const where: Prisma.WorkWhereInput = {
       status: 'published',
-      isActive: true,
     }
 
     if (category) {

@@ -150,7 +150,6 @@ export async function POST(request: NextRequest) {
       thumbnailUrl: body.thumbnailUrl || null,
       durationSeconds: body.durationSeconds !== undefined ? parseInt(body.durationSeconds, 10) : null,
       status: status || 'draft',
-      isActive: body.isActive !== undefined ? body.isActive : true,
       // Audience flag
       isForKids: body.isForKids ?? true,
     }

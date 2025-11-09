@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
 
     const baseWhere: Prisma.WorkWhereInput = {
       status: 'published',
-      isActive: true,
     }
     let where: Prisma.WorkWhereInput = { ...baseWhere }
     let orderBy: Prisma.WorkOrderByWithRelationInput[] = [{ createdAt: 'desc' }]

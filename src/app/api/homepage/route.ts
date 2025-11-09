@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   try {
     // Helper: get works for a section with specific query
     async function fetchSectionItems(sectionId: string) {
-      const baseWhere: Prisma.WorkWhereInput = { status: 'published', isActive: true }
+      const baseWhere: Prisma.WorkWhereInput = { status: 'published' }
 
       // Build per-section query
       let where: Prisma.WorkWhereInput = { ...baseWhere }
@@ -138,7 +138,6 @@ export async function GET(request: NextRequest) {
       const latestWorks = await prisma.work.findMany({
         where: {
           status: 'published',
-          isActive: true,
           id: { notIn: seenIds },
         },
         include: {

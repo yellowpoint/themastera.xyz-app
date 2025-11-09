@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
     // Build query conditions
     const where: Prisma.WorkWhereInput = {
       status: 'published',
-      isActive: true,
       ...dateFilter
     }
 
