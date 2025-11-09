@@ -15,10 +15,12 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
+import React from 'react'
 
 export default function Header() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
+  const [searchValue, setSearchValue] = React.useState('')
 
   return (
     <div className="fixed left-0 right-0 top-0 z-40">
@@ -51,6 +53,15 @@ export default function Header() {
                 aria-label="Search"
                 placeholder="Search the item you like"
                 className="w-full pl-8"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const q = searchValue.trim()
+                    // Only trigger search on Enter
+                    router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+                  }
+                }}
               />
             </div>
           </div>

@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
+    const q = searchParams.get('q')
 
     const { userId } = await getAuthSession(request)
 
@@ -33,6 +34,20 @@ export async function GET(request: NextRequest) {
 
     if (status) {
       where.status = status
+    }
+
+    if (q) {
+      const query = q.trim()
+      if (query) {
+        // Contains search on title and description
+        // Note: Using SQLite provider, Prisma does not support `mode: 'insensitive'`.
+        // SQLite's LIKE is case-insensitive for ASCII by default; if you need broader case-insensitive matching,
+        // consider normalizing text or switching to a provider that supports `mode`.
+        where.OR = [
+          { title: { contains: query } },
+          { description: { contains: query } },
+        ]
+      }
     }
 
     // 查询作品列表

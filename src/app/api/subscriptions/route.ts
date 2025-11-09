@@ -17,12 +17,14 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    // Build where clause on following user
+    // Build where clause on following user (not used in current implementation)
+    // Note: Prisma with SQLite does not support `mode: 'insensitive'` in filters.
+    // If you later switch to a provider that supports it, you can reintroduce case-insensitive search.
     const whereFollowingUser = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
+            { name: { contains: search } },
+            { email: { contains: search } },
           ],
         }
       : {}
