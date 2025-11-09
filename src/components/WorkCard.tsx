@@ -17,6 +17,7 @@ import { request } from '@/lib/request'
 import { Button } from './ui/button'
 import { formatViews } from '@/lib/format'
 import type { Work } from '@/contracts/domain/work'
+import { useAuth } from '@/hooks/useAuth'
 
 type PlaylistSummary = { id: string; name: string }
 
@@ -44,6 +45,7 @@ export default function WorkCard({ work }: WorkCardProps) {
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
   const router = useRouter()
+  const { user } = useAuth()
 
   const fetchPlaylists = useCallback(async () => {
     if (loadingPlaylists) return
@@ -166,53 +168,55 @@ export default function WorkCard({ work }: WorkCardProps) {
               {work?.user?.name || 'Unknown Creator'}
             </p>
           </div>
-          <div className="flex-shrink-0 self-start">
-            <DropdownMenu
-              onOpenChange={(open) => {
-                if (open && playlists.length === 0) fetchPlaylists()
-              }}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  className="text-muted-foreground hover:text-foreground flex-shrink-0"
-                  aria-label="More"
-                  type="button"
-                >
-                  <MoreVertical size={18} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={6}>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <ListPlus className="size-4" />
-                    <span>Add to playlist</span>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    {loadingPlaylists ? (
-                      <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
-                    ) : playlists.length > 0 ? (
-                      playlists.map((pl) => (
-                        <DropdownMenuItem
-                          key={pl.id}
-                          onSelect={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            addToPlaylist(pl.id)
-                          }}
-                        >
-                          {pl.name}
-                        </DropdownMenuItem>
-                      ))
-                    ) : (
-                      <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
-                    )}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {user ? (
+            <div className="flex-shrink-0 self-start">
+              <DropdownMenu
+                onOpenChange={(open) => {
+                  if (open && playlists.length === 0) fetchPlaylists()
+                }}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground flex-shrink-0"
+                    aria-label="More"
+                    type="button"
+                  >
+                    <MoreVertical size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={6}>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <ListPlus className="size-4" />
+                      <span>Add to playlist</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {loadingPlaylists ? (
+                        <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                      ) : playlists.length > 0 ? (
+                        playlists.map((pl) => (
+                          <DropdownMenuItem
+                            key={pl.id}
+                            onSelect={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addToPlaylist(pl.id)
+                            }}
+                          >
+                            {pl.name}
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                      )}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

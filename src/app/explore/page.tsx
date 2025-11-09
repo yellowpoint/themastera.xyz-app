@@ -1,69 +1,16 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { Music, Globe, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import WorkCardList from "@/components/WorkCardList";
-import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from "@/config/categories";
-import { request } from "@/lib/request";
-import type { Paginated } from "@/contracts/types/common";
-import type { Work, WorkFilters } from "@/contracts/domain/work";
+'use client'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Music, Globe } from 'lucide-react'
+import WorkCardList from '@/components/WorkCardList'
+import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
+import { request } from '@/lib/request'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CometCard } from '@/components/ui/comet-card'
+import Link from 'next/link'
+import type { Paginated } from '@/contracts/types/common'
+import type { Work, WorkFilters } from '@/contracts/domain/work'
 
 export default function ExplorePage() {
-  const [category, setCategory] = useState<string>("all");
-  const [language, setLanguage] = useState<string>("None");
-  const [works, setWorks] = useState<Work[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState<number>(12);
-
-  const musicCategoriesWithAll = useMemo(
-    () => ["all", ...MUSIC_CATEGORIES],
-    []
-  );
-
-  useEffect(() => {
-    let ignore = false;
-    async function fetchTrending() {
-      setLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams();
-        if (category && category !== "all") params.set("category", category);
-        const { data } = await request.get<Paginated<Work>>(`/api/works/trending?${params.toString()}`);
-        if (!ignore) {
-          if (data?.success) {
-            setWorks(((data as any)?.data?.items) || []);
-            setVisibleCount(12);
-          } else {
-            setWorks([]);
-            setError((data as any)?.error || "Failed to load works");
-          }
-        }
-      } catch (e) {
-        if (!ignore) {
-          setError("Network error, please try again");
-          setWorks([]);
-        }
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    }
-    fetchTrending();
-    return () => {
-      ignore = true;
-    };
-  }, [category]);
-
-  const filteredWorks = useMemo(() => {
-    if (!language || language === "None") return works;
-    return works.filter((w) => {
-      const lang = w?.language;
-      return lang ? lang === language : true;
-    });
-  }, [works, language]);
-
-  const visibleWorks = filteredWorks.slice(0, visibleCount);
-
   return (
     <div className="h-full container mx-auto px-4 py-6">
       <div className="mb-6">
@@ -73,58 +20,82 @@ export default function ExplorePage() {
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="space-y-4 mb-6">
-        {/* Music category */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+      {/* Filters - Card Galleries */}
+      <div className="space-y-8 mb-8">
+        {/* Music Categories */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
             <Music className="h-4 w-4" />
             <span className="text-sm font-medium">Music Categories</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {musicCategoriesWithAll.map((cat) => (
-              <Button
-                key={cat}
-                size="sm"
-                variant={category === cat ? "default" : "outline"}
-                onClick={() => setCategory(cat)}
-                className="whitespace-nowrap"
-              >
-                {cat === "all" ? "All" : cat}
-              </Button>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {MUSIC_CATEGORIES.map((cat) => {
+              return (
+                <CometCard key={cat} className="group">
+                  <Link
+                    href={`/section?category=${encodeURIComponent(cat)}`}
+                    prefetch
+                  >
+                    <Card
+                      role="link"
+                      className={`select-none transition-colors cursor-pointer rounded-xl border`}
+                    >
+                      <CardHeader className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <Music className="h-4 w-4" />
+                          <CardTitle className="text-sm">{cat}</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-4 pb-4">
+                        <div className="text-muted-foreground text-xs">
+                          Tap to view section
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </CometCard>
+              )
+            })}
           </div>
-        </div>
+        </section>
 
-        {/* Language category */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+        {/* Languages */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
             <Globe className="h-4 w-4" />
             <span className="text-sm font-medium">Languages</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {LANGUAGE_CATEGORIES.map((lang) => (
-              <Button
-                key={lang}
-                size="sm"
-                variant={language === lang ? "default" : "outline"}
-                onClick={() => setLanguage(lang)}
-                className="whitespace-nowrap"
-              >
-                {lang}
-              </Button>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-3">
+            {LANGUAGE_CATEGORIES.map((lang) => {
+              return (
+                <CometCard key={lang} className="group">
+                  <Link
+                    href={`/section?language=${encodeURIComponent(lang)}`}
+                    prefetch
+                  >
+                    <Card
+                      role="link"
+                      className={`select-none transition-colors cursor-pointer rounded-xl border`}
+                    >
+                      <CardHeader className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4" />
+                          <CardTitle className="text-sm">{lang}</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-4 pb-4">
+                        <div className="text-muted-foreground text-xs">
+                          Tap to view section
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </CometCard>
+              )
+            })}
           </div>
-        </div>
+        </section>
       </div>
-
-      {/* Works grid */}
-      <WorkCardList
-        works={visibleWorks}
-        isLoading={loading}
-        hasMore={visibleCount < filteredWorks.length}
-        onLoadMore={() => setVisibleCount((c) => c + 12)}
-      />
     </div>
-  );
+  )
 }

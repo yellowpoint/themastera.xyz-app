@@ -23,12 +23,14 @@ import { toast } from "sonner";
 import { request } from "@/lib/request";
 import { formatViews } from "@/lib/format";
 import { SidebarPlaylistSection } from "@/components/sidebar-playlist-section";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ContentDetailPage() {
   const params = useParams();
   const rawId = (params as any)?.id;
   const workId: string = Array.isArray(rawId) ? rawId[0] : (rawId || "");
   const router = useRouter();
+  const { user } = useAuth();
 
   const [work, setWork] = useState(null);
   const [relatedWorks, setRelatedWorks] = useState([]);
@@ -108,11 +110,14 @@ export default function ContentDetailPage() {
         }
 
         // Record watch history (upsert latest viewed timestamp)
-        try {
-          await request.post("/api/history", { workId });
-        } catch (historyError) {
-          // Do not block page on history errors
-          console.error("Error recording watch history:", historyError);
+        // Only record history for logged-in users
+        if (user?.id) {
+          try {
+            await request.post("/api/history", { workId });
+          } catch (historyError) {
+            // Do not block page on history errors
+            console.error("Error recording watch history:", historyError);
+          }
         }
       }
       if (engagement) {

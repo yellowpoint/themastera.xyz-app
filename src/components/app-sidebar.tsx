@@ -33,22 +33,15 @@ import Link from 'next/link'
 const data = {
   navMain: [
     { title: 'Home', url: '/', icon: Home },
-    { title: 'Subscriptions', url: '/subscriptions', icon: BookOpen },
-    { title: 'History', url: '/history', icon: History },
-    { title: 'Creator', url: '/creator', icon: SquareTerminal },
     { title: 'Explore', url: '/explore', icon: Command },
-    { title: 'Playlists', url: '/playlists', icon: AudioWaveform },
   ],
   navMain2: [
-    { title: 'Me', url: '/me', icon: GalleryVerticalEnd },
-    { title: 'History', url: '/history', icon: Map },
-    { title: 'Explore', url: '/explore', icon: Command },
-    { title: 'Broadcast', url: '/broadcast', icon: Bot },
+    { title: 'Subscriptions', url: '/subscriptions', icon: BookOpen },
+    { title: 'Playlists', url: '/playlists', icon: AudioWaveform },
+    { title: 'History', url: '/history', icon: History },
   ],
-  navMain3: [
-    { title: 'Community', url: '/community', icon: PieChart },
-    { title: 'Explorer', url: '/explorer', icon: Frame },
-  ],
+  navMain3: [{ title: 'Dashboard', url: '/creator', icon: PieChart }],
+
   footer: [
     { title: 'Settings', url: '/settings', icon: Settings2 },
     { title: 'Report history', url: '/report-history', icon: Frame },
@@ -60,8 +53,9 @@ function SidebarContentWithState() {
 
   return (
     <SidebarContent>
-      <NavMain items={data.navMain} title="Main Operations" />
-      {/* <NavMain items={data.navMain2} title="Me" /> */}
+      <NavMain items={data.navMain} title="" />
+      <NavMain items={data.navMain2} title="You" />
+      <NavMain items={data.navMain3} title="Creator +" />
       {/* <NavMain items={data.navMain3} title="Community" /> */}
       {/* Playlist section moved to Content detail page */}
     </SidebarContent>

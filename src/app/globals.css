@@ -272,6 +272,10 @@ body {
   --shadow-2xl: var(--shadow-2xl);
 }
 
+mux-player {
+  /* --media-object-fit: 'cover'; */
+  /* --media-object-position: 'center'; */
+}
 #MuxPlayer_home_container mux-player {
   --controls: none;
 }

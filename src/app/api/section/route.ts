@@ -2,20 +2,26 @@ import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { formatDuration } from '@/lib/format'
 import type { Prisma } from '@prisma/client'
+import { apiFailure, apiSuccess } from '@/contracts/types/common'
 
 // Helpers
-const rnd = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
+const rnd = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min
 
 function toHomepageItem(work: any) {
   const durationSeconds = rnd(60, 360)
   return {
     id: work.id,
     title: work.title,
-    thumbnailUrl: work.thumbnailUrl || `https://picsum.photos/seed/${encodeURIComponent(work.id)}/800/450`,
+    thumbnailUrl:
+      work.thumbnailUrl ||
+      `https://picsum.photos/seed/${encodeURIComponent(work.id)}/800/450`,
     videoUrl: work.fileUrl || null,
     user: {
       name: work.user?.name || 'Unknown',
-      image: work.user?.image || `https://i.pravatar.cc/100?u=${encodeURIComponent(work.user?.id || 'unknown')}`,
+      image:
+        work.user?.image ||
+        `https://i.pravatar.cc/100?u=${encodeURIComponent(work.user?.id || 'unknown')}`,
     },
     views: work.views || 0,
     downloads: work.downloads || 0,
@@ -26,15 +32,20 @@ function toHomepageItem(work: any) {
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const { id: sectionId } = await params
+    const sectionId = searchParams.get('section') || undefined
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '24')
     const skip = (page - 1) * limit
+    const category = searchParams.get('category') || undefined
+    const language = searchParams.get('language') || undefined
 
-    const baseWhere: Prisma.WorkWhereInput = { status: 'published', isActive: true }
+    const baseWhere: Prisma.WorkWhereInput = {
+      status: 'published',
+      isActive: true,
+    }
     let where: Prisma.WorkWhereInput = { ...baseWhere }
     let orderBy: Prisma.WorkOrderByWithRelationInput[] = [{ createdAt: 'desc' }]
 
@@ -46,10 +57,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     switch (sectionId) {
       case 'trending':
-        orderBy = [{ downloads: 'desc' }, { rating: 'desc' }, { createdAt: 'desc' }]
+        orderBy = [
+          { downloads: 'desc' },
+          { rating: 'desc' },
+          { createdAt: 'desc' },
+        ]
         break
       case 'featured-artists':
-        orderBy = [{ rating: 'desc' }, { downloads: 'desc' }, { createdAt: 'desc' }]
+        orderBy = [
+          { rating: 'desc' },
+          { downloads: 'desc' },
+          { createdAt: 'desc' },
+        ]
         break
       case 'new-releases':
         orderBy = [{ createdAt: 'desc' }]
@@ -59,7 +78,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         orderBy = [{ downloads: 'desc' }, { rating: 'desc' }]
         break
       case 'recommended':
-        orderBy = [{ rating: 'desc' }, { downloads: 'desc' }, { createdAt: 'desc' }]
+        orderBy = [
+          { rating: 'desc' },
+          { downloads: 'desc' },
+          { createdAt: 'desc' },
+        ]
         break
       case 'top-rated':
         orderBy = [{ rating: 'desc' }, { downloads: 'desc' }]
@@ -75,11 +98,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         orderBy = [{ createdAt: 'desc' }]
     }
 
+    // Apply optional filters
+    if (category) {
+      where = { ...where, category }
+    }
+    if (language) {
+      where = { ...where, language }
+    }
+
     const works = await prisma.work.findMany({
       where,
       include: {
         user: {
-          select: { id: true, name: true, image: true }
+          select: { id: true, name: true, image: true },
         },
       },
       orderBy,
@@ -88,22 +119,25 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     const total = await prisma.work.count({ where })
-    let items = works.map(toHomepageItem)
+    const items = works.map(toHomepageItem)
 
-    return NextResponse.json({
-      success: true,
-      data: items,
+    const payload = {
+      items,
       pagination: {
         page,
         limit,
         total,
         totalPages: Math.ceil(total / limit),
       },
-    })
+    }
+
+    return NextResponse.json(apiSuccess(payload))
   } catch (error) {
     console.error('Error fetching section items:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch section items', message: error.message },
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch section items', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
     )
   }

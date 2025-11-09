@@ -232,7 +232,10 @@ export default function HomePage() {
           </div>
 
           {/* Quick picks overlay on the right */}
-          <div className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl  pointer-events-auto">
+          <div
+            className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl  pointer-events-none"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-4 text-white">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold">Quick picks</h4>

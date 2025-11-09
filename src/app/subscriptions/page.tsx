@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { Search, Users, UserMinus, UserPlus } from "lucide-react";
-import { request } from "@/lib/request";
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { Search, Users, UserMinus, UserPlus } from 'lucide-react'
+import { request } from '@/lib/request'
 
 import {
   Card,
@@ -13,10 +13,10 @@ import {
   CardDescription,
   CardAction,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Empty,
   EmptyHeader,
@@ -24,7 +24,7 @@ import {
   EmptyDescription,
   EmptyMedia,
   EmptyContent,
-} from "@/components/ui/empty";
+} from '@/components/ui/empty'
 import {
   Pagination,
   PaginationContent,
@@ -32,69 +32,76 @@ import {
   PaginationLink,
   PaginationPrevious,
   PaginationNext,
-} from "@/components/ui/pagination";
-import SubscribeButton from "@/components/SubscribeButton";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+} from '@/components/ui/pagination'
+import SubscribeButton from '@/components/SubscribeButton'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 export default function SubscriptionsPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(12);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [total, setTotal] = useState<number>(0);
-  const [search, setSearch] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [items, setItems] = useState<any[]>([])
+  const [page, setPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(10)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const [total, setTotal] = useState<number>(0)
+  const [search, setSearch] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    loadData();
+    loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit]);
+  }, [page, limit])
 
   const loadData = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const params = new URLSearchParams();
-      params.set("page", String(page));
-      params.set("limit", String(limit));
-      if (search.trim()) params.set("search", search.trim());
-      const { data } = await request.get(`/api/subscriptions?${params.toString()}`);
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('limit', String(limit))
+      if (search.trim()) params.set('search', search.trim())
+      const { data } = await request.get(
+        `/api/subscriptions?${params.toString()}`
+      )
       if (data?.success) {
-        const list = Array.isArray((data as any)?.data?.items) ? (data as any).data.items : [];
-        setItems(list.map((u) => ({ ...u, isFollowing: !!u.isFollowing })));
-        const pg = (data as any)?.data?.pagination || {};
-        setTotal(pg.total || 0);
-        setTotalPages(pg.totalPages || 1);
+        const list = Array.isArray((data as any)?.data?.items)
+          ? (data as any).data.items
+          : []
+        setItems(list.map((u) => ({ ...u, isFollowing: !!u.isFollowing })))
+        const pg = (data as any)?.data?.pagination || {}
+        setTotal(pg.total || 0)
+        setTotalPages(pg.totalPages || 1)
       }
     } catch (_) {
       // errors handled by request util
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setPage(1);
-    loadData();
-  };
+    e.preventDefault()
+    setPage(1)
+    loadData()
+  }
 
-  const handleSubscribeChanged = (userId: string, action: "follow" | "unfollow") => {
+  const handleSubscribeChanged = (
+    userId: string,
+    action: 'follow' | 'unfollow'
+  ) => {
     setItems((prev) =>
       prev.map((u) =>
-        u.id === userId ? { ...u, isFollowing: action === "follow" } : u
+        u.id === userId ? { ...u, isFollowing: action === 'follow' } : u
       )
-    );
-  };
+    )
+  }
 
-  const handlePrev = () => setPage((p) => Math.max(1, p - 1));
-  const handleNext = () => setPage((p) => Math.min(totalPages, p + 1));
+  const handlePrev = () => setPage((p) => Math.max(1, p - 1))
+  const handleNext = () => setPage((p) => Math.min(totalPages, p + 1))
 
   const pages = useMemo(() => {
-    const arr = [];
-    const max = Math.max(1, totalPages);
-    for (let i = 1; i <= max; i++) arr.push(i);
-    return arr;
-  }, [totalPages]);
+    const arr = []
+    const max = Math.max(1, totalPages)
+    for (let i = 1; i <= max; i++) arr.push(i)
+    return arr
+  }, [totalPages])
 
   return (
     <div className="p-6 space-y-6">
@@ -173,11 +180,11 @@ export default function SubscriptionsPage() {
                 >
                   <Avatar className="w-10 h-10">
                     <AvatarImage
-                      src={u.image || ""}
-                      alt={u.name || u.email || "User"}
+                      src={u.image || ''}
+                      alt={u.name || u.email || 'User'}
                     />
                     <AvatarFallback>
-                      {(u.name || u.email || "U").slice(0, 1).toUpperCase()}
+                      {(u.name || u.email || 'U').slice(0, 1).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
@@ -185,7 +192,7 @@ export default function SubscriptionsPage() {
                       {u.name || u.email}
                     </CardTitle>
                     <CardDescription className="truncate">
-                      {u.level || "User"}
+                      {u.level || 'User'}
                     </CardDescription>
                   </div>
                 </Link>
@@ -200,7 +207,7 @@ export default function SubscriptionsPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  {u.description || ""}
+                  {u.description || ''}
                 </p>
               </CardContent>
               <CardFooter>
@@ -221,8 +228,8 @@ export default function SubscriptionsPage() {
               <PaginationPrevious
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault();
-                  handlePrev();
+                  e.preventDefault()
+                  handlePrev()
                 }}
               />
             </PaginationItem>
@@ -232,8 +239,8 @@ export default function SubscriptionsPage() {
                   href="#"
                   isActive={p === page}
                   onClick={(e) => {
-                    e.preventDefault();
-                    setPage(p);
+                    e.preventDefault()
+                    setPage(p)
                   }}
                 >
                   {p}
@@ -244,8 +251,8 @@ export default function SubscriptionsPage() {
               <PaginationNext
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault();
-                  handleNext();
+                  e.preventDefault()
+                  handleNext()
                 }}
               />
             </PaginationItem>
@@ -253,5 +260,5 @@ export default function SubscriptionsPage() {
         </Pagination>
       )}
     </div>
-  );
+  )
 }

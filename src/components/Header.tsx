@@ -28,7 +28,17 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
           >
-            <img src="/logo-black.png" alt="Logo" className="h-auto w-15" />
+            {/* Use white logo in dark theme, black logo in light theme */}
+            <img
+              src="/logo-black.png"
+              alt="Logo"
+              className="h-auto w-15 dark:hidden"
+            />
+            <img
+              src="/logo-white.png"
+              alt="Logo"
+              className="h-auto w-15 hidden dark:block"
+            />
             <span>THE MASTERA</span>
           </Link>
           <SidebarTrigger />
