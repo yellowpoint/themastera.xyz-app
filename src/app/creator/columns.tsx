@@ -169,19 +169,16 @@ export function useCreatorColumns() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => router.push(`/creator/edit/${work.id}`)}
-                >
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => router.push(`/content/${work.id}`)}
-                >
-                  View
-                </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <DropdownMenuItem variant="destructive">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={(e) => {
+                        // Prevent the dropdown from closing immediately,
+                        // so the AlertDialog can open and stay visible.
+                        e.preventDefault()
+                      }}
+                    >
                       Delete
                     </DropdownMenuItem>
                   </AlertDialogTrigger>
