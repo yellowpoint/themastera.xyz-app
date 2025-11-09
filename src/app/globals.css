@@ -273,9 +273,9 @@ body {
 }
 
 mux-player {
-  /* --media-object-fit: 'cover'; */
-  /* --media-object-position: 'center'; */
 }
 #MuxPlayer_home_container mux-player {
   --controls: none;
+  --media-object-fit: 'cover';
+  --media-object-position: 'center';
 }

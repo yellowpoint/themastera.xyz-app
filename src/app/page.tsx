@@ -154,7 +154,7 @@ export default function HomePage() {
       {currentVideo && (
         <div
           id="MuxPlayer_home_container"
-          className="fixed left-0 right-4 top-16 h-[400px] z-0 overflow-hidden pointer-events-none"
+          className="fixed left-0 right-4 top-16 aspect-video z-0 overflow-hidden pointer-events-none"
         >
           {(() => {
             const fileUrl = currentVideo?.fileUrl || ''

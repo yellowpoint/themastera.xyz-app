@@ -235,8 +235,8 @@ export default function VideoPlayer({
 
   // Show video player when there is access
   return (
-    <Card className="rounded-none bg-black">
-      <CardContent className="p-0  ">
+    <Card className="rounded-none p-0 border-0 bg-black">
+      <CardContent className="p-0">
         <div style={{ width, height }} className="relative">
           {error ? (
             <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
