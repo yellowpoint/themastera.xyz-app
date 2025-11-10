@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Play, MoreVertical, Pause, Volume2, VolumeX } from 'lucide-react'
 import MuxPlayer from '@mux/mux-player-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import WorkCard from '@/components/WorkCard'
@@ -12,6 +13,7 @@ import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 
 export default function HomePage() {
+  const router = useRouter()
   const [homepage, setHomepage] = useState<{
     quickPicks: HomepageItem[]
     sections: Array<{
@@ -233,21 +235,24 @@ export default function HomePage() {
 
           {/* Quick picks overlay on the right */}
           <div
-            className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl  pointer-events-none"
+            className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 text-white">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold">Quick picks</h4>
-                <button className="opacity-80 hover:opacity-100">
-                  <MoreVertical size={16} />
-                </button>
               </div>
               <div className="mt-4 space-y-3">
                 {(homepage.quickPicks || []).slice(0, 4).map((w) => (
                   <div
                     key={w.id}
-                    onClick={() => handleVideoSelect(w)}
+                    onClick={() => {
+                      if (currentVideo?.id === w.id) {
+                        router.push(`/content/${w.id}`)
+                      } else {
+                        handleVideoSelect(w)
+                      }
+                    }}
                     className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${
                       currentVideo?.id === w.id
                         ? 'bg-white/10'
@@ -276,14 +281,6 @@ export default function HomePage() {
                         {w.user.name}
                       </div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
-                      className="opacity-80 hover:opacity-100"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
                   </div>
                 ))}
               </div>

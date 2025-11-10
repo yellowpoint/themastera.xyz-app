@@ -128,6 +128,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.durationSeconds !== undefined) updateData.durationSeconds = parseInt(body.durationSeconds, 10)
     if (body.language !== undefined) updateData.language = body.language
     if (body.isForKids !== undefined) updateData.isForKids = body.isForKids
+    if (body.quickPick !== undefined) (updateData as any).quickPick = body.quickPick
 
     // Update work
     const work = await prisma.work.update({

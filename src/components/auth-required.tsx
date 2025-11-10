@@ -15,7 +15,13 @@ type AuthRequiredProps = {
 
 export default function AuthRequired({
   children,
-  protectedPrefixes = ['/creator', '/history', '/subscriptions', '/playlists'],
+  protectedPrefixes = [
+    '/creator',
+    '/history',
+    '/subscriptions',
+    '/playlists',
+    '/admin',
+  ],
   title = 'Authentication Required',
   message = 'Please login to access this page',
 }: AuthRequiredProps) {

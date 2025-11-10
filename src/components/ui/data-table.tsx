@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   ColumnDef,
@@ -9,7 +9,7 @@ import {
   useReactTable,
   SortingState,
   getSortedRowModel,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
 
 import {
   Table,
@@ -18,29 +18,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from "lucide-react";
-import React from "react";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react'
+import React from 'react'
+import { Input } from '@/components/ui/input'
 
 interface DataTableWithPaginationProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  pageSizeOptions?: number[];
-  initialPageSize?: number;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  pageSizeOptions?: number[]
+  initialPageSize?: number
 }
 
 export function DataTableWithPagination<TData, TValue>({
@@ -49,13 +49,13 @@ export function DataTableWithPagination<TData, TValue>({
   pageSizeOptions = [10, 20, 25, 30, 40, 50],
   initialPageSize,
 }: DataTableWithPaginationProps<TData, TValue>) {
-  const defaultPageSize = initialPageSize ?? pageSizeOptions[0] ?? 10;
-  const [rowSelection, setRowSelection] = React.useState({});
+  const defaultPageSize = initialPageSize ?? pageSizeOptions[0] ?? 10
+  const [rowSelection, setRowSelection] = React.useState({})
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: defaultPageSize,
-  });
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  })
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const table = useReactTable({
     data,
     columns,
@@ -70,20 +70,20 @@ export function DataTableWithPagination<TData, TValue>({
     },
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
-  });
+  })
 
   return (
     <div className="w-full">
-      <div className="overflow-hidden border rounded-sm">
-        <Table className="w-full table-fixed">
+      <div className="overflow-x-auto border rounded-sm">
+        <Table className="w-full table-auto">
           <TableHeader className="bg-muted">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const size =
-                    typeof header.getSize === "function"
+                    typeof header.getSize === 'function'
                       ? header.getSize()
-                      : (header.column?.getSize?.() ?? undefined);
+                      : (header.column?.getSize?.() ?? undefined)
                   return (
                     <TableHead
                       key={header.id}
@@ -96,7 +96,7 @@ export function DataTableWithPagination<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -107,9 +107,9 @@ export function DataTableWithPagination<TData, TValue>({
                 <TableRow key={row.id} className="border-gray-100">
                   {row.getVisibleCells().map((cell) => {
                     const size =
-                      typeof cell.column.getSize === "function"
+                      typeof cell.column.getSize === 'function'
                         ? cell.column.getSize()
-                        : undefined;
+                        : undefined
                     return (
                       <TableCell
                         key={cell.id}
@@ -120,7 +120,7 @@ export function DataTableWithPagination<TData, TValue>({
                           cell.getContext()
                         )}
                       </TableCell>
-                    );
+                    )
                   })}
                 </TableRow>
               ))
@@ -140,42 +140,42 @@ export function DataTableWithPagination<TData, TValue>({
 
       <DataTablePagination table={table} pageSizeOptions={pageSizeOptions} />
     </div>
-  );
+  )
 }
 
 interface DataTablePaginationProps<TData> {
-  table: TanStackTable<TData>;
-  pageSizeOptions?: number[];
+  table: TanStackTable<TData>
+  pageSizeOptions?: number[]
 }
 
 export function DataTablePagination<TData>({
   table,
   pageSizeOptions = [10, 20, 25, 30, 40, 50],
 }: DataTablePaginationProps<TData>) {
-  const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize;
-  const pageCount = table.getPageCount();
-  const totalItems = table.getFilteredRowModel().rows.length;
+  const pageIndex = table.getState().pagination.pageIndex
+  const pageSize = table.getState().pagination.pageSize
+  const pageCount = table.getPageCount()
+  const totalItems = table.getFilteredRowModel().rows.length
 
   // derive a small window of pages around current, capped to 5
-  const maxButtons = 5;
-  const start = Math.max(0, pageIndex - Math.floor(maxButtons / 2));
-  const end = Math.min(pageCount, start + maxButtons);
-  const adjustedStart = Math.max(0, end - maxButtons);
+  const maxButtons = 5
+  const start = Math.max(0, pageIndex - Math.floor(maxButtons / 2))
+  const end = Math.min(pageCount, start + maxButtons)
+  const adjustedStart = Math.max(0, end - maxButtons)
   const pages = Array.from(
     { length: Math.max(0, end - adjustedStart) },
     (_, i) => adjustedStart + i
-  );
+  )
 
   const goToPage = (n: number) => {
-    const idx = Math.min(Math.max(n - 1, 0), Math.max(pageCount - 1, 0));
-    table.setPageIndex(idx);
-  };
+    const idx = Math.min(Math.max(n - 1, 0), Math.max(pageCount - 1, 0))
+    table.setPageIndex(idx)
+  }
 
   return (
     <div className="flex items-center justify-end px-4 py-2 gap-2">
       {/* Total items */}
-      <div className="text-sm text-[#1D2129]">Total {totalItems} items</div>
+      <div className="text-sm">Total {totalItems} items</div>
 
       {/* Pagination controls */}
       <div className="flex items-center gap-1">
@@ -194,7 +194,7 @@ export function DataTablePagination<TData>({
         {/* Page numbers */}
         <div className="flex items-center gap-1">
           {pages.map((p) => {
-            const isCurrent = p === pageIndex;
+            const isCurrent = p === pageIndex
             return (
               <Button
                 variant="ghost"
@@ -204,14 +204,14 @@ export function DataTablePagination<TData>({
                 className={
                   `h-9 min-w-9 rounded-[2px] px-2 text-sm ` +
                   (isCurrent
-                    ? "bg-[#F4E8FF] text-[#805333] hover:bg-[#F4E8FF]"
-                    : "text-[#4E5969] hover:bg-gray-100")
+                    ? 'bg-[#F4E8FF] text-[#805333] hover:bg-[#F4E8FF]'
+                    : 'text-[#4E5969] hover:bg-gray-100')
                 }
-                aria-current={isCurrent ? "page" : undefined}
+                aria-current={isCurrent ? 'page' : undefined}
               >
                 {p + 1}
               </Button>
-            );
+            )
           })}
         </div>
 
@@ -234,7 +234,7 @@ export function DataTablePagination<TData>({
         <Select
           value={`${pageSize}`}
           onValueChange={(value) => {
-            table.setPageSize(Number(value));
+            table.setPageSize(Number(value))
           }}
         >
           <SelectTrigger className="h-9 w-[120px] rounded-[2px] bg-[#F7F8FA]">
@@ -249,7 +249,7 @@ export function DataTablePagination<TData>({
 
         {/* Go to */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-[#86909C]">Go to</span>
+          <span className="text-sm">Go to</span>
           <Input
             type="number"
             min={1}
@@ -257,23 +257,23 @@ export function DataTablePagination<TData>({
             defaultValue={pageIndex + 1}
             className="h-9 w-[56px] rounded-[2px] bg-[#F7F8FA] px-2 text-center"
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const target = e.target as HTMLInputElement;
-                const value = Number(target.value);
+              if (e.key === 'Enter') {
+                const target = e.target as HTMLInputElement
+                const value = Number(target.value)
                 if (!Number.isNaN(value)) {
-                  goToPage(value);
+                  goToPage(value)
                 }
               }
             }}
             onBlur={(e) => {
-              const value = Number(e.currentTarget.value);
+              const value = Number(e.currentTarget.value)
               if (!Number.isNaN(value)) {
-                goToPage(value);
+                goToPage(value)
               }
             }}
           />
         </div>
       </div>
     </div>
-  );
+  )
 }

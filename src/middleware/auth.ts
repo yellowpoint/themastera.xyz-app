@@ -41,3 +41,27 @@ export async function requireAuth(request: Request): Promise<Response | undefine
 
   return undefined
 }
+
+/**
+ * Admin-only middleware – ensures the requester is authenticated and has Admin level
+ */
+export async function requireAdmin(request: Request): Promise<Response | undefined> {
+  const { user } = await getAuthSession(request)
+
+  if (!user) {
+    return NextResponse.json(
+      apiFailure('UNAUTHORIZED', 'You must be logged in to access this resource'),
+      { status: 401 }
+    )
+  }
+
+  const level = (user as any)?.level
+  if (level !== 'Admin') {
+    return NextResponse.json(
+      apiFailure('FORBIDDEN', 'Admin permissions required'),
+      { status: 403 }
+    )
+  }
+
+  return undefined
+}

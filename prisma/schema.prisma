@@ -96,6 +96,7 @@ model Work {
   category        String?
   language        String?
   tags            String?
+  quickPick       Boolean? @default(false)
   fileUrl         String?
   thumbnailUrl    String?
   durationSeconds Int?

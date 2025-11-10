@@ -28,6 +28,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 // This is sample data.
 const data = {
@@ -41,7 +42,7 @@ const data = {
     { title: 'History', url: '/history', icon: History },
   ],
   navMain3: [{ title: 'Dashboard', url: '/creator', icon: PieChart }],
-
+  admin: [{ title: 'Admin', url: '/admin', icon: Bot }],
   footer: [
     { title: 'Settings', url: '/settings', icon: Settings2 },
     { title: 'Report history', url: '/report-history', icon: Frame },
@@ -50,12 +51,15 @@ const data = {
 
 function SidebarContentWithState() {
   const { state } = useSidebar()
+  const { user } = useAuth()
+  const isAdmin = !!user && (user.level === 'Admin')
 
   return (
     <SidebarContent>
       <NavMain items={data.navMain} title="" />
       <NavMain items={data.navMain2} title="You" />
       <NavMain items={data.navMain3} title="Creator +" />
+      {isAdmin && <NavMain items={data.admin} title="Admin" />}
       {/* <NavMain items={data.navMain3} title="Community" /> */}
       {/* Playlist section moved to Content detail page */}
     </SidebarContent>
