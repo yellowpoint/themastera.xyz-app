@@ -1,10 +1,7 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
-import type { Work } from '@/contracts/domain/work'
-import { useRouter } from 'next/navigation'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { DeleteWorkDialog } from '@/components/creator/DeleteWorkDialog'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,44 +13,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import type { Work } from '@/contracts/domain/work'
+import { formatDate, formatDuration, formatViews } from '@/lib/format'
+import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
-import { formatDuration, formatDate, formatViews } from '@/lib/format'
-import { api } from '@/lib/request'
-import { toast } from 'sonner'
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog'
-import { Trash } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function useCreatorColumns() {
   const router = useRouter()
-  const handleDeleteWork = async (workId: string) => {
-    try {
-      const res = await api.delete(`/api/works/${workId}`)
-      const result = res.data
-      if (res.ok === false || result?.success === false) {
-        const msg = result?.error?.message || 'Failed to delete work'
-        throw new Error(msg)
-      }
-      toast.success('Work deleted successfully!')
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('work-deleted', { detail: { id: workId } })
-        )
-      }
-    } catch (error: any) {
-      console.error('Error deleting work:', error)
-      toast.error('Failed to delete work')
-    }
-  }
 
   const columns: ColumnDef<Work>[] = [
     {
@@ -161,10 +128,7 @@ export function useCreatorColumns() {
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  // className="text-[#4E5969] hover:text-[#1D2129]"
-                >
+                <Button variant="ghost">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -176,38 +140,7 @@ export function useCreatorColumns() {
                 >
                   Copy
                 </DropdownMenuItem>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onSelect={(e) => {
-                        // Prevent the dropdown from closing immediately,
-                        // so the AlertDialog can open and stay visible.
-                        e.preventDefault()
-                      }}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete work</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the work and remove its data.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        className={buttonVariants({ variant: 'destructive' })}
-                        onClick={() => handleDeleteWork(work.id)}
-                      >
-                        <Trash className="mr-2 h-4 w-4" /> Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <DeleteWorkDialog workId={work.id} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

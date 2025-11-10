@@ -126,7 +126,8 @@ export default function AdminPage() {
         quickPick: value,
       })
       if (!ok || !data || (data as any).success === false) {
-        const msg = (data as any)?.error?.message || 'Failed to update Quick picks'
+        const msg =
+          (data as any)?.error?.message || 'Failed to update Quick picks'
         throw new Error(msg)
       }
       toast.success(value ? 'Marked as Quick picks' : 'Unmarked Quick picks')
@@ -366,36 +367,39 @@ export default function AdminPage() {
           </Select>
         </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm text-gray-600">Language</label>
-        <Select value={language} onValueChange={(v) => setLanguage(v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All languages" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {languages.map((lng) => (
-              <SelectItem key={lng} value={lng}>
-                {lng}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600">Language</label>
+          <Select value={language} onValueChange={(v) => setLanguage(v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All languages" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {languages.map((lng) => (
+                <SelectItem key={lng} value={lng}>
+                  {lng}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm text-gray-600">Quick picks</label>
-        <Select value={quickPick} onValueChange={(v) => setQuickPick(v as any)}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="All" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
-            <SelectItem value="no">No</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600">Quick picks</label>
+          <Select
+            value={quickPick}
+            onValueChange={(v) => setQuickPick(v as any)}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="yes">Yes</SelectItem>
+              <SelectItem value="no">No</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         <Button onClick={fetchWorks} className="ml-auto">
           Search
@@ -406,7 +410,6 @@ export default function AdminPage() {
         columns={columns}
         data={items}
         loading={loading}
-        pageSizeOptions={[10, 20, 50, 100]}
         initialPageSize={pageSize}
       />
     </div>

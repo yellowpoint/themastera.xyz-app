@@ -55,7 +55,7 @@ interface DataTableWithPaginationProps<TData, TValue> {
 export function DataTableWithPagination<TData, TValue>({
   columns,
   data,
-  pageSizeOptions = [10, 20, 25, 30, 40, 50],
+  pageSizeOptions = [10, 20, 50, 100],
   initialPageSize,
   loading = false,
   serverPagination,
