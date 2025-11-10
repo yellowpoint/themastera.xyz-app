@@ -1,9 +1,14 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
-import { DataTableWithPagination } from '@/components/ui/data-table'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DataTableWithPagination } from '@/components/ui/data-table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -12,17 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { request } from '@/lib/request'
-import type { Work } from '@/contracts/domain/work'
 import { getAllCategories, getAllLanguages } from '@/config/categories'
+import type { Work } from '@/contracts/domain/work'
+import { request } from '@/lib/request'
+import type { ColumnDef } from '@tanstack/react-table'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 type StatusOption = 'all' | 'draft' | 'published' | 'rejected'
 
@@ -35,8 +35,10 @@ const statusColors: Record<string, string> = {
 export default function AdminPage() {
   const [items, setItems] = useState<Work[]>([])
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState<number>(1)
+  const [total, setTotal] = useState<number>(0)
 
-  // Filters
+  const [debouncedQ, setDebouncedQ] = useState('')
   const [q, setQ] = useState('')
   const [status, setStatus] = useState<StatusOption>('all')
   const [category, setCategory] = useState<string>('all')
@@ -51,13 +53,13 @@ export default function AdminPage() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (q.trim()) params.set('q', q.trim())
+      if (debouncedQ.trim()) params.set('q', debouncedQ.trim())
       if (status && status !== 'all') params.set('status', status)
       if (category && category !== 'all') params.set('category', category)
       if (language && language !== 'all') params.set('language', language)
       if (quickPick && quickPick !== 'all') params.set('quickPick', quickPick)
       params.set('limit', String(pageSize))
-      params.set('page', '1')
+      params.set('page', String(page))
       params.set('sortBy', 'createdAt')
       params.set('order', 'desc')
 
@@ -70,6 +72,10 @@ export default function AdminPage() {
       }
       const items = (data as any)?.data?.items || []
       setItems(items)
+      const pagination = (data as any)?.data?.pagination
+      if (pagination && typeof pagination.total === 'number') {
+        setTotal(pagination.total)
+      }
     } catch (error: any) {
       setItems([])
     } finally {
@@ -77,10 +83,16 @@ export default function AdminPage() {
     }
   }
 
+  // Auto re-fetch when filters, debounced search, or pagination change
   useEffect(() => {
     fetchWorks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [status, category, language, quickPick, debouncedQ, page, pageSize])
+
+  // Reset page to 1 when filters or debounced search change
+  useEffect(() => {
+    setPage(1)
+  }, [status, category, language, quickPick, debouncedQ])
 
   const handlePublish = async (work: Work) => {
     try {
@@ -163,7 +175,7 @@ export default function AdminPage() {
       accessorKey: 'title',
       header: 'Title',
       cell: ({ row }) => (
-        <div className="truncate max-w-[240px]">
+        <div className="truncate max-w-[240px]" title={row.original.title}>
           {row.original.title || 'Untitled'}
         </div>
       ),
@@ -321,13 +333,17 @@ export default function AdminPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3 border rounded-sm p-3 mb-4 ">
+      <div className="flex items-end gap-3 border rounded-sm p-3 mb-4 flex-wrap md:flex-nowrap">
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600">Search</label>
           <Input
             placeholder="Title, description, tags"
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            onDebouncedValueChange={(value) => {
+              setDebouncedQ(value)
+              setPage(1)
+            }}
             className="w-[280px]"
           />
         </div>
@@ -353,7 +369,7 @@ export default function AdminPage() {
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600">Category</label>
           <Select value={category} onValueChange={(v) => setCategory(v)}>
-            <SelectTrigger className="w-[220px]">
+            <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
@@ -401,9 +417,7 @@ export default function AdminPage() {
           </Select>
         </div>
 
-        <Button onClick={fetchWorks} className="ml-auto">
-          Search
-        </Button>
+        {/* Search is debounced automatically; manual button removed */}
       </div>
 
       <DataTableWithPagination
@@ -411,6 +425,18 @@ export default function AdminPage() {
         data={items}
         loading={loading}
         initialPageSize={pageSize}
+        serverPagination={{
+          total,
+          page,
+          pageSize,
+          onPageChange: (nextPage: number) => {
+            setPage(nextPage)
+          },
+          onPageSizeChange: (size: number) => {
+            setPageSize(size)
+            setPage(1)
+          },
+        }}
       />
     </div>
   )
