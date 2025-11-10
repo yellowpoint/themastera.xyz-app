@@ -29,7 +29,7 @@ export default function ExplorePage() {
             <span className="text-sm font-medium">Music Categories</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {MUSIC_CATEGORIES.map((cat) => {
+            {MUSIC_CATEGORIES.map((cat, idx) => {
               return (
                 <CometCard key={cat} className="group">
                   <Link
@@ -47,6 +47,22 @@ export default function ExplorePage() {
                         </div>
                       </CardHeader>
                       <CardContent className="px-4 pb-4">
+                        {/* Preview image for category (first 10 have images) - square display */}
+                        {(() => {
+                          const imgSrc =
+                            idx < 16
+                              ? `/categories/${idx + 1}.jpg`
+                              : '/thumbnail-placeholder.svg'
+                          return (
+                            <div className="aspect-square w-full rounded-md overflow-hidden mb-2">
+                              <img
+                                src={imgSrc}
+                                alt={`${cat}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )
+                        })()}
                         <div className="text-muted-foreground text-xs">
                           Tap to view section
                         </div>
@@ -66,7 +82,7 @@ export default function ExplorePage() {
             <span className="text-sm font-medium">Languages</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-3">
-            {LANGUAGE_CATEGORIES.map((lang) => {
+            {LANGUAGE_CATEGORIES.map((lang, idx) => {
               return (
                 <CometCard key={lang} className="group">
                   <Link
@@ -84,6 +100,22 @@ export default function ExplorePage() {
                         </div>
                       </CardHeader>
                       <CardContent className="px-4 pb-4">
+                        {/* Language image - square display */}
+                        {(() => {
+                          const imgSrc =
+                            idx < 11
+                              ? `/language/${idx + 1}.jpg`
+                              : '/thumbnail-placeholder.svg'
+                          return (
+                            <div className="aspect-square w-full rounded-md overflow-hidden mb-2">
+                              <img
+                                src={imgSrc}
+                                alt={`${lang}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )
+                        })()}
                         <div className="text-muted-foreground text-xs">
                           Tap to view section
                         </div>
