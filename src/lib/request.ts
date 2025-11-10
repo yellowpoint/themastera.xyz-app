@@ -26,12 +26,7 @@ async function baseRequest<T = any>(
     parseJson = true,
   } = options
 
-  const {
-    method = 'GET',
-    headers = {},
-    body,
-    ...rest
-  } = fetchOptions
+  const { method = 'GET', headers = {}, body, ...rest } = fetchOptions
 
   const isJsonBody = body && typeof body !== 'string'
 
@@ -45,7 +40,9 @@ async function baseRequest<T = any>(
     method,
     headers: finalHeaders,
     credentials: 'include',
-    ...(body ? { body: isJsonBody ? JSON.stringify(body) : (body as any) } : {}),
+    ...(body
+      ? { body: isJsonBody ? JSON.stringify(body) : (body as any) }
+      : {}),
     ...rest,
   }
 
@@ -89,11 +86,16 @@ function extractErrorMessage<T>(res: Response, data: ApiResponse<T> | null) {
   if (appMsg) return appMsg
   const status = res?.status
   switch (status) {
-    case 400: return 'Invalid request parameters'
-    case 401: return 'Unauthorized or session expired'
-    case 403: return 'Forbidden: insufficient permissions'
-    case 404: return 'Resource not found'
-    case 429: return 'Too many requests, please try again later'
+    case 400:
+      return 'Invalid request parameters'
+    case 401:
+      return 'Unauthorized or session expired'
+    case 403:
+      return 'Forbidden: insufficient permissions'
+    case 404:
+      return 'Resource not found'
+    case 429:
+      return 'Too many requests, please try again later'
     case 500:
     case 502:
     case 503:
@@ -104,11 +106,35 @@ function extractErrorMessage<T>(res: Response, data: ApiResponse<T> | null) {
 }
 
 export const api = {
-  get: <T = any>(url: string, opts: RequestInit = {}, extra: RequestExtraOptions = {}) => baseRequest<T>(url, { ...opts, method: 'GET' }, extra),
-  post: <T = any>(url: string, body?: any, opts: RequestInit = {}, extra: RequestExtraOptions = {}) => baseRequest<T>(url, { ...opts, method: 'POST', body }, extra),
-  put: <T = any>(url: string, body?: any, opts: RequestInit = {}, extra: RequestExtraOptions = {}) => baseRequest<T>(url, { ...opts, method: 'PUT', body }, extra),
-  patch: <T = any>(url: string, body?: any, opts: RequestInit = {}, extra: RequestExtraOptions = {}) => baseRequest<T>(url, { ...opts, method: 'PATCH', body }, extra),
-  delete: <T = any>(url: string, body?: any, opts: RequestInit = {}, extra: RequestExtraOptions = {}) => baseRequest<T>(url, { ...opts, method: 'DELETE', body }, extra),
+  get: <T = any>(
+    url: string,
+    opts: RequestInit = {},
+    extra: RequestExtraOptions = {}
+  ) => baseRequest<T>(url, { ...opts, method: 'GET' }, extra),
+  post: <T = any>(
+    url: string,
+    body?: any,
+    opts: RequestInit = {},
+    extra: RequestExtraOptions = {}
+  ) => baseRequest<T>(url, { ...opts, method: 'POST', body }, extra),
+  put: <T = any>(
+    url: string,
+    body?: any,
+    opts: RequestInit = {},
+    extra: RequestExtraOptions = {}
+  ) => baseRequest<T>(url, { ...opts, method: 'PUT', body }, extra),
+  patch: <T = any>(
+    url: string,
+    body?: any,
+    opts: RequestInit = {},
+    extra: RequestExtraOptions = {}
+  ) => baseRequest<T>(url, { ...opts, method: 'PATCH', body }, extra),
+  delete: <T = any>(
+    url: string,
+    body?: any,
+    opts: RequestInit = {},
+    extra: RequestExtraOptions = {}
+  ) => baseRequest<T>(url, { ...opts, method: 'DELETE', body }, extra),
 }
 
 // Export a typed request with shorthand methods for better TS compatibility

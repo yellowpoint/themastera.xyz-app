@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -38,6 +38,8 @@ import WorkDetailsForm, {
   UploadFormState as DetailsFormState,
   CoverImage as DetailsCoverImage,
 } from '@/components/creator/WorkDetailsForm'
+import { api } from '@/lib/request'
+import { formatDuration } from '@/lib/format'
 
 // Use UploadedVideo type from VideoUpload for consistency
 
@@ -64,6 +66,7 @@ type UploadFormState = {
 
 export default function UploadPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const { createWork } = useWorks()
 
@@ -85,6 +88,81 @@ export default function UploadPage() {
   const [autoCover, setAutoCover] = useState<CoverImage | null>(null)
   const [showErrors, setShowErrors] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState<boolean>(false)
+  const [isCopyPrefillLoading, setIsCopyPrefillLoading] =
+    useState<boolean>(false)
+
+  // Prefill when copying from an existing work
+  useEffect(() => {
+    const copyFrom = searchParams?.get('copyFrom')
+    if (!copyFrom) return
+    setIsCopyPrefillLoading(true)
+
+    const loadWorkForCopy = async (workId: string) => {
+      try {
+        const res = await api.get<any>(`/api/works/${workId}`)
+        const result = res.data as any
+        if (!res.ok || !result?.data?.work) {
+          throw new Error(result?.error?.message || 'Failed to load work')
+        }
+        const work = result.data.work
+
+        // Prefill upload form with copied data, append " copy" to title
+        setUploadForm((prev) => ({
+          ...prev,
+          title: `${work.title || ''} copy`,
+          description: work.description || '',
+          category: work.category || '',
+          language: work.language || '',
+          tags: work.tags || '',
+          isPaid: false,
+          isForKids:
+            typeof work.isForKids === 'boolean' ? work.isForKids : true,
+          fileUrl: work.fileUrl || '',
+          thumbnailUrl: work.thumbnailUrl || '',
+          status: 'draft',
+          durationSeconds: work.durationSeconds ?? null,
+        }))
+
+        // If the original work has a fileUrl, set uploadedVideo to skip upload step
+        if (work.fileUrl) {
+          const copiedVideo: UploadedVideo = {
+            fileUrl: work.fileUrl,
+            playbackId: '',
+            assetId: '',
+            originalName: work.title || 'Video',
+            size: 0,
+            type: 'video',
+            durationSeconds: work.durationSeconds ?? null,
+            duration:
+              typeof work.durationSeconds === 'number' &&
+              work.durationSeconds > 0
+                ? formatDuration(work.durationSeconds)
+                : null,
+            completedAt: work.createdAt || new Date().toISOString(),
+          }
+          setUploadedVideo(copiedVideo)
+        }
+
+        // Preload cover image in the thumbnail uploader
+        if (work.thumbnailUrl) {
+          const initialCover: CoverImage = {
+            fileUrl: work.thumbnailUrl,
+            originalName: 'Copied thumbnail',
+            size: 0,
+            type: 'image',
+          }
+          setAutoCover(initialCover)
+        }
+      } catch (error) {
+        console.error('Failed to copy work:', error)
+        toast.error('Failed to load work for copy')
+      } finally {
+        setIsCopyPrefillLoading(false)
+      }
+    }
+
+    loadWorkForCopy(copyFrom)
+  }, [searchParams])
 
   // Unified beforeunload warning: during upload or when details are being edited (unsaved changes)
   const hasUnsavedChanges = !!uploadedVideo && !isSubmitting
@@ -274,8 +352,41 @@ export default function UploadPage() {
       toast.success('Video link copied to clipboard')
     }
   }
-  // Step 1: Simple uploader view before details
-  // Show simple uploader until a video is uploaded
+  // Step 1: When copying, show a simple loading to avoid flashing the uploader
+  const copyFromParam = searchParams?.get('copyFrom')
+  if (copyFromParam && isCopyPrefillLoading) {
+    return (
+      <div className="h-[calc(100vh-120px)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <svg
+            className="h-8 w-8 animate-spin text-muted-foreground"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+              className="opacity-25"
+            />
+            <path
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              fill="currentColor"
+              className="opacity-75"
+            />
+          </svg>
+          <h1 className="text-4xl font-normal">Loading...</h1>
+          <p className="text-base text-muted-foreground">Preparing copy data</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Step 2: Simple uploader view before details
+  // Show simple uploader until a video is uploaded (when not copying or copy has no fileUrl)
   if (!uploadedVideo) {
     return (
       <div className="h-full">
@@ -354,28 +465,28 @@ export default function UploadPage() {
           {/* Scrollable Form Content */}
           <div className="flex-1 overflow-y-auto px-8 py-2">
             <WorkDetailsForm
-                value={{
-                  title: uploadForm.title,
-                  description: uploadForm.description,
-                  category: uploadForm.category,
-                  language: uploadForm.language,
-                  isPaid: uploadForm.isPaid,
-                  isForKids: uploadForm.isForKids,
-                  thumbnailUrl: uploadForm.thumbnailUrl,
-                }}
-                onChange={(patch) =>
-                  setUploadForm((prev) => ({
-                    ...prev,
-                    ...patch,
-                  }))
-                }
-                showErrors={showErrors}
-                autoCover={autoCover}
-                onCoverUploadComplete={handleCoverUploadComplete}
-                uploadedVideo={uploadedVideo}
-                onVideoUploadComplete={handleVideoUploadComplete}
-                onCopyLink={handleCopyLink}
-              />
+              value={{
+                title: uploadForm.title,
+                description: uploadForm.description,
+                category: uploadForm.category,
+                language: uploadForm.language,
+                isPaid: uploadForm.isPaid,
+                isForKids: uploadForm.isForKids,
+                thumbnailUrl: uploadForm.thumbnailUrl,
+              }}
+              onChange={(patch) =>
+                setUploadForm((prev) => ({
+                  ...prev,
+                  ...patch,
+                }))
+              }
+              showErrors={showErrors}
+              autoCover={autoCover}
+              onCoverUploadComplete={handleCoverUploadComplete}
+              uploadedVideo={uploadedVideo}
+              onVideoUploadComplete={handleVideoUploadComplete}
+              onCopyLink={handleCopyLink}
+            />
           </div>
 
           {/* Bottom Confirmation Bar */}

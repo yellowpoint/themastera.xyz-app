@@ -169,6 +169,11 @@ export function useCreatorColumns() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() => router.push(`/creator/upload?copyFrom=${work.id}`)}
+                >
+                  Copy
+                </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem

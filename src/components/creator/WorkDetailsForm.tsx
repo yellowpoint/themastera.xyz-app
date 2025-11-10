@@ -78,278 +78,292 @@ export default function WorkDetailsForm({
       {/* Left: Details form */}
       <div className="lg:col-span-2">
         <FieldGroup>
-      {/* Video Details Section */}
-      <FieldSet>
-        <FieldLegend className="text-2xl font-normal text-primary">
-          Video details
-        </FieldLegend>
-        <FieldGroup>
-          {/* Title Field */}
-          <Field
-            className="bg-[#F7F8FA] rounded-lg p-2"
-            orientation="vertical"
-            data-invalid={showErrors && !value.title ? true : undefined}
-          >
-            <div className="px-3 py-2">
-              <FieldLabel className="text-lg text-muted-foreground">
-                Title <span className="text-destructive">*</span>
-              </FieldLabel>
-              <FieldDescription>
-                Add a clear, descriptive title.
-              </FieldDescription>
-            </div>
-            <FieldContent>
-              <div className="flex justify-between items-center px-3">
-                <Input
-                  placeholder="Add a title for your video"
-                  value={value.title}
-                  onChange={(e) => onChange({ title: e.target.value })}
-                  maxLength={200}
-                  required
-                  aria-invalid={
-                    showErrors && !value.title ? true : undefined
-                  }
-                />
-                <span className="text-base text-muted-foreground ml-2">
-                  {value.title.length}/200
-                </span>
-              </div>
-              <div className="px-3">
-                <FieldError
-                  errors={
-                    showErrors && !value.title
-                      ? [{ message: 'Title is required' }]
-                      : []
-                  }
-                />
-              </div>
-            </FieldContent>
-          </Field>
-
-          {/* Description Field */}
-          <Field
-            className="bg-[#F7F8FA] rounded-lg p-2 h-[180px]"
-            orientation="vertical"
-            data-invalid={
-              showErrors && !value.description ? true : undefined
-            }
-          >
-            <div className="px-3 py-2">
-              <FieldLabel className="text-lg text-muted-foreground">
-                Description <span className="text-destructive">*</span>
-              </FieldLabel>
-              <FieldDescription>
-                Explain what your video covers.
-              </FieldDescription>
-            </div>
-            <FieldContent>
-              <div className="flex flex-col h-[calc(100%-48px)] px-3">
-                <Textarea
-                  placeholder="Tell viewer about your video"
-                  value={value.description}
-                  onChange={(e) => onChange({ description: e.target.value })}
-                  maxLength={200}
-                  required
-                  aria-invalid={
-                    showErrors && !value.description ? true : undefined
-                  }
-                />
-                <span className="text-base text-muted-foreground text-right">
-                  {value.description.length}/200
-                </span>
-                <FieldError
-                  errors={
-                    showErrors && !value.description
-                      ? [{ message: 'Description is required' }]
-                      : []
-                  }
-                />
-              </div>
-            </FieldContent>
-          </Field>
-
-          {/* Paid Content Toggle */}
-          <Field orientation="horizontal" className="py-2">
-            <Switch
-              disabled
-              className="mt-2"
-              id="isPaid"
-              checked={value.isPaid}
-              onCheckedChange={(checked) => onChange({ isPaid: checked })}
-            />
-            <FieldContent>
-              <FieldLabel
-                className="text-2xl font-normal text-primary cursor-pointer"
-                htmlFor="isPaid"
+          {/* Video Details Section */}
+          <FieldSet>
+            <FieldLegend className="text-2xl font-normal text-primary">
+              Video details
+            </FieldLegend>
+            <FieldGroup>
+              {/* Title Field */}
+              <Field
+                className="bg-[#F7F8FA] rounded-lg p-2"
+                orientation="vertical"
+                data-invalid={showErrors && !value.title ? true : undefined}
               >
-                Paid Content
-              </FieldLabel>
-              <FieldDescription>
-                This is the description of why people paid to view, and how creator have reward from this.
-              </FieldDescription>
-            </FieldContent>
-          </Field>
-        </FieldGroup>
-      </FieldSet>
-
-      <FieldSeparator />
-
-      {/* Thumbnail Section */}
-      <FieldSet>
-        <FieldLegend className="text-2xl font-normal text-primary">
-          Thumbnail
-        </FieldLegend>
-        <FieldDescription>
-          Set a thumbnail that stands out and draws viewers' attention.
-        </FieldDescription>
-        <FieldGroup>
-          <Field
-            className="space-y-2"
-            data-invalid={showErrors && !value.thumbnailUrl ? true : undefined}
-          >
-            <FieldContent>
-              <ImgUpload
-                onUploadComplete={onCoverUploadComplete}
-                required={true}
-                initialImage={autoCover}
-              />
-              <FieldError
-                errors={
-                  showErrors && !value.thumbnailUrl
-                    ? [{ message: 'Thumbnail is required' }]
-                    : []
-                }
-              />
-            </FieldContent>
-          </Field>
-        </FieldGroup>
-      </FieldSet>
-
-      <FieldSeparator />
-
-      {/* Music Style Section */}
-      <FieldSet>
-        <FieldLegend className="text-2xl font-normal text-primary">
-          Music style
-        </FieldLegend>
-        <FieldDescription>
-          Let people know what kind of music style you create.
-        </FieldDescription>
-        <FieldGroup>
-          <Field
-            className="py-2"
-            data-invalid={showErrors && !value.category ? true : undefined}
-          >
-            <FieldContent>
-              <Select
-                value={value.category}
-                onValueChange={(val) => onChange({ category: val })}
-              >
-                <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
-                  <div className="px-3 py-2">
-                    <SelectValue
-                      placeholder="Select music style"
-                      className="text-2xl font-normal"
+                <div className="px-3 py-2">
+                  <FieldLabel className="text-lg text-muted-foreground">
+                    Title <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldDescription>
+                    Add a clear, descriptive title.
+                  </FieldDescription>
+                </div>
+                <FieldContent>
+                  <div className="flex justify-between items-center px-3">
+                    <Input
+                      placeholder="Add a title for your video"
+                      value={value.title}
+                      onChange={(e) => onChange({ title: e.target.value })}
+                      maxLength={200}
+                      required
+                      aria-invalid={
+                        showErrors && !value.title ? true : undefined
+                      }
+                    />
+                    <span className="text-base text-muted-foreground ml-2">
+                      {value.title.length}/200
+                    </span>
+                  </div>
+                  <div className="px-3">
+                    <FieldError
+                      errors={
+                        showErrors && !value.title
+                          ? [{ message: 'Title is required' }]
+                          : []
+                      }
                     />
                   </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.key} value={category.key}>
-                      {category.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError
-                errors={
-                  showErrors && !value.category
-                    ? [{ message: 'Music style is required' }]
-                    : []
-                }
-              />
-            </FieldContent>
-          </Field>
-        </FieldGroup>
-      </FieldSet>
+                </FieldContent>
+              </Field>
 
-      {/* Language Section */}
-      <FieldSet>
-        <FieldLegend className="text-2xl font-normal text-primary">
-          Language and captions certification
-        </FieldLegend>
-        <FieldDescription>
-          Select your video's language and, if needed, a caption certification.
-        </FieldDescription>
-        <FieldGroup>
-          <Field
-            className="py-2"
-            data-invalid={showErrors && !value.language ? true : undefined}
-          >
-            <FieldContent>
-              <Select
-                value={value.language}
-                onValueChange={(val) => onChange({ language: val })}
+              {/* Description Field */}
+              <Field
+                className="bg-[#F7F8FA] rounded-lg p-2 h-[180px]"
+                orientation="vertical"
+                data-invalid={
+                  showErrors && !value.description ? true : undefined
+                }
               >
-                <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
-                  <div className="px-3 py-2">
-                    <SelectValue
-                      placeholder="Select language"
-                      className="text-2xl font-normal"
+                <div className="px-3 py-2">
+                  <FieldLabel className="text-lg text-muted-foreground">
+                    Description <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldDescription>
+                    Explain what your video covers.
+                  </FieldDescription>
+                </div>
+                <FieldContent>
+                  <div className="flex flex-col h-[calc(100%-48px)] px-3">
+                    <Textarea
+                      placeholder="Tell viewer about your video"
+                      value={value.description}
+                      onChange={(e) =>
+                        onChange({ description: e.target.value })
+                      }
+                      maxLength={200}
+                      required
+                      aria-invalid={
+                        showErrors && !value.description ? true : undefined
+                      }
+                    />
+                    <span className="text-base text-muted-foreground text-right">
+                      {value.description.length}/200
+                    </span>
+                    <FieldError
+                      errors={
+                        showErrors && !value.description
+                          ? [{ message: 'Description is required' }]
+                          : []
+                      }
                     />
                   </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGE_CATEGORIES.map((language) => (
-                    <SelectItem key={language} value={language}>
-                      {language}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError
-                errors={
-                  showErrors && !value.language
-                    ? [{ message: 'Language is required' }]
-                    : []
+                </FieldContent>
+              </Field>
+
+              {/* Paid Content Toggle */}
+              <Field orientation="horizontal" className="py-2">
+                <Switch
+                  disabled
+                  className="mt-2"
+                  id="isPaid"
+                  checked={value.isPaid}
+                  onCheckedChange={(checked) => onChange({ isPaid: checked })}
+                />
+                <FieldContent>
+                  <FieldLabel
+                    className="text-2xl font-normal text-primary cursor-pointer"
+                    htmlFor="isPaid"
+                  >
+                    Paid Content
+                  </FieldLabel>
+                  <FieldDescription>
+                    This is the description of why people paid to view, and how
+                    creator have reward from this.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+
+          <FieldSeparator />
+
+          {/* Thumbnail Section */}
+          <FieldSet>
+            <FieldLegend className="text-2xl font-normal text-primary">
+              Thumbnail
+            </FieldLegend>
+            <FieldDescription>
+              Set a thumbnail that stands out and draws viewers' attention.
+            </FieldDescription>
+            <FieldGroup>
+              <Field
+                className="space-y-2"
+                data-invalid={
+                  showErrors && !value.thumbnailUrl ? true : undefined
                 }
-              />
-            </FieldContent>
-          </Field>
-        </FieldGroup>
-      </FieldSet>
+              >
+                <FieldContent>
+                  <ImgUpload
+                    onUploadComplete={onCoverUploadComplete}
+                    required={true}
+                    initialImage={autoCover}
+                  />
+                  <FieldError
+                    errors={
+                      showErrors && !value.thumbnailUrl
+                        ? [{ message: 'Thumbnail is required' }]
+                        : []
+                    }
+                  />
+                </FieldContent>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
 
-      <FieldSeparator />
+          <FieldSeparator />
 
-      {/* Audience Section */}
-      <FieldSet>
-        <FieldLegend className="text-2xl font-normal text-primary">
-          Audience
-        </FieldLegend>
-        <FieldDescription>
-          Regardless of your location, you're legally required to comply with COPPA and/or other laws. Tell us whether your videos are made for kids.
-        </FieldDescription>
-        <FieldGroup>
-          <RadioGroup
-            value={value.isForKids ? 'yes' : 'no'}
-            onValueChange={(val) => onChange({ isForKids: val === 'yes' })}
-            className="space-y-2"
-          >
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="yes" id="kids-yes" />
-              <Label htmlFor="kids-yes" className="text-base font-normal cursor-pointer">
-                Yes, this content is for kids
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="no" id="kids-no" />
-              <Label htmlFor="kids-no" className="text-base font-normal cursor-pointer">
-                No, this content is not made for kids
-              </Label>
-            </div>
-          </RadioGroup>
-        </FieldGroup>
-      </FieldSet>
+          {/* Music Style Section */}
+          <FieldSet>
+            <FieldLegend className="text-2xl font-normal text-primary">
+              Music style
+            </FieldLegend>
+            <FieldDescription>
+              Let people know what kind of music style you create.
+            </FieldDescription>
+            <FieldGroup>
+              <Field
+                className="py-2"
+                data-invalid={showErrors && !value.category ? true : undefined}
+              >
+                <FieldContent>
+                  <Select
+                    value={value.category}
+                    onValueChange={(val) => onChange({ category: val })}
+                  >
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
+                      <div className="px-3 py-2">
+                        <SelectValue
+                          placeholder="Select music style"
+                          className="text-2xl font-normal"
+                        />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.key} value={category.key}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldError
+                    errors={
+                      showErrors && !value.category
+                        ? [{ message: 'Music style is required' }]
+                        : []
+                    }
+                  />
+                </FieldContent>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+
+          {/* Language Section */}
+          <FieldSet>
+            <FieldLegend className="text-2xl font-normal text-primary">
+              Language and captions certification
+            </FieldLegend>
+            <FieldDescription>
+              Select your video's language and, if needed, a caption
+              certification.
+            </FieldDescription>
+            <FieldGroup>
+              <Field
+                className="py-2"
+                data-invalid={showErrors && !value.language ? true : undefined}
+              >
+                <FieldContent>
+                  <Select
+                    value={value.language}
+                    onValueChange={(val) => onChange({ language: val })}
+                  >
+                    <SelectTrigger className="bg-[#F7F8FA] border-0 h-auto p-2 w-full">
+                      <div className="px-3 py-2">
+                        <SelectValue
+                          placeholder="Select language"
+                          className="text-2xl font-normal"
+                        />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGE_CATEGORIES.map((language) => (
+                        <SelectItem key={language} value={language}>
+                          {language}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldError
+                    errors={
+                      showErrors && !value.language
+                        ? [{ message: 'Language is required' }]
+                        : []
+                    }
+                  />
+                </FieldContent>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+
+          <FieldSeparator />
+
+          {/* Audience Section */}
+          <FieldSet>
+            <FieldLegend className="text-2xl font-normal text-primary">
+              Audience
+            </FieldLegend>
+            <FieldDescription>
+              Regardless of your location, you're legally required to comply
+              with COPPA and/or other laws. Tell us whether your videos are made
+              for kids.
+            </FieldDescription>
+            <FieldGroup>
+              <RadioGroup
+                value={value.isForKids ? 'yes' : 'no'}
+                onValueChange={(val) => onChange({ isForKids: val === 'yes' })}
+                className="space-y-2"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yes" id="kids-yes" />
+                  <Label
+                    htmlFor="kids-yes"
+                    className="text-base font-normal cursor-pointer"
+                  >
+                    Yes, this content is for kids
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="no" id="kids-no" />
+                  <Label
+                    htmlFor="kids-no"
+                    className="text-base font-normal cursor-pointer"
+                  >
+                    No, this content is not made for kids
+                  </Label>
+                </div>
+              </RadioGroup>
+            </FieldGroup>
+          </FieldSet>
         </FieldGroup>
       </div>
 
@@ -399,7 +413,7 @@ export default function WorkDetailsForm({
                   </p>
                 </div>
 
-                <div>
+                {/* <div>
                   <h3 className="text-lg font-normal mb-1">Video link</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground truncate flex-1">
@@ -413,7 +427,7 @@ export default function WorkDetailsForm({
                       <Copy className="w-4 h-4" />
                     </button>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           )}

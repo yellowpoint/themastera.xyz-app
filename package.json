@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "dbgenerate": "prisma generate",
     "dbmigrate": "prisma migrate dev",
-    "dbpush": "prisma db push",
+    "dbpush": "prisma db push && prisma generate",
     "dbstudio": "prisma studio"
   },
   "dependencies": {
