@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import Header from '@/components/Header'
 import AuthRequired from '@/components/auth-required'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
@@ -44,13 +45,32 @@ const lexend = localFont({
   ],
 })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html
       lang="en"
       className={`${lexend.variable} antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-3R87FXD4BX"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);} 
+            gtag('js', new Date());
+            gtag('config', 'G-3R87FXD4BX');
+          `}
+        </Script>
+      </head>
       <body className={`h-screen overflow-hidden`}>
         <Providers>
           <SidebarProvider>
