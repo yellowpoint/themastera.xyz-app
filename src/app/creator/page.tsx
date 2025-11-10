@@ -50,8 +50,6 @@ export default function CreatorPage() {
     }
   }, [fetchWorks, statusFilter, debouncedSearch, page, limit])
 
-  // formatters moved to shared module
-
   useEffect(() => {
     const onDeleted = () => {
       loadWorks()
@@ -61,14 +59,21 @@ export default function CreatorPage() {
       window.removeEventListener('work-deleted', onDeleted as EventListener)
   }, [loadWorks])
 
-  // Trigger load on filter/pagination changes
+  // Fetch when pagination changes
   useEffect(() => {
     loadWorks()
-  }, [loadWorks])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit])
 
-  // Reset to first page when filters change
+  // When filters or debounced search change: if page !== 1, reset page to 1;
+  // if already on page 1, fetch immediately. This avoids double requests.
   useEffect(() => {
-    setPage(1)
+    if (page !== 1) {
+      setPage(1)
+    } else {
+      loadWorks()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, debouncedSearch])
 
   return (
@@ -91,7 +96,6 @@ export default function CreatorPage() {
                   onChange={(e) => setSearch(e.target.value)}
                   onDebouncedValueChange={(value) => {
                     setDebouncedSearch(value)
-                    setPage(1)
                   }}
                   className="pl-9 border-gray-300"
                   disabled={worksLoading}

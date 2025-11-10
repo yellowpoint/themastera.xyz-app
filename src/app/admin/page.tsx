@@ -83,15 +83,19 @@ export default function AdminPage() {
     }
   }
 
-  // Auto re-fetch when filters, debounced search, or pagination change
+  // Fetch when pagination changes
   useEffect(() => {
     fetchWorks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, category, language, quickPick, debouncedQ, page, pageSize])
+  }, [page, pageSize])
 
-  // Reset page to 1 when filters or debounced search change
+  // When filters or debounced search change: if page !== 1, reset page to 1;
+  // if already on page 1, fetch immediately. This avoids double requests.
   useEffect(() => {
-    setPage(1)
+    if (page !== 1) {
+      setPage(1)
+    } else {
+      fetchWorks()
+    }
   }, [status, category, language, quickPick, debouncedQ])
 
   const handlePublish = async (work: Work) => {
@@ -342,7 +346,6 @@ export default function AdminPage() {
             onChange={(e) => setQ(e.target.value)}
             onDebouncedValueChange={(value) => {
               setDebouncedQ(value)
-              setPage(1)
             }}
             className="w-[280px]"
           />
