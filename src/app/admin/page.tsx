@@ -46,6 +46,19 @@ export default function AdminPage() {
   const [quickPick, setQuickPick] = useState<'all' | 'yes' | 'no'>('all')
   const [pageSize, setPageSize] = useState<number>(20)
 
+  // Row-level action loading state
+  type ActionType = 'publish' | 'reject' | 'mark_quick' | 'unmark_quick'
+  const [rowActionLoading, setRowActionLoading] = useState<Record<string, ActionType | null>>({})
+  const setRowLoading = (id: string, action: ActionType | null) => {
+    setRowActionLoading((prev) => ({ ...prev, [id]: action }))
+  }
+  const isRowLoading = (id?: string, action?: ActionType) => {
+    if (!id) return false
+    const current = rowActionLoading[id]
+    if (typeof action === 'string') return current === action
+    return Boolean(current)
+  }
+
   const categories = useMemo(() => getAllCategories(), [])
   const languages = useMemo(() => getAllLanguages(), [])
 
@@ -100,6 +113,8 @@ export default function AdminPage() {
 
   const handlePublish = async (work: Work) => {
     try {
+      if (isRowLoading(work.id)) return
+      setRowLoading(work.id, 'publish')
       const { data, ok } = await request.put(`/api/works/${work.id}`, {
         status: 'published',
       })
@@ -114,11 +129,15 @@ export default function AdminPage() {
     } catch (error: any) {
       console.error('Publish failed:', error)
       toast.error(error?.message || 'Publish failed')
+    } finally {
+      setRowLoading(work.id, null)
     }
   }
 
   const handleReject = async (work: Work) => {
     try {
+      if (isRowLoading(work.id)) return
+      setRowLoading(work.id, 'reject')
       const { data, ok } = await request.put(`/api/works/${work.id}`, {
         status: 'rejected',
       })
@@ -133,11 +152,15 @@ export default function AdminPage() {
     } catch (error: any) {
       console.error('Reject failed:', error)
       toast.error(error?.message || 'Reject failed')
+    } finally {
+      setRowLoading(work.id, null)
     }
   }
 
   const handleToggleQuickPick = async (work: Work, value: boolean) => {
     try {
+      if (isRowLoading(work.id)) return
+      setRowLoading(work.id, value ? 'mark_quick' : 'unmark_quick')
       const { data, ok } = await request.put(`/api/works/${work.id}`, {
         quickPick: value,
       })
@@ -153,6 +176,8 @@ export default function AdminPage() {
     } catch (error: any) {
       console.error('Quick picks update failed:', error)
       toast.error(error?.message || 'Update failed')
+    } finally {
+      setRowLoading(work.id, null)
     }
   }
 
@@ -272,49 +297,55 @@ export default function AdminPage() {
       cell: ({ row }) => {
         const work = row.original
         const canPublish = (work.status || 'draft') !== 'published'
+        const loadingPublish = isRowLoading(work.id, 'publish')
+        const loadingReject = isRowLoading(work.id, 'reject')
+        const loadingMarkQuick = isRowLoading(work.id, 'mark_quick')
+        const loadingUnmarkQuick = isRowLoading(work.id, 'unmark_quick')
+        const anyLoading = isRowLoading(work.id)
         return (
           <div className="flex items-center justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline">
-                  Actions
+                <Button size="sm" variant="outline" disabled={anyLoading}>
+                  {anyLoading ? 'Working...' : 'Actions'}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
-                  disabled={!canPublish}
+                  disabled={!canPublish || anyLoading}
                   onSelect={(e) => {
                     e.preventDefault()
                     handlePublish(work)
                   }}
                 >
-                  Publish
+                  {loadingPublish ? 'Publishing…' : 'Publish'}
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  disabled={anyLoading}
                   onSelect={(e) => {
                     e.preventDefault()
                     handleReject(work)
                   }}
                 >
-                  Reject
+                  {loadingReject ? 'Rejecting…' : 'Reject'}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  disabled={Boolean(work.quickPick)}
+                  disabled={Boolean(work.quickPick) || anyLoading}
                   onSelect={(e) => {
                     e.preventDefault()
                     handleToggleQuickPick(work, true)
                   }}
                 >
-                  Mark as Quick picks
+                  {loadingMarkQuick ? 'Updating…' : 'Mark as Quick picks'}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  disabled={!Boolean(work.quickPick)}
+                  disabled={!Boolean(work.quickPick) || anyLoading}
                   onSelect={(e) => {
                     e.preventDefault()
                     handleToggleQuickPick(work, false)
                   }}
                 >
-                  Unmark Quick picks
+                  {loadingUnmarkQuick ? 'Updating…' : 'Unmark Quick picks'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
