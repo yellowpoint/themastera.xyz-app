@@ -1,18 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { toast } from 'sonner'
-import { Copy } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
-import { useWorks } from '@/hooks/useWorks'
+import PageLoading from '@/components/PageLoading'
 import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
 import WorkDetailsForm from '@/components/creator/WorkDetailsForm'
+import { Separator } from '@/components/ui/separator'
+import { useAuth } from '@/hooks/useAuth'
+import { useWorks } from '@/hooks/useWorks'
 import { api } from '@/lib/request'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 type CoverImage = {
   fileUrl: string
@@ -60,11 +57,15 @@ export default function EditWorkPage() {
   const [autoCover, setAutoCover] = useState<CoverImage | null>(null)
   const [showErrors, setShowErrors] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState<boolean>(false)
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true)
 
   // Load existing work details
   useEffect(() => {
     const loadWork = async () => {
-      if (!workId) return
+      if (!workId) {
+        setIsInitialLoading(false)
+        return
+      }
       try {
         const res = await api.get<any>(`/api/works/${workId}`)
         const result = res.data as any
@@ -115,12 +116,12 @@ export default function EditWorkPage() {
       } catch (err: any) {
         console.error('Error loading work:', err)
         toast.error(err?.message || 'Failed to load work')
+      } finally {
+        setIsInitialLoading(false)
       }
     }
     loadWork()
   }, [workId])
-
-  // Form details are now handled by WorkDetailsForm
 
   // Handle video upload completion (allow replacing video)
   const handleVideoUploadComplete = (uploadedFiles: UploadedVideo[]) => {
@@ -291,6 +292,10 @@ export default function EditWorkPage() {
     }
   }
 
+  if (isInitialLoading) {
+    return <PageLoading />
+  }
+
   // If we haven't loaded an existing video yet, show a simple uploader to allow replacing/adding
   if (!uploadedVideo) {
     return (
@@ -347,61 +352,38 @@ export default function EditWorkPage() {
           {/* Scrollable Form Content */}
           <div className="flex-1 overflow-y-auto px-8 py-2">
             <WorkDetailsForm
-                value={{
-                  title: uploadForm.title,
-                  description: uploadForm.description,
-                  category: uploadForm.category,
-                  language: uploadForm.language,
-                  isPaid: uploadForm.isPaid,
-                  isForKids: uploadForm.isForKids,
-                  thumbnailUrl: uploadForm.thumbnailUrl,
-                }}
-                onChange={(patch) =>
-                  setUploadForm((prev) => ({
-                    ...prev,
-                    ...patch,
-                  }))
-                }
-                showErrors={showErrors}
-                autoCover={autoCover}
-                onCoverUploadComplete={handleCoverUploadComplete}
-                uploadedVideo={uploadedVideo}
-                onVideoUploadComplete={handleVideoUploadComplete}
-                onCopyLink={handleCopyLink}
-              />
-
-              {/* Footer Actions */}
-              <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
-                <div className="flex justify-between items-center">
-                  <Button
-                    variant="ghost"
-                    className="text-primary text-sm"
-                    onClick={handleSaveDraft}
-                  >
-                    Save as draft
-                  </Button>
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      className="bg-[#F2F3F5] text-foreground px-4 h-10"
-                      onClick={() => router.push('/creator')}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      className="bg-primary text-white px-4 h-10"
-                      onClick={handleSubmitClick}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Saving...' : 'Save changes'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              value={{
+                title: uploadForm.title,
+                description: uploadForm.description,
+                category: uploadForm.category,
+                language: uploadForm.language,
+                isPaid: uploadForm.isPaid,
+                isForKids: uploadForm.isForKids,
+                thumbnailUrl: uploadForm.thumbnailUrl,
+              }}
+              onChange={(patch) =>
+                setUploadForm((prev) => ({
+                  ...prev,
+                  ...patch,
+                }))
+              }
+              showErrors={showErrors}
+              autoCover={autoCover}
+              onCoverUploadComplete={handleCoverUploadComplete}
+              uploadedVideo={uploadedVideo}
+              onVideoUploadComplete={handleVideoUploadComplete}
+              onCopyLink={handleCopyLink}
+              showFooter={true}
+              onSaveDraft={handleSaveDraft}
+              onCancel={() => router.push('/creator')}
+              onPrimary={() => submitWork()}
+              isSubmitting={isSubmitting}
+              primaryButtonText="Save changes"
+              primaryButtonLoadingText="Saving..."
+              saveDraftLabel="Save as draft"
+              cancelLabel="Cancel"
+            />
           </div>
-
-          {/* Vertical separator removed; WorkDetailsForm now handles layout */}
         </div>
       </div>
     </div>

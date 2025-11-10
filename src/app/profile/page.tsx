@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Edit, Save, X, Camera } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase, getStorageUrl } from '@/lib/supabase'
@@ -247,7 +248,7 @@ export default function ProfilePage() {
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {uploading ? (
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                          <Spinner className="h-8 w-8 text-white" />
                         ) : (
                           <Camera className="w-8 h-8 text-white" />
                         )}

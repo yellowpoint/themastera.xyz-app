@@ -32,8 +32,8 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Loader2,
 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import React from 'react'
 import { Input } from '@/components/ui/input'
 
@@ -183,7 +183,7 @@ export function DataTableWithPagination<TData, TValue>({
 
         {loading && (
           <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-700 dark:text-gray-300" />
+            <Spinner className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </div>
         )}
       </div>

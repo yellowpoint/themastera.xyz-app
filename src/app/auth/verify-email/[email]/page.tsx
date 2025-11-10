@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { CheckCircle, XCircle } from "lucide-react";
 import { request } from "@/lib/request";
 
@@ -84,7 +84,9 @@ export default function VerifyEmailPage() {
         <CardContent className="text-center p-8">
           {status === "verifying" && (
             <>
-              <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground mx-auto" />
+              <div className="mb-4 mx-auto">
+                <Spinner className="h-8 w-8" />
+              </div>
               <h1 className="text-2xl font-bold mb-4">Verifying Email...</h1>
               <p className="text-gray-600 dark:text-gray-400">
                 Verifying your email address, please wait...

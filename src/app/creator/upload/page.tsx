@@ -1,45 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
+import WorkDetailsForm from '@/components/creator/WorkDetailsForm'
+import PageLoading from '@/components/PageLoading'
 import { Separator } from '@/components/ui/separator'
-import { toast } from 'sonner'
-import { Copy, ChevronDown, AlertCircle } from 'lucide-react'
+import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
+import { MUSIC_CATEGORIES } from '@/config/categories'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
-import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
-import ImgUpload from '@/components/ImgUpload'
-import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  Field,
-  FieldLabel,
-  FieldDescription,
-  FieldError,
-  FieldContent,
-  FieldSet,
-  FieldLegend,
-  FieldGroup,
-  FieldSeparator,
-} from '@/components/ui/field'
-import WorkDetailsForm, {
-  UploadFormState as DetailsFormState,
-  CoverImage as DetailsCoverImage,
-} from '@/components/creator/WorkDetailsForm'
-import { api } from '@/lib/request'
 import { formatDuration } from '@/lib/format'
+import { api } from '@/lib/request'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 // Use UploadedVideo type from VideoUpload for consistency
 
@@ -352,37 +324,10 @@ export default function UploadPage() {
       toast.success('Video link copied to clipboard')
     }
   }
-  // Step 1: When copying, show a simple loading to avoid flashing the uploader
+  // Step 1: When copying, delegate loading layer to WorkDetailsForm
   const copyFromParam = searchParams?.get('copyFrom')
   if (copyFromParam && isCopyPrefillLoading) {
-    return (
-      <div className="h-[calc(100vh-120px)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <svg
-            className="h-8 w-8 animate-spin text-muted-foreground"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-              className="opacity-25"
-            />
-            <path
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              fill="currentColor"
-              className="opacity-75"
-            />
-          </svg>
-          <h1 className="text-4xl font-normal">Loading...</h1>
-          <p className="text-base text-muted-foreground">Preparing copy data</p>
-        </div>
-      </div>
-    )
+    return <PageLoading />
   }
 
   // Step 2: Simple uploader view before details
@@ -486,41 +431,18 @@ export default function UploadPage() {
               uploadedVideo={uploadedVideo}
               onVideoUploadComplete={handleVideoUploadComplete}
               onCopyLink={handleCopyLink}
+              showFooter={true}
+              onSaveDraft={handleSaveDraft}
+              onCancel={handleSaveDraft}
+              onPrimary={() => submitWork()}
+              isSubmitting={isSubmitting}
+              primaryButtonText="Upload"
+              primaryButtonLoadingText="Uploading..."
+              saveDraftLabel="Save a draft"
+              cancelLabel="Cancel"
             />
           </div>
-
-          {/* Bottom Confirmation Bar */}
-          <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-999">
-            <div className="flex justify-between items-center">
-              <Button
-                variant="ghost"
-                className="text-primary text-sm"
-                onClick={handleSaveDraft}
-              >
-                Save a draft
-              </Button>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="bg-[#F2F3F5] text-foreground px-4 h-10"
-                  onClick={handleSaveDraft}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="bg-primary text-white px-4 h-10"
-                  onClick={handleSubmitClick}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Uploading...' : 'Upload'}
-                </Button>
-              </div>
-            </div>
-          </div>
         </div>
-
-        {/* Right Sidebar removed; now inside WorkDetailsForm */}
       </div>
     </div>
   )
