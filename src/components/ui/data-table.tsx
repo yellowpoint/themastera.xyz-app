@@ -32,6 +32,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Loader2,
 } from 'lucide-react'
 import React from 'react'
 import { Input } from '@/components/ui/input'
@@ -41,6 +42,14 @@ interface DataTableWithPaginationProps<TData, TValue> {
   data: TData[]
   pageSizeOptions?: number[]
   initialPageSize?: number
+  loading?: boolean
+  serverPagination?: {
+    total: number
+    page: number // 1-based
+    pageSize: number
+    onPageChange: (page: number) => void
+    onPageSizeChange: (size: number) => void
+  }
 }
 
 export function DataTableWithPagination<TData, TValue>({
@@ -48,6 +57,8 @@ export function DataTableWithPagination<TData, TValue>({
   data,
   pageSizeOptions = [10, 20, 25, 30, 40, 50],
   initialPageSize,
+  loading = false,
+  serverPagination,
 }: DataTableWithPaginationProps<TData, TValue>) {
   const defaultPageSize = initialPageSize ?? pageSizeOptions[0] ?? 10
   const [rowSelection, setRowSelection] = React.useState({})
@@ -56,6 +67,16 @@ export function DataTableWithPagination<TData, TValue>({
     pageSize: defaultPageSize,
   })
   const [sorting, setSorting] = React.useState<SortingState>([])
+  // Sync internal pagination with external server pagination if provided
+  React.useEffect(() => {
+    if (serverPagination) {
+      setPagination({
+        pageIndex: Math.max(0, (serverPagination.page || 1) - 1),
+        pageSize: serverPagination.pageSize || defaultPageSize,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverPagination?.page, serverPagination?.pageSize])
   const table = useReactTable({
     data,
     columns,
@@ -69,12 +90,35 @@ export function DataTableWithPagination<TData, TValue>({
       rowSelection,
     },
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(pagination) : updater
+      setPagination(next)
+      // When server-side mode, delegate changes outward
+      if (serverPagination) {
+        const nextPage = next.pageIndex + 1
+        if (next.pageSize !== serverPagination.pageSize) {
+          serverPagination.onPageSizeChange?.(next.pageSize)
+        }
+        if (nextPage !== serverPagination.page) {
+          serverPagination.onPageChange?.(nextPage)
+        }
+      }
+    },
+    // Enable manual pagination for server-driven mode
+    ...(serverPagination
+      ? {
+          manualPagination: true,
+          pageCount: Math.max(
+            1,
+            Math.ceil((serverPagination.total || 0) / pagination.pageSize)
+          ),
+        }
+      : {}),
   })
 
   return (
     <div className="w-full">
-      <div className="overflow-x-auto border rounded-sm">
+      <div className="overflow-x-auto border rounded-sm relative">
         <Table className="w-full table-auto">
           <TableHeader className="bg-muted">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -136,9 +180,20 @@ export function DataTableWithPagination<TData, TValue>({
             )}
           </TableBody>
         </Table>
+
+        {loading && (
+          <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
+            <Loader2 className="h-6 w-6 animate-spin text-gray-700 dark:text-gray-300" />
+          </div>
+        )}
       </div>
 
-      <DataTablePagination table={table} pageSizeOptions={pageSizeOptions} />
+      <DataTablePagination
+        table={table}
+        pageSizeOptions={pageSizeOptions}
+        totalOverride={serverPagination?.total}
+        onPageChange={serverPagination?.onPageChange}
+      />
     </div>
   )
 }
@@ -146,16 +201,27 @@ export function DataTableWithPagination<TData, TValue>({
 interface DataTablePaginationProps<TData> {
   table: TanStackTable<TData>
   pageSizeOptions?: number[]
+  totalOverride?: number
+  onPageChange?: (page: number) => void
 }
 
 export function DataTablePagination<TData>({
   table,
   pageSizeOptions = [10, 20, 25, 30, 40, 50],
+  totalOverride,
+  onPageChange,
 }: DataTablePaginationProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex
   const pageSize = table.getState().pagination.pageSize
-  const pageCount = table.getPageCount()
-  const totalItems = table.getFilteredRowModel().rows.length
+  const derivedPageCount = table.getPageCount()
+  const totalItems =
+    typeof totalOverride === 'number'
+      ? totalOverride
+      : table.getFilteredRowModel().rows.length
+  const pageCount = Math.max(
+    derivedPageCount,
+    Math.ceil(totalItems / Math.max(pageSize, 1))
+  )
 
   // derive a small window of pages around current, capped to 5
   const maxButtons = 5
@@ -169,7 +235,11 @@ export function DataTablePagination<TData>({
 
   const goToPage = (n: number) => {
     const idx = Math.min(Math.max(n - 1, 0), Math.max(pageCount - 1, 0))
-    table.setPageIndex(idx)
+    if (onPageChange) {
+      onPageChange(idx + 1)
+    } else {
+      table.setPageIndex(idx)
+    }
   }
 
   return (
@@ -183,9 +253,15 @@ export function DataTablePagination<TData>({
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 rounded-[2px]"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          className="h-9 w-9 "
+          onClick={() => {
+            const prev = pageIndex - 1
+            if (prev >= 0) {
+              if (onPageChange) onPageChange(prev + 1)
+              else table.previousPage()
+            }
+          }}
+          disabled={pageIndex <= 0}
         >
           <span className="sr-only">Go to previous page</span>
           <ChevronLeft className="h-4 w-4" />
@@ -197,16 +273,14 @@ export function DataTablePagination<TData>({
             const isCurrent = p === pageIndex
             return (
               <Button
-                variant="ghost"
+                variant={isCurrent ? 'secondary' : 'ghost'}
                 key={p}
                 type="button"
-                onClick={() => table.setPageIndex(p)}
-                className={
-                  `h-9 min-w-9 rounded-[2px] px-2 text-sm ` +
-                  (isCurrent
-                    ? 'bg-[#F4E8FF] text-[#805333] hover:bg-[#F4E8FF]'
-                    : 'text-[#4E5969] hover:bg-gray-100')
-                }
+                onClick={() => {
+                  if (onPageChange) onPageChange(p + 1)
+                  else table.setPageIndex(p)
+                }}
+                className={`h-9 min-w-9 px-2 text-sm ${isCurrent ? 'hover:bg-secondary' : ''}`}
                 aria-current={isCurrent ? 'page' : undefined}
               >
                 {p + 1}
@@ -219,9 +293,15 @@ export function DataTablePagination<TData>({
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 rounded-[2px]"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          className="h-9 w-9 "
+          onClick={() => {
+            const next = pageIndex + 1
+            if (next <= pageCount - 1) {
+              if (onPageChange) onPageChange(next + 1)
+              else table.nextPage()
+            }
+          }}
+          disabled={pageIndex >= pageCount - 1}
         >
           <span className="sr-only">Go to next page</span>
           <ChevronRight className="h-4 w-4" />
@@ -234,10 +314,17 @@ export function DataTablePagination<TData>({
         <Select
           value={`${pageSize}`}
           onValueChange={(value) => {
-            table.setPageSize(Number(value))
+            const size = Number(value)
+            if (onPageChange) {
+              // reset to first page when page size changes in server mode
+              table.setPageSize(size)
+              onPageChange(1)
+            } else {
+              table.setPageSize(size)
+            }
           }}
         >
-          <SelectTrigger className="h-9 w-[120px] rounded-[2px] bg-[#F7F8FA]">
+          <SelectTrigger className="h-9 w-[120px]  bg-[#F7F8FA]">
             <SelectValue placeholder={`${pageSize} / Page`} />
           </SelectTrigger>
           <SelectContent side="top">
@@ -255,7 +342,7 @@ export function DataTablePagination<TData>({
             min={1}
             max={Math.max(pageCount, 1)}
             defaultValue={pageIndex + 1}
-            className="h-9 w-[56px] rounded-[2px] bg-[#F7F8FA] px-2 text-center"
+            className="h-9 w-[56px]  bg-[#F7F8FA] px-2 text-center"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const target = e.target as HTMLInputElement

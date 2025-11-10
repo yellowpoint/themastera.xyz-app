@@ -106,8 +106,8 @@ export function useCreatorColumns() {
       },
     },
     {
-      id: 'visibility',
-      header: () => <span>Visibility</span>,
+      id: 'status',
+      header: () => <span>Status</span>,
       cell: ({ row }) => (
         <span className="text-sm text-[#1D2129] capitalize">
           {row.original.status || 'Draft'}
@@ -170,7 +170,9 @@ export function useCreatorColumns() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
-                  onSelect={() => router.push(`/creator/upload?copyFrom=${work.id}`)}
+                  onSelect={() =>
+                    router.push(`/creator/upload?copyFrom=${work.id}`)
+                  }
                 >
                   Copy
                 </DropdownMenuItem>

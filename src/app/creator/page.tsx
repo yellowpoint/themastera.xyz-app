@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Search, MoreHorizontal } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorks } from '@/hooks/useWorks'
@@ -39,29 +39,57 @@ export default function CreatorPage() {
   const { user, loading: authLoading } = useAuth()
   const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks()
   const [searchQuery, setSearchQuery] = useState<string>('')
+  // debounce search to avoid excessive requests
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [page, setPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(10)
+  const [total, setTotal] = useState<number>(0)
 
   const columns = useCreatorColumns()
 
-  // Filter works based on search and visibility
-  const filteredWorks: Work[] = works.filter((work: Work) => {
-    const matchesSearch = work?.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || work.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // Server-side fetching based on filters and pagination
+  const loadWorks = useCallback(async () => {
+    const res = await fetchWorks({
+      status: statusFilter !== 'all' ? statusFilter : undefined,
+      q: debouncedSearch || undefined,
+      page,
+      limit,
+    })
+    const pagination = (res as any)?.data?.pagination
+    if (pagination) {
+      setTotal(pagination.total || 0)
+    }
+  }, [fetchWorks, statusFilter, debouncedSearch, page, limit])
 
   // formatters moved to shared module
 
   useEffect(() => {
     const onDeleted = () => {
-      fetchWorks()
+      loadWorks()
     }
     window.addEventListener('work-deleted', onDeleted as EventListener)
     return () =>
       window.removeEventListener('work-deleted', onDeleted as EventListener)
-  }, [fetchWorks])
+  }, [loadWorks])
+
+  // Trigger load on filter/pagination changes
+  useEffect(() => {
+    loadWorks()
+  }, [loadWorks])
+
+  // Update debounced search term
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, debouncedSearch])
 
   return (
     <div className="h-full">
@@ -69,71 +97,36 @@ export default function CreatorPage() {
         <div className="max-w-7xl mx-auto px-8 py-6">
           {/* Page Title */}
           <div className="mb-10">
-            {authLoading || worksLoading ? (
-              <Skeleton className="h-7 w-48" />
-            ) : (
-              <h1 className="text-2xl font-normal">Dashboard</h1>
-            )}
+            <h1 className="text-2xl font-normal">Dashboard</h1>
           </div>
 
           <div className="space-y-6">
             {/* Search and Filter */}
             <div className="flex gap-4">
-              {authLoading || worksLoading ? (
-                <>
-                  <Skeleton className="h-9 w-64" />
-                  <Skeleton className="h-9 w-40" />
-                </>
-              ) : (
-                <>
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search for video name"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 border-gray-300"
-                    />
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-40 border-gray-300">
-                      <SelectValue placeholder="All statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search for video name"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 border-gray-300"
+                  disabled={worksLoading}
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 border-gray-300" disabled={worksLoading}>
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {authLoading || worksLoading ? (
-              <div className="border rounded-sm p-4 w-full">
-                {/* Table header skeleton */}
-                <div className="grid grid-cols-5 gap-3 mb-3">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                </div>
-                {/* Rows skeleton */}
-                <div className="space-y-2">
-                  {Array.from({ length: 2 }).map((_, i) => (
-                    <div key={i} className="grid grid-cols-1 gap-3">
-                      <Skeleton className="h-5 w-full" />
-                      <Skeleton className="h-5 w-full" />
-                      <Skeleton className="h-5 w-full" />
-                      <Skeleton className="h-5 w-full" />
-                      <Skeleton className="h-5 w-full" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : filteredWorks.length === 0 ? (
+            {works.length === 0 && !worksLoading ? (
               <Empty className="border-gray-200">
                 <EmptyHeader>
                   <EmptyTitle>
@@ -154,6 +147,8 @@ export default function CreatorPage() {
                       onClick={() => {
                         setSearchQuery('')
                         setStatusFilter('all')
+                        setPage(1)
+                        setLimit(10)
                       }}
                     >
                       Reset filters
@@ -166,7 +161,24 @@ export default function CreatorPage() {
                 </EmptyContent>
               </Empty>
             ) : (
-              <DataTableWithPagination columns={columns} data={filteredWorks} />
+              <DataTableWithPagination
+                columns={columns}
+                data={works}
+                loading={worksLoading}
+                initialPageSize={limit}
+                serverPagination={{
+                  total,
+                  page,
+                  pageSize: limit,
+                  onPageChange: (nextPage) => {
+                    setPage(nextPage)
+                  },
+                  onPageSizeChange: (size) => {
+                    setLimit(size)
+                    setPage(1)
+                  },
+                }}
+              />
             )}
           </div>
         </div>

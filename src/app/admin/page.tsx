@@ -405,6 +405,7 @@ export default function AdminPage() {
       <DataTableWithPagination
         columns={columns}
         data={items}
+        loading={loading}
         pageSizeOptions={[10, 20, 50, 100]}
         initialPageSize={pageSize}
       />

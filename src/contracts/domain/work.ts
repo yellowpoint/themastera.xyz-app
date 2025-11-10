@@ -37,6 +37,7 @@ export type HomepageItem = Work
 export const WorkFiltersSchema = z.object({
   category: z.string().optional(),
   status: z.string().optional(),
+  q: z.string().optional(),
   page: z.number().optional(),
   limit: z.number().optional(),
 })

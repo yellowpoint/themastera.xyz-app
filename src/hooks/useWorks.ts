@@ -17,6 +17,7 @@ export const useWorks = () => {
       const params = new URLSearchParams()
       if (filters.category) params.append('category', filters.category)
       if (filters.status) params.append('status', filters.status)
+      if ((filters as any).q) params.append('q', String((filters as any).q))
       if (filters.page) params.append('page', String(filters.page))
       if (filters.limit) params.append('limit', String(filters.limit))
 
