@@ -413,10 +413,12 @@ export default function ContentDetailPage() {
               </div>
             </div>
 
-            {/* Playlist moved here from Sidebar */}
-            <div className="space-y-3">
-              <SidebarPlaylistSection />
-            </div>
+            {/* Playlist moved here from Sidebar (visible only when logged in) */}
+            {user?.id ? (
+              <div className="space-y-3">
+                <SidebarPlaylistSection />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

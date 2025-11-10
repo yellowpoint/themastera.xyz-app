@@ -80,7 +80,7 @@ body {
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
-    scrollbar-gutter: stable;
+    /* scrollbar-gutter: stable; 不能使用，会导致 rounded和overflow-hidden组合后右边有空白  */
   }
 
   /* Chromium/Safari */

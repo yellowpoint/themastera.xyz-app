@@ -149,10 +149,7 @@ export default function WorkCard({ work }: WorkCardProps) {
         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none"></div>
         <div className="flex items-center gap-3 mt-3">
           <div className="flex-shrink-0">
-            <Avatar
-              className="size-10 flex-shrink-0 cursor-pointer rounded-md border border-primary"
-              onClick={goToUser}
-            >
+            <Avatar className="size-10 cursor-pointer" onClick={goToUser}>
               <AvatarImage src={work?.user?.image || undefined} />
               <AvatarFallback>
                 {work?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -209,7 +206,9 @@ export default function WorkCard({ work }: WorkCardProps) {
                           </DropdownMenuItem>
                         ))
                       ) : (
-                        <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                          No playlists
+                        </DropdownMenuItem>
                       )}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
