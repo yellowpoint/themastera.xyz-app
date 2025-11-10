@@ -1,13 +1,12 @@
 "use client"
 
 import { useEffect, useState, useRef } from 'react'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+// Separator removed (no longer used)
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
-import { Copy, ChevronDown, Edit, Save, X, Camera } from 'lucide-react'
+import { Edit, Save, X, Camera } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase, getStorageUrl } from '@/lib/supabase'
@@ -52,15 +51,9 @@ export default function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
 
-  const handleCopyId = () => {
-    navigator.clipboard.writeText('8912345678912345679')
-    toast.success('Mastera ID copied to clipboard')
-  }
+  // Removed Mastera ID copy per layout simplification
 
-  const handleCopyInviteCode = () => {
-    navigator.clipboard.writeText('ATZ56N5U')
-    toast.success('Invite code copied to clipboard')
-  }
+  // Removed invite code feature per requirements
 
   const handleInputChange = (field: 'name' | 'description' | 'avatar', value: string | null) => {
     setFormData((prev) => ({
@@ -222,9 +215,9 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8">
               {/* Left Column - Profile Info */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-6">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
@@ -299,16 +292,7 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Badge */}
-                <div className="flex justify-center">
-                  <Badge variant="outline" className="rounded h-6">
-                    <img
-                      src="/path/to/badge.png"
-                      alt="Badge"
-                      className="h-full"
-                    />
-                  </Badge>
-                </div>
+                {/* Badge removed */}
 
                 {/* Description Section */}
                 <div className="space-y-2">
@@ -336,86 +320,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Right Column - Stats and Info */}
-              <div className="space-y-6">
-                {/* Stats */}
-                <div className="flex justify-center gap-10">
-                  <div className="flex flex-col items-center gap-3">
-                    <span className="text-base font-normal text-foreground">
-                      400
-                    </span>
-                    <span className="text-base text-muted-foreground">
-                      Following
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center gap-3">
-                    <span className="text-base font-normal text-foreground">
-                      200
-                    </span>
-                    <span className="text-base text-muted-foreground">
-                      Followers
-                    </span>
-                  </div>
-                </div>
-
-                <Separator className="opacity-20" />
-
-                {/* Mastera ID */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Mastera ID</label>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>8912345678912345679</span>
-                    <button
-                      className="p-1 hover:bg-gray-100 rounded"
-                      onClick={handleCopyId}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Mastera Points */}
-                <div className="bg-[#F7F8FA] p-4 rounded-lg">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm text-muted-foreground">
-                        Mastera Points
-                      </span>
-                      <span className="text-4xl font-normal text-[#7440DF]">
-                        1,257
-                      </span>
-                    </div>
-                    <Button className="bg-[#7440DF] text-white px-4 py-2 rounded h-10 flex items-center gap-2">
-                      Get more points
-                      <ChevronDown className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Invite Code */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">
-                    Personal invite code
-                  </label>
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-normal">ATZ56N5U</span>
-                        <button
-                          className="p-1 hover:bg-gray-100 rounded"
-                          onClick={handleCopyInviteCode}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="w-[68px] h-[69px] bg-[#F7F8FA] rounded flex items-center justify-center">
-                      {/* QR Code placeholder */}
-                      <div className="w-12 h-12 bg-gray-300 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Right Column removed as requested */}
             </div>
           </CardContent>
         </Card>

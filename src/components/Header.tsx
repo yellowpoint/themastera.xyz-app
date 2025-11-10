@@ -1,7 +1,7 @@
 'use client'
 
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Search, LogOut, Bell, ChevronDown } from 'lucide-react'
+import { Search, LogOut, Bell, ChevronDown, User } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
@@ -94,7 +94,7 @@ export default function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-card">
                   <DropdownMenuItem onClick={() => router.push('/profile')}>
-                    Profile
+                    <User className="mr-2 h-4 w-4" /> Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
