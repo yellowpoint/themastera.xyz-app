@@ -1,33 +1,39 @@
-"use client"
+'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 // Separator removed (no longer used)
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
-import { Edit, Save, X, Camera } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'sonner'
-import { supabase, getStorageUrl } from '@/lib/supabase'
-import { request } from '@/lib/request'
+import { Textarea } from '@/components/ui/textarea'
 import type { AuthUser } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
+import { request } from '@/lib/request'
+import { getStorageUrl, supabase } from '@/lib/supabase'
+import { Camera, Edit, Save, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [uploading, setUploading] = useState<boolean>(false)
   const [dragActive, setDragActive] = useState<boolean>(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Form state
-  const [formData, setFormData] = useState<{ name: string; description: string; avatar: string | null }>(
-    {
-    name: user?.name || 'Jacky Q',
+  const [formData, setFormData] = useState<{
+    name: string
+    description: string
+    avatar: string | null
+  }>({
+    name: user?.name || '',
     description: '',
     avatar: user?.image || null,
   })
+
+  // Validation state
+  const isNameEmpty = !(formData.name || '').trim()
 
   // Prefill from API to get description and latest fields
   useEffect(() => {
@@ -52,11 +58,10 @@ export default function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
 
-  // Removed Mastera ID copy per layout simplification
-
-  // Removed invite code feature per requirements
-
-  const handleInputChange = (field: 'name' | 'description' | 'avatar', value: string | null) => {
+  const handleInputChange = (
+    field: 'name' | 'description' | 'avatar',
+    value: string | null
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -152,6 +157,10 @@ export default function ProfilePage() {
         toast.error('Not authenticated')
         return
       }
+      if (isNameEmpty) {
+        toast.error('Name cannot be empty')
+        return
+      }
       const payload = {
         name: formData.name,
         image: formData.avatar || null,
@@ -161,6 +170,8 @@ export default function ProfilePage() {
       if (!data?.success) {
         throw new Error((data as any)?.error || 'Update failed')
       }
+
+      refreshUser().catch(() => {})
 
       toast.success('Profile updated successfully')
       setIsEditing(false)
@@ -172,7 +183,7 @@ export default function ProfilePage() {
   const handleCancel = () => {
     // Reset form data to original values
     setFormData((prev) => ({
-      name: user?.name || prev.name || 'Jacky Q',
+      name: user?.name || prev.name || '',
       description: prev.description || '',
       avatar: user?.image || prev.avatar || null,
     }))
@@ -199,6 +210,7 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <Button
                     onClick={handleSave}
+                    disabled={isNameEmpty || uploading}
                     className="flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
@@ -288,9 +300,27 @@ export default function ProfilePage() {
                       placeholder="Enter your name"
                       className="text-2xl font-normal h-12"
                     />
-                  ) : (
+                  ) : formData.name?.trim() ? (
                     <h2 className="text-2xl font-normal">{formData.name}</h2>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Your display name is not set yet.
+                    </p>
                   )}
+                  {isEditing && isNameEmpty && (
+                    <p className="text-xs text-red-500">Name is required</p>
+                  )}
+                </div>
+
+                {/* Email Section (read-only) */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email</label>
+                  <Input
+                    value={user?.email || ''}
+                    readOnly
+                    disabled
+                    placeholder="your-email@example.com"
+                  />
                 </div>
 
                 {/* Badge removed */}
@@ -308,9 +338,14 @@ export default function ProfilePage() {
                       className="min-h-[120px] resize-none"
                       maxLength={500}
                     />
-                  ) : (
+                  ) : formData.description?.trim() ? (
                     <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                       {formData.description}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No description yet. Add a short bio to let others know
+                      about you.
                     </p>
                   )}
                   {isEditing && (

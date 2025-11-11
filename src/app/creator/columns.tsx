@@ -31,11 +31,11 @@ export function useCreatorColumns() {
         return (
           <div className="flex gap-2 items-start min-w-30 h-[72px]">
             <div className="relative flex-shrink-0 h-full">
-              <div className="w-[100px] h-full bg-gray-200  ">
+              <div className="w-[100px] h-full bg-gray-200  rounded-lg overflow-hidden">
                 <img
                   src={work.thumbnailUrl || '/placeholder-video.jpg'}
                   alt={work.title}
-                  className={`w-full h-full object-cover rounded-lg ${
+                  className={`w-full h-full object-cover ${
                     work.status === 'draft' ? 'opacity-60' : ''
                   }`}
                 />

@@ -1,7 +1,14 @@
-"use client"
+'use client'
 
-import { useState, useEffect, createContext, useContext, type FC, type ReactNode } from 'react'
 import { createAuthClient } from 'better-auth/react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type FC,
+  type ReactNode,
+} from 'react'
 
 export interface AuthUser {
   id: string
@@ -21,6 +28,7 @@ export interface AuthContextValue {
   signOut: (options?: any) => Promise<any>
   resetPassword: (email: string) => Promise<any>
   updateProfile: (updates: any) => Promise<any>
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -133,6 +141,15 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
+  const refreshUser = async () => {
+    try {
+      const session: any = await auth.getSession()
+      setUser(session?.data?.user || null)
+    } catch (error) {
+      console.error('Error refreshing user:', error)
+    }
+  }
+
   const value: AuthContextValue = {
     user,
     loading,
@@ -141,6 +158,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     signOut,
     resetPassword,
     updateProfile,
+    refreshUser,
   }
 
   if (loading) {

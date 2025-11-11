@@ -53,7 +53,6 @@ export default function ImgUpload({
   // Only prefill initialImage once; otherwise remove action will re-fill it
   const hasPrefilledRef = useRef<boolean>(false)
   const { user } = useAuth()
-  console.log('initialImage', initialImage)
 
   // 确保 bucket 和 folder 参数有效
   const storageBucket = bucket || 'data'
