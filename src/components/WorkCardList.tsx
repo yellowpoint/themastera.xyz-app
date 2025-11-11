@@ -59,7 +59,8 @@ export default function WorkCardList({
         </div>
       )}
 
-      {!isLoading && !isLoadingMore && !hasMore && works?.length ? (
+      {/* Only show when hasMore is explicitly false (i.e., pagination is supported but exhausted) */}
+      {!isLoading && !isLoadingMore && hasMore === false && works?.length ? (
         <div className="flex justify-center">
           <p className="text-sm text-muted-foreground" aria-live="polite">
             All items loaded

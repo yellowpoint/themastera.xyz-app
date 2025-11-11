@@ -1,48 +1,57 @@
 'use client'
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
-import Link from 'next/link'
-import { Trash2, Clock, Search, Calendar } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Calendar as ShadCalendar } from '@/components/ui/calendar'
-import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Calendar as ShadCalendar } from '@/components/ui/calendar'
 import {
   Empty,
   EmptyDescription,
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { request } from '@/lib/request'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { formatViews } from '@/lib/format'
+import { request } from '@/lib/request'
+import { Calendar, Clock, Search, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 
 export default function WatchHistoryPage() {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+  // Pending range used inside the calendar popover; only applied on confirmation
+  const [pendingDateRange, setPendingDateRange] = useState<
+    DateRange | undefined
+  >(undefined)
+  const [calendarOpen, setCalendarOpen] = useState<boolean>(false)
   const [page, setPage] = useState<number>(1)
-  const [limit] = useState<number>(18)
+  const [limit] = useState<number>(10)
   const [totalPages, setTotalPages] = useState<number>(1)
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
-  const observingRef = useRef<IntersectionObserver | null>(null)
 
   const fetchHistory = useCallback(
-    async (opts: { pageOverride?: number } = {}) => {
+    async (opts: { pageOverride?: number; loadMore?: boolean } = {}) => {
       const { pageOverride } = opts
       const nextPage = pageOverride ?? page
+      const isLoadMore = opts.loadMore ?? nextPage > 1
       try {
-        setLoading(true)
+        if (isLoadMore) {
+          setIsLoadingMore(true)
+        } else {
+          setLoading(true)
+        }
         setError(null)
         const params = new URLSearchParams()
         params.set('page', String(nextPage))
@@ -61,18 +70,19 @@ export default function WatchHistoryPage() {
         const msg = (err as any)?.message || 'Failed to load watch history'
         setError(msg)
       } finally {
-        setLoading(false)
+        if (isLoadMore) {
+          setIsLoadingMore(false)
+        } else {
+          setLoading(false)
+        }
       }
     },
-    [page, limit, debouncedSearch, dateRange]
+    [limit, debouncedSearch, dateRange]
   )
 
   // Debounced search handled by Input component via onDebouncedValueChange
 
-  // Initial load
-  useEffect(() => {
-    fetchHistory({ pageOverride: 1 })
-  }, [])
+  // Initial load handled by the filter effect below to avoid double-fetch
 
   // Re-fetch when filters change
   useEffect(() => {
@@ -80,27 +90,14 @@ export default function WatchHistoryPage() {
     fetchHistory({ pageOverride: 1 })
   }, [debouncedSearch, dateRange?.from, dateRange?.to])
 
-  // Infinite scroll via IntersectionObserver
-  useEffect(() => {
-    if (!loadMoreRef.current) return
-    if (observingRef.current) {
-      observingRef.current.disconnect?.()
-      observingRef.current = null
-    }
-    const observer = new IntersectionObserver((entries) => {
-      const first = entries[0]
-      if (first?.isIntersecting && !loading && page < totalPages) {
-        const next = page + 1
-        setPage(next)
-        fetchHistory({ pageOverride: next })
-      }
-    })
-    observingRef.current = observer
-    observer.observe(loadMoreRef.current)
-    return () => {
-      observer.disconnect()
-    }
-  }, [loadMoreRef.current, loading, page, totalPages, fetchHistory])
+  const hasMore = useMemo(() => page < totalPages, [page, totalPages])
+
+  const onLoadMore = useCallback(() => {
+    if (loading || isLoadingMore || !hasMore) return
+    const next = page + 1
+    setPage(next)
+    fetchHistory({ pageOverride: next, loadMore: true })
+  }, [loading, isLoadingMore, hasMore, page, fetchHistory])
 
   const removeItem = async (workId: string | number) => {
     try {
@@ -156,7 +153,19 @@ export default function WatchHistoryPage() {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Popover>
+        <Popover
+          open={calendarOpen}
+          onOpenChange={(open) => {
+            setCalendarOpen(open)
+            if (open) {
+              // Initialize pending range to current applied range when opening
+              setPendingDateRange(dateRange)
+            } else {
+              // Clear pending selection on close to avoid accidental apply later
+              setPendingDateRange(undefined)
+            }
+          }}
+        >
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm">
               <Calendar className="h-4 w-4 mr-2" />
@@ -169,17 +178,43 @@ export default function WatchHistoryPage() {
             <div className="p-3">
               <ShadCalendar
                 mode="range"
-                selected={dateRange}
-                onSelect={(r) => setDateRange(r || undefined)}
+                selected={pendingDateRange ?? dateRange}
+                onSelect={(r) => setPendingDateRange(r || undefined)}
                 numberOfMonths={2}
               />
               <div className="flex justify-end gap-2 mt-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setDateRange(undefined)}
+                  onClick={() => {
+                    // Do not apply changes; just close and discard
+                    setPendingDateRange(undefined)
+                    setCalendarOpen(false)
+                  }}
                 >
-                  Reset
+                  Cancel
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    // Apply a cleared range immediately
+                    setDateRange(undefined)
+                    setPendingDateRange(undefined)
+                    setCalendarOpen(false)
+                  }}
+                >
+                  Clear
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    // Confirm selection: apply pending range and trigger fetch via effect
+                    setDateRange(pendingDateRange || undefined)
+                    setCalendarOpen(false)
+                  }}
+                >
+                  Apply
                 </Button>
               </div>
             </div>
@@ -282,8 +317,44 @@ export default function WatchHistoryPage() {
                   </div>
                 )
               })}
-              {/* Sentinel for infinite scroll */}
-              <div ref={loadMoreRef} />
+              {isLoadingMore &&
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={`loading-${i}`} className="space-y-3">
+                    <Skeleton className="aspect-video rounded-xl" />
+                    <div className="flex gap-3">
+                      <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <Skeleton className="h-3 w-1/2 rounded" />
+                        <Skeleton className="h-3 w-2/3 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              {hasMore && (
+                <div className="col-span-full flex justify-center">
+                  <Button
+                    onClick={onLoadMore}
+                    disabled={isLoadingMore}
+                    type="button"
+                  >
+                    {isLoadingMore ? 'Loading...' : 'Load more'}
+                  </Button>
+                </div>
+              )}
+              {!loading &&
+              !isLoadingMore &&
+              hasMore === false &&
+              items?.length ? (
+                <div className="col-span-full flex justify-center">
+                  <p
+                    className="text-sm text-muted-foreground"
+                    aria-live="polite"
+                  >
+                    All items loaded
+                  </p>
+                </div>
+              ) : null}
             </div>
 
             {/* Right: Timeline */}
