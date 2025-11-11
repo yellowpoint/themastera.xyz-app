@@ -1,23 +1,23 @@
 'use client'
-import React, { useRef, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { MoreVertical, ListPlus } from 'lucide-react'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSub,
-  DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { toast } from 'sonner'
-import { request } from '@/lib/request'
-import { Button } from './ui/button'
-import { formatViews } from '@/lib/format'
 import type { Work } from '@/contracts/domain/work'
 import { useAuth } from '@/hooks/useAuth'
+import { formatViews } from '@/lib/format'
+import { request } from '@/lib/request'
+import { ListPlus, MoreVertical } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import React, { useCallback, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { Button } from './ui/button'
 
 type PlaylistSummary = { id: string; name: string }
 
@@ -131,7 +131,7 @@ export default function WorkCard({ work }: WorkCardProps) {
       }}
     >
       <div className="relative mb-3">
-        <div className=" relative ">
+        <div className=" relative bg-background rounded-xl overflow-hidden ">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || 'Untitled'}
@@ -146,7 +146,7 @@ export default function WorkCard({ work }: WorkCardProps) {
             {durationLabel}
           </div>
         </div>
-        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none"></div>
+        <div className="absolute inset-0 bg-black/10  dark:bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none"></div>
         <div className="flex items-center gap-3 mt-3">
           <div className="flex-shrink-0">
             <Avatar className="size-10 cursor-pointer" onClick={goToUser}>

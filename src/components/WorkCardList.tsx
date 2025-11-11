@@ -1,9 +1,8 @@
 'use client'
-import React from 'react'
-import WorkCard from '@/components/WorkCard'
-import type { Work } from '@/contracts/domain/work'
 import { Button } from '@/components/ui/button'
+import WorkCard from '@/components/WorkCard'
 import WorkCardSkeleton from '@/components/WorkCardSkeleton'
+import type { Work } from '@/contracts/domain/work'
 import { Inbox } from 'lucide-react'
 
 type Props = {
@@ -22,7 +21,7 @@ export default function WorkCardList({
   onLoadMore,
 }: Props) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-6">
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -34,10 +33,17 @@ export default function WorkCardList({
           {works.map((work) => (
             <WorkCard key={work.id} work={work} />
           ))}
+          {isLoadingMore &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <WorkCardSkeleton key={`loading-${i}`} />
+            ))}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 border border-dashed rounded-lg text-center">
-          <Inbox className="h-10 w-10 text-muted-foreground mb-3" aria-hidden="true" />
+          <Inbox
+            className="h-10 w-10 text-muted-foreground mb-3"
+            aria-hidden="true"
+          />
           <h2 className="text-lg font-medium">No items found</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Try adjusting filters or check back later.
@@ -52,6 +58,14 @@ export default function WorkCardList({
           </Button>
         </div>
       )}
+
+      {!isLoading && !isLoadingMore && !hasMore && works?.length ? (
+        <div className="flex justify-center">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            All items loaded
+          </p>
+        </div>
+      ) : null}
     </div>
   )
 }

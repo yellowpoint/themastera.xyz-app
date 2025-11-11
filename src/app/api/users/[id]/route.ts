@@ -1,13 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getAuthSession, requireAuth } from "@/middleware/auth";
-import { apiSuccess, apiFailure } from "@/contracts/types/common";
-import type { Prisma } from "@prisma/client";
+import { apiFailure, apiSuccess } from '@/contracts/types/common'
+import { prisma } from '@/lib/prisma'
+import { getAuthSession, requireAuth } from '@/middleware/auth'
+import type { Prisma } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/users/[id] - 获取单个用户信息
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await params
+
+    // Parse pagination and sorting from query params
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+    const limit = Math.max(1, parseInt(searchParams.get('limit') || '10', 10))
+    const q = (searchParams.get('q') || '').trim()
+    const sort = (searchParams.get('sort') || 'latest') as
+      | 'latest'
+      | 'popular'
+      | 'oldest'
+
+    // Determine orderBy based on sort
+    const orderBy: Prisma.WorkOrderByWithRelationInput =
+      sort === 'popular'
+        ? { views: 'desc' }
+        : sort === 'oldest'
+          ? { createdAt: 'asc' }
+          : { createdAt: 'desc' }
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -28,26 +49,37 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             views: true,
             createdAt: true,
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          where: q
+            ? {
+                OR: [
+                  { title: { contains: q } },
+                  { description: { contains: q } },
+                  { tags: { contains: q } },
+                ],
+              }
+            : undefined,
+          orderBy,
+          skip: (page - 1) * limit,
+          take: limit,
         },
       },
-    });
+    })
 
     if (!user) {
-      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), {
+        status: 404,
+      })
     }
 
     // Follow counts
     const [followersCount, followingCount] = await Promise.all([
       prisma.follow.count({ where: { followingId: id } }),
       prisma.follow.count({ where: { followerId: id } }),
-    ]);
+    ])
 
     // Check if current logged-in user follows this user
-    const { userId } = await getAuthSession(request);
-    let isFollowing = false;
+    const { userId } = await getAuthSession(request)
+    let isFollowing = false
     if (userId) {
       const followRelation = await prisma.follow.findUnique({
         where: {
@@ -56,9 +88,26 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             followingId: id,
           },
         },
-      });
-      isFollowing = !!followRelation;
+      })
+      isFollowing = !!followRelation
     }
+
+    // Total works count for pagination
+    const totalItems = await prisma.work.count({
+      where: {
+        userId: id,
+        ...(q
+          ? {
+              OR: [
+                { title: { contains: q } },
+                { description: { contains: q } },
+                { tags: { contains: q } },
+              ],
+            }
+          : {}),
+      },
+    })
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit))
 
     return NextResponse.json(
       apiSuccess({
@@ -66,53 +115,81 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         followersCount,
         followingCount,
         isFollowing,
+        pagination: {
+          page,
+          limit,
+          totalItems,
+          totalPages,
+        },
+        sort,
+        q,
       })
-    );
+    )
   } catch (error) {
-    console.error("Error fetching user:", error);
+    console.error('Error fetching user:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Failed to fetch user', { message: (error as any)?.message }),
+      apiFailure('INTERNAL_ERROR', 'Failed to fetch user', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
-    );
+    )
   }
 }
 
 // PUT /api/users/[id] - 更新用户信息
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     // Require auth
-    const authResult = await requireAuth(request);
-    if (authResult) return authResult;
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
 
-    const { id } = await params;
-    const body: Partial<{ name: string; image: string; description: string; level: string; points: number | string }> = await request.json();
+    const { id } = await params
+    const body: Partial<{
+      name: string
+      image: string
+      description: string
+      level: string
+      points: number | string
+    }> = await request.json()
 
-    const { userId } = await getAuthSession(request);
+    const { userId } = await getAuthSession(request)
     if (userId !== id) {
       return NextResponse.json(
-        apiFailure('FORBIDDEN', 'Forbidden: You can only update your own profile'),
+        apiFailure(
+          'FORBIDDEN',
+          'Forbidden: You can only update your own profile'
+        ),
         { status: 403 }
-      );
+      )
     }
 
     // 检查用户是否存在
     const existingUser = await prisma.user.findUnique({
       where: { id },
-    });
+    })
 
     if (!existingUser) {
-      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), {
+        status: 404,
+      })
     }
 
     // 准备更新数据
-    const updateData: Prisma.UserUpdateInput = {};
+    const updateData: Prisma.UserUpdateInput = {}
 
-    if (body.name !== undefined) updateData.name = body.name;
-    if (body.image !== undefined) updateData.image = body.image;
+    if (body.name !== undefined) updateData.name = body.name
+    if (body.image !== undefined) updateData.image = body.image
     if (body.description !== undefined)
-      updateData.description = body.description;
-    if (body.level !== undefined) updateData.level = body.level;
-    if (body.points !== undefined) updateData.points = typeof body.points === 'string' ? parseInt(body.points, 10) : body.points;
+      updateData.description = body.description
+    if (body.level !== undefined) updateData.level = body.level
+    if (body.points !== undefined)
+      updateData.points =
+        typeof body.points === 'string'
+          ? parseInt(body.points, 10)
+          : body.points
 
     // 更新用户
     const user = await prisma.user.update({
@@ -127,35 +204,43 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
-    return NextResponse.json(apiSuccess(user));
+    return NextResponse.json(apiSuccess(user))
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error('Error updating user:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Failed to update user', { message: (error as any)?.message }),
+      apiFailure('INTERNAL_ERROR', 'Failed to update user', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
-    );
+    )
   }
 }
 
 // DELETE /api/users/[id] - 删除用户（软删除或硬删除）
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     // Require auth
-    const authResult = await requireAuth(request);
-    if (authResult) return authResult;
+    const authResult = await requireAuth(request)
+    if (authResult) return authResult
 
-    const { id } = await params;
-    const { searchParams } = new URL(request.url);
-    const force = searchParams.get("force") === "true";
+    const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const force = searchParams.get('force') === 'true'
 
-    const { userId } = await getAuthSession(request);
+    const { userId } = await getAuthSession(request)
     if (userId !== id) {
       return NextResponse.json(
-        apiFailure('FORBIDDEN', 'Forbidden: You can only delete your own account'),
+        apiFailure(
+          'FORBIDDEN',
+          'Forbidden: You can only delete your own account'
+        ),
         { status: 403 }
-      );
+      )
     }
 
     // 检查用户是否存在
@@ -170,36 +255,44 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
           },
         },
       },
-    });
+    })
 
     if (!existingUser) {
-      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), { status: 404 });
+      return NextResponse.json(apiFailure('NOT_FOUND', 'User not found'), {
+        status: 404,
+      })
     }
 
     // 检查是否有关联数据
     const hasRelatedData =
       existingUser._count.works > 0 ||
       existingUser._count.purchases > 0 ||
-      existingUser._count.reviews > 0;
+      existingUser._count.reviews > 0
 
     if (hasRelatedData && !force) {
       return NextResponse.json(
-        apiFailure('CONFLICT', 'User has related data. Use force=true to delete anyway.', { relatedData: existingUser._count }),
+        apiFailure(
+          'CONFLICT',
+          'User has related data. Use force=true to delete anyway.',
+          { relatedData: existingUser._count }
+        ),
         { status: 409 }
-      );
+      )
     }
 
     // 删除用户（Prisma会根据schema中的onDelete设置处理关联数据）
     await prisma.user.delete({
       where: { id },
-    });
+    })
 
-    return NextResponse.json(apiSuccess({ deleted: true }));
+    return NextResponse.json(apiSuccess({ deleted: true }))
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.error('Error deleting user:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Failed to delete user', { message: (error as any)?.message }),
+      apiFailure('INTERNAL_ERROR', 'Failed to delete user', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
-    );
+    )
   }
 }

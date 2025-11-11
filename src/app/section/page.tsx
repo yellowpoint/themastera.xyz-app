@@ -1,10 +1,10 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import WorkCardList from '@/components/WorkCardList'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
-import { request } from '@/lib/request'
 import type { Work } from '@/contracts/domain/work'
+import { request } from '@/lib/request'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function SectionUnifiedPage() {
   const searchParams = useSearchParams()
@@ -14,9 +14,10 @@ export default function SectionUnifiedPage() {
   const filterLanguage = searchParams.get('language') || undefined
 
   const [page, setPage] = useState<number>(initialPage)
-  const [limit] = useState<number>(24)
+  const [limit] = useState<number>(10)
   const [items, setItems] = useState<Work[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [loadingMore, setLoadingMore] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [totalPages, setTotalPages] = useState<number>(1)
 
@@ -33,7 +34,11 @@ export default function SectionUnifiedPage() {
 
   useEffect(() => {
     async function fetchPage() {
-      setLoading(true)
+      if (page === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
       setError(null)
       try {
         const params = new URLSearchParams({
@@ -58,7 +63,11 @@ export default function SectionUnifiedPage() {
       } catch (e) {
         setError('Network error, please try again')
       } finally {
-        setLoading(false)
+        if (page === 1) {
+          setLoading(false)
+        } else {
+          setLoadingMore(false)
+        }
       }
     }
     // Treat section, category, and language as equivalent filters
@@ -81,6 +90,7 @@ export default function SectionUnifiedPage() {
       <WorkCardList
         works={items}
         isLoading={loading}
+        isLoadingMore={loadingMore}
         hasMore={canLoadMore}
         onLoadMore={() => setPage((p) => p + 1)}
       />

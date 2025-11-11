@@ -1,36 +1,49 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Search, Grid2x2, ArrowLeft } from "lucide-react";
-import UserProfileSidebar from "@/components/UserProfileSidebar";
-import WorkCardList from "@/components/WorkCardList";
-import { request } from "@/lib/request";
-import type { Work } from "@/contracts/domain/work";
+'use client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import UserProfileSidebar from '@/components/UserProfileSidebar'
+import WorkCardList from '@/components/WorkCardList'
+import type { Work } from '@/contracts/domain/work'
+import { request } from '@/lib/request'
+import { Search } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function UserDetailPage() {
-  const params = useParams();
-  const userId = (params as Record<string, string>)?.id?.toString?.() || "";
+  const params = useParams()
+  const userId = (params as Record<string, string>)?.id?.toString?.() || ''
 
-  const [user, setUser] = useState<any>(null);
-  const [works, setWorks] = useState<Work[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  const [sort, setSort] = useState<"latest" | "popular" | "oldest">("latest");
+  const [user, setUser] = useState<any>(null)
+  const [works, setWorks] = useState<Work[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [loadingMore, setLoadingMore] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const [sort, setSort] = useState<'latest' | 'popular' | 'oldest'>('latest')
+  const [search, setSearch] = useState<string>('')
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
+  const [page, setPage] = useState<number>(1)
+  const [limit] = useState<number>(9) // match 3x3 grid for aesthetic
+  const [totalPages, setTotalPages] = useState<number>(1)
 
   useEffect(() => {
-    let ignore = false;
-    async function fetchUser() {
-      setLoading(true);
-      setError("");
+    let ignore = false
+    async function fetchUserPage() {
+      if (page === 1) setLoading(true)
+      else setLoadingMore(true)
+      setError('')
       try {
-        const { data } = await request.get(`/api/users/${userId}`);
-        const u = data?.data || null;
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+          sort,
+        })
+        if (debouncedSearch) params.set('q', debouncedSearch)
+        const { data } = await request.get(
+          `/api/users/${userId}?${params.toString()}`
+        )
+        const u = data?.data || null
         if (!ignore) {
-          setUser(u);
+          setUser(u)
           const list = Array.isArray(u?.works)
             ? u.works.map((w: any) => ({
                 ...w,
@@ -39,51 +52,48 @@ export default function UserDetailPage() {
                   ? { id: u.id, name: u.name, image: u.image }
                   : undefined,
               }))
-            : [];
-          setWorks(list as Work[]);
+            : []
+          setWorks((prev) =>
+            page === 1 ? (list as Work[]) : [...prev, ...(list as Work[])]
+          )
+          const tp = (u?.pagination?.totalPages as number) || 1
+          setTotalPages(tp)
         }
       } catch (err) {
-        const msg = (err as any)?.message || "Failed to load user";
-        if (!ignore) setError(msg);
+        const msg = (err as any)?.message || 'Failed to load user'
+        if (!ignore) setError(msg)
       } finally {
-        if (!ignore) setLoading(false);
+        if (!ignore) {
+          if (page === 1) setLoading(false)
+          else setLoadingMore(false)
+        }
       }
     }
-    if (userId) fetchUser();
+    if (userId) fetchUserPage()
     return () => {
-      ignore = true;
-    };
-  }, [userId]);
-
-  const sortedWorks = useMemo(() => {
-    const list: Work[] = Array.isArray(works) ? [...works] : [];
-    switch (sort) {
-      case "popular":
-        return list.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
-      case "oldest":
-        return list.sort(
-          (a, b) => new Date(a.createdAt as any).getTime() - new Date(b.createdAt as any).getTime()
-        );
-      default:
-        return list.sort(
-          (a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()
-        );
+      ignore = true
     }
-  }, [works, sort]);
+  }, [userId, page, limit, sort, debouncedSearch])
 
-  const handleSubscribeChanged = (action: "follow" | "unfollow") => {
+  // Reset pagination when sort changes or user changes
+  useEffect(() => {
+    setPage(1)
+    setWorks([])
+  }, [sort, userId, debouncedSearch])
+
+  const handleSubscribeChanged = (action: 'follow' | 'unfollow') => {
     setUser((prev) => {
-      if (!prev) return prev;
-      const followed = action === "follow";
-      const delta = followed ? 1 : -1;
-      const nextFollowers = Math.max(0, (prev.followersCount || 0) + delta);
+      if (!prev) return prev
+      const followed = action === 'follow'
+      const delta = followed ? 1 : -1
+      const nextFollowers = Math.max(0, (prev.followersCount || 0) + delta)
       return {
         ...prev,
         isFollowing: followed,
         followersCount: nextFollowers,
-      };
-    });
-  };
+      }
+    })
+  }
 
   return (
     <div className="h-full">
@@ -100,39 +110,53 @@ export default function UserDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Button
-                variant={sort === "popular" ? "default" : "outline"}
+                variant={sort === 'popular' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSort("popular")}
+                onClick={() => setSort('popular')}
               >
                 Popular
               </Button>
               <Button
-                variant={sort === "latest" ? "default" : "outline"}
+                variant={sort === 'latest' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSort("latest")}
+                onClick={() => setSort('latest')}
               >
                 Latest
               </Button>
               <Button
-                variant={sort === "oldest" ? "default" : "outline"}
+                variant={sort === 'oldest' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSort("oldest")}
+                onClick={() => setSort('oldest')}
               >
                 Oldest
               </Button>
-              <Button variant="outline" size="icon-sm" aria-label="Search">
-                <Search className="h-4 w-4" />
-              </Button>
+            </div>
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search works"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onDebouncedValueChange={(value) => setDebouncedSearch(value)}
+                className="pl-9 border-gray-300"
+                disabled={loading}
+              />
             </div>
           </div>
 
           {/* Works grid */}
           <WorkCardList
-            works={sortedWorks}
+            works={works}
             isLoading={loading}
+            isLoadingMore={loadingMore}
+            hasMore={page < totalPages}
+            onLoadMore={async () => {
+              if (page >= totalPages) return
+              setPage((p) => Math.min(p + 1, totalPages))
+            }}
           />
         </div>
       </div>
     </div>
-  );
+  )
 }
