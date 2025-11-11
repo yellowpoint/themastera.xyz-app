@@ -27,6 +27,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import VideoPlayer from '@/components/VideoPlayer'
 import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
 import { LANGUAGE_CATEGORIES, MUSIC_CATEGORIES } from '@/config/categories'
 
@@ -109,7 +110,7 @@ export default function WorkDetailsForm({
           <FieldGroup>
             {/* Video Details Section */}
             <FieldSet>
-              <FieldLegend className="text-2xl font-normal text-primary">
+              <FieldLegend className="text-2xl! font-normal text-primary">
                 Video details
               </FieldLegend>
               <FieldGroup>
@@ -228,7 +229,7 @@ export default function WorkDetailsForm({
 
             {/* Thumbnail Section */}
             <FieldSet>
-              <FieldLegend className="text-2xl font-normal text-primary">
+              <FieldLegend className="text-2xl! font-normal text-primary">
                 Thumbnail
               </FieldLegend>
               <FieldDescription>
@@ -243,6 +244,7 @@ export default function WorkDetailsForm({
                 >
                   <FieldContent>
                     <ImgUpload
+                      key={autoCover?.fileUrl || 'no-auto-cover'}
                       onUploadComplete={onCoverUploadComplete}
                       required={true}
                       initialImage={autoCover}
@@ -263,7 +265,7 @@ export default function WorkDetailsForm({
 
             {/* Music Style Section */}
             <FieldSet>
-              <FieldLegend className="text-2xl font-normal text-primary">
+              <FieldLegend className="text-2xl! font-normal text-primary">
                 Music style
               </FieldLegend>
               <FieldDescription>
@@ -311,7 +313,7 @@ export default function WorkDetailsForm({
 
             {/* Language Section */}
             <FieldSet>
-              <FieldLegend className="text-2xl font-normal text-primary">
+              <FieldLegend className="text-2xl! font-normal text-primary">
                 Language and captions certification
               </FieldLegend>
               <FieldDescription>
@@ -362,7 +364,7 @@ export default function WorkDetailsForm({
 
             {/* Audience Section */}
             <FieldSet>
-              <FieldLegend className="text-2xl font-normal text-primary">
+              <FieldLegend className="text-2xl! font-normal text-primary">
                 Audience
               </FieldLegend>
               <FieldDescription>
@@ -418,21 +420,21 @@ export default function WorkDetailsForm({
 
             <Separator className="opacity-20" />
 
-            {/* Video Preview */}
+            {/* Video Preview -> Player */}
             {uploadedVideo && (
               <div className="space-y-4">
-                <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden">
-                  {uploadedVideo.playbackId ? (
-                    <img
-                      src={`https://image.mux.com/${uploadedVideo.playbackId}/thumbnail.webp?width=640&height=360&fit_mode=smartcrop&time=3`}
-                      alt="Video thumbnail"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                      <span className="text-gray-600">Video Preview</span>
-                    </div>
-                  )}
+                <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+                  <VideoPlayer
+                    playbackId={uploadedVideo.playbackId}
+                    videoUrl={uploadedVideo.fileUrl}
+                    title={value.title || 'Preview'}
+                    width="100%"
+                    height="100%"
+                    showControls={true}
+                    autoPlay={false}
+                    muted={true}
+                  />
+
                   {uploadedVideo.duration && (
                     <div className="absolute bottom-2 right-2 bg-black/80 text-white px-3 py-1 rounded text-sm">
                       {uploadedVideo.duration}
@@ -447,22 +449,6 @@ export default function WorkDetailsForm({
                       {uploadedVideo.originalName}
                     </p>
                   </div>
-
-                  {/* <div>
-                  <h3 className="text-lg font-normal mb-1">Video link</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground truncate flex-1">
-                      {uploadedVideo.fileUrl}
-                    </span>
-                    <button
-                      className="p-1 hover:bg-gray-100 rounded flex-shrink-0"
-                      onClick={onCopyLink}
-                      type="button"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div> */}
                 </div>
               </div>
             )}
@@ -472,7 +458,7 @@ export default function WorkDetailsForm({
 
       {/* Footer Action Bar */}
       {showFooter && (
-        <div className="bg-background border-t px-6 py-3 flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+        <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-50">
           <div className="flex justify-between items-center">
             {onSaveDraft ? (
               <Button

@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 
 type CoverImage = {
   fileUrl: string
+  playbackId: string
   originalName?: string
   size?: number
   type?: string
@@ -56,7 +57,6 @@ export default function EditWorkPage() {
   const [uploadedVideo, setUploadedVideo] = useState<UploadedVideo | null>(null)
   const [autoCover, setAutoCover] = useState<CoverImage | null>(null)
   const [showErrors, setShowErrors] = useState<boolean>(false)
-  const [isUploading, setIsUploading] = useState<boolean>(false)
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true)
 
   // Load existing work details
@@ -107,6 +107,8 @@ export default function EditWorkPage() {
         if (work.thumbnailUrl) {
           const initialImage: CoverImage = {
             fileUrl: work.thumbnailUrl,
+            playbackId:
+              work.fileUrl?.match(/stream\.mux\.com\/([^.?]+)/)?.[1] || '',
             originalName: 'Current thumbnail',
             size: 0,
             type: 'image',
@@ -144,6 +146,7 @@ export default function EditWorkPage() {
 
         const initialImage: CoverImage = {
           fileUrl: thumbUrl,
+          playbackId,
           originalName: 'Auto thumbnail',
           size: 0,
           type: 'image/webp',
@@ -221,19 +224,6 @@ export default function EditWorkPage() {
     }
   }
 
-  // Publish work via form submit
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    await submitWork()
-  }
-
-  // Publish work via button click
-  const handleSubmitClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    await submitWork()
-  }
-
-  // Save as draft (update)
   const handleSaveDraft = async () => {
     if (!user) {
       toast.error('Please login first')
@@ -312,10 +302,7 @@ export default function EditWorkPage() {
         <div className="px-8 py-10 flex justify-center">
           <div className="max-w-[640px] w-full">
             <div className="rounded-lg p-10">
-              <VideoUpload
-                onUploadComplete={handleVideoUploadComplete}
-                onUploadingChange={setIsUploading}
-              />
+              <VideoUpload onUploadComplete={handleVideoUploadComplete} />
             </div>
 
             <div className="text-center text-xs text-muted-foreground mt-8">
@@ -380,8 +367,6 @@ export default function EditWorkPage() {
               isSubmitting={isSubmitting}
               primaryButtonText="Save changes"
               primaryButtonLoadingText="Saving..."
-              saveDraftLabel="Save as draft"
-              cancelLabel="Cancel"
             />
           </div>
         </div>
