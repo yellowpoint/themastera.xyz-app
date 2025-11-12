@@ -1,40 +1,37 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { Search, Users, UserMinus, UserPlus } from 'lucide-react'
 import { request } from '@/lib/request'
+import { Search, Users } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
+import SubscribeButton from '@/components/SubscribeButton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Card,
+  CardAction,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardAction,
-  CardFooter,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Empty,
-  EmptyHeader,
-  EmptyTitle,
   EmptyDescription,
+  EmptyHeader,
   EmptyMedia,
-  EmptyContent,
+  EmptyTitle,
 } from '@/components/ui/empty'
+import { Input } from '@/components/ui/input'
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationPrevious,
   PaginationNext,
+  PaginationPrevious,
 } from '@/components/ui/pagination'
-import SubscribeButton from '@/components/SubscribeButton'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function SubscriptionsPage() {
   const [items, setItems] = useState<any[]>([])
@@ -43,12 +40,9 @@ export default function SubscriptionsPage() {
   const [totalPages, setTotalPages] = useState<number>(1)
   const [total, setTotal] = useState<number>(0)
   const [search, setSearch] = useState<string>('')
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
-
-  useEffect(() => {
-    loadData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit])
+  const searchInitRef = useRef<boolean>(true)
 
   const loadData = async () => {
     setLoading(true)
@@ -56,7 +50,7 @@ export default function SubscriptionsPage() {
       const params = new URLSearchParams()
       params.set('page', String(page))
       params.set('limit', String(limit))
-      if (search.trim()) params.set('search', search.trim())
+      if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim())
       const { data } = await request.get(
         `/api/subscriptions?${params.toString()}`
       )
@@ -76,11 +70,21 @@ export default function SubscriptionsPage() {
     }
   }
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setPage(1)
+  useEffect(() => {
     loadData()
-  }
+  }, [page, limit])
+
+  useEffect(() => {
+    if (searchInitRef.current) {
+      searchInitRef.current = false
+      return
+    }
+    if (page !== 1) {
+      setPage(1)
+    } else {
+      loadData()
+    }
+  }, [debouncedSearch])
 
   const handleSubscribeChanged = (
     userId: string,
@@ -111,23 +115,18 @@ export default function SubscriptionsPage() {
           <p className="text-sm text-muted-foreground">Creators you follow</p>
         </div>
 
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex items-center gap-2 w-full max-w-md"
-        >
+        <div className="flex items-center gap-2 w-full max-w-md">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search creators"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onDebouncedValueChange={(value) => setDebouncedSearch(value)}
               className="pl-9"
             />
           </div>
-          <Button type="submit" variant="default">
-            Search
-          </Button>
-        </form>
+        </div>
       </div>
 
       {loading ? (
@@ -163,11 +162,6 @@ export default function SubscriptionsPage() {
               Find creators you love and subscribe to them.
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
-            <Button variant="outline" onClick={() => loadData()}>
-              Refresh
-            </Button>
-          </EmptyContent>
         </Empty>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,21 +185,17 @@ export default function SubscriptionsPage() {
                     <CardTitle className="truncate">
                       {u.name || u.email}
                     </CardTitle>
-                    <CardDescription className="truncate">
-                      {u.level || 'User'}
-                    </CardDescription>
                   </div>
                 </Link>
-                <CardAction>
-                  <SubscribeButton
-                    userId={u.id}
-                    isFollowing={u.isFollowing}
-                    onChanged={(action) => handleSubscribeChanged(u.id, action)}
-                    size="sm"
-                  />
-                </CardAction>
+                <CardAction></CardAction>
               </CardHeader>
               <CardContent>
+                <SubscribeButton
+                  userId={u.id}
+                  isFollowing={u.isFollowing}
+                  onChanged={(action) => handleSubscribeChanged(u.id, action)}
+                  size="sm"
+                />
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {u.description || ''}
                 </p>
@@ -213,7 +203,6 @@ export default function SubscriptionsPage() {
               <CardFooter>
                 <div className="text-sm text-muted-foreground flex items-center gap-4">
                   <span>Works {u._count?.works ?? 0}</span>
-                  <span>Reviews {u._count?.reviews ?? 0}</span>
                 </div>
               </CardFooter>
             </Card>

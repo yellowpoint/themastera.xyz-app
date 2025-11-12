@@ -21,7 +21,7 @@ import { getAllCategories, getAllLanguages } from '@/config/categories'
 import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 import type { ColumnDef } from '@tanstack/react-table'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { toast } from 'sonner'
 
 type StatusOption = 'all' | 'draft' | 'published' | 'rejected'
@@ -45,6 +45,7 @@ export default function AdminPage() {
   const [language, setLanguage] = useState<string>('all')
   const [quickPick, setQuickPick] = useState<'all' | 'yes' | 'no'>('all')
   const [pageSize, setPageSize] = useState<number>(20)
+  const hasRunFiltersEffect = useRef(false)
 
   // Row-level action loading state
   type ActionType = 'publish' | 'reject' | 'mark_quick' | 'unmark_quick'
@@ -104,6 +105,10 @@ export default function AdminPage() {
   // When filters or debounced search change: if page !== 1, reset page to 1;
   // if already on page 1, fetch immediately. This avoids double requests.
   useEffect(() => {
+    if (!hasRunFiltersEffect.current) {
+      hasRunFiltersEffect.current = true
+      return
+    }
     if (page !== 1) {
       setPage(1)
     } else {

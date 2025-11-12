@@ -5,7 +5,8 @@ import { api, type RequestResult } from '@/lib/request'
 import type { Paginated } from '@/contracts/types/common'
 import type { Work, WorkFilters } from '@/contracts/domain/work'
 
-export const useWorks = () => {
+export const useWorks = (options?: { autoFetch?: boolean; initialFilters?: WorkFilters }) => {
+  const { autoFetch = true, initialFilters = {} } = options || {}
   const [works, setWorks] = useState<Work[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -153,8 +154,10 @@ export const useWorks = () => {
   }, [])
 
   useEffect(() => {
-    fetchWorks()
-  }, [fetchWorks])
+    if (autoFetch) {
+      fetchWorks(initialFilters)
+    }
+  }, [fetchWorks, autoFetch])
 
   return {
     works,

@@ -3,7 +3,7 @@
 import { useWorks } from '@/hooks/useWorks'
 import { Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { DataTableWithPagination } from '@/components/ui/data-table'
@@ -26,7 +26,7 @@ import { useCreatorColumns } from './columns'
 
 export default function CreatorPage() {
   const router = useRouter()
-  const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks()
+  const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks({ autoFetch: false })
   const [search, setSearch] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -59,22 +59,20 @@ export default function CreatorPage() {
       window.removeEventListener('work-deleted', onDeleted as EventListener)
   }, [loadWorks])
 
-  // Fetch when pagination changes
-  useEffect(() => {
-    loadWorks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit])
+  const prevFiltersRef = useRef({ statusFilter, debouncedSearch })
 
-  // When filters or debounced search change: if page !== 1, reset page to 1;
-  // if already on page 1, fetch immediately. This avoids double requests.
   useEffect(() => {
-    if (page !== 1) {
+    const filtersChanged =
+      prevFiltersRef.current.statusFilter !== statusFilter ||
+      prevFiltersRef.current.debouncedSearch !== debouncedSearch
+    if (filtersChanged && page !== 1) {
       setPage(1)
-    } else {
-      loadWorks()
+      prevFiltersRef.current = { statusFilter, debouncedSearch }
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, debouncedSearch])
+    loadWorks()
+    prevFiltersRef.current = { statusFilter, debouncedSearch }
+  }, [page, limit, statusFilter, debouncedSearch, loadWorks])
 
   return (
     <div className="h-full">
