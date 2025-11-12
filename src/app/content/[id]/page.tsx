@@ -209,6 +209,11 @@ export default function ContentDetailPage() {
   // Autoplay-next: navigate to the next item in selected playlist
   const handleEnded = async () => {
     try {
+      let ap = null
+      if (typeof window !== 'undefined') {
+        ap = window.localStorage.getItem('autoplayPlaylistEnabled')
+      }
+      if (ap !== '1') return
       // Read selected playlist id from localStorage; fallback to first playlist
       let selectedPlaylistId: string | null = null
       if (typeof window !== 'undefined') {

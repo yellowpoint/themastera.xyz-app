@@ -1,17 +1,15 @@
 'use client'
 
-import { Plus, Search, X, PlayCircle } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { request } from '@/lib/request'
-import { toast } from 'sonner'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from '@/components/ui/sidebar'
-import { useAuth } from '@/hooks/useAuth'
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -19,14 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
+import { SidebarGroup, SidebarGroupContent } from '@/components/ui/sidebar'
+import { Switch } from '@/components/ui/switch'
+import { useAuth } from '@/hooks/useAuth'
+import { request } from '@/lib/request'
+import { PlayCircle, Plus, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 type PlaylistItem = {
   id: string
@@ -54,6 +52,7 @@ export function SidebarPlaylistSection() {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [autoplayEnabled, setAutoplayEnabled] = useState(false)
   const fetchPlaylists = useCallback(async () => {
     if (!user?.id) return
     setLoading(true)
@@ -83,6 +82,11 @@ export function SidebarPlaylistSection() {
           ? window.localStorage.getItem('selectedPlaylistId')
           : null
       if (saved) setSelectedId(saved)
+      const ap =
+        typeof window !== 'undefined'
+          ? window.localStorage.getItem('autoplayPlaylistEnabled')
+          : null
+      setAutoplayEnabled(ap === '1')
     } catch (_) {
       // ignore storage errors
     }
@@ -109,6 +113,28 @@ export function SidebarPlaylistSection() {
       window.removeEventListener('playlist:updated', handler as EventListener)
     }
   }, [fetchPlaylists])
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(
+          'autoplayPlaylistEnabled',
+          autoplayEnabled ? '1' : '0'
+        )
+      }
+      if (autoplayEnabled && !selectedId) {
+        let savedId: string | null = null
+        if (typeof window !== 'undefined') {
+          savedId = window.localStorage.getItem('selectedPlaylistId')
+        }
+        if (savedId) {
+          setSelectedId(savedId)
+        } else if (playlists.length > 0) {
+          setSelectedId(playlists[0].id)
+        }
+      }
+    } catch (_) {}
+  }, [autoplayEnabled, playlists, selectedId])
 
   // Listen to global player events to know current playing work
   useEffect(() => {
@@ -199,101 +225,122 @@ export function SidebarPlaylistSection() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Playlist</SidebarGroupLabel>
+      {/* <SidebarGroupLabel>Playlist</SidebarGroupLabel> */}
       <SidebarGroupContent>
-        <div className="flex items-center gap-2 mb-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search in your playlist"
-              className="pl-8 h-9 bg-muted/20"
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="autoplay-toggle"
+              checked={autoplayEnabled}
+              onCheckedChange={(v) => setAutoplayEnabled(!!v)}
             />
+            <Label htmlFor="autoplay-toggle">Autoplay next</Label>
           </div>
-          {playlists.length > 0 ? (
-            <Select
-              value={selectedId || undefined}
-              onValueChange={(val) => setSelectedId(val)}
-            >
-              <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="Select playlist" />
-              </SelectTrigger>
-              <SelectContent>
-                {playlists.map((pl) => (
-                  <SelectItem key={pl.id} value={pl.id}>
-                    {pl.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : null}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => setCreateOpen(true)}
-          >
-            <Plus className="size-5" />
-          </Button>
         </div>
+        {autoplayEnabled ? (
+          <>
+            <div className="flex items-center gap-2 mb-3">
+              <div>Playlist</div>
+              {playlists.length > 0 ? (
+                <Select
+                  value={selectedId || undefined}
+                  onValueChange={(val) => setSelectedId(val)}
+                >
+                  <SelectTrigger className="h-9 w-full">
+                    <SelectValue
+                      placeholder="Select playlist"
+                      className="truncate"
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {playlists.map((pl) => (
+                      <SelectItem
+                        key={pl.id}
+                        value={pl.id}
+                        className="truncate"
+                      >
+                        {pl.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : null}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="size-5" />
+              </Button>
+            </div>
 
-        {loading ? (
-          <div className="text-sm text-muted-foreground">
-            Loading playlists...
-          </div>
-        ) : playlists.length === 0 ? (
-          <div className="rounded-lg border p-3">
-            <div className="text-sm font-semibold mb-1">Your library</div>
-            <div className="text-xs text-muted-foreground mb-3">
-              Create your playlist
-            </div>
-            <Button className="w-full" onClick={() => setCreateOpen(true)}>
-              Create Playlist
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="text-base font-medium text-muted-foreground mb-2">
-              Items
-            </div>
-            <div className="space-y-3">
-              {selected?.items?.length ? (
-                selected.items.map((item) => (
-                  <PlaylistRow
-                    key={item.id}
-                    item={item}
-                    isPlaying={item.id === currentPlayingId}
-                    onDelete={() => handleDeleteItem(item.id)}
+            {loading ? (
+              <div className="text-sm text-muted-foreground">
+                Loading playlists...
+              </div>
+            ) : playlists.length === 0 ? (
+              <div className="rounded-lg border p-3">
+                <div className="text-sm font-semibold mb-1">Your library</div>
+                <div className="text-xs text-muted-foreground mb-3">
+                  Create your playlist
+                </div>
+                <Button className="w-full" onClick={() => setCreateOpen(true)}>
+                  Create Playlist
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* <div className="text-base font-medium text-muted-foreground mb-2">
+                  Items
+                </div> */}
+                <div className="space-y-3">
+                  {selected?.items?.length ? (
+                    selected.items.map((item) => (
+                      <PlaylistRow
+                        key={item.id}
+                        item={item}
+                        isPlaying={item.id === currentPlayingId}
+                        onDelete={() => handleDeleteItem(item.id)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-sm text-center text-muted-foreground">
+                      This playlist is empty
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create a new playlist</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Playlist name"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
                   />
-                ))
-              ) : (
-                <div className="text-sm text-muted-foreground">No items</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create a new playlist</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-2">
-              <Input
-                placeholder="Playlist name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={onCreate} disabled={!newName.trim() || creating} loading={creating}>
-                Create
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setCreateOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={onCreate}
+                    disabled={!newName.trim() || creating}
+                    loading={creating}
+                  >
+                    Create
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : null}
       </SidebarGroupContent>
     </SidebarGroup>
   )
@@ -337,8 +384,8 @@ function PlaylistRow({
           </div>
         ) : null}
       </div>
-      <div className="flex-1 leading-tight">
-        <div className="text-lg">{item.title}</div>
+      <div className="flex-1 min-w-0 leading-tight">
+        <div className="text-lg truncate">{item.title}</div>
         <div className="text-sm text-muted-foreground">{item.author}</div>
       </div>
       <Button
