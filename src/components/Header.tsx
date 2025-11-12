@@ -1,20 +1,18 @@
 'use client'
 
-import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Search, LogOut, Bell, ChevronDown, User } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { useAuth } from '@/hooks/useAuth'
+import { ChevronDown, LogOut, Search, User } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
 export default function Header() {
@@ -59,7 +57,9 @@ export default function Header() {
                   if (e.key === 'Enter') {
                     const q = searchValue.trim()
                     // Only trigger search on Enter
-                    router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+                    router.push(
+                      q ? `/search?q=${encodeURIComponent(q)}` : '/search'
+                    )
                   }
                 }}
               />
@@ -76,14 +76,14 @@ export default function Header() {
                 <span className="text-lg">+</span> Create
               </Button>
               {/* Notifications bell */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 aria-label="Notifications"
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Bell className="h-5 w-5" />
-              </Button>
+              </Button> */}
               {/* Greeting with dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

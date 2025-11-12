@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
   Card,
@@ -19,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { generateVerifyEmailCallbackURL } from "@/utils/auth";
+import { MagicCard } from "@/components/ui/magic-card";
 
 type RegisterFormData = {
   name: string
@@ -28,6 +30,7 @@ type RegisterFormData = {
 }
 
 export default function RegisterPage() {
+  const { theme } = useTheme();
   const { signUp, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -100,14 +103,18 @@ export default function RegisterPage() {
   return (
     <div className="min-h-full flex items-center justify-center">
       <div className="w-full max-w-md">
-        <Card>
-          <CardHeader>
+        <Card className="w-full max-w-sm border-none p-0 shadow-none">
+          <MagicCard
+            gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
+            className="p-0"
+          >
+          <CardHeader className="border-border border-b p-4 [.border-b]:pb-4">
             <CardTitle>Create an account</CardTitle>
             <CardDescription>
               Enter your information below to create your account
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <form onSubmit={handleSubmit}>
               <FieldGroup>
                 <Field>
@@ -199,6 +206,7 @@ export default function RegisterPage() {
               </FieldGroup>
             </form>
           </CardContent>
+          </MagicCard>
         </Card>
       </div>
     </div>
