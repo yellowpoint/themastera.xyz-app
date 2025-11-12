@@ -223,8 +223,7 @@ export default function ContentDetailPage() {
       if (idx >= 0) {
         nextItem = items[idx + 1] || items[0]
       } else {
-        // If current work not in selected playlist, try related works as fallback
-        nextItem = relatedWorks?.[0] || null
+        nextItem = items[0] || null
       }
       if (nextItem?.id) {
         router.push(`/content/${nextItem.id}`)

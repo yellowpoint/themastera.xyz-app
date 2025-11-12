@@ -1,19 +1,19 @@
 'use client'
-import React, { useState, useEffect } from 'react'
 import MuxPlayer from '@mux/mux-player-react'
+import React, { useEffect, useState } from 'react'
 // shadcn/ui replacements
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Play, Lock, Crown, Star, Zap } from 'lucide-react'
+import { Crown, Lock, Star, Zap } from 'lucide-react'
 
 const MEMBERSHIP_LEVELS: Record<
   string,
@@ -237,7 +237,7 @@ export default function VideoPlayer({
   return (
     <Card className="rounded-none p-0 border-0 bg-black">
       <CardContent className="p-0">
-        <div style={{ width, height }} className="relative">
+        <div style={{ width }} className="relative aspect-video">
           {error ? (
             <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
               <div className="text-center">
@@ -265,10 +265,6 @@ export default function VideoPlayer({
                 return (
                   <MuxPlayer
                     accent-color="var(--primary)"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                    }}
                     playbackId={effectivePlaybackId}
                     metadata={{
                       video_title: title,

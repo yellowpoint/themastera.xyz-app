@@ -3,9 +3,12 @@ import SubscribeButton from '@/components/SubscribeButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Download, ThumbsDown, ThumbsUp, Loader2 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { Download, Loader2, ThumbsDown, ThumbsUp } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 /**
  * VideoTitleInfo Component
@@ -72,6 +75,8 @@ export default function VideoTitleInfo({
   const [likeLoading, setLikeLoading] = useState(false)
   const [dislikeLoading, setDislikeLoading] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(false)
+  const { user: currentUser } = useAuth()
+  const router = useRouter()
   const formatCount = (count) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
@@ -79,6 +84,11 @@ export default function VideoTitleInfo({
   }
 
   const handleLikeClick = async () => {
+    if (!currentUser?.id) {
+      toast.error('Please sign in to like')
+      router.push('/auth/login')
+      return
+    }
     if (likeLoading || dislikeLoading) return
     setLikeLoading(true)
     try {
@@ -89,6 +99,11 @@ export default function VideoTitleInfo({
   }
 
   const handleDislikeClick = async () => {
+    if (!currentUser?.id) {
+      toast.error('Please sign in to dislike')
+      router.push('/auth/login')
+      return
+    }
     if (likeLoading || dislikeLoading) return
     setDislikeLoading(true)
     try {
@@ -99,6 +114,11 @@ export default function VideoTitleInfo({
   }
 
   const handleDownloadClick = async () => {
+    if (!currentUser?.id) {
+      toast.error('Please sign in to download')
+      router.push('/auth/login')
+      return
+    }
     if (downloadLoading) return
     setDownloadLoading(true)
     try {
@@ -203,7 +223,11 @@ export default function VideoTitleInfo({
             aria-busy={downloadLoading}
           >
             <span className="inline-flex items-center gap-2 w-full">
-              {downloadLoading ? <Loader2 className="animate-spin" /> : <Download />}
+              {downloadLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Download />
+              )}
               Download
             </span>
           </Button>

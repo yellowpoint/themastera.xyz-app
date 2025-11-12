@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Bell, BellRing, Loader2 } from 'lucide-react'
-import { request } from '@/lib/request'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { request } from '@/lib/request'
+import { Bell, BellRing, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 /**
@@ -36,7 +36,9 @@ export default function SubscribeButton({
   const { user: currentUser } = useAuth()
   const [following, setFollowing] = useState<boolean>(!!isFollowing)
   const [pending, setPending] = useState<boolean>(false)
-  const [pendingAction, setPendingAction] = useState<'follow' | 'unfollow' | null>(null)
+  const [pendingAction, setPendingAction] = useState<
+    'follow' | 'unfollow' | null
+  >(null)
 
   useEffect(() => {
     setFollowing(!!isFollowing)
@@ -55,7 +57,7 @@ export default function SubscribeButton({
     // Require login before subscribing
     if (!currentUser?.id) {
       toast.error('Please sign in to subscribe')
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
     const nextAction = following ? 'unfollow' : 'follow'
@@ -104,8 +106,8 @@ export default function SubscribeButton({
             ? 'Subscribing...'
             : 'Unsubscribing...'
           : following
-          ? 'Unsubscribe'
-          : 'Subscribe'
+            ? 'Unsubscribe'
+            : 'Subscribe'
       }
       aria-busy={pending ? true : undefined}
     >
