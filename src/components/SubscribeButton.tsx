@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Bell, BellRing } from 'lucide-react'
+import { Bell, BellRing, Loader2 } from 'lucide-react'
 import { request } from '@/lib/request'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
@@ -36,6 +36,7 @@ export default function SubscribeButton({
   const { user: currentUser } = useAuth()
   const [following, setFollowing] = useState<boolean>(!!isFollowing)
   const [pending, setPending] = useState<boolean>(false)
+  const [pendingAction, setPendingAction] = useState<'follow' | 'unfollow' | null>(null)
 
   useEffect(() => {
     setFollowing(!!isFollowing)
@@ -59,6 +60,7 @@ export default function SubscribeButton({
     }
     const nextAction = following ? 'unfollow' : 'follow'
     setPending(true)
+    setPendingAction(nextAction)
     try {
       const res = await request.post(`/api/users/${userId}/follow`, {
         action: nextAction,
@@ -75,6 +77,7 @@ export default function SubscribeButton({
       // Errors are handled internally by shared request util
     } finally {
       setPending(false)
+      setPendingAction(null)
     }
   }
 
@@ -95,9 +98,23 @@ export default function SubscribeButton({
       }
       onClick={handleClick}
       disabled={pending || disabled}
-      aria-label={following ? 'Unsubscribe' : 'Subscribe'}
+      aria-label={
+        pendingAction
+          ? pendingAction === 'follow'
+            ? 'Subscribing...'
+            : 'Unsubscribing...'
+          : following
+          ? 'Unsubscribe'
+          : 'Subscribe'
+      }
+      aria-busy={pending ? true : undefined}
     >
-      {following ? (
+      {pending ? (
+        <span className="inline-flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          {pendingAction === 'follow' ? 'Subscribing...' : 'Unsubscribing...'}
+        </span>
+      ) : following ? (
         <span className="inline-flex items-center gap-2">
           <BellRing className="w-4 h-4" />
           Unsubscribe

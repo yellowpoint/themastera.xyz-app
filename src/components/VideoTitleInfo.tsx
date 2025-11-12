@@ -1,10 +1,11 @@
-"use client";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ThumbsUp, ThumbsDown, Download, Bell, BellRing } from "lucide-react";
-import Link from "next/link";
+'use client'
+import SubscribeButton from '@/components/SubscribeButton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Download, ThumbsDown, ThumbsUp, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
 
 /**
  * VideoTitleInfo Component
@@ -31,23 +32,23 @@ type VideoTitleInfoProps = {
   isDisliked?: boolean
   likesCount?: number
   dislikesCount?: number
-  onLike?: () => void
-  onDislike?: () => void
+  onLike?: () => void | Promise<void>
+  onDislike?: () => void | Promise<void>
 
   // Download
-  onDownload?: () => void
+  onDownload?: () => void | Promise<void>
 
   className?: string
 }
 
 export default function VideoTitleInfo({
   // Video info
-  title = "Video Title",
+  title = 'Video Title',
   isPremium = false,
 
   // Creator info
   creatorId,
-  creatorName = "Creator Name",
+  creatorName = 'Creator Name',
   creatorAvatar,
   subscribersCount = 0,
 
@@ -66,21 +67,52 @@ export default function VideoTitleInfo({
   // Download
   onDownload,
 
-  className = "",
+  className = '',
 }: VideoTitleInfoProps) {
+  const [likeLoading, setLikeLoading] = useState(false)
+  const [dislikeLoading, setDislikeLoading] = useState(false)
+  const [downloadLoading, setDownloadLoading] = useState(false)
   const formatCount = (count) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-    return count.toString();
-  };
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
+    return count.toString()
+  }
+
+  const handleLikeClick = async () => {
+    if (likeLoading || dislikeLoading) return
+    setLikeLoading(true)
+    try {
+      await onLike?.()
+    } finally {
+      setLikeLoading(false)
+    }
+  }
+
+  const handleDislikeClick = async () => {
+    if (likeLoading || dislikeLoading) return
+    setDislikeLoading(true)
+    try {
+      await onDislike?.()
+    } finally {
+      setDislikeLoading(false)
+    }
+  }
+
+  const handleDownloadClick = async () => {
+    if (downloadLoading) return
+    setDownloadLoading(true)
+    try {
+      await onDownload?.()
+    } finally {
+      setDownloadLoading(false)
+    }
+  }
 
   return (
     <div className={`flex flex-col gap-4 ${className}`}>
       {/* Video Title */}
       <div className="px-6">
-        <h1 className="text-3xl">
-          {title}
-        </h1>
+        <h1 className="text-3xl">{title}</h1>
       </div>
 
       {/* Creator Info and Action Buttons */}
@@ -90,7 +122,7 @@ export default function VideoTitleInfo({
           {/* Creator Avatar and Info */}
           <div className="flex items-start gap-1">
             {/* Avatar */}
-            <Link href={creatorId ? `/creator/${creatorId}` : "#"}>
+            <Link href={creatorId ? `/user/${creatorId}` : '#'}>
               <div>
                 <Avatar className="h-12 w-12 cursor-pointer">
                   <AvatarImage src={creatorAvatar} />
@@ -103,10 +135,8 @@ export default function VideoTitleInfo({
 
             {/* Creator Name and Subscribers */}
             <div className="flex flex-col justify-center px-3 py-1 flex-none">
-              <Link href={creatorId ? `/creator/${creatorId}` : "#"}>
-                <h3 className="">
-                  {creatorName}
-                </h3>
+              <Link href={creatorId ? `/user/${creatorId}` : '#'}>
+                <h3 className="">{creatorName}</h3>
               </Link>
               <p className="text-sm">
                 {formatCount(subscribersCount)} subscribers
@@ -115,81 +145,77 @@ export default function VideoTitleInfo({
           </div>
 
           {/* Subscribe Button */}
-          <Button
-            onClick={onFollow}
-          >
-            {isFollowing ? (
-              <span className="inline-flex items-center gap-2">
-                <BellRing />
-                Subscribed
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-2">
-                <Bell />
-                Subscribe
-              </span>
-            )}
-          </Button>
+          <SubscribeButton
+            userId={creatorId as string}
+            isFollowing={isFollowing}
+            onChanged={() => onFollow?.()}
+          />
         </div>
 
         {/* Right Section: Like/Dislike + Download + Pro Badge */}
         <div className="flex items-center gap-4 relative">
           {/* Like and Dislike Buttons Group */}
-          <Button
-            variant='secondary'
-          >
+          <Button variant="secondary">
             {/* Like Button */}
             <button
-              onClick={onLike}
-              className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity"
+              onClick={handleLikeClick}
+              disabled={likeLoading || dislikeLoading}
+              aria-busy={likeLoading}
+              className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
             >
-              <ThumbsUp
-                className={isLiked ? "fill-white" : ""}
-              />
-              <span>
-                {likesCount > 0 ? formatCount(likesCount) : 0}
-              </span>
+              {likeLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <ThumbsUp className={isLiked ? 'fill-white' : ''} />
+              )}
+              <span>{likesCount > 0 ? formatCount(likesCount) : 0}</span>
             </button>
 
             {/* Divider */}
             <div
               className="w-0 h-8 border-l-2 border-dashed opacity-20"
-              style={{ borderColor: "#F2F3F5" }}
+              style={{ borderColor: '#F2F3F5' }}
             />
 
             {/* Dislike Button */}
             <button
-              onClick={onDislike}
-              className="flex items-center text-white hover:opacity-80 transition-opacity"
+              onClick={handleDislikeClick}
+              disabled={likeLoading || dislikeLoading}
+              aria-busy={dislikeLoading}
+              className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
             >
-              <ThumbsDown
-                className={isDisliked ? "fill-white" : ""}
-                strokeWidth={2}
-              />
+              {dislikeLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <ThumbsDown
+                  className={isDisliked ? 'fill-white' : ''}
+                  strokeWidth={2}
+                />
+              )}
             </button>
           </Button>
 
           {/* Download Button */}
           <Button
-            onClick={onDownload}
-            variant='secondary'
+            onClick={handleDownloadClick}
+            variant="secondary"
+            disabled={downloadLoading}
+            aria-busy={downloadLoading}
           >
             <span className="inline-flex items-center gap-2 w-full">
-              <Download />
+              {downloadLoading ? <Loader2 className="animate-spin" /> : <Download />}
               Download
             </span>
           </Button>
 
           {/* Pro Badge (positioned absolutely if premium) */}
           {isPremium && (
-            <Badge
-              className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug"
-            >
+            <Badge className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug">
               Pro
             </Badge>
           )}
         </div>
       </div>
     </div>
-  );
+  )
 }

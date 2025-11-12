@@ -189,21 +189,11 @@ export default function ContentDetailPage() {
 
   // 已移除作品关注逻辑（改为赞/踩相斥）
 
-  const handleFollow = async () => {
-    try {
-      await request.post(`/api/users/${work.user.id}/follow`, {
-        action: isFollowing ? 'unfollow' : 'follow',
-      })
-      const next = !isFollowing
-      setIsFollowing(next)
-      setAuthorFollowersCount((prev) => {
-        const updated = next ? prev + 1 : Math.max(0, prev - 1)
-        return updated
-      })
-      toast.success(next ? 'Followed the creator' : 'Unfollowed the creator')
-    } catch (err) {
-      console.error('Error following user:', err)
-    }
+  const handleFollow = () => {
+    const next = !isFollowing
+    setIsFollowing(next)
+    setAuthorFollowersCount((prev) => (next ? prev + 1 : Math.max(0, prev - 1)))
+    toast.success(next ? 'Followed the creator' : 'Unfollowed the creator')
   }
 
   // Autoplay-next: navigate to the next item in selected playlist
