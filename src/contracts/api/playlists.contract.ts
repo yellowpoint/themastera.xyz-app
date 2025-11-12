@@ -1,18 +1,14 @@
 import { initContract } from '@ts-rest/core'
 import { z } from 'zod'
-import { createApiResponseSchema, ApiFailureSchema, createPaginatedSchema } from '@/contracts/types/common'
+import { createApiResponseSchema, ApiFailureSchema } from '@/contracts/types/common'
 import { PlaylistCardSchema } from '@/contracts/domain/playlist'
 
 const c = initContract()
 
-// Common schemas
-const PaginationQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).optional(),
-  limit: z.coerce.number().int().min(1).max(100).optional(),
+// Response payload schemas (non-paginated list)
+const ListPlaylistsDataSchema = z.object({
+  items: z.array(PlaylistCardSchema),
 })
-
-// Response payload schemas
-const ListPlaylistsDataSchema = createPaginatedSchema(PlaylistCardSchema)
 
 const CreatePlaylistBodySchema = z.object({ name: z.string().min(1) })
 const CreatePlaylistDataSchema = PlaylistCardSchema // aligns with current API returning id, name, items
@@ -29,7 +25,6 @@ export const playlistsContract = c.router({
   list: {
     method: 'GET',
     path: '/api/playlists',
-    query: PaginationQuerySchema.optional(),
     responses: {
       200: createApiResponseSchema(ListPlaylistsDataSchema),
       401: ApiFailureSchema,

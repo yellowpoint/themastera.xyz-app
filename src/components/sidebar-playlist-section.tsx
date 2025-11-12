@@ -33,7 +33,6 @@ type PlaylistItem = {
   title: string
   author: string
   thumbnail?: string | null
-  href?: string
 }
 
 type Playlist = {
@@ -54,6 +53,7 @@ export function SidebarPlaylistSection() {
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
+  const [creating, setCreating] = useState(false)
   const fetchPlaylists = useCallback(async () => {
     if (!user?.id) return
     setLoading(true)
@@ -165,10 +165,12 @@ export function SidebarPlaylistSection() {
     [selectedId]
   )
   const onCreate = async () => {
-    if (!newName.trim()) return
+    const name = newName.trim()
+    if (!name) return
+    setCreating(true)
     try {
       const { data } = await request.post('/api/playlists', {
-        name: newName.trim(),
+        name,
       })
       const created: Playlist = data?.data as Playlist
       const updated = [created, ...playlists]
@@ -188,6 +190,8 @@ export function SidebarPlaylistSection() {
     } catch (e: any) {
       setError(e?.message || 'Failed to create playlist')
       toast.error(e?.message || 'Failed to create playlist')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -284,7 +288,9 @@ export function SidebarPlaylistSection() {
               <Button variant="ghost" onClick={() => setCreateOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={onCreate}>Create</Button>
+              <Button onClick={onCreate} disabled={!newName.trim() || creating} loading={creating}>
+                Create
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -303,7 +309,7 @@ function PlaylistRow({
   onDelete?: () => void
 }) {
   const router = useRouter()
-  const href = item?.href || `/content/${item.id}`
+  const href = `/content/${item.id}`
 
   const handleRowClick = () => {
     if (href) router.push(href)

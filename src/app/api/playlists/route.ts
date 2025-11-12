@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
 import { apiSuccess, apiFailure } from '@/contracts/types/common'
 import { z } from 'zod'
+import { PLAYLISTS_MAX_PER_USER, PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
 
 // GET /api/playlists - list playlists for current user
 export async function GET(request: Request) {
@@ -14,11 +15,6 @@ export async function GET(request: Request) {
       })
     }
 
-    // Parse pagination query params
-    const url = new URL(request.url)
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'))
-    const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get('limit') || '50')))
-
     const playlists = await prisma.playlist.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
@@ -29,17 +25,13 @@ export async function GET(request: Request) {
               include: { user: true },
             },
           },
+          orderBy: { createdAt: 'desc' },
+          take: PLAYLIST_ITEMS_MAX_PER_PLAYLIST,
         },
       },
     })
-    const total = playlists.length
-    const totalPages = Math.max(1, Math.ceil(total / limit))
-    const start = (page - 1) * limit
-    const end = start + limit
 
-    const pageSlice = playlists.slice(start, end)
-
-    const items = pageSlice.map((pl) => ({
+    const items = playlists.map((pl) => ({
       id: pl.id,
       name: pl.name,
       items: pl.entries.map((e) => ({
@@ -47,16 +39,9 @@ export async function GET(request: Request) {
         title: e.work.title,
         author: e.work.user?.name || 'Unknown',
         thumbnail: e.work.thumbnailUrl || null,
-        href: `/content/${e.work.id}`,
       })),
     }))
-    return NextResponse.json(
-      apiSuccess({
-        items,
-        pagination: { page, limit, total, totalPages },
-      }),
-      { status: 200 }
-    )
+    return NextResponse.json(apiSuccess({ items }), { status: 200 })
   } catch (error: any) {
     console.error('GET /api/playlists error:', error)
     return NextResponse.json(
@@ -84,8 +69,39 @@ export async function POST(request: Request) {
     }
 
     const { userId } = await getAuthSession(request)
+
+    // Normalize name: trim whitespace
+    const name = parsed.data.name.trim()
+    if (!name) {
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Name is required'),
+        { status: 400 }
+      )
+    }
+
+    // Prevent creating playlists with duplicate names for the same user
+    const existing = await prisma.playlist.findFirst({
+      where: { userId, name },
+      select: { id: true },
+    })
+
+    if (existing) {
+      return NextResponse.json(
+        apiFailure('CONFLICT', 'Playlist with the same name already exists'),
+        { status: 409 }
+      )
+    }
+
+    const count = await prisma.playlist.count({ where: { userId } })
+    if (count >= PLAYLISTS_MAX_PER_USER) {
+      return NextResponse.json(
+        apiFailure('CONFLICT', `Maximum ${PLAYLISTS_MAX_PER_USER} playlists per user`),
+        { status: 409 }
+      )
+    }
+
     const created = await prisma.playlist.create({
-      data: { name: parsed.data.name, userId },
+      data: { name, userId },
     })
 
     const createdCard = {

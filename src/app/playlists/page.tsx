@@ -1,15 +1,34 @@
-"use client";
+'use client'
 
-import React from "react";
-import Link from "next/link";
-import { api as request } from "@/lib/request";
-import type { PlaylistCard } from "@/contracts/domain/playlist";
-import { createPlaylistApi } from "@/components/sidebar-playlist-section";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
-import { Search, Plus, Trash2, FolderOpen } from "lucide-react";
-import AuthRequired from "@/components/auth-required";
-import { Card } from "@/components/ui/card";
+import AuthRequired from '@/components/auth-required'
+import { createPlaylistApi } from '@/components/sidebar-playlist-section'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from '@/components/ui/empty'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -17,95 +36,91 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
- 
-import { toast } from "sonner";
+} from '@/components/ui/table'
+import type { PlaylistCard } from '@/contracts/domain/playlist'
+import { api as request } from '@/lib/request'
+import { FolderOpen, Plus, Search, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import React from 'react'
+
+import { toast } from 'sonner'
 
 // Use shared contract types
-type Playlist = PlaylistCard;
+type Playlist = PlaylistCard
 
 export default function PlaylistsPage() {
-  const [playlists, setPlaylists] = React.useState<Playlist[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [creating, setCreating] = React.useState(false);
-  const [newName, setNewName] = React.useState("");
-  const [deletingId, setDeletingId] = React.useState<string | null>(null);
-  const [createOpen, setCreateOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [playlists, setPlaylists] = React.useState<Playlist[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [creating, setCreating] = React.useState(false)
+  const [newName, setNewName] = React.useState('')
+  const [deletingId, setDeletingId] = React.useState<string | null>(null)
+  const [openDeleteId, setOpenDeleteId] = React.useState<string | null>(null)
+  const [createOpen, setCreateOpen] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState('')
 
   const fetchPlaylists = React.useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const { data } = await request.get<{ items: Playlist[] }>("/api/playlists");
-      setPlaylists(data?.success ? (data.data?.items || []) : []);
+      const { data } = await request.get<{ items: Playlist[] }>(
+        '/api/playlists'
+      )
+      setPlaylists(data?.success ? data.data?.items || [] : [])
     } catch (err) {
       // Errors handled by request helper
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   React.useEffect(() => {
-    fetchPlaylists();
-  }, [fetchPlaylists]);
+    fetchPlaylists()
+  }, [fetchPlaylists])
 
   const filteredPlaylists = React.useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return playlists;
-    return playlists.filter((p) => p.name.toLowerCase().includes(q));
-  }, [playlists, searchQuery]);
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return playlists
+    return playlists.filter((p) => p.name.toLowerCase().includes(q))
+  }, [playlists, searchQuery])
 
   const createPlaylist = async () => {
-    const name = newName.trim();
-    if (!name) return;
-    setCreating(true);
+    const name = newName.trim()
+    if (!name) return
+    setCreating(true)
     try {
-      const created = await createPlaylistApi(name);
-      toast.success("Playlist created");
-      setNewName("");
-      setPlaylists((prev) => [created, ...prev]);
-      setCreateOpen(false);
-      if (typeof window !== "undefined") {
+      const created = await createPlaylistApi(name)
+      toast.success('Playlist created')
+      setNewName('')
+      setPlaylists((prev) => [created, ...prev])
+      setCreateOpen(false)
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("playlist:updated", { detail: { playlistId: created.id } })
-        );
+          new CustomEvent('playlist:updated', {
+            detail: { playlistId: created.id },
+          })
+        )
       }
     } catch (err) {
       // handled by request
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
-  };
+  }
 
   const deletePlaylist = async (id: string) => {
-    setDeletingId(id);
+    setDeletingId(id)
     try {
-      await request.delete(`/api/playlists/${id}`);
-      toast.success("Playlist deleted");
-      setPlaylists((prev) => prev.filter((p) => p.id !== id));
+      await request.delete(`/api/playlists/${id}`)
+      toast.success('Playlist deleted')
+      setPlaylists((prev) => prev.filter((p) => p.id !== id))
     } catch (err) {
       // handled by request
     } finally {
-      setDeletingId(null);
+      setDeletingId(null)
     }
-  };
+  }
 
   return (
-    <AuthRequired protectedPrefixes={["/playlists"]}>
+    <AuthRequired protectedPrefixes={['/playlists']}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold">Playlists</h1>
@@ -185,17 +200,21 @@ export default function PlaylistsPage() {
                               View
                             </Button>
                           </Link>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                disabled={deletingId === pl.id}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </Button>
-                            </AlertDialogTrigger>
+                          <AlertDialog
+                            open={openDeleteId === pl.id}
+                            onOpenChange={(open) =>
+                              setOpenDeleteId(open ? pl.id : null)
+                            }
+                          >
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deletingId === pl.id}
+                              onClick={() => setOpenDeleteId(pl.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </Button>
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>
@@ -208,11 +227,17 @@ export default function PlaylistsPage() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deletePlaylist(pl.id)}
+                                <Button
+                                  variant="destructive"
+                                  onClick={async () => {
+                                    await deletePlaylist(pl.id)
+                                    setOpenDeleteId(null)
+                                  }}
+                                  loading={deletingId === pl.id}
+                                  disabled={deletingId === pl.id}
                                 >
                                   Confirm
-                                </AlertDialogAction>
+                                </Button>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -241,7 +266,11 @@ export default function PlaylistsPage() {
               <Button variant="ghost" onClick={() => setCreateOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={createPlaylist} disabled={!newName.trim() || creating}>
+              <Button
+                onClick={createPlaylist}
+                disabled={!newName.trim() || creating}
+                loading={creating}
+              >
                 Create
               </Button>
             </DialogFooter>
@@ -249,5 +278,5 @@ export default function PlaylistsPage() {
         </Dialog>
       </div>
     </AuthRequired>
-  );
+  )
 }

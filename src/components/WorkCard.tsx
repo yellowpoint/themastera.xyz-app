@@ -13,7 +13,7 @@ import type { Work } from '@/contracts/domain/work'
 import { useAuth } from '@/hooks/useAuth'
 import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
-import { ListPlus, MoreVertical } from 'lucide-react'
+import { ListPlus, MoreVertical, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -44,6 +44,8 @@ export default function WorkCard({ work }: WorkCardProps) {
   const brokenThumbsRef = useRef<Set<string>>(new Set())
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
+  const [addingPlaylistId, setAddingPlaylistId] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const router = useRouter()
   const { user } = useAuth()
 
@@ -166,9 +168,11 @@ export default function WorkCard({ work }: WorkCardProps) {
             </p>
           </div>
           {user ? (
-            <div className="flex-shrink-0 self-start">
+            <div className="flex-shrink-0 self-start" onClick={(e) => e.stopPropagation()}>
               <DropdownMenu
+                open={menuOpen}
                 onOpenChange={(open) => {
+                  setMenuOpen(open)
                   if (open && playlists.length === 0) fetchPlaylists()
                 }}
               >
@@ -179,6 +183,8 @@ export default function WorkCard({ work }: WorkCardProps) {
                     className="text-muted-foreground hover:text-foreground flex-shrink-0"
                     aria-label="More"
                     type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    disabled={!!addingPlaylistId}
                   >
                     <MoreVertical size={18} />
                   </Button>
@@ -196,13 +202,26 @@ export default function WorkCard({ work }: WorkCardProps) {
                         playlists.map((pl) => (
                           <DropdownMenuItem
                             key={pl.id}
-                            onSelect={(e) => {
+                            disabled={!!addingPlaylistId && addingPlaylistId !== pl.id}
+                            onSelect={async (e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              addToPlaylist(pl.id)
+                              if (addingPlaylistId) return
+                              setAddingPlaylistId(pl.id)
+                              try {
+                                await addToPlaylist(pl.id)
+                                setMenuOpen(false)
+                              } finally {
+                                setAddingPlaylistId(null)
+                              }
                             }}
                           >
-                            {pl.name}
+                            <div className="flex items-center gap-2">
+                              {addingPlaylistId === pl.id ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : null}
+                              <span>{pl.name}</span>
+                            </div>
                           </DropdownMenuItem>
                         ))
                       ) : (

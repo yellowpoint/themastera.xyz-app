@@ -1,21 +1,6 @@
-"use client";
+'use client'
 
-import React from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { api as request } from "@/lib/request";
-import type { PlaylistCard } from "@/contracts/domain/playlist";
-import AuthRequired from "@/components/auth-required";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import AuthRequired from '@/components/auth-required'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,77 +11,94 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Trash2, ArrowLeft, PlaySquare } from "lucide-react";
-import { toast } from "sonner";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import type { PlaylistCard } from '@/contracts/domain/playlist'
+import { api as request } from '@/lib/request'
+import { ArrowLeft, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import React from 'react'
+import { toast } from 'sonner'
 
-type PlaylistDetail = PlaylistCard;
+type PlaylistDetail = PlaylistCard
 
 export default function PlaylistDetailPage() {
-  const params = useParams<{ id: string }>();
-  const router = useRouter();
+  const params = useParams<{ id: string }>()
+  const router = useRouter()
 
-  const [playlist, setPlaylist] = React.useState<PlaylistDetail | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [playlist, setPlaylist] = React.useState<PlaylistDetail | null>(null)
+  const [loading, setLoading] = React.useState(true)
   const [deletingWorkId, setDeletingWorkId] = React.useState<string | null>(
     null
-  );
+  )
 
-  const playlistId = params?.id;
+  const playlistId = params?.id
 
   const fetchDetail = React.useCallback(async () => {
-    if (!playlistId) return;
-    setLoading(true);
+    if (!playlistId) return
+    setLoading(true)
     try {
-      const { data } = await request.get<PlaylistDetail>(`/api/playlists/${playlistId}`);
-      setPlaylist(data?.success ? data.data : null);
+      const { data } = await request.get<PlaylistDetail>(
+        `/api/playlists/${playlistId}`
+      )
+      setPlaylist(data?.success ? data.data : null)
     } catch (err) {
       // handled by request
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [playlistId]);
+  }, [playlistId])
 
   React.useEffect(() => {
-    fetchDetail();
-  }, [fetchDetail]);
+    fetchDetail()
+  }, [fetchDetail])
 
   const removeEntry = async (workId: string) => {
-    if (!playlistId) return;
-    setDeletingWorkId(workId);
+    if (!playlistId) return
+    setDeletingWorkId(workId)
     try {
       await request.delete(`/api/playlists/${playlistId}/entries`, {
         body: JSON.stringify({ workId }),
-      });
-      toast.success("Removed from playlist");
+      })
+      toast.success('Removed from playlist')
       setPlaylist((prev) =>
         prev
           ? { ...prev, items: prev.items.filter((i) => i.id !== workId) }
           : prev
-      );
+      )
     } catch (err) {
       // handled by request
     } finally {
-      setDeletingWorkId(null);
+      setDeletingWorkId(null)
     }
-  };
+  }
 
   return (
-    <AuthRequired protectedPrefixes={["/playlists"]}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <AuthRequired protectedPrefixes={['/playlists']}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 overflow-x-hidden">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push("/playlists")}
+              onClick={() => router.push('/playlists')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
             <h1 className="text-2xl font-semibold">
-              {playlist?.name || "Playlist"}
+              {playlist?.name || 'Playlist'}
             </h1>
           </div>
         </div>
@@ -115,12 +117,12 @@ export default function PlaylistDetailPage() {
               </p>
             </div>
           ) : (
-            <Table>
+            <Table className="w-full table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Video</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-[60%]">Video</TableHead>
+                  <TableHead className="w-[25%]">Author</TableHead>
+                  <TableHead className="w-[15%] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -129,22 +131,25 @@ export default function PlaylistDetailPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={item.thumbnail || "/thumbnail-placeholder.svg"}
-                          alt={item.title || "Thumbnail"}
+                          src={item.thumbnail || '/thumbnail-placeholder.svg'}
+                          alt={item.title || 'Thumbnail'}
                           className="w-16 h-10 object-cover rounded"
                         />
-                        <div>
+                        <div className="min-w-0">
                           <Link
-                            href={item.href || "#"}
-                            className="font-medium hover:underline flex items-center gap-2"
+                            href={`/content/${item.id}`}
+                            className="font-medium hover:underline flex items-center gap-2 w-full"
                           >
-                            <PlaySquare className="h-4 w-4" />
-                            {item.title || "Untitled"}
+                            <span className="truncate flex-1">
+                              {item.title || 'Untitled'}
+                            </span>
                           </Link>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{item.author || "-"}</TableCell>
+                    <TableCell className="truncate break-words">
+                      {item.author || '-'}
+                    </TableCell>
                     <TableCell className="text-right">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -153,8 +158,7 @@ export default function PlaylistDetailPage() {
                             size="sm"
                             disabled={deletingWorkId === item.id}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Remove
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -183,5 +187,5 @@ export default function PlaylistDetailPage() {
         </Card>
       </div>
     </AuthRequired>
-  );
+  )
 }

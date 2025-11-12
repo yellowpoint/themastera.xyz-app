@@ -6,7 +6,6 @@ export const PlaylistItemSchema = z.object({
   title: z.string(),
   author: z.string(),
   thumbnail: z.string().nullable(),
-  href: z.string(),
 })
 export type PlaylistItem = z.infer<typeof PlaylistItemSchema>
 

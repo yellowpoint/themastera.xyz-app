@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
 import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import { PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
 
 // GET /api/playlists/[id] - get single playlist details for current user
 export async function GET(
@@ -31,6 +32,8 @@ export async function GET(
           include: {
             work: { include: { user: true } },
           },
+          orderBy: { createdAt: 'desc' },
+          take: PLAYLIST_ITEMS_MAX_PER_PLAYLIST,
         },
       },
     })
@@ -55,7 +58,6 @@ export async function GET(
         title: e.work.title,
         author: e.work.user?.name || 'Unknown',
         thumbnail: e.work.thumbnailUrl || null,
-        href: `/content/${e.work.id}`,
       })),
     }
 

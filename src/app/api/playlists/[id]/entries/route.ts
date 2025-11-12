@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
 import { apiSuccess, apiFailure } from '@/contracts/types/common'
 import { z } from 'zod'
+import { PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
 
 // POST /api/playlists/[id]/entries - add a work to a playlist
 export async function POST(
@@ -55,6 +56,23 @@ export async function POST(
       return NextResponse.json(apiFailure('NOT_FOUND', 'Work not found'), {
         status: 404,
       })
+    }
+
+    // Check if entry already exists
+    const existingEntry = await prisma.playlistEntry.findUnique({
+      where: { playlistId_workId: { playlistId, workId: parsed.data.workId } },
+      select: { id: true },
+    })
+
+    // Enforce maximum items per playlist for new entries
+    if (!existingEntry) {
+      const count = await prisma.playlistEntry.count({ where: { playlistId } })
+      if (count >= PLAYLIST_ITEMS_MAX_PER_PLAYLIST) {
+        return NextResponse.json(
+          apiFailure('CONFLICT', `Maximum ${PLAYLIST_ITEMS_MAX_PER_PLAYLIST} items per playlist`),
+          { status: 409 }
+        )
+      }
     }
 
     // Add work to playlist (idempotent)

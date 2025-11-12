@@ -1,0 +1,2 @@
+export const PLAYLISTS_MAX_PER_USER = 50
+export const PLAYLIST_ITEMS_MAX_PER_PLAYLIST = 50
