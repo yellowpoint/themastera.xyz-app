@@ -1,7 +1,7 @@
-import { NextResponse, NextRequest } from 'next/server'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import { prisma } from '@/lib/prisma'
 import type { Prisma } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 // No mock data; return raw database records
 
 // Map a Work record to homepage item shape, filling missing UI fields
@@ -43,42 +43,30 @@ export async function GET(request: NextRequest) {
 
       switch (sectionId) {
         case 'trending':
-          orderBy = [
-            { downloads: 'desc' },
-            { rating: 'desc' },
-            { createdAt: 'desc' },
-          ]
+          orderBy = [{ views: 'desc' }]
           break
         case 'featured-artists':
           // Approximate: top rated and downloaded works
-          orderBy = [
-            { rating: 'desc' },
-            { downloads: 'desc' },
-            { createdAt: 'desc' },
-          ]
+          orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
           break
         case 'new-releases':
           orderBy = [{ createdAt: 'desc' }]
           break
         case 'popular-this-week':
           where = { ...where, createdAt: { gte: sevenDaysAgo } }
-          orderBy = [{ downloads: 'desc' }, { rating: 'desc' }]
+          orderBy = [{ views: 'desc' }]
           break
         case 'recommended':
           // Without personalization, use highly rated as recommendation
-          orderBy = [
-            { rating: 'desc' },
-            { downloads: 'desc' },
-            { createdAt: 'desc' },
-          ]
+          orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
           break
         case 'top-rated':
-          orderBy = [{ rating: 'desc' }, { downloads: 'desc' }]
+          orderBy = [{ views: 'desc' }]
           break
         case 'rising-creators':
           // Recent works with good downloads
           where = { ...where, createdAt: { gte: thirtyDaysAgo } }
-          orderBy = [{ downloads: 'desc' }, { createdAt: 'desc' }]
+          orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
           break
         case 'recently-viewed':
           // No view tracking available; show latest

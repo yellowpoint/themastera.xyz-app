@@ -69,7 +69,7 @@ export default function PlaylistDetailPage() {
     setDeletingWorkId(workId)
     try {
       await request.delete(`/api/playlists/${playlistId}/entries`, {
-        body: JSON.stringify({ workId }),
+        workId,
       })
       toast.success('Removed from playlist')
       setPlaylist((prev) =>

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       where.category = category
     }
 
-    // Get trending works (based on downloads, ratings and recent activity)
+    // Get trending works
     const works = await prisma.work.findMany({
       where,
       include: {
@@ -58,9 +58,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: [
-        { downloads: 'desc' },
-        { rating: 'desc' },
-        { createdAt: 'desc' }
+        { views: 'desc' }
       ],
       take: limit
     })
@@ -71,8 +69,7 @@ export async function GET(request: NextRequest) {
         ? work.reviews.reduce((sum, review) => sum + review.rating, 0) / work.reviews.length
         : 0
 
-      // 热门度计算：下载量 * 0.4 + 评分 * 0.3 + 评论数 * 0.3
-      const trendingScore = (work.downloads * 0.4) + (avgRating * 0.3) + (work._count.reviews * 0.3)
+      const trendingScore = work.views
 
       return {
         id: work.id,

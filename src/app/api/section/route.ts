@@ -1,8 +1,8 @@
-import { NextResponse, NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { formatDuration } from '@/lib/format'
-import type { Prisma } from '@prisma/client'
 import { apiFailure, apiSuccess } from '@/contracts/types/common'
+import { formatDuration } from '@/lib/format'
+import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Helpers
 const rnd = (min: number, max: number) =>
@@ -56,39 +56,27 @@ export async function GET(request: NextRequest) {
 
     switch (sectionId) {
       case 'trending':
-        orderBy = [
-          { downloads: 'desc' },
-          { rating: 'desc' },
-          { createdAt: 'desc' },
-        ]
+        orderBy = [{ views: 'desc' }]
         break
       case 'featured-artists':
-        orderBy = [
-          { rating: 'desc' },
-          { downloads: 'desc' },
-          { createdAt: 'desc' },
-        ]
+        orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
         break
       case 'new-releases':
         orderBy = [{ createdAt: 'desc' }]
         break
       case 'popular-this-week':
         where = { ...where, createdAt: { gte: sevenDaysAgo } }
-        orderBy = [{ downloads: 'desc' }, { rating: 'desc' }]
+        orderBy = [{ views: 'desc' }]
         break
       case 'recommended':
-        orderBy = [
-          { rating: 'desc' },
-          { downloads: 'desc' },
-          { createdAt: 'desc' },
-        ]
+        orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
         break
       case 'top-rated':
-        orderBy = [{ rating: 'desc' }, { downloads: 'desc' }]
+        orderBy = [{ views: 'desc' }]
         break
       case 'rising-creators':
         where = { ...where, createdAt: { gte: thirtyDaysAgo } }
-        orderBy = [{ downloads: 'desc' }, { createdAt: 'desc' }]
+        orderBy = [{ views: 'desc' }, { createdAt: 'desc' }]
         break
       case 'recently-viewed':
         orderBy = [{ createdAt: 'desc' }]
