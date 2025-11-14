@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { MagicCard } from '@/components/ui/magic-card'
 import { useAuth } from '@/hooks/useAuth'
-import GoogleIcon from '@/components/icons/GoogleIcon'
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { generateVerifyEmailCallbackURL } from '@/utils/auth'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
@@ -32,7 +32,7 @@ type RegisterFormData = {
 
 export default function RegisterPage() {
   const { theme } = useTheme()
-  const { signUp, signInWithGoogle, loading } = useAuth()
+  const { signUp, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
@@ -101,9 +101,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleGoogle = async () => {
-    await signInWithGoogle({ callbackURL: '/' })
-  }
+  
 
   return (
     <div className="min-h-full flex items-center justify-center">
@@ -210,17 +208,7 @@ export default function RegisterPage() {
                         <Link href="/auth/login">Sign in</Link>
                       </FieldDescription>
                     </Field>
-                    <Field>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2"
-                        onClick={handleGoogle}
-                      >
-                        <GoogleIcon />
-                        Continue with Google
-                      </Button>
-                    </Field>
+                    <GoogleLoginButton />
                   </FieldGroup>
                 </FieldGroup>
               </form>

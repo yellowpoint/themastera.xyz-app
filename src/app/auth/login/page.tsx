@@ -1,5 +1,6 @@
 'use client'
 
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { MagicCard } from '@/components/ui/magic-card'
 import { useAuth } from '@/hooks/useAuth'
-import GoogleIcon from '@/components/icons/GoogleIcon'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,7 +31,7 @@ type LoginFormData = {
 export default function LoginPage() {
   const { theme } = useTheme()
   const router = useRouter()
-  const { signIn, signInWithGoogle, loading } = useAuth()
+  const { signIn, loading } = useAuth()
   const [error, setError] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [formData, setFormData] = useState<LoginFormData>({
@@ -78,10 +78,6 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleGoogle = async () => {
-    await signInWithGoogle({ callbackURL: '/' })
   }
 
   const getErrorMessage = (error: unknown) => {
@@ -146,32 +142,22 @@ export default function LoginPage() {
                       {error}
                     </FieldDescription>
                   )}
-                <Field>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    loading={isSubmitting || loading}
-                  >
-                    {isSubmitting || loading ? 'Logging in...' : 'Login'}
-                  </Button>
-                </Field>
-                <Field>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full flex items-center justify-center gap-2"
-                    onClick={handleGoogle}
-                  >
-                    <GoogleIcon />
-                    Continue with Google
-                  </Button>
-                </Field>
-                <Field>
-                  <FieldDescription className="text-center">
-                    Don&apos;t have an account?{' '}
-                    <Link href="/auth/register">Sign up</Link>
-                  </FieldDescription>
-                </Field>
+                  <Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      loading={isSubmitting || loading}
+                    >
+                      {isSubmitting || loading ? 'Logging in...' : 'Login'}
+                    </Button>
+                  </Field>
+                  <GoogleLoginButton />
+                  <Field>
+                    <FieldDescription className="text-center">
+                      Don&apos;t have an account?{' '}
+                      <Link href="/auth/register">Sign up</Link>
+                    </FieldDescription>
+                  </Field>
                 </FieldGroup>
               </form>
             </CardContent>
