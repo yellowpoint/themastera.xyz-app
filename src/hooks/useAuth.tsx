@@ -25,6 +25,7 @@ export interface AuthContextValue {
   loading: boolean
   signUp: (params: any) => Promise<any>
   signIn: (params: any) => Promise<any>
+  signInWithGoogle: (options?: { callbackURL?: string }) => Promise<any>
   signOut: (options?: any) => Promise<any>
   resetPassword: (email: string) => Promise<any>
   updateProfile: (updates: any) => Promise<any>
@@ -95,6 +96,18 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
+  const signInWithGoogle = async (options?: { callbackURL?: string }) => {
+    try {
+      const result: any = await auth.signIn.social({
+        provider: 'google',
+        callbackURL: options?.callbackURL ?? '/',
+      })
+      return { data: result?.data }
+    } catch (error: any) {
+      return { error: { message: error.message } }
+    }
+  }
+
   const signOut = async (options: any = {}) => {
     try {
       await auth.signOut({
@@ -155,6 +168,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     resetPassword,
     updateProfile,
