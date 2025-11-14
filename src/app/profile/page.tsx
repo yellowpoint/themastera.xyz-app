@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const { user, refreshUser } = useAuth()
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [uploading, setUploading] = useState<boolean>(false)
-  const [dragActive, setDragActive] = useState<boolean>(false)
+  
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Form state
@@ -125,25 +125,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true)
-    } else if (e.type === 'dragleave') {
-      setDragActive(false)
-    }
-  }
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleAvatarUpload(e.dataTransfer.files)
-    }
-  }
+  
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -252,12 +234,8 @@ export default function ProfilePage() {
 
                     {isEditing && (
                       <div
-                        className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                        onClick={() => fileInputRef.current?.click()}
+                        className={`absolute inset-0 rounded-full bg-black/50 flex items-center justify-center transition-opacity ${uploading ? 'opacity-100 cursor-default' : 'opacity-0 hover:opacity-100 cursor-pointer'}`}
+                        onClick={!uploading ? () => fileInputRef.current?.click() : undefined}
                       >
                         {uploading ? (
                           <Spinner className="h-8 w-8 text-white" />
@@ -273,13 +251,14 @@ export default function ProfilePage() {
                       accept="image/*"
                       onChange={handleFileInputChange}
                       className="hidden"
+                      disabled={uploading}
                     />
                   </div>
 
                   {isEditing && (
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground mb-2">
-                        Click or drag to upload new avatar
+                        Click to upload new avatar
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Maximum file size: 5MB

@@ -1,23 +1,26 @@
 'use client'
-
-import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
-  Upload,
-  X,
-  Video,
-  Check,
-  RefreshCw,
-  Pause,
-  Play,
-  AlertCircle,
-} from 'lucide-react'
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useAuth } from '@/hooks/useAuth'
 import { formatDate, formatDuration } from '@/lib/format'
 import { request } from '@/lib/request'
 import { createUpload as createUpChunkUpload } from '@mux/upchunk'
+import {
+  AlertCircle,
+  Pause,
+  Play,
+  RefreshCw,
+  Upload,
+  Video,
+  X,
+} from 'lucide-react'
+import { useRef, useState } from 'react'
 
 export type UploadedVideo = {
   fileUrl: string
@@ -73,6 +76,14 @@ export default function VideoUpload({
   const [localFileDurationSec, setLocalFileDurationSec] = useState<
     number | null
   >(null)
+  const [localVideoDimensions, setLocalVideoDimensions] = useState<{
+    width: number
+    height: number
+  } | null>(null)
+  const [ratioNotice, setRatioNotice] = useState<{
+    type: 'ok' | 'warn'
+    text: string
+  } | null>(null)
 
   // Read video duration locally via HTMLVideoElement + Object URL
   const getLocalVideoDuration = (file: File): Promise<number | null> => {
@@ -89,6 +100,35 @@ export default function VideoUpload({
             ? Math.round(video.duration)
             : null
           resolve(d)
+        }
+        video.onerror = () => {
+          URL.revokeObjectURL(url)
+          resolve(null)
+        }
+      } catch (e) {
+        resolve(null)
+      }
+    })
+  }
+
+  const getLocalVideoDimensions = (
+    file: File
+  ): Promise<{ width: number; height: number } | null> => {
+    return new Promise((resolve) => {
+      try {
+        const url = URL.createObjectURL(file)
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        video.src = url
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(url)
+          const w = Number(video.videoWidth) || 0
+          const h = Number(video.videoHeight) || 0
+          if (w > 0 && h > 0) {
+            resolve({ width: w, height: h })
+          } else {
+            resolve(null)
+          }
         }
         video.onerror = () => {
           URL.revokeObjectURL(url)
@@ -319,6 +359,24 @@ export default function VideoUpload({
       // Try to read local duration before starting upload
       const localDur = await getLocalVideoDuration(file)
       setLocalFileDurationSec(localDur)
+      const dims = await getLocalVideoDimensions(file)
+      setLocalVideoDimensions(dims)
+      if (dims) {
+        const r = dims.width / dims.height
+        const target = 16 / 9
+        const delta = Math.abs(r - target) / target
+        if (delta <= 0.02) {
+          setRatioNotice({ type: 'ok', text: 'Aspect ratio is 16:9.' })
+        } else {
+          const approx = r.toFixed(2)
+          setRatioNotice({
+            type: 'warn',
+            text: `Recommended aspect ratio is 16:9. Detected ${dims.width}×${dims.height} (~${approx}:1). Your video will still upload.`,
+          })
+        }
+      } else {
+        setRatioNotice(null)
+      }
 
       setUploading(true)
       onUploadingChange?.(true)
@@ -336,6 +394,7 @@ export default function VideoUpload({
       onUploadingChange?.(false)
       setCurrentFileMeta(null)
       setLocalFileDurationSec(null)
+      setLocalVideoDimensions(null)
     }
   }
 
@@ -401,6 +460,38 @@ export default function VideoUpload({
       currentUploadRef.current.resume()
       setIsPaused(false)
     }
+  }
+
+  const cancelUpload = () => {
+    if (
+      currentUploadRef.current &&
+      typeof currentUploadRef.current.abort === 'function'
+    ) {
+      currentUploadRef.current.abort()
+    } else if (
+      currentUploadRef.current &&
+      typeof currentUploadRef.current.pause === 'function'
+    ) {
+      currentUploadRef.current.pause()
+    }
+    currentUploadRef.current = null
+    setIsPaused(false)
+    setUploading(false)
+    setProgress(0)
+    setUploadSpeed(null)
+    // Ensure the file input can fire onChange even for the same file
+    if (fileInputRef.current) {
+      try {
+        fileInputRef.current.value = ''
+      } catch {}
+    }
+    // Clear selection guard to allow re-selection immediately
+    selectingRef.current = false
+    setCurrentFileMeta(null)
+    setLocalFileDurationSec(null)
+    setLocalVideoDimensions(null)
+    setRatioNotice(null)
+    onUploadingChange?.(false)
   }
 
   const removeFile = (index: number) => {
@@ -486,10 +577,14 @@ export default function VideoUpload({
           <p className="text-sm text-gray-500 mb-6">
             Your videos will be private until you publish them
           </p>
-          <p className="text-xs text-muted-foreground mb-6">
+          <p className="text-xs text-muted-foreground mb-2">
             Max file size {formatFileSize(maxSize)} • Common formats: MP4, MOV,
             WebM
           </p>
+          <p className="text-xs text-muted-foreground mb-6">
+            16:9 is recommended for best viewing.
+          </p>
+
           <button
             type="button"
             onClick={(e) => {
@@ -566,12 +661,45 @@ export default function VideoUpload({
             >
               {currentFileMeta?.name || 'Uploading...'}
             </span>
-            <span>
+            <span className="flex items-center">
               {currentFileMeta ? formatFileSize(currentFileMeta.size) : ''}
               {typeof localFileDurationSec === 'number' &&
-              localFileDurationSec > 0
-                ? ` • ${formatDuration(localFileDurationSec)}`
-                : ''}
+              localFileDurationSec > 0 ? (
+                <>
+                  {` • ${formatDuration(localFileDurationSec)}`}
+                  {localVideoDimensions &&
+                    localVideoDimensions.width > 0 &&
+                    localVideoDimensions.height > 0 &&
+                    (() => {
+                      const w = localVideoDimensions.width
+                      const h = localVideoDimensions.height
+                      const ratio = w / h
+                      const target = 16 / 9
+                      const delta = Math.abs(ratio - target) / target
+                      const gcd = (a: number, b: number): number =>
+                        b === 0 ? a : gcd(b, a % b)
+                      const g = gcd(w, h)
+                      const rText = `${Math.round(w / g)}:${Math.round(h / g)}`
+                      return (
+                        <>
+                          {` • ${rText}`}
+                          {delta > 0.02 && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="ml-1 text-red-600 cursor-help">
+                                  !
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="px-2 py-1 text-xs">
+                                {`Recommended aspect ratio is 16:9. Detected ${w}×${h} (~${ratio.toFixed(2)}:1).`}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </>
+                      )
+                    })()}
+                </>
+              ) : null}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -588,6 +716,9 @@ export default function VideoUpload({
                 <Play className="w-4 h-4 mr-1" /> Resume
               </Button>
             )}
+            <Button size="sm" variant="destructive" onClick={cancelUpload}>
+              <X className="w-4 h-4 mr-1" /> Cancel
+            </Button>
           </div>
         </div>
       )}

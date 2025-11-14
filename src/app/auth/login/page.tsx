@@ -62,7 +62,7 @@ export default function LoginPage() {
       const result = await signIn({
         email: formData.email,
         password: formData.password,
-        rememberMe: false,
+        // rememberMe: false, // 如果配置了false就是每次都需要重新登录
       })
 
       if (result?.error) {
