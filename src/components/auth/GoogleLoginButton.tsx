@@ -1,14 +1,20 @@
 'use client'
 
+import GoogleIcon from '@/components/icons/GoogleIcon'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
-import GoogleIcon from '@/components/icons/GoogleIcon'
 import { useAuth } from '@/hooks/useAuth'
 import { useState } from 'react'
 
 type Props = {
   className?: string
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link'
+  variant?:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'ghost'
+    | 'link'
   callbackURL?: string
   text?: string
 }
@@ -22,7 +28,7 @@ export default function GoogleLoginButton({
   const { signInWithGoogle } = useAuth()
   const [submitting, setSubmitting] = useState(false)
 
-  if (process.env.NODE_ENV === 'development') return null
+  if (process.env.NODE_ENV !== 'development') return null
 
   const onClick = async () => {
     try {
