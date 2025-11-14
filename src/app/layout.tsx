@@ -1,12 +1,12 @@
-import './globals.css'
-import localFont from 'next/font/local'
-import type { Metadata } from 'next'
-import { Providers } from './providers'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import Header from '@/components/Header'
+import { AppSidebar } from '@/components/app-sidebar'
 import AuthRequired from '@/components/auth-required'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import type { Metadata } from 'next'
+import localFont from 'next/font/local'
 import Script from 'next/script'
+import './globals.css'
+import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',

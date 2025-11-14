@@ -82,7 +82,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div> */}
       </SidebarHeader>
       <SidebarContentWithState />
-      <SidebarFooter>{/* <NavMain items={data.footer} /> */}</SidebarFooter>
+      <SidebarFooter>
+        {/* Links: Privacy + Terms (small, gray, bottom) */}
+        <div className="px-3 py-3 text-xs text-muted-foreground group-data-[state=collapsed]:hidden">
+          <div className="space-y-1">
+            <Link
+              href="/privacy-policy"
+              className="block opacity-70 hover:opacity-100 transition-opacity"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms-of-service"
+              className="block opacity-70 hover:opacity-100 transition-opacity"
+            >
+              Terms of Service
+            </Link>
+          </div>
+        </div>
+        {/* <NavMain items={data.footer} /> */}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

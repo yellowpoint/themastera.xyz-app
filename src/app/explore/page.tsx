@@ -1,18 +1,13 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
-import { Music, Globe } from 'lucide-react'
-import WorkCardList from '@/components/WorkCardList'
-import { MUSIC_CATEGORIES, LANGUAGE_CATEGORIES } from '@/config/categories'
-import { request } from '@/lib/request'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CometCard } from '@/components/ui/comet-card'
+import { LANGUAGE_CATEGORIES, MUSIC_CATEGORIES } from '@/config/categories'
+import { Globe, Music } from 'lucide-react'
 import Link from 'next/link'
-import type { Paginated } from '@/contracts/types/common'
-import type { Work, WorkFilters } from '@/contracts/domain/work'
 
 export default function ExplorePage() {
   return (
-    <div className="h-full container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Explore</h1>
         <p className="text-sm text-muted-foreground">

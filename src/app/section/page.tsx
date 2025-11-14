@@ -77,7 +77,7 @@ export default function SectionUnifiedPage() {
   const canLoadMore = page < totalPages
 
   return (
-    <div className="h-full container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">{headerTitle}</h1>
