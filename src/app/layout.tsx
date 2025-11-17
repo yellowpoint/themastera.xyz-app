@@ -3,7 +3,6 @@ import { AppSidebar } from '@/components/app-sidebar'
 import AuthRequired from '@/components/auth-required'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
 import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
@@ -17,33 +16,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'Mastera Team' }],
 }
 
-const lexend = localFont({
-  variable: '--default-font-family',
-  display: 'swap',
-  preload: true,
-  src: [
-    {
-      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-400-normal.woff2',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-500-normal.woff2',
-      weight: '500',
-      style: 'normal',
-    },
-    {
-      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-600-normal.woff2',
-      weight: '600',
-      style: 'normal',
-    },
-    {
-      path: '../../node_modules/@fontsource/lexend/files/lexend-latin-700-normal.woff2',
-      weight: '700',
-      style: 'normal',
-    },
-  ],
-})
 
 export default function RootLayout({
   children,
@@ -53,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${lexend.variable} antialiased`}
+      className={`antialiased`}
       suppressHydrationWarning
     >
       <head>
