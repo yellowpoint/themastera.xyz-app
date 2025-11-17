@@ -28,8 +28,6 @@ export default function GoogleLoginButton({
   const { signInWithGoogle } = useAuth()
   const [submitting, setSubmitting] = useState(false)
 
-  if (process.env.NODE_ENV !== 'development') return null
-
   const onClick = async () => {
     try {
       setSubmitting(true)
