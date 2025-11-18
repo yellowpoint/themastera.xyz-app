@@ -1,6 +1,5 @@
-import Header from '@/components/Header'
+import { AppLayout } from '@/components/AppLayout'
 import { AppSidebar } from '@/components/app-sidebar'
-import AuthRequired from '@/components/auth-required'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import type { Metadata } from 'next'
 import Script from 'next/script'
@@ -16,18 +15,13 @@ export const metadata: Metadata = {
   authors: [{ name: 'Mastera Team' }],
 }
 
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="en"
-      className={`antialiased`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`antialiased`} suppressHydrationWarning>
       <head>
         {/* Google tag (gtag.js) */}
         <Script
@@ -48,11 +42,7 @@ export default function RootLayout({
           <SidebarProvider defaultOpen={false}>
             <AppSidebar className="pt-16" />
             <SidebarInset className="flex flex-col h-screen">
-              <Header />
-              {/* border-t-4 border-l-4 border-secondary */}
-              <div className="flex-1 mt-16 overflow-auto">
-                <AuthRequired>{children}</AuthRequired>
-              </div>
+              <AppLayout>{children}</AppLayout>
             </SidebarInset>
           </SidebarProvider>
         </Providers>

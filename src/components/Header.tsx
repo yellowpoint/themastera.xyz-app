@@ -11,8 +11,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import React from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Header() {
   const { user, signOut, loading } = useAuth()

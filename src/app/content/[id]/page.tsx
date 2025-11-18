@@ -24,6 +24,7 @@ import { formatDate, formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
 import {
   AlertTriangle,
+  ArrowLeft,
   ChevronDown,
   ChevronUp,
   Download,
@@ -322,7 +323,12 @@ export default function ContentDetailPage() {
             </Link>
 
             <Link href="/">
-              <Button variant="ghost">Back to Home</Button>
+              <Button variant="ghost">
+                <span className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Home
+                </span>
+              </Button>
             </Link>
           </div>
         </div>
@@ -333,13 +339,16 @@ export default function ContentDetailPage() {
   return (
     <div className="h-full bg-content-bg overflow-hidden">
       <div className="h-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full">
           {/* Main Content Area */}
-          <div className="md:col-span-2 h-full px-2">
+          <div className="md:col-span-3 h-full px-2">
             <div className="mb-3">
               <Link href="/">
                 <Button variant="ghost" size="sm">
-                  Back to Home
+                  <span className="inline-flex items-center gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    Home
+                  </span>
                 </Button>
               </Link>
             </div>
@@ -439,19 +448,19 @@ export default function ContentDetailPage() {
                     {work?.user?.name?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xl font-bold tracking-tight truncate">
+                <div className="flex-1 flex flex-col">
+                  <div className="text-xl font-bold tracking-tight">
                     {work?.user?.name || 'Unknown Artist'}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {formatViews(authorFollowersCount)} subscribers
+                  <div className="mt-1">
+                    <SubscribeButton
+                      size="sm"
+                      userId={work?.user?.id}
+                      isFollowing={isFollowing}
+                      onChanged={() => handleFollow()}
+                    />
                   </div>
                 </div>
-                <SubscribeButton
-                  userId={work?.user?.id}
-                  isFollowing={isFollowing}
-                  onChanged={() => handleFollow()}
-                />
               </div>
             </div>
 
@@ -468,9 +477,7 @@ export default function ContentDetailPage() {
                     <div
                       className={`text-sm text-[#F7F8FA] ${infoExpanded ? '' : 'line-clamp-3'}`}
                     >
-                      <p className="text-base mb-2">
-                        Description of this video
-                      </p>
+                      <p className="text-sm mb-2">Description of this video</p>
                       <p className="whitespace-pre-wrap">
                         {work?.description ||
                           'The creator has not added a description yet...'}
@@ -512,7 +519,10 @@ export default function ContentDetailPage() {
 
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground">Recommended</div>
-              <WorkCardList works={(relatedWorks || []).slice(0, 4)} />
+              <WorkCardList
+                works={(relatedWorks || []).slice(0, 4)}
+                columns={1}
+              />
             </div>
           </div>
         </div>
