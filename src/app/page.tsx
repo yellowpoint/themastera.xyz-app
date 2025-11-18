@@ -34,30 +34,71 @@ export default function HomePage() {
   const playersRef = useRef<Record<string, HTMLDivElement | null>>({})
 
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const el = entry.target as HTMLElement
-          const player = el.querySelector('mux-player') as any
-          if (!player) continue
-          if (entry.isIntersecting) {
-            try {
-              player.play()
-            } catch {}
-          } else {
-            try {
-              player.pause()
-            } catch {}
+    const visibleElements = new Map<Element, IntersectionObserverEntry>()
+
+    const playMostVisible = () => {
+      let mostVisibleEntry: IntersectionObserverEntry | null = null
+      for (const entry of visibleElements.values()) {
+        if (
+          !mostVisibleEntry ||
+          entry.intersectionRatio > mostVisibleEntry.intersectionRatio
+        ) {
+          mostVisibleEntry = entry
+        }
+      }
+
+      if (mostVisibleEntry) {
+        const playerToPlay = mostVisibleEntry.target.querySelector(
+          'mux-player'
+        ) as any
+        // Pause all other players
+        for (const entry of visibleElements.values()) {
+          if (entry.target !== mostVisibleEntry.target) {
+            const player = entry.target.querySelector('mux-player') as any
+            if (player && !player.paused) {
+              try {
+                player.pause()
+              } catch {}
+            }
           }
         }
+        // Play the most visible one
+        if (playerToPlay && playerToPlay.paused) {
+          try {
+            playerToPlay.play()
+          } catch {}
+        }
+      }
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            visibleElements.set(entry.target, entry)
+          } else {
+            visibleElements.delete(entry.target)
+            const player = entry.target.querySelector('mux-player') as any
+            if (player && !player.paused) {
+              try {
+                player.pause()
+              } catch {}
+            }
+          }
+        })
+        playMostVisible()
       },
-      { threshold: 0.35 }
+      {
+        threshold: Array.from({ length: 20 }, (_, i) => i * 0.05),
+      }
     )
+
     const nodes = Object.values(playersRef.current).filter(Boolean)
-    nodes.forEach((n) => n && io.observe(n as Element))
+    nodes.forEach((node) => node && observer.observe(node))
+
     return () => {
-      nodes.forEach((n) => n && io.unobserve(n as Element))
-      io.disconnect()
+      nodes.forEach((node) => node && observer.unobserve(node))
+      observer.disconnect()
     }
   }, [items])
 

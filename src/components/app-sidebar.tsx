@@ -52,7 +52,7 @@ function SidebarContentWithState() {
   const isAdmin = !!user && user.level === 'Admin'
 
   return (
-    <SidebarContent>
+    <SidebarContent className="pt-18">
       <NavMain items={data.navMain} title="" />
       <NavMain items={data.navMain2} title="You" />
       <NavMain items={data.navMain3} title="Creator +" />
