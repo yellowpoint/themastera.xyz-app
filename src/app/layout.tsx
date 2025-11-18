@@ -37,11 +37,11 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`h-screen overflow-hidden`}>
+      <body>
         <Providers>
           <SidebarProvider defaultOpen={false}>
             <AppSidebar className="pt-16" />
-            <SidebarInset className="flex flex-col h-screen">
+            <SidebarInset className="flex flex-col">
               <AppLayout>{children}</AppLayout>
             </SidebarInset>
           </SidebarProvider>

@@ -11,12 +11,11 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
-  
 
   return (
     <div className="fixed left-0 right-0 top-0 z-40">
@@ -27,7 +26,7 @@ export default function Header() {
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
           >
             {/* Use white logo in dark theme, black logo in light theme */}
-            {/* <img
+            <img
               src="/logo-black.png"
               alt="Logo"
               className="h-auto w-15 dark:hidden"
@@ -36,8 +35,8 @@ export default function Header() {
               src="/logo-white.png"
               alt="Logo"
               className="h-auto w-15 hidden dark:block"
-            /> */}
-            <span>THE MASTERA</span>
+            />
+            {/* <span>THE MASTERA</span> */}
           </Link>
           <SidebarTrigger className="md:hidden" />
         </div>

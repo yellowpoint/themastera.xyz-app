@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from '@/components/ui/collapsible'
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -17,31 +17,31 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar'
 
 export function NavMain({
   title,
   items,
 }: {
-  title?: string;
+  title?: string
   items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
+    title: string
+    url: string
+    icon?: LucideIcon
+    isActive?: boolean
     items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
+      title: string
+      url: string
+    }[]
+  }[]
 }) {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const isActiveHref = (href: string) => {
-    if (!href || href === "#") return false;
-    if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+    if (!href || href === '#') return false
+    if (href === '/') return pathname === '/'
+    return pathname === href || pathname.startsWith(href + '/')
+  }
 
   return (
     <SidebarGroup>
@@ -115,5 +115,5 @@ export function NavMain({
         )}
       </SidebarMenu>
     </SidebarGroup>
-  );
+  )
 }

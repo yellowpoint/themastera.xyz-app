@@ -12,7 +12,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <>
       {!hideHeader && <Header />}
       {/* border-t-4 border-l-4 border-secondary */}
-      <div className={`flex-1 overflow-auto ${!hideHeader ? 'mt-16' : 'pt-6'}`}>
+      <div className={`flex-1 ${!hideHeader ? 'mt-16' : 'pt-6'}`}>
         <AuthRequired>{children}</AuthRequired>
       </div>
     </>

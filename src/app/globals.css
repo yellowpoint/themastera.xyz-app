@@ -209,7 +209,7 @@ body {
 
 .dark {
   --background: #000000;
-  --foreground: #e2e2f5;
+  --foreground: #fff;
   --card: #1a1a2e;
   --card-foreground: #e2e2f5;
   --popover: #1a1a2e;
