@@ -7,10 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, Search, User } from 'lucide-react'
+import { ChevronDown, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -18,7 +17,7 @@ import React from 'react'
 export default function Header() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
-  const [searchValue, setSearchValue] = React.useState('')
+  
 
   return (
     <div className="fixed left-0 right-0 top-0 z-40">
@@ -29,7 +28,7 @@ export default function Header() {
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
           >
             {/* Use white logo in dark theme, black logo in light theme */}
-            <img
+            {/* <img
               src="/logo-black.png"
               alt="Logo"
               className="h-auto w-15 dark:hidden"
@@ -38,34 +37,12 @@ export default function Header() {
               src="/logo-white.png"
               alt="Logo"
               className="h-auto w-15 hidden dark:block"
-            />
+            /> */}
             <span>THE MASTERA</span>
           </Link>
-          <SidebarTrigger />
+          <SidebarTrigger className="md:hidden" />
         </div>
-        <div className="flex-1 flex justify-center">
-          <div className="w-full max-w-md">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                aria-label="Search"
-                placeholder="Search the item you like"
-                className="w-full pl-8"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const q = searchValue.trim()
-                    // Only trigger search on Enter
-                    router.push(
-                      q ? `/search?q=${encodeURIComponent(q)}` : '/search'
-                    )
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        <div className="flex-1" />
         <div className="flex items-center gap-3">
           {user ? (
             <>

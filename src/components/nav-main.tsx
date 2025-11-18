@@ -108,7 +108,6 @@ export function NavMain({
                   className="transition-all rounded-md overflow-hidden"
                 >
                   {item.icon && <item.icon />}
-                  <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

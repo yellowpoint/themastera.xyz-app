@@ -38,7 +38,8 @@
 }
 @font-face {
   font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-RegularItalic.otf') format('opentype');
+  src: url('/fonts/obviously/ObviouslyDemo-RegularItalic.otf')
+    format('opentype');
   font-style: italic;
   font-weight: 400;
   font-display: swap;
@@ -207,7 +208,7 @@ body {
 }
 
 .dark {
-  --background: #0f0f1a;
+  --background: #000000;
   --foreground: #e2e2f5;
   --card: #1a1a2e;
   --card-foreground: #e2e2f5;

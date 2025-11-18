@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { request } from '@/lib/request'
 import { formatViews } from '@/lib/format'
 import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function ContentDetailPage() {
@@ -31,6 +32,7 @@ export default function ContentDetailPage() {
   const workId: string = Array.isArray(rawId) ? rawId[0] : rawId || ''
   const router = useRouter()
   const { user } = useAuth()
+  const { setOpen, isMobile } = useSidebar()
 
   const [work, setWork] = useState(null)
   const [relatedWorks, setRelatedWorks] = useState([])
@@ -64,6 +66,12 @@ export default function ContentDetailPage() {
       }
     }
   }, [workId])
+
+  useEffect(() => {
+    if (!isMobile) {
+      setOpen(false)
+    }
+  }, [isMobile, setOpen])
 
   const handleDownload = async () => {
     try {
@@ -306,6 +314,11 @@ export default function ContentDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content Area */}
           <div className="lg:col-span-2">
+            <div className="mb-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm">Back to Home</Button>
+              </Link>
+            </div>
             <VideoPlayer
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}

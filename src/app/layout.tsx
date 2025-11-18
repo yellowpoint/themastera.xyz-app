@@ -45,7 +45,7 @@ export default function RootLayout({
       </head>
       <body className={`h-screen overflow-hidden`}>
         <Providers>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={false}>
             <AppSidebar className="pt-16" />
             <SidebarInset className="flex flex-col h-screen">
               <Header />

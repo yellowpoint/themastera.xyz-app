@@ -1,341 +1,135 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react'
-import { Play, MoreVertical, Pause, Volume2, VolumeX } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { HomepageItem } from '@/contracts/domain/work'
+import { formatViews } from '@/lib/format'
+import { request } from '@/lib/request'
 import MuxPlayer from '@mux/mux-player-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
-import { Skeleton } from '@/components/ui/skeleton'
-import WorkCard from '@/components/WorkCard'
-import { formatViews } from '@/lib/format'
-import { WorkCardSkeletonLite } from '@/components/WorkCardSkeleton'
-import type { HomepageItem } from '@/contracts/domain/work'
-import { request } from '@/lib/request'
+import { useEffect, useRef, useState } from 'react'
 
 export default function HomePage() {
-  const router = useRouter()
-  const [homepage, setHomepage] = useState<{
-    quickPicks: HomepageItem[]
-    sections: Array<{
-      id: string
-      title?: string
-      showAllLink?: string
-      items: HomepageItem[]
-    }>
-  }>({ quickPicks: [], sections: [] })
-  const [loading, setLoading] = useState<boolean>(true)
+  const [items, setItems] = useState<HomepageItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Video player states
-  const [currentVideo, setCurrentVideo] = useState<HomepageItem | null>(null)
-  const [isPlaying, setIsPlaying] = useState<boolean>(true)
-  const [isMuted, setIsMuted] = useState<boolean>(true)
-  const [currentTime, setCurrentTime] = useState<number>(0)
-  const [duration, setDuration] = useState<number>(0)
-  const videoRef = useRef<any>(null)
-  // Track broken thumbnail URLs to avoid re-request loops
-  const brokenThumbsRef = useRef<Set<string>>(new Set())
-  const resolveThumb = (url?: string | null) => {
-    if (!url) return '/thumbnail-placeholder.svg'
-    return brokenThumbsRef.current.has(url) ? '/thumbnail-placeholder.svg' : url
-  }
-  const handleImgError = (
-    url?: string | null,
-    e?: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    brokenThumbsRef.current.add(url)
-    // Prevent onError loops and immediately swap to placeholder
-    if (e?.currentTarget) {
-      e.currentTarget.onerror = null
-      e.currentTarget.src = '/thumbnail-placeholder.svg'
-    }
-  }
-
   useEffect(() => {
-    fetchHomepageData()
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const { data } = await request.get(`/api/homepage`)
+        const quickPicks = (data as any)?.data?.quickPicks || []
+        setItems(quickPicks)
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
-  const fetchHomepageData = async () => {
-    try {
-      setLoading(true)
-      setError(null)
+  
 
-      const { data } = await request.get<{
-        quickPicks: HomepageItem[]
-        sections: Array<{
-          id: string
-          title: string
-          showAllLink?: string
-          items: HomepageItem[]
-        }>
-      }>(`/api/homepage`)
+  const playersRef = useRef<Record<string, HTMLDivElement | null>>({})
 
-      if (data?.success) {
-        const quickPicks = data.data?.quickPicks || []
-        setHomepage({
-          quickPicks,
-          sections: (data.data?.sections as any) || [],
-        })
-        console.log('quickPicks:', quickPicks)
-        if (quickPicks.length > 0) {
-          setCurrentVideo(quickPicks[0])
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target as HTMLElement
+          const player = el.querySelector('mux-player') as any
+          if (!player) continue
+          if (entry.isIntersecting) {
+            try {
+              player.play()
+            } catch {}
+          } else {
+            try {
+              player.pause()
+            } catch {}
+          }
         }
-      } else {
-        setError((data as any)?.error || 'Failed to fetch homepage data')
-      }
-    } catch (err) {
-      console.error('Error fetching homepage data:', err)
-      setError('Network error, please try again later')
-    } finally {
-      setLoading(false)
+      },
+      { threshold: 0.35 }
+    )
+    const nodes = Object.values(playersRef.current).filter(Boolean)
+    nodes.forEach((n) => n && io.observe(n as Element))
+    return () => {
+      nodes.forEach((n) => n && io.unobserve(n as Element))
+      io.disconnect()
     }
-  }
+  }, [items])
 
-  // Video control functions
-  const handlePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-      } else {
-        videoRef.current.play()
-      }
-      setIsPlaying(!isPlaying)
-    }
+  const resolvePlayback = (fileUrl?: string | null) => {
+    const src = fileUrl || ''
+    const m = src.match(/stream\.mux\.com\/([^.?]+)/)
+    const playbackId = m?.[1]
+    return { playbackId, src }
   }
-
-  const handleMuteToggle = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
-    }
-  }
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime || 0)
-    }
-  }
-
-  const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0)
-    }
-  }
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const pct = Math.max(0, Math.min(1, clickX / rect.width))
-    const newTime = (duration || 0) * pct
-    if (videoRef.current) {
-      // MuxPlayer has HTMLMediaElement interface
-      ;(videoRef.current as any).currentTime = newTime
-      setCurrentTime(newTime)
-    }
-  }
-
-  const formatTime = (s: number) => {
-    if (!Number.isFinite(s)) return '0:00'
-    const mins = Math.floor(s / 60)
-    const secs = Math.floor(s % 60)
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const handleVideoSelect = (video: HomepageItem) => {
-    setCurrentVideo(video)
-    setIsPlaying(true)
-    setIsMuted(false)
-    // Scroll to top to show the video player
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  // formatViews moved to shared module
 
   return (
     <div className="h-full">
-      {currentVideo && (
-        <div
-          id="MuxPlayer_home_container"
-          className="fixed left-0 right-4 top-16 aspect-video z-0 overflow-hidden pointer-events-none"
-        >
-          {(() => {
-            const fileUrl = currentVideo?.fileUrl || ''
-            const muxMatch = fileUrl.match(/stream\.mux\.com\/([^.?]+)/)
-            const playbackId = muxMatch?.[1]
-            // Use MuxPlayer when playbackId can be determined, otherwise fall back to MuxPlayer with src
-            return (
-              <MuxPlayer
-                ref={videoRef}
-                className="w-[100vw] h-full cursor-pointer pointer-events-none"
-                // Prefer playbackId if extractable
-                {...(playbackId ? { playbackId } : { src: fileUrl })}
-                streamType="on-demand"
-                autoPlay
-                muted={isMuted}
-                loop
-                playsInline
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-              />
-            )
-          })()}
-        </div>
-      )}
-
-      <main className="relative z-10  ">
-        <div className="h-[500px] relative" onClick={handlePlayPause}>
-          {/* Controls bar */}
-          <div className="absolute left-4 right-[320px] bottom-6">
-            <div className="mb-2 text-white">
-              <h2 className="text-2xl line-clamp-1">{currentVideo?.title}</h2>
-              <p className="text-sm opacity-80">{currentVideo?.user?.name}</p>
-            </div>
-            <div
-              className="flex items-center gap-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={handlePlayPause}
-                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors "
-              >
-                {isPlaying ? (
-                  <Pause className="w-5 h-5 text-white" />
-                ) : (
-                  <Play className="w-5 h-5 text-white" />
-                )}
-              </button>
-              <button
-                onClick={handleMuteToggle}
-                className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
-              >
-                {isMuted ? (
-                  <VolumeX className="w-5 h-5 text-white" />
-                ) : (
-                  <Volume2 className="w-5 h-5 text-white" />
-                )}
-              </button>
-              <div className="flex-1">
+      <div className="px-4 py-4">
+        {loading ? (
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-video w-full rounded-xl" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-sm text-muted-foreground max-w-5xl mx-auto">
+            {error}
+          </div>
+        ) : (
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {items.map((w) => {
+              const { playbackId, src } = resolvePlayback(w.fileUrl)
+              return (
                 <div
-                  className="h-2 rounded-full bg-white/25 cursor-pointer"
-                  onClick={handleSeek}
+                  key={w.id}
+                  ref={(el) => {
+                    playersRef.current[w.id] = el
+                  }}
+                  data-pid={playbackId || ''}
                 >
-                  <div
-                    className="h-2 rounded-full bg-white"
-                    style={{
-                      width: `${duration ? (currentTime / duration) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="text-white text-xs tabular-nums">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </div>
-            </div>
-          </div>
-
-          {/* Quick picks overlay on the right */}
-          <div
-            className="fixed top-20 right-4 bottom-4 w-[280px] bg-black/40 backdrop-blur-sm rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 text-white">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold">Quick picks</h4>
-              </div>
-              <div className="mt-4 space-y-3">
-                {(homepage.quickPicks || []).slice(0, 4).map((w) => (
-                  <div
-                    key={w.id}
-                    onClick={() => {
-                      if (currentVideo?.id === w.id) {
-                        router.push(`/content/${w.id}`)
-                      } else {
-                        handleVideoSelect(w)
-                      }
-                    }}
-                    className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors ${
-                      currentVideo?.id === w.id
-                        ? 'bg-white/10'
-                        : 'hover:bg-white/10'
-                    }`}
+                  <Link
+                    href={`/content/${w.id}`}
+                    prefetch
+                    aria-label={w.title || 'View content'}
+                    className="block"
                   >
-                    <div className="relative">
-                      <img
-                        src={resolveThumb(w.thumbnailUrl)}
-                        alt="thumb"
-                        className="w-14 h-14 object-cover rounded"
-                        loading="lazy"
-                        onError={(e) => handleImgError(w.thumbnailUrl, e)}
-                      />
-                      {currentVideo?.id === w.id && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
-                          <Play className="w-5 h-5 text-white fill-white" />
+                    <div className="relative rounded-2xl overflow-hidden cursor-pointer transition hover:ring-2 hover:ring-white/20">
+                    <MuxPlayer
+                      className="w-full aspect-video"
+                      {...(playbackId ? { playbackId } : { src })}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      streamType="on-demand"
+                    />
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-xl bg-black/40 px-3 py-2">
+                      <div className="min-w-0">
+                        <div className="text-white text-sm truncate">
+                          {w.title}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm leading-tight line-clamp-2">
-                        {w.title}
+                        <div className="text-white/80 text-xs truncate">
+                          {w.user?.name}
+                        </div>
                       </div>
-                      <div className="text-xs opacity-80 leading-tight mt-1">
-                        {w.user.name}
+                      <div className="text-white text-xs whitespace-nowrap">
+                        {formatViews(w.views || w.downloads || 0)} views
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                    </div>
+                  </Link>
+                </div>
+              )
+            })}
           </div>
-        </div>
-        <div className="px-4 py-6 space-y-8 bg-black/40 backdrop-blur-sm rounded-2xl w-[calc(100%-300px)]">
-          {loading
-            ? Array.from({ length: 8 }).map((_, sectionIndex) => (
-                <div key={`section-skeleton-${sectionIndex}`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                      <WorkCardSkeletonLite
-                        key={`section-${sectionIndex}-card-${idx}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))
-            : (homepage.sections || []).map((section, sectionIndex) => (
-                <div key={section.id || `section-${sectionIndex}`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold">{section.title}</h3>
-                    {section.showAllLink && (
-                      <Link
-                        href={section.showAllLink}
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        Show all
-                      </Link>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {(section.items || [])
-                      .slice(0, 3)
-                      .map((w) =>
-                        w ? (
-                          <WorkCard
-                            key={w.id}
-                            work={w}
-                            resolveThumb={resolveThumb}
-                            handleImgError={handleImgError}
-                            formatViews={formatViews}
-                          />
-                        ) : null
-                      )}
-                  </div>
-                </div>
-              ))}
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   )
 }

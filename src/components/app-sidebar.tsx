@@ -1,20 +1,17 @@
 'use client'
 
-import * as React from 'react'
 import {
   AudioWaveform,
   BookOpen,
   Bot,
   Command,
   Frame,
-  GalleryVerticalEnd,
   History,
   Home,
-  Map,
   PieChart,
   Settings2,
-  SquareTerminal,
 } from 'lucide-react'
+import * as React from 'react'
 
 import { NavMain } from '@/components/nav-main'
 
@@ -24,11 +21,10 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar'
-import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
 
 // This is sample data.
 const data = {
@@ -52,7 +48,7 @@ const data = {
 function SidebarContentWithState() {
   const { state } = useSidebar()
   const { user } = useAuth()
-  const isAdmin = !!user && (user.level === 'Admin')
+  const isAdmin = !!user && user.level === 'Admin'
 
   return (
     <SidebarContent>
