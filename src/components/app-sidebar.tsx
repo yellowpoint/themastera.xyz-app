@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 // This is sample data.
 const data = {
@@ -63,6 +64,9 @@ function SidebarContentWithState() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+  const hideSidebar = pathname?.startsWith('/content/')
+  if (hideSidebar) return null
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

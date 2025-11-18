@@ -1,30 +1,40 @@
 'use client'
-import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useEffect, useState } from 'react'
 
+import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
+import SubscribeButton from '@/components/SubscribeButton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
+import { useSidebar } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertTriangle, ChevronDown, Frown } from 'lucide-react'
+import VideoPlayer from '@/components/VideoPlayer'
+import WorkCardList from '@/components/WorkCardList'
+import { useAuth } from '@/hooks/useAuth'
+import { formatDate, formatViews } from '@/lib/format'
+import { request } from '@/lib/request'
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Frown,
+  Loader2,
+  ThumbsDown,
+  ThumbsUp,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import VideoPlayer from '@/components/VideoPlayer'
-import VideoTitleInfo from '@/components/VideoTitleInfo'
-import VideoInfoSection from '@/components/VideoInfoSection'
-import WorkCardList from '@/components/WorkCardList'
 import { toast } from 'sonner'
-import { request } from '@/lib/request'
-import { formatViews } from '@/lib/format'
-import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
-import { useSidebar } from '@/components/ui/sidebar'
-import { useAuth } from '@/hooks/useAuth'
 
 export default function ContentDetailPage() {
   const params = useParams()
@@ -48,7 +58,10 @@ export default function ContentDetailPage() {
   const [authorFollowersCount, setAuthorFollowersCount] = useState(0)
 
   const [isShareOpen, setShareOpen] = useState(false)
-  const [isDescExpanded, setDescExpanded] = useState(false)
+  const [likeLoading, setLikeLoading] = useState(false)
+  const [dislikeLoading, setDislikeLoading] = useState(false)
+  const [downloadLoading, setDownloadLoading] = useState(false)
+  const [infoExpanded, setInfoExpanded] = useState(false)
 
   useEffect(() => {
     if (workId) {
@@ -76,6 +89,7 @@ export default function ContentDetailPage() {
   const handleDownload = async () => {
     try {
       if (!workId) return
+      setDownloadLoading(true)
       toast.info('Preparing download...')
       // Trigger browser download via our API route
       const url = `/api/mux/download?workId=${encodeURIComponent(workId)}`
@@ -96,6 +110,8 @@ export default function ContentDetailPage() {
     } catch (err) {
       console.error('Download error:', err)
       toast.error('Download failed. Please try again later.')
+    } finally {
+      setDownloadLoading(false)
     }
   }
 
@@ -164,6 +180,7 @@ export default function ContentDetailPage() {
 
   const handleLike = async () => {
     try {
+      setLikeLoading(true)
       const action = isLiked ? 'unlike' : 'like'
       const { data } = await request.post(`/api/works/${workId}/engagement`, {
         action,
@@ -176,11 +193,14 @@ export default function ContentDetailPage() {
       if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount)
     } catch (err) {
       console.error('Error updating like:', err)
+    } finally {
+      setLikeLoading(false)
     }
   }
 
   const handleDislike = async () => {
     try {
+      setDislikeLoading(true)
       const action = isDisliked ? 'undislike' : 'dislike'
       const { data } = await request.post(`/api/works/${workId}/engagement`, {
         action,
@@ -192,6 +212,8 @@ export default function ContentDetailPage() {
       if (typeof dislikesCount === 'number') setDislikesCount(dislikesCount)
     } catch (err) {
       console.error('Error updating dislike:', err)
+    } finally {
+      setDislikeLoading(false)
     }
   }
 
@@ -243,10 +265,10 @@ export default function ContentDetailPage() {
 
   if (loading) {
     return (
-      <div className="h-full bg-content-bg">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
+      <div className="h-full bg-content-bg overflow-hidden">
+        <div className="px-4 py-6 h-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+            <div className="md:col-span-2 space-y-4">
               <Skeleton className="aspect-video rounded-xl" />
               <Skeleton className="h-8 w-3/4" />
               <div className="flex gap-4">
@@ -309,14 +331,16 @@ export default function ContentDetailPage() {
   }
 
   return (
-    <div className="h-full bg-content-bg">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="h-full bg-content-bg overflow-hidden">
+      <div className="h-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 h-full">
           {/* Main Content Area */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-2 h-full px-2">
             <div className="mb-3">
               <Link href="/">
-                <Button variant="ghost" size="sm">Back to Home</Button>
+                <Button variant="ghost" size="sm">
+                  Back to Home
+                </Button>
               </Link>
             </div>
             <VideoPlayer
@@ -342,90 +366,154 @@ export default function ContentDetailPage() {
               onEnded={handleEnded}
             />
 
-            {/* Work Information */}
             <div className="space-y-4 mt-4">
-              {/* Video Title and Creator Info using new component */}
-              <VideoTitleInfo
-                title={work.title}
-                isPremium={!!work.price && work.price > 0}
-                creatorId={work.user.id}
-                creatorName={work.user.name}
-                creatorAvatar={work.user.image}
-                subscribersCount={authorFollowersCount}
-                isFollowing={isFollowing}
-                onFollow={handleFollow}
-                isLiked={isLiked}
-                isDisliked={isDisliked}
-                likesCount={likesCount}
-                dislikesCount={dislikesCount}
-                onLike={handleLike}
-                onDislike={handleDislike}
-                onDownload={handleDownload}
-              />
-
-              {/* Video Stats and Description */}
-              <VideoInfoSection
-                views={work.views ?? work.downloads}
-                uploadDate={work.uploadTime ?? work.createdAt}
-                description={work.description}
-                tags={
-                  work.tags ? work.tags.split(',').map((tag) => tag.trim()) : []
-                }
-              />
-
-              {/* Discovered on — show four works */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-3">Discovered on</h3>
-                <WorkCardList works={(relatedWorks || []).slice(0, 4)} />
+              <div className="flex items-center justify-between gap-4 px-6">
+                <h1 className="text-lg font-medium truncate">{work.title}</h1>
+                <div className="flex items-center gap-4 relative">
+                  <Button variant="secondary">
+                    <button
+                      onClick={handleLike}
+                      disabled={likeLoading || dislikeLoading}
+                      aria-busy={likeLoading}
+                      className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
+                    >
+                      {likeLoading ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <ThumbsUp className={isLiked ? 'fill-white' : ''} />
+                      )}
+                      <span>
+                        {likesCount > 0 ? formatViews(likesCount) : 0}
+                      </span>
+                    </button>
+                    <div
+                      className="w-0 h-8 border-l-2 border-dashed opacity-20"
+                      style={{ borderColor: '#F2F3F5' }}
+                    />
+                    <button
+                      onClick={handleDislike}
+                      disabled={likeLoading || dislikeLoading}
+                      aria-busy={dislikeLoading}
+                      className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
+                    >
+                      {dislikeLoading ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <ThumbsDown
+                          className={isDisliked ? 'fill-white' : ''}
+                          strokeWidth={2}
+                        />
+                      )}
+                    </button>
+                  </Button>
+                  <Button
+                    onClick={handleDownload}
+                    variant="secondary"
+                    disabled={downloadLoading}
+                    aria-busy={downloadLoading}
+                  >
+                    <span className="inline-flex items-center gap-2 w-full">
+                      {downloadLoading ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Download />
+                      )}
+                    </span>
+                  </Button>
+                  {work.price && work.price > 0 ? (
+                    <Badge className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug">
+                      Pro
+                    </Badge>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Sidebar - Artist profile */}
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">
-                Artist profile
-              </div>
-              <div className="text-3xl font-bold tracking-tight">
-                {work?.user?.name || 'Unknown Artist'}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {formatViews(authorFollowersCount)} subscribers
+          <div className="space-y-6 h-full p-2 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={work?.user?.image} />
+                  <AvatarFallback>
+                    {work?.user?.name?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xl font-bold tracking-tight truncate">
+                    {work?.user?.name || 'Unknown Artist'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {formatViews(authorFollowersCount)} subscribers
+                  </div>
+                </div>
+                <SubscribeButton
+                  userId={work?.user?.id}
+                  isFollowing={isFollowing}
+                  onChanged={() => handleFollow()}
+                />
               </div>
             </div>
 
-            {/* Description card with collapse */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground">
-                Description of this Credit info
-              </h3>
-              <div className="rounded-lg bg-muted/40 p-3">
-                <p
-                  className={`text-sm text-muted-foreground ${isDescExpanded ? '' : 'line-clamp-3'}`}
-                >
-                  {work?.description || 'No description available.'}
+            <div className="px-1">
+              <div className="px-3">
+                <p className="text-[#FF00FF]">
+                  {formatViews(work.views ?? work.downloads)} views{' '}
+                  {formatDate(work.uploadTime ?? work.createdAt, 'MM-DD-YYYY')}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setDescExpanded((v) => !v)}
-                  className="mt-2 inline-flex items-center gap-2 text-sm"
-                >
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${isDescExpanded ? 'rotate-180' : ''}`}
-                  />
-                  {isDescExpanded ? 'Collapse' : 'Expand for more'}
-                </button>
+              </div>
+              <div className="px-3">
+                <div className="flex items-end gap-6 bg-white/5 rounded-lg px-6 py-3">
+                  <div className="flex-1">
+                    <div
+                      className={`text-sm text-[#F7F8FA] ${infoExpanded ? '' : 'line-clamp-3'}`}
+                    >
+                      <p className="text-base mb-2">
+                        Description of this video
+                      </p>
+                      <p className="whitespace-pre-wrap">
+                        {work?.description ||
+                          'The creator has not added a description yet...'}
+                      </p>
+                    </div>
+                    {work?.tags && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {work.tags.split(',').map((t, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-normal border border-white/20 text-[#F7F8FA] hover:bg-white/10 transition-colors"
+                          >
+                            #{t.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setInfoExpanded(!infoExpanded)}
+                    className="flex items-center gap-2.5 text-sm font-normal text-[#F7F8FA] hover:opacity-80 transition-opacity whitespace-nowrap pb-1"
+                  >
+                    <span>{infoExpanded ? 'Collapse' : 'Expend for more'}</span>
+                    {infoExpanded ? (
+                      <ChevronUp size={24} strokeWidth={1.5} />
+                    ) : (
+                      <ChevronDown size={24} strokeWidth={1.5} />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Playlist moved here from Sidebar (visible only when logged in) */}
             {user?.id ? (
               <div className="space-y-3">
                 <SidebarPlaylistSection />
               </div>
             ) : null}
+
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground">Recommended</div>
+              <WorkCardList works={(relatedWorks || []).slice(0, 4)} />
+            </div>
           </div>
         </div>
       </div>
