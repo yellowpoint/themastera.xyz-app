@@ -19,7 +19,7 @@ import { formatDate, formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
 import {
   AlertTriangle,
-  ArrowLeft,
+  ChevronLeft,
   Download,
   Frown,
   Loader2,
@@ -316,7 +316,7 @@ export default function ContentDetailPage() {
             <Link href="/">
               <Button variant="ghost">
                 <span className="inline-flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
+                  <ChevronLeft className="size-4" />
                   Home
                 </span>
               </Button>
@@ -337,7 +337,7 @@ export default function ContentDetailPage() {
               <Link href="/">
                 <Button variant="ghost" size="sm">
                   <span className="inline-flex items-center gap-2">
-                    <ArrowLeft className="h-4 w-4" />
+                    <ChevronLeft className="size-4" />
                     Home
                   </span>
                 </Button>
@@ -347,10 +347,6 @@ export default function ContentDetailPage() {
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
-              isPremium={!!work.price && work.price > 0}
-              requiredLevel="VIP"
-              userLevel="Free" // TODO: replace with actual user membership level
-              className="mb-4"
               autoPlay={true}
               onPlay={() => {
                 try {

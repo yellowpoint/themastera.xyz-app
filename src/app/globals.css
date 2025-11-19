@@ -305,8 +305,8 @@ mux-player {
   /* --media-object-fit: 'cover';
   --media-object-position: 'center'; */
 }
-#MuxPlayer_home_container mux-player {
+#homepage mux-player {
   --controls: none;
-  --media-object-fit: 'cover';
-  --media-object-position: 'center';
+  /* --media-object-fit: 'cover';
+  --media-object-position: 'center'; */
 }

@@ -423,14 +423,12 @@ export default function WorkDetailsForm({
             {/* Video Preview -> Player */}
             {uploadedVideo && (
               <div className="space-y-4">
-                <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+                <div className="relative w-full aspect-video bg-black overflow-hidden">
                   <VideoPlayer
-                    playbackId={uploadedVideo.playbackId}
                     videoUrl={uploadedVideo.fileUrl}
                     title={value.title || 'Preview'}
                     width="100%"
                     height="100%"
-                    showControls={true}
                     autoPlay={false}
                     muted={true}
                   />

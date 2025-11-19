@@ -1,9 +1,9 @@
 'use client'
 import { Skeleton } from '@/components/ui/skeleton'
+import VideoPlayer from '@/components/VideoPlayer'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
-import MuxPlayer from '@mux/mux-player-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
@@ -28,8 +28,6 @@ export default function HomePage() {
     }
     fetchData()
   }, [])
-
-  
 
   const playersRef = useRef<Record<string, HTMLDivElement | null>>({})
 
@@ -110,7 +108,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="h-full">
+    <div id="homepage" className="h-full">
       <div className="px-4 py-4">
         {loading ? (
           <div className="space-y-6 max-w-5xl mx-auto">
@@ -141,28 +139,20 @@ export default function HomePage() {
                     className="block"
                   >
                     <div className="relative rounded-2xl overflow-hidden cursor-pointer transition hover:ring-2 hover:ring-white/20">
-                    <MuxPlayer
-                      className="w-full aspect-video"
-                      {...(playbackId ? { playbackId } : { src })}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      streamType="on-demand"
-                    />
-                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-xl bg-black/40 px-3 py-2">
-                      <div className="min-w-0">
-                        <div className="text-white text-sm truncate">
-                          {w.title}
+                      <VideoPlayer title={w.title} videoUrl={src} loop />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-xl bg-black/40 px-3 py-2">
+                        <div className="min-w-0">
+                          <div className="text-white text-sm truncate">
+                            {w.title}
+                          </div>
+                          <div className="text-white/80 text-xs truncate">
+                            {w.user?.name}
+                          </div>
                         </div>
-                        <div className="text-white/80 text-xs truncate">
-                          {w.user?.name}
+                        <div className="text-white text-xs whitespace-nowrap">
+                          {formatViews(w.views || w.downloads || 0)} views
                         </div>
                       </div>
-                      <div className="text-white text-xs whitespace-nowrap">
-                        {formatViews(w.views || w.downloads || 0)} views
-                      </div>
-                    </div>
                     </div>
                   </Link>
                 </div>
