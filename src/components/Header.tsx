@@ -44,12 +44,12 @@ export default function Header() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <Button
+              {/* <Button
                 variant="secondary"
                 onClick={() => router.push('/creator/upload')}
               >
                 <span className="text-lg">+</span> Create
-              </Button>
+              </Button> */}
               {/* Notifications bell */}
               {/* <Button
                 variant="ghost"
