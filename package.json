@@ -14,7 +14,7 @@
     "dbstudio": "prisma studio"
   },
   "dependencies": {
-    "@fontsource/lexend": "^5.2.11",
+    "@fontsource-variable/jost": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@mux/mux-node": "^12.8.0",
     "@mux/mux-player-react": "^3.7.0",

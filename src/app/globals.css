@@ -1,57 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-Regular.otf') format('opentype');
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-Medium.otf') format('opentype');
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-Semibold.otf') format('opentype');
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-Bold.otf') format('opentype');
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-Black.otf') format('opentype');
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-RegularItalic.otf')
-    format('opentype');
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Obviously';
-  src: url('/fonts/obviously/ObviouslyDemo-BoldItalic.otf') format('opentype');
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {
@@ -175,7 +124,7 @@ body {
   --sidebar-accent-foreground: #2a2a4a;
   --sidebar-border: #e0e0f0;
   --sidebar-ring: #6e56cf;
-  --font-sans: 'Obviously', sans-serif;
+  --font-sans: 'Jost Variable', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
@@ -241,7 +190,7 @@ body {
   --sidebar-accent-foreground: #e2e2f5;
   --sidebar-border: #303052;
   --sidebar-ring: #a48fff;
-  --font-sans: 'Obviously', sans-serif;
+  --font-sans: 'Jost Variable', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;

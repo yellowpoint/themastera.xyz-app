@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@fontsource/lexend':
-        specifier: ^5.2.11
-        version: 5.2.11
+      '@fontsource-variable/jost':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.65.0(react@19.1.0))
@@ -280,8 +280,8 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@fontsource/lexend@5.2.11':
-    resolution: {integrity: sha512-bShbQr2g2sWl7GJNyIxdllZST1faVbebXN6H7AEEDCRms/g4orDLxWnmTVodOtiErdZVUJURq4jpafZ34nIkTw==}
+  '@fontsource-variable/jost@5.2.8':
+    resolution: {integrity: sha512-+VDDHpbhgZ9A8KeHb7/LUMRR1LILVKIscNhVRSDzn3tFXoi1mFA/OhO8CZL/u2OujoGjZANjOdUZIgaxclxyjw==}
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
@@ -3649,7 +3649,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@fontsource/lexend@5.2.11': {}
+  '@fontsource-variable/jost@5.2.8': {}
 
   '@hexagon/base64@1.1.28': {}
 

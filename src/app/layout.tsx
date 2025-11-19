@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
+import '@fontsource-variable/jost';
 
 export const metadata: Metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
