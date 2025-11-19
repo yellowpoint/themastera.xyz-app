@@ -31,16 +31,16 @@ function formatTime(seconds?: number): string {
 
 type WorkCardProps = {
   work: Work
-  // Optional props for compatibility; currently unused within component
   resolveThumb?: (url?: string | null) => string
   handleImgError?: (
     url?: string | null,
     e?: React.SyntheticEvent<HTMLImageElement, Event>
   ) => void
   formatViews?: (n: number) => string
+  variant?: 'card' | 'simple'
 }
 
-export default function WorkCard({ work }: WorkCardProps) {
+export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
   const brokenThumbsRef = useRef<Set<string>>(new Set())
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
@@ -124,6 +124,104 @@ export default function WorkCard({ work }: WorkCardProps) {
     },
     [router, work?.user?.id]
   )
+
+  if (variant === 'simple') {
+    return (
+      <div
+        className="group cursor-pointer rounded-xl"
+        onClick={() => {
+          router.push(`/content/${work?.id}`)
+        }}
+      >
+        <div className="flex items-center gap-3 px-1 py-1">
+          <img
+            src={resolveThumb(work?.thumbnailUrl)}
+            alt={work?.title || 'Untitled'}
+            className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            loading="lazy"
+            onError={(e) => handleImgError(work?.thumbnailUrl, e)}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="text-base font-medium truncate">{work?.title || 'Untitled'}</div>
+            <div
+              className="text-sm text-muted-foreground truncate hover:underline"
+              onClick={goToUser}
+            >
+              {work?.user?.name || 'Unknown Creator'}
+            </div>
+          </div>
+          {user ? (
+            <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu
+                open={menuOpen}
+                onOpenChange={(open) => {
+                  setMenuOpen(open)
+                  if (open && playlists.length === 0) fetchPlaylists()
+                }}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="More"
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    disabled={!!addingPlaylistId}
+                  >
+                    <MoreVertical size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={6}>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <ListPlus className="size-4" />
+                      <span>Add to playlist</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {loadingPlaylists ? (
+                        <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                      ) : playlists.length > 0 ? (
+                        playlists.map((pl) => (
+                          <DropdownMenuItem
+                            key={pl.id}
+                            disabled={!!addingPlaylistId && addingPlaylistId !== pl.id}
+                            onSelect={async (e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              if (addingPlaylistId) return
+                              setAddingPlaylistId(pl.id)
+                              try {
+                                await addToPlaylist(pl.id)
+                                setMenuOpen(false)
+                              } finally {
+                                setAddingPlaylistId(null)
+                              }
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              {addingPlaylistId === pl.id ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : null}
+                              <span>{pl.name}</span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>
+                          No playlists
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

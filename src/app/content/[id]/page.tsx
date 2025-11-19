@@ -1,20 +1,15 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { useEffect, useState } from 'react'
 
 import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
 import SubscribeButton from '@/components/SubscribeButton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
 import { useSidebar } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
@@ -25,8 +20,6 @@ import { request } from '@/lib/request'
 import {
   AlertTriangle,
   ArrowLeft,
-  ChevronDown,
-  ChevronUp,
   Download,
   Frown,
   Loader2,
@@ -58,11 +51,9 @@ export default function ContentDetailPage() {
   const [dislikesCount, setDislikesCount] = useState(0)
   const [authorFollowersCount, setAuthorFollowersCount] = useState(0)
 
-  const [isShareOpen, setShareOpen] = useState(false)
   const [likeLoading, setLikeLoading] = useState(false)
   const [dislikeLoading, setDislikeLoading] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(false)
-  const [infoExpanded, setInfoExpanded] = useState(false)
 
   useEffect(() => {
     if (workId) {
@@ -377,9 +368,12 @@ export default function ContentDetailPage() {
 
             <div className="space-y-4 mt-4">
               <div className="flex items-center justify-between gap-4 px-6">
-                <h1 className="text-lg font-medium truncate">{work.title}</h1>
+                <h1 className="text-2xl">{work.title}</h1>
                 <div className="flex items-center gap-4 relative">
-                  <Button variant="secondary">
+                  <Button
+                    variant="secondary"
+                    className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                  >
                     <button
                       onClick={handleLike}
                       disabled={likeLoading || dislikeLoading}
@@ -418,6 +412,7 @@ export default function ContentDetailPage() {
                   <Button
                     onClick={handleDownload}
                     variant="secondary"
+                    className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
                     disabled={downloadLoading}
                     aria-busy={downloadLoading}
                   >
@@ -425,7 +420,10 @@ export default function ContentDetailPage() {
                       {downloadLoading ? (
                         <Loader2 className="animate-spin" />
                       ) : (
-                        <Download />
+                        <>
+                          <Download />
+                          Download
+                        </>
                       )}
                     </span>
                   </Button>
@@ -439,86 +437,63 @@ export default function ContentDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-6 h-full p-2 overflow-y-auto overflow-x-hidden">
+          <div className="space-y-6 h-full px-4 overflow-y-auto overflow-x-hidden">
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={work?.user?.image} />
-                  <AvatarFallback>
-                    {work?.user?.name?.[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 flex flex-col">
-                  <div className="text-xl font-bold tracking-tight">
-                    {work?.user?.name || 'Unknown Artist'}
-                  </div>
-                  <div className="mt-1">
-                    <SubscribeButton
-                      size="sm"
-                      userId={work?.user?.id}
-                      isFollowing={isFollowing}
-                      onChanged={() => handleFollow()}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-1">
-              <div className="px-3">
-                <p className="text-[#FF00FF]">
-                  {formatViews(work.views ?? work.downloads)} views{' '}
-                  {formatDate(work.uploadTime ?? work.createdAt, 'MM-DD-YYYY')}
+              <div className="flex flex-col">
+                <p className="text-2xl">
+                  {work?.user?.name || 'Unknown Artist'}
+                </p>
+                <p className="text-sm">
+                  {formatViews(authorFollowersCount)} subscribers
                 </p>
               </div>
-              <div className="px-3">
-                <div className="flex items-end gap-6 bg-white/5 rounded-lg px-6 py-3">
-                  <div className="flex-1">
-                    <div
-                      className={`text-sm text-[#F7F8FA] ${infoExpanded ? '' : 'line-clamp-3'}`}
-                    >
-                      <p className="text-sm mb-2">Description of this video</p>
+              <SubscribeButton
+                size="sm"
+                userId={work?.user?.id}
+                isFollowing={isFollowing}
+                onChanged={() => handleFollow()}
+              />
+            </div>
+
+            <div className="">
+              <div className="">
+                <p className="text-muted-foreground">Video Description</p>
+                <div className="text-highlight">
+                  <p>
+                    Total Views: {formatViews(work.views ?? work.downloads)}
+                  </p>
+                  <p>
+                    Date added:{' '}
+                    {formatDate(
+                      work.uploadTime ?? work.createdAt,
+                      'MM-DD-YYYY'
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full mt-3 text-sm"
+                defaultValue="desc"
+              >
+                <AccordionItem value="desc">
+                  <AccordionContent>
+                    <div className={`text-sm text-secondary-foreground`}>
                       <p className="whitespace-pre-wrap">
                         {work?.description ||
                           'The creator has not added a description yet...'}
                       </p>
                     </div>
-                    {work?.tags && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {work.tags.split(',').map((t, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-normal border border-white/20 text-[#F7F8FA] hover:bg-white/10 transition-colors"
-                          >
-                            #{t.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setInfoExpanded(!infoExpanded)}
-                    className="flex items-center gap-2.5 text-sm font-normal text-[#F7F8FA] hover:opacity-80 transition-opacity whitespace-nowrap pb-1"
-                  >
-                    <span>{infoExpanded ? 'Collapse' : 'Expend for more'}</span>
-                    {infoExpanded ? (
-                      <ChevronUp size={24} strokeWidth={1.5} />
-                    ) : (
-                      <ChevronDown size={24} strokeWidth={1.5} />
-                    )}
-                  </button>
-                </div>
-              </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
 
-            {user?.id ? (
-              <div className="space-y-3">
-                <SidebarPlaylistSection />
-              </div>
-            ) : null}
+            {user?.id && <SidebarPlaylistSection />}
 
-            <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">Recommended</div>
+            <div>
+              <div className="text-muted-foreground">Suggested</div>
               <WorkCardList
                 works={(relatedWorks || []).slice(0, 4)}
                 columns={1}
@@ -527,50 +502,6 @@ export default function ContentDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* Share Dialog */}
-      <Dialog open={isShareOpen} onOpenChange={setShareOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Work</DialogTitle>
-            <DialogDescription>
-              Copy the link or share via social apps.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Share Link</label>
-              <div className="flex gap-2">
-                <Input
-                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`}
-                  readOnly
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    navigator.clipboard.writeText(
-                      `${typeof window !== 'undefined' ? window.location.origin : ''}/content/${workId}`
-                    )
-                  }
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline">WeChat</Button>
-              <Button variant="outline">Weibo</Button>
-              <Button variant="outline">QQ</Button>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setShareOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import WorkCard from '@/components/WorkCard'
-import WorkCardSkeleton from '@/components/WorkCardSkeleton'
+import WorkCardSkeleton, { WorkCardSkeletonLite } from '@/components/WorkCardSkeleton'
 import type { Work } from '@/contracts/domain/work'
 import { Inbox } from 'lucide-react'
 
@@ -12,6 +12,7 @@ type Props = {
   hasMore?: boolean
   onLoadMore?: () => void
   columns?: 1 | 2 | 3 | 4 | 5 | 6
+  variant?: 'grid' | 'simple'
 }
 
 export default function WorkCardList({
@@ -21,7 +22,13 @@ export default function WorkCardList({
   hasMore,
   onLoadMore,
   columns = 3,
+  variant,
 }: Props) {
+  const effectiveVariant: 'grid' | 'simple' = variant
+    ? variant
+    : columns === 1
+      ? 'simple'
+      : 'grid'
   const mdColsClass = (
     {
       1: 'md:grid-cols-1',
@@ -33,23 +40,43 @@ export default function WorkCardList({
     } as const
   )[columns]
   return (
-    <div className="space-y-6 py-6">
+    <div className="space-y-6">
       {isLoading ? (
-        <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <WorkCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : works?.length ? (
-        <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
-          {works.map((work) => (
-            <WorkCard key={work.id} work={work} />
-          ))}
-          {isLoadingMore &&
-            Array.from({ length: 3 }).map((_, i) => (
-              <WorkCardSkeleton key={`loading-${i}`} />
+        effectiveVariant === 'simple' ? (
+          <div className="space-y-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <WorkCardSkeletonLite key={i} />
             ))}
-        </div>
+          </div>
+        ) : (
+          <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <WorkCardSkeleton key={i} />
+            ))}
+          </div>
+        )
+      ) : works?.length ? (
+        effectiveVariant === 'simple' ? (
+          <div className="space-y-4">
+            {works.map((work) => (
+              <WorkCard key={work.id} work={work} variant="simple" />
+            ))}
+            {isLoadingMore &&
+              Array.from({ length: 3 }).map((_, i) => (
+                <WorkCardSkeletonLite key={`loading-${i}`} />
+              ))}
+          </div>
+        ) : (
+          <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
+            {works.map((work) => (
+              <WorkCard key={work.id} work={work} />
+            ))}
+            {isLoadingMore &&
+              Array.from({ length: 3 }).map((_, i) => (
+                <WorkCardSkeleton key={`loading-${i}`} />
+              ))}
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center py-16 border border-dashed rounded-lg text-center">
           <Inbox
@@ -71,7 +98,6 @@ export default function WorkCardList({
         </div>
       )}
 
-      {/* Only show when hasMore is explicitly false (i.e., pagination is supported but exhausted) */}
       {!isLoading && !isLoadingMore && hasMore === false && works?.length ? (
         <div className="flex justify-center">
           <p className="text-sm text-muted-foreground" aria-live="polite">

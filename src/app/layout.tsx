@@ -1,11 +1,11 @@
 import { AppLayout } from '@/components/AppLayout'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import '@fontsource-variable/jost'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
-import '@fontsource-variable/jost';
 
 export const metadata: Metadata = {
   title: 'Mastera Platform - A Creative Platform for Creators and Fans',
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`antialiased`} suppressHydrationWarning>
+    <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>
         {/* Google tag (gtag.js) */}
         <Script
@@ -42,7 +42,7 @@ export default function RootLayout({
         <Providers>
           <SidebarProvider defaultOpen={false}>
             <AppSidebar className="pt-16" />
-            <SidebarInset className="flex flex-col">
+            <SidebarInset>
               <AppLayout>{children}</AppLayout>
             </SidebarInset>
           </SidebarProvider>
