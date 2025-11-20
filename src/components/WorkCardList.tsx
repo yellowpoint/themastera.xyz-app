@@ -1,7 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import WorkCard from '@/components/WorkCard'
-import WorkCardSkeleton, { WorkCardSkeletonLite } from '@/components/WorkCardSkeleton'
+import WorkCardSkeleton, {
+  WorkCardSkeletonLite,
+} from '@/components/WorkCardSkeleton'
 import type { Work } from '@/contracts/domain/work'
 import { Inbox } from 'lucide-react'
 

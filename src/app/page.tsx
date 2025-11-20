@@ -1,4 +1,6 @@
 'use client'
+import WatchHistoryPage from '@/app/history/page'
+import SubscriptionsPage from '@/app/subscriptions/page'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
@@ -158,7 +160,11 @@ export default function HomePage() {
         </Button>
       </div>
       <div className="px-4 py-4">
-        {loading ? (
+        {activeTab === 'Subscriptions' ? (
+          <SubscriptionsPage />
+        ) : activeTab === 'History' ? (
+          <WatchHistoryPage />
+        ) : loading ? (
           <div className="space-y-6 max-w-5xl mx-auto">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="aspect-video w-full rounded-xl" />

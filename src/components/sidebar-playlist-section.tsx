@@ -275,9 +275,6 @@ export function SidebarPlaylistSection() {
           ) : playlists.length === 0 ? (
             <div className="rounded-lg border p-3">
               <div className="text-sm font-semibold mb-1">Your library</div>
-              <div className="text-xs text-muted-foreground mb-3">
-                Create your playlist
-              </div>
               <Button className="w-full" onClick={() => setCreateOpen(true)}>
                 Create Playlist
               </Button>

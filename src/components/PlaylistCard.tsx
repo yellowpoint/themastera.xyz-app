@@ -87,10 +87,24 @@ export default function PlaylistCard({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-card">
                     {onEdit ? (
-                      <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          onEdit()
+                        }}
+                      >
+                        Edit
+                      </DropdownMenuItem>
                     ) : null}
                     {onDelete ? (
-                      <DropdownMenuItem onClick={onDelete}>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          onDelete()
+                        }}
+                      >
                         Delete
                       </DropdownMenuItem>
                     ) : null}
