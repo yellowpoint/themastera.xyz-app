@@ -1,6 +1,5 @@
 'use client'
 
-import AuthRequired from '@/components/auth-required'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,107 +84,103 @@ export default function PlaylistDetailPage() {
   }
 
   return (
-    <AuthRequired protectedPrefixes={['/playlists']}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 overflow-x-hidden">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/playlists')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <h1 className="text-2xl font-semibold">
-              {playlist?.name || 'Playlist'}
-            </h1>
-          </div>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 overflow-x-hidden">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/playlists')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <h1 className="text-2xl font-semibold">
+            {playlist?.name || 'Playlist'}
+          </h1>
         </div>
-
-        <Card className="p-0 overflow-hidden">
-          {loading ? (
-            <div className="p-4 space-y-2">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : !playlist || playlist.items.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-muted-foreground">
-                No videos in this playlist
-              </p>
-            </div>
-          ) : (
-            <Table className="w-full table-fixed">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[60%]">Video</TableHead>
-                  <TableHead className="w-[25%]">Author</TableHead>
-                  <TableHead className="w-[15%] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {playlist.items.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={item.thumbnail || '/thumbnail-placeholder.svg'}
-                          alt={item.title || 'Thumbnail'}
-                          className="w-16 h-10 object-cover rounded"
-                        />
-                        <div className="min-w-0">
-                          <Link
-                            href={`/content/${item.id}`}
-                            className="font-medium hover:underline flex items-center gap-2 w-full"
-                          >
-                            <span className="truncate flex-1">
-                              {item.title || 'Untitled'}
-                            </span>
-                          </Link>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="truncate break-words">
-                      {item.author || '-'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            disabled={deletingWorkId === item.id}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Remove video?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will remove the video from the playlist.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => removeEntry(item.id)}
-                            >
-                              Confirm
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </Card>
       </div>
-    </AuthRequired>
+
+      <Card className="p-0 overflow-hidden">
+        {loading ? (
+          <div className="p-4 space-y-2">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : !playlist || playlist.items.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="text-muted-foreground">No videos in this playlist</p>
+          </div>
+        ) : (
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[60%]">Video</TableHead>
+                <TableHead className="w-[25%]">Author</TableHead>
+                <TableHead className="w-[15%] text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {playlist.items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.thumbnail || '/thumbnail-placeholder.svg'}
+                        alt={item.title || 'Thumbnail'}
+                        className="w-16 h-10 object-cover rounded"
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/content/${item.id}`}
+                          className="font-medium hover:underline flex items-center gap-2 w-full"
+                        >
+                          <span className="truncate flex-1">
+                            {item.title || 'Untitled'}
+                          </span>
+                        </Link>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="truncate break-words">
+                    {item.author || '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={deletingWorkId === item.id}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Remove video?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will remove the video from the playlist.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => removeEntry(item.id)}
+                          >
+                            Confirm
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
+    </div>
   )
 }

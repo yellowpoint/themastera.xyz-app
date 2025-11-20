@@ -7,6 +7,7 @@ import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export default function HomePage() {
@@ -16,6 +17,8 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<
     'All' | 'Subscriptions' | 'History'
   >('All')
+  const router = useRouter()
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -145,7 +148,7 @@ export default function HomePage() {
           Filter
         </button>
         <Button
-          // onClick={() => setCreateOpen(true)}
+          onClick={() => router.push('/creator/upload')}
           variant="secondary"
           size="sm"
           className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] h-6 text-sm"
