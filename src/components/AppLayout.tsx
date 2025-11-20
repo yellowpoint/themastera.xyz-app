@@ -22,7 +22,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="relative z-20">{!hideHeader && <Header />}</div>
       {/* border-t-4 border-l-4 border-secondary */}
       <div
-        className={`flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'} relative z-30`}
+        className={`relative z-30 flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'}`}
       >
         <AuthRequired>{children}</AuthRequired>
       </div>

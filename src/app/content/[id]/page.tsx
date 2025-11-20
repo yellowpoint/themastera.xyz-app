@@ -160,7 +160,7 @@ export default function ContentDetailPage() {
   const fetchRelatedWorks = async () => {
     try {
       const { data } = await request.get(
-        `/api/works/trending?limit=8&exclude=${workId}`
+        `/api/works/trending?limit=4&exclude=${workId}`
       )
       setRelatedWorks((data as any)?.data?.items || [])
     } catch (err) {
@@ -257,7 +257,7 @@ export default function ContentDetailPage() {
 
   if (loading) {
     return (
-      <div className="h-full bg-content-bg overflow-hidden">
+      <div className="h-full">
         <div className="px-4 py-6 h-full">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
             <div className="md:col-span-2 space-y-4">
@@ -433,7 +433,7 @@ export default function ContentDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-6 h-full px-4 overflow-y-auto overflow-x-hidden">
+          <div className="space-y-6 h-full px-4 overflow-y-auto overflow-x-hidden bg-white/10 backdrop-blur-md">
             <div className="space-y-3">
               <div className="flex flex-col">
                 <p className="text-2xl">
