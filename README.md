@@ -127,7 +127,6 @@ Mastera 平台是一个基于 Next.js 构建的全栈 Web 应用程序，旨在�
 
    # Better Auth
    BETTER_AUTH_SECRET="your_auth_secret"
-   BETTER_AUTH_URL="http://localhost:3000"
 
    # Resend (邮件服务)
    RESEND_API_KEY="your_resend_api_key"
@@ -251,6 +250,7 @@ src/
 - `/user/[id]` 用户主页（动态路由，src/app/user/[id]/page.js）
 
 说明：
+
 - 上述带 `[id]` 的为动态路由，访问时请替换为具体资源 ID，例如 `/content/123`。
 
 ## 🛠️ 可用脚本
