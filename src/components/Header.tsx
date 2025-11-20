@@ -10,6 +10,7 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, User } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -63,7 +64,15 @@ export default function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none flex items-center gap-2">
-                    <span className="text-sm">{`Hi, ${user?.name || user?.email || 'User'}`}</span>
+                    <Avatar>
+                      <AvatarImage
+                        src={user?.image || ''}
+                        alt={user?.name || user?.email || 'User'}
+                      />
+                      <AvatarFallback>
+                        {((user?.name || user?.email || 'U')[0] || 'U').toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>

@@ -173,7 +173,7 @@ export default function PlaylistsPage() {
             />
           </div>
           <button
-            className="text-muted-foreground text-sm flex items-center gap-2"
+            className="text-white text-sm flex items-center gap-2"
             type="button"
           >
             Filter
@@ -182,9 +182,9 @@ export default function PlaylistsPage() {
             onClick={() => setCreateOpen(true)}
             variant="secondary"
             size="sm"
-            className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+            className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] h-6 text-sm"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="size-4" />
             Create
           </Button>
         </div>

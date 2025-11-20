@@ -1,9 +1,11 @@
 'use client'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
@@ -11,7 +13,9 @@ export default function HomePage() {
   const [items, setItems] = useState<HomepageItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+  const [activeTab, setActiveTab] = useState<
+    'All' | 'Subscriptions' | 'History'
+  >('All')
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -106,9 +110,50 @@ export default function HomePage() {
     const playbackId = m?.[1]
     return { playbackId, src }
   }
-
+  const tabList = [
+    { key: 'All', label: 'All', left: '0px' },
+    { key: 'Subscriptions', label: 'Subscriptions', left: '80px' },
+    { key: 'History', label: 'History', left: '170px' },
+  ]
   return (
     <div id="homepage" className="h-full">
+      <div className="flex items-center justify-between gap-8 mb-6 fixed top-6 z-9999 left-1/2 -translate-x-1/2">
+        <div className="relative flex items-center gap-8">
+          {tabList.map(({ key, label }) => (
+            <div key={key} className="flex flex-col items-center">
+              <button
+                className={`${
+                  activeTab === key ? 'text-white' : 'text-muted-foreground'
+                } text-sm`}
+                onClick={() => setActiveTab(key as any)}
+              >
+                {label}
+              </button>
+            </div>
+          ))}
+          <div
+            className="absolute bottom-[-8px] h-1 w-4 rounded bg-primary transition-all duration-300"
+            style={{
+              left: tabList.find((t) => t.key === activeTab)?.left || '0px',
+            }}
+          />
+        </div>
+        <button
+          className="text-white text-sm flex items-center gap-2"
+          type="button"
+        >
+          Filter
+        </button>
+        <Button
+          // onClick={() => setCreateOpen(true)}
+          variant="secondary"
+          size="sm"
+          className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] h-6 text-sm"
+        >
+          <Plus className="size-4" />
+          Create
+        </Button>
+      </div>
       <div className="px-4 py-4">
         {loading ? (
           <div className="space-y-6 max-w-5xl mx-auto">
@@ -139,7 +184,7 @@ export default function HomePage() {
                     className="block"
                   >
                     <div className="relative rounded-2xl overflow-hidden cursor-pointer transition hover:ring-2 hover:ring-white/20">
-                      <VideoPlayer title={w.title} videoUrl={src} loop />
+                      <VideoPlayer title={w.title} videoUrl={src} loop muted />
                       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-xl bg-black/40 px-3 py-2">
                         <div className="min-w-0">
                           <div className="text-white text-sm truncate">
