@@ -34,6 +34,7 @@ export async function GET(request: Request) {
     const items = playlists.map((pl) => ({
       id: pl.id,
       name: pl.name,
+      updatedAt: pl.updatedAt?.toISOString?.() || (pl.updatedAt as any),
       items: pl.entries.map((e) => ({
         id: e.work.id,
         title: e.work.title,

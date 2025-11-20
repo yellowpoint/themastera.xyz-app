@@ -12,6 +12,7 @@ export type PlaylistItem = z.infer<typeof PlaylistItemSchema>
 export const PlaylistCardSchema = z.object({
   id: z.string(),
   name: z.string(),
+  updatedAt: z.string().optional(),
   items: z.array(PlaylistItemSchema),
 })
 export type PlaylistCard = z.infer<typeof PlaylistCardSchema>

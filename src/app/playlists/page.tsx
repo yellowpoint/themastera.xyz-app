@@ -1,5 +1,6 @@
 'use client'
 
+import PlaylistCard from '@/components/PlaylistCard'
 import { createPlaylistApi } from '@/components/sidebar-playlist-section'
 import {
   AlertDialog,
@@ -10,9 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -23,17 +22,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { PlaylistCard } from '@/contracts/domain/playlist'
+import type { PlaylistCard as PlaylistCardContract } from '@/contracts/domain/playlist'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { FolderOpen, Plus, Search, Trash2 } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, Search } from 'lucide-react'
 import React from 'react'
 
+import { formatDate } from '@/lib/format'
 import { toast } from 'sonner'
 
 // Use shared contract types
-type Playlist = PlaylistCard
+type Playlist = PlaylistCardContract
 
 export default function PlaylistsPage() {
   const [activeTab, setActiveTab] = React.useState<'recommend' | 'mine'>(
@@ -186,22 +185,27 @@ export default function PlaylistsPage() {
           Create
         </Button>
       </div>
+      <h1 className="text-4xl text-white mb-10">
+        {activeTab === 'recommend' ? 'Recommend list' : 'My Playlists'}
+      </h1>
       <div className="flex items-center gap-3 mb-4">
-        <Badge
+        <Button
+          size="sm"
           variant="secondary"
           onClick={() => setSortAZ(false)}
-          className={!sortAZ ? 'bg-primary text-primary-foreground' : ''}
+          className={`rounded-lg h-7 px-3 text-sm ${!sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
         >
           Recent added
-        </Badge>
-        <Badge
+        </Button>
+        <Button
+          size="sm"
           variant="secondary"
           onClick={() => setSortAZ(true)}
-          className={sortAZ ? 'bg-primary text-primary-foreground' : ''}
+          className={`rounded-lg h-7 px-3 text-sm ${sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
         >
           A-Z
-        </Badge>
-        <div className="relative flex-1">
+        </Button>
+        <div className="relative w-80">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search playlist name"
@@ -212,7 +216,7 @@ export default function PlaylistsPage() {
         </div>
       </div>
       {activeTab === 'recommend' ? (
-        <Card className="p-0">
+        <div className="p-0">
           {recLoading ? (
             <div className="p-4 space-y-2">
               <Skeleton className="h-6 w-1/3" />
@@ -222,57 +226,25 @@ export default function PlaylistsPage() {
           ) : recError ? (
             <div className="p-6 text-sm text-muted-foreground">{recError}</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              {filteredSections.map((sec) => (
-                <div key={sec.id} className="rounded-xl overflow-hidden border">
-                  <div className="grid grid-cols-4 gap-px bg-black">
-                    {Array.from({ length: 4 }).map((_, idx) => {
-                      const it = sec.items[idx]
-                      return (
-                        <div key={idx} className="bg-black">
-                          {it ? (
-                            <Link href={`/content/${it.id}`} className="block">
-                              <img
-                                src={
-                                  it.thumbnailUrl ||
-                                  '/thumbnail-placeholder.svg'
-                                }
-                                alt={it.title}
-                                className="w-full h-24 object-cover"
-                              />
-                            </Link>
-                          ) : (
-                            <div className="w-full h-24 bg-muted" />
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-t from-black/60 to-black/20 text-white">
-                    <div className="min-w-0">
-                      <div className="text-sm truncate">{sec.title}</div>
-                    </div>
-                    <Link
-                      href={sec.items[0] ? `/content/${sec.items[0].id}` : '#'}
-                    >
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="bg-white/10 text-white border-white/20"
-                      >
-                        <FolderOpen className="mr-2 h-4 w-4" />
-                        View
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+              {filteredSections.map((sec) => {
+                const first = sec.items[0]
+                const coverSrc = first?.thumbnailUrl || undefined
+                return (
+                  <PlaylistCard
+                    key={sec.id}
+                    title={sec.title}
+                    href={first ? `/content/${first.id}` : '#'}
+                    coverSrc={coverSrc}
+                  />
+                )
+              })}
             </div>
           )}
-        </Card>
+        </div>
       ) : null}
       {activeTab === 'mine' ? (
-        <Card className="p-0">
+        <div className="p-0">
           {loading ? (
             <div className="p-4 space-y-2">
               <Skeleton className="h-6 w-1/3" />
@@ -280,98 +252,80 @@ export default function PlaylistsPage() {
               <Skeleton className="h-40 w-full" />
             </div>
           ) : filteredPlaylists.length === 0 ? (
-            <div className="p-6 text-sm text-muted-foreground">
-              No playlists yet
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              {filteredPlaylists.map((pl) => (
-                <div key={pl.id} className="rounded-xl overflow-hidden border">
-                  <div className="grid grid-cols-4 gap-px bg-black">
-                    {Array.from({ length: 4 }).map((_, idx) => {
-                      const it = pl.items[idx]
-                      return (
-                        <div key={idx} className="bg-black">
-                          {it ? (
-                            <Link href={`/content/${it.id}`} className="block">
-                              <img
-                                src={
-                                  it.thumbnail || '/thumbnail-placeholder.svg'
-                                }
-                                alt={it.title}
-                                className="w-full h-24 object-cover"
-                              />
-                            </Link>
-                          ) : (
-                            <div className="w-full h-24 bg-muted" />
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-t from-black/60 to-black/20 text-white">
-                    <div className="min-w-0">
-                      <div className="text-sm truncate">{pl.name}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Link href={`/playlists/${pl.id}`}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-white/10 text-white border-white/20"
-                        >
-                          <FolderOpen className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                      </Link>
-                      <AlertDialog
-                        open={openDeleteId === pl.id}
-                        onOpenChange={(open) =>
-                          setOpenDeleteId(open ? pl.id : null)
-                        }
-                      >
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={deletingId === pl.id}
-                          onClick={() => setOpenDeleteId(pl.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </Button>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Delete playlist?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently delete the playlist and its
-                              entries.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <Button
-                              variant="destructive"
-                              onClick={async () => {
-                                await deletePlaylist(pl.id)
-                                setOpenDeleteId(null)
-                              }}
-                              loading={deletingId === pl.id}
-                              disabled={deletingId === pl.id}
-                            >
-                              Confirm
-                            </Button>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+            <div className="p-6">
+              <div className="rounded-xl overflow-hidden">
+                <div className="">
+                  <div className="flex flex-col  items-center gap-4 w-40">
+                    <button
+                      type="button"
+                      onClick={() => setCreateOpen(true)}
+                      className="group size-40  rounded-xl   bg-[#F6F9FC1A] hover:bg-white/10 transition-colors flex items-center justify-center"
+                    >
+                      <Plus className="h-12 w-12 text-white/80 group-hover:text-white" />
+                    </button>
+                    <div className="text-white text-xl">
+                      Create first playlist
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+              {filteredPlaylists.map((pl) => {
+                const cover = pl.items[0]
+                const coverSrc = cover?.thumbnail || undefined
+                return (
+                  <div key={pl.id}>
+                    <PlaylistCard
+                      title={pl.name}
+                      href={`/playlists/${pl.id}`}
+                      coverSrc={coverSrc}
+                      updatedLabel={`Updated: ${formatDate((pl as any).updatedAt)}`}
+                      showMenu
+                      onEdit={() => {
+                        if (typeof window !== 'undefined') {
+                          window.location.href = `/playlists/${pl.id}`
+                        }
+                      }}
+                      onDelete={() => setOpenDeleteId(pl.id)}
+                    />
+                    <AlertDialog
+                      open={openDeleteId === pl.id}
+                      onOpenChange={(open) =>
+                        setOpenDeleteId(open ? pl.id : null)
+                      }
+                    >
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete playlist?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete the playlist and its
+                            entries.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              await deletePlaylist(pl.id)
+                              setOpenDeleteId(null)
+                            }}
+                            loading={deletingId === pl.id}
+                            disabled={deletingId === pl.id}
+                          >
+                            Confirm
+                          </Button>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )
+              })}
             </div>
           )}
-        </Card>
+        </div>
       ) : null}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>

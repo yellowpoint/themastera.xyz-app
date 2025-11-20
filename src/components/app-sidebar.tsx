@@ -2,11 +2,9 @@
 
 import {
   AudioWaveform,
-  BookOpen,
   Bot,
   Command,
   Frame,
-  History,
   Home,
   PieChart,
   Settings2,
@@ -34,9 +32,9 @@ const data = {
     { title: 'Explore', url: '/explore', icon: Command },
   ],
   navMain2: [
-    { title: 'Subscriptions', url: '/subscriptions', icon: BookOpen },
+    // { title: 'Subscriptions', url: '/subscriptions', icon: BookOpen },
     { title: 'Playlists', url: '/playlists', icon: AudioWaveform },
-    { title: 'History', url: '/history', icon: History },
+    // { title: 'History', url: '/history', icon: History },
   ],
   navMain3: [{ title: 'Dashboard', url: '/creator', icon: PieChart }],
   admin: [{ title: 'Admin', url: '/admin', icon: Bot }],
