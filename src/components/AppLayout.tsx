@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const hideHeader = pathname?.startsWith('/content/')
+  const hideHeader = ['/content', '/section', '/playlists/'].some((prefix) =>
+    pathname?.startsWith(prefix)
+  )
 
   return (
     <div className="flex flex-col h-screen">

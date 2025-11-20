@@ -1,12 +1,15 @@
 'use client'
+import { Button } from '@/components/ui/button'
 import WorkCardList from '@/components/WorkCardList'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { useSearchParams } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 export default function SectionUnifiedPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const section = searchParams.get('section') || undefined
   const initialPage = parseInt(searchParams.get('page') || '1')
@@ -78,13 +81,17 @@ export default function SectionUnifiedPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold">{headerTitle}</h1>
-          <p className="text-sm text-muted-foreground">
-            Browse all items in this section.
-          </p>
-        </div>
+      <div className="mb-4">
+        <Button variant="outline" size="sm" onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+      </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold">{headerTitle}</h1>
+        <p className="text-sm text-muted-foreground">
+          Browse all items in this section.
+        </p>
       </div>
 
       <WorkCardList

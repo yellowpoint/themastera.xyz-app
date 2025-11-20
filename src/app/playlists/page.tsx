@@ -234,7 +234,7 @@ export default function PlaylistsPage() {
                   <PlaylistCard
                     key={sec.id}
                     title={sec.title}
-                    href={first ? `/content/${first.id}` : '#'}
+                    href={`/section?section=${sec.id}`}
                     coverSrc={coverSrc}
                   />
                 )
