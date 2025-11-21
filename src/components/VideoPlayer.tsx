@@ -77,6 +77,7 @@ export default function VideoPlayer({
             <MuxPlayer
               accent-color="var(--primary)"
               playbackId={effectivePlaybackId}
+              renditionOrder="desc"
               metadata={{
                 video_title: title,
               }}

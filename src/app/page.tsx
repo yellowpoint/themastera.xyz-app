@@ -5,10 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import type { HomepageItem } from '@/contracts/domain/work'
-import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
-import { Plus } from 'lucide-react'
-import Link from 'next/link'
+import { Pause, Play, Plus, Volume2, VolumeX } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -20,6 +18,8 @@ export default function HomePage() {
     'All' | 'Subscriptions' | 'History'
   >('All')
   const router = useRouter()
+  const [playing, setPlaying] = useState<Record<string, boolean>>({})
+  const [muted, setMuted] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,10 +101,50 @@ export default function HomePage() {
     )
 
     const nodes = Object.values(playersRef.current).filter(Boolean)
-    nodes.forEach((node) => node && observer.observe(node))
+    nodes.forEach((node) => {
+      if (!node) return
+      observer.observe(node)
+      const player = node.querySelector('mux-player') as any
+      const id = node.getAttribute('data-id') || ''
+      if (player && id) {
+        const handlePlay = () => {
+          setPlaying((p) => ({ ...p, [id]: true }))
+        }
+        const handlePause = () => {
+          setPlaying((p) => ({ ...p, [id]: false }))
+        }
+        const handleVolumeChange = () => {
+          setMuted((m) => ({ ...m, [id]: !!player.muted }))
+        }
+        player.addEventListener('play', handlePlay)
+        player.addEventListener('pause', handlePause)
+        player.addEventListener('volumechange', handleVolumeChange)
+        // initialize state
+        setPlaying((p) => ({ ...p, [id]: !player.paused }))
+        setMuted((m) => ({ ...m, [id]: !!player.muted }))
+        ;(node as any).__listeners = {
+          handlePlay,
+          handlePause,
+          handleVolumeChange,
+        }
+      }
+    })
 
     return () => {
-      nodes.forEach((node) => node && observer.unobserve(node))
+      nodes.forEach((node) => {
+        if (!node) return
+        const player = node.querySelector('mux-player') as any
+        const listeners = (node as any).__listeners
+        if (player && listeners) {
+          player.removeEventListener('play', listeners.handlePlay)
+          player.removeEventListener('pause', listeners.handlePause)
+          player.removeEventListener(
+            'volumechange',
+            listeners.handleVolumeChange
+          )
+        }
+        observer.unobserve(node)
+      })
       observer.disconnect()
     }
   }, [items])
@@ -114,6 +154,29 @@ export default function HomePage() {
     const m = src.match(/stream\.mux\.com\/([^.?]+)/)
     const playbackId = m?.[1]
     return { playbackId, src }
+  }
+  const togglePlay = (id: string) => {
+    const container = playersRef.current[id]
+    const player = container?.querySelector('mux-player') as any
+    if (!player) return
+    try {
+      if (player.paused) {
+        player.play()
+        setPlaying((p) => ({ ...p, [id]: true }))
+      } else {
+        player.pause()
+        setPlaying((p) => ({ ...p, [id]: false }))
+      }
+    } catch {}
+  }
+  const toggleMute = (id: string) => {
+    const container = playersRef.current[id]
+    const player = container?.querySelector('mux-player') as any
+    if (!player) return
+    try {
+      player.muted = !player.muted
+      setMuted((m) => ({ ...m, [id]: !!player.muted }))
+    } catch {}
   }
   const tabList = [
     { key: 'All', label: 'All', left: '0px' },
@@ -175,7 +238,7 @@ export default function HomePage() {
             {error}
           </div>
         ) : (
-          <div className="space-y-6 max-w-5xl mx-auto">
+          <div className="space-y-6 max-w-6xl mx-auto">
             {items.map((w) => {
               const { playbackId, src } = resolvePlayback(w.fileUrl)
               return (
@@ -185,30 +248,85 @@ export default function HomePage() {
                     playersRef.current[w.id] = el
                   }}
                   data-pid={playbackId || ''}
+                  data-id={w.id}
                 >
-                  <Link
-                    href={`/content/${w.id}`}
-                    prefetch
+                  <div
+                    onClick={(e) => {
+                      router.push(`/content/${w.id}`)
+                    }}
                     aria-label={w.title || 'View content'}
                     className="block"
                   >
-                    <div className="relative rounded-2xl overflow-hidden cursor-pointer transition hover:ring-2 hover:ring-white/20">
-                      <VideoPlayer title={w.title} videoUrl={src} loop muted />
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-xl bg-black/40 px-3 py-2">
+                    <div className="relative rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
+                      <VideoPlayer
+                        title={w.title}
+                        videoUrl={src}
+                        loop
+                        muted
+                        onPlay={() =>
+                          setPlaying((p) => ({ ...p, [w.id]: true }))
+                        }
+                        onPause={() =>
+                          setPlaying((p) => ({ ...p, [w.id]: false }))
+                        }
+                      />
+                      <div
+                        className="absolute bottom-6 left-0 right-0 flex items-center justify-between bg-[#1D212966] backdrop-blur-md px-8 cursor-auto py-2"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                      >
                         <div className="min-w-0">
-                          <div className="text-white text-sm truncate">
-                            {w.title}
+                          <div className="flex items-center gap-2">
+                            <span className="text-highlight flex-none">
+                              Watch Free
+                            </span>
+                            <div className="text-white text-xl truncate">
+                              {w.title}
+                            </div>
                           </div>
-                          <div className="text-white/80 text-xs truncate">
+                          <div className="text-white truncate">
                             {w.user?.name}
                           </div>
-                        </div>
-                        <div className="text-white text-xs whitespace-nowrap">
-                          {formatViews(w.views || w.downloads || 0)} views
+                          <div className="flex items-center gap-2 mt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                togglePlay(w.id)
+                              }}
+                              aria-label="Play"
+                              className="h-6 w-6  text-white flex items-center justify-center"
+                            >
+                              {playing[w.id] ? (
+                                <Pause className="size-4" />
+                              ) : (
+                                <Play className="size-4" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                toggleMute(w.id)
+                              }}
+                              aria-label="Volume"
+                              className="h-6 w-6 text-white flex items-center justify-center"
+                            >
+                              {muted[w.id] ? (
+                                <VolumeX className="size-4" />
+                              ) : (
+                                <Volume2 className="size-4" />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               )
             })}
