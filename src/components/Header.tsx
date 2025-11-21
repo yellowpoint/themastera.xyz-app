@@ -19,14 +19,13 @@ export default function Header() {
   const router = useRouter()
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-40">
-      <div className="flex h-16 items-center gap-3 px-4">
-        <div className="flex items-center justify-between w-60">
+    <>
+      <div className="fixed left-0 top-0 z-40">
+        <div className="flex h-[80px] items-center gap-3 pl-4">
           <Link
             href="/"
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
           >
-            {/* Use white logo in dark theme, black logo in light theme */}
             <img
               src="/logo-black.png"
               alt="Logo"
@@ -37,12 +36,12 @@ export default function Header() {
               alt="Logo"
               className="h-auto w-15 hidden dark:block"
             />
-            {/* <span>THE MASTERA</span> */}
           </Link>
           <SidebarTrigger className="md:hidden" />
         </div>
-        <div className="flex-1" />
-        <div className="flex items-center gap-3">
+      </div>
+      <div className="fixed right-0 top-0 z-40">
+        <div className="flex h-[80px] items-center gap-3 pr-4">
           {user ? (
             <>
               <Button
@@ -99,6 +98,6 @@ export default function Header() {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

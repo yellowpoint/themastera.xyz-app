@@ -19,10 +19,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
       />
       <div className="fixed inset-0 z-0 pointer-events-none bg-black/30 backdrop-blur-md" />
-      <div className="relative z-20">{!hideHeader && <Header />}</div>
+      <div className="relative z-30">{!hideHeader && <Header />}</div>
       {/* border-t-4 border-l-4 border-secondary */}
       <div
-        className={`relative z-30 flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'}`}
+        className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'}`}
       >
         <AuthRequired>{children}</AuthRequired>
       </div>

@@ -70,119 +70,124 @@ export default function TopTabs({
   }, [searchOpen, query])
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-[#F6F9FC1A] rounded-xl backdrop-blur ${className || ''}`}
-    >
-      <div className="flex items-center gap-8">
-        {tabs.map(({ key, label }) => (
-          <div key={key} className="flex flex-col items-center">
-            <button
-              ref={(el) => {
-                itemsRef.current[key] = el
-              }}
-              className={`${activeKey === key ? 'text-white' : 'text-muted-foreground'} text-sm`}
-              type="button"
-              onClick={() => onChange(key)}
-            >
-              {label}
-            </button>
-          </div>
-        ))}
-        <div
-          className="absolute bottom-[6px] h-1 w-4 rounded bg-primary transition-all duration-300"
-          style={{ left: `${indicatorLeft}px` }}
-        />
-      </div>
-      <div className="flex w-[1px] items-center justify-center ml-4">
-        <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
-      </div>
-      <button
-        className="flex h-10 w-10 items-center justify-center"
-        title="Search"
-        type="button"
-        onClick={() => setSearchOpen(true)}
+    <div className="h-[80px] fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center">
+      <div
+        ref={containerRef}
+        className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-[#F6F9FC1A] rounded-xl backdrop-blur ${className || ''}`}
       >
-        <div className="text-white/90 relative">
-          <Search className="h-4 w-4" />
-        </div>
-      </button>
-
-      <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
-        <SheetContent
-          side="right"
-          className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white"
-          hideClose
-        >
-          <SheetHeader>
-            <div className="pt-2 px-0">
-              <InputGroup className="h-12 rounded-xl">
-                <InputGroupAddon>
-                  <InputGroupText>
-                    <Search className="h-4 w-4" />
-                  </InputGroupText>
-                </InputGroupAddon>
-                <InputGroupInput
-                  placeholder="Search the item you like"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </InputGroup>
+        <div className="flex items-center gap-8">
+          {tabs.map(({ key, label }) => (
+            <div key={key} className="flex flex-col items-center">
+              <button
+                ref={(el) => {
+                  itemsRef.current[key] = el
+                }}
+                className={`${activeKey === key ? 'text-white' : 'text-muted-foreground'} text-sm`}
+                type="button"
+                onClick={() => onChange(key)}
+              >
+                {label}
+              </button>
             </div>
-          </SheetHeader>
+          ))}
+          <div
+            className="absolute bottom-[6px] h-1 w-4 rounded bg-primary transition-all duration-300"
+            style={{ left: `${indicatorLeft}px` }}
+          />
+        </div>
+        <div className="flex w-[1px] items-center justify-center ml-4">
+          <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
+        </div>
+        <button
+          className="flex h-10 w-10 items-center justify-center"
+          title="Search"
+          type="button"
+          onClick={() => setSearchOpen(true)}
+        >
+          <div className="text-white/90 relative">
+            <Search className="h-4 w-4" />
+          </div>
+        </button>
 
-          <div className="px-4">
-            <div className="mt-4">
-              {query ? null : (
-                <div className="text-sm text-muted-foreground mb-2">
-                  Suggested
-                </div>
-              )}
-              <div className="space-y-3">
-                {loadingSuggest ? (
-                  <div className="text-sm text-muted-foreground text-center">
-                    Loading...
-                  </div>
-                ) : suggestions.length ? (
-                  suggestions.map((item) => (
-                    <Link key={item.id} href={`/content/${item.id}`} prefetch>
-                      <div className="flex items-center gap-3 hover:bg-white/5 rounded-md p-2">
-                        <div className="w-12 h-12 rounded-md overflow-hidden shrink-0">
-                          <img
-                            src={
-                              item.thumbnailUrl || '/thumbnail-placeholder.svg'
-                            }
-                            alt={item.title || 'Item'}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-sm  truncate">{item.title}</div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {item.user?.name || 'Unknown'}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground text-center">
-                    {query ? 'No results' : 'No suggestions'}
+        <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
+          <SheetContent
+            side="right"
+            className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white"
+            hideClose
+          >
+            <SheetHeader>
+              <div className="pt-2 px-0">
+                <InputGroup className="h-12 rounded-xl">
+                  <InputGroupAddon>
+                    <InputGroupText>
+                      <Search className="h-4 w-4" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    placeholder="Search the item you like"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </InputGroup>
+              </div>
+            </SheetHeader>
+
+            <div className="px-4">
+              <div className="mt-4">
+                {query ? null : (
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Suggested
                   </div>
                 )}
+                <div className="space-y-3">
+                  {loadingSuggest ? (
+                    <div className="text-sm text-muted-foreground text-center">
+                      Loading...
+                    </div>
+                  ) : suggestions.length ? (
+                    suggestions.map((item) => (
+                      <Link key={item.id} href={`/content/${item.id}`} prefetch>
+                        <div className="flex items-center gap-3 hover:bg-white/5 rounded-md p-2">
+                          <div className="w-12 h-12 rounded-md overflow-hidden shrink-0">
+                            <img
+                              src={
+                                item.thumbnailUrl ||
+                                '/thumbnail-placeholder.svg'
+                              }
+                              alt={item.title || 'Item'}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm  truncate">
+                              {item.title}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {item.user?.name || 'Unknown'}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center">
+                      {query ? 'No results' : 'No suggestions'}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {query ? null : (
-              <div className="mt-5">
-                <Link href="/explore" className="text-highlight">
-                  Explore <span className="text-white">›</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
+              {query ? null : (
+                <div className="mt-5">
+                  <Link href="/explore" className="text-highlight">
+                    Explore <span className="text-white">›</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   )
 }

@@ -185,7 +185,7 @@ export default function HomePage() {
   ]
   return (
     <div id="homepage" className="h-full">
-      <div className="flex items-center justify-between gap-8 mb-6 fixed top-6 z-9999 left-1/2 -translate-x-1/2">
+      <div className="">
         <TopTabs
           tabs={tabList as any}
           activeKey={activeTab}
@@ -227,7 +227,7 @@ export default function HomePage() {
                     aria-label={w.title || 'View content'}
                     className="block"
                   >
-                    <div className="relative rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
+                    <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
                       <VideoPlayer
                         title={w.title}
                         videoUrl={src}
