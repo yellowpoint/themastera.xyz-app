@@ -14,7 +14,7 @@ type Props = {
   hasMore?: boolean
   onLoadMore?: () => void
   columns?: 1 | 2 | 3 | 4 | 5 | 6
-  variant?: 'grid' | 'simple'
+  variant?: 'grid' | 'simple' | 'cover'
 }
 
 export default function WorkCardList({
@@ -26,7 +26,7 @@ export default function WorkCardList({
   columns = 3,
   variant,
 }: Props) {
-  const effectiveVariant: 'grid' | 'simple' = variant
+  const effectiveVariant: 'grid' | 'simple' | 'cover' = variant
     ? variant
     : columns === 1
       ? 'simple'
@@ -50,6 +50,12 @@ export default function WorkCardList({
               <WorkCardSkeletonLite key={i} />
             ))}
           </div>
+        ) : effectiveVariant === 'cover' ? (
+          <div className="space-y-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <WorkCardSkeletonLite key={i} />
+            ))}
+          </div>
         ) : (
           <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -62,6 +68,16 @@ export default function WorkCardList({
           <div className="space-y-4">
             {works.map((work) => (
               <WorkCard key={work.id} work={work} variant="simple" />
+            ))}
+            {isLoadingMore &&
+              Array.from({ length: 3 }).map((_, i) => (
+                <WorkCardSkeletonLite key={`loading-${i}`} />
+              ))}
+          </div>
+        ) : effectiveVariant === 'cover' ? (
+          <div className="space-y-4">
+            {works.map((work) => (
+              <WorkCard key={work.id} work={work} variant="cover" />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (

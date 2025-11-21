@@ -502,10 +502,11 @@ export default function ContentDetailPage() {
             )}
 
             <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
-              <div className="text-muted-foreground">Suggested</div>
+              <div className="text-muted-foreground mb-1">Suggested</div>
               <WorkCardList
                 works={(relatedWorks || []).slice(0, 4)}
                 columns={1}
+                variant="cover"
               />
             </div>
           </div>

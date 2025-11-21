@@ -13,7 +13,7 @@ import type { Work } from '@/contracts/domain/work'
 import { useAuth } from '@/hooks/useAuth'
 import { formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
-import { ListPlus, MoreVertical, Loader2 } from 'lucide-react'
+import { ListPlus, Loader2, MoreVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -37,7 +37,7 @@ type WorkCardProps = {
     e?: React.SyntheticEvent<HTMLImageElement, Event>
   ) => void
   formatViews?: (n: number) => string
-  variant?: 'card' | 'simple'
+  variant?: 'card' | 'simple' | 'cover'
 }
 
 export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
@@ -142,7 +142,9 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
           />
           <div className="flex-1 min-w-0">
-            <div className="text-base font-medium truncate">{work?.title || 'Untitled'}</div>
+            <div className="text-base font-medium truncate">
+              {work?.title || 'Untitled'}
+            </div>
             <div
               className="text-sm text-muted-foreground truncate hover:underline"
               onClick={goToUser}
@@ -185,7 +187,9 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
                         playlists.map((pl) => (
                           <DropdownMenuItem
                             key={pl.id}
-                            disabled={!!addingPlaylistId && addingPlaylistId !== pl.id}
+                            disabled={
+                              !!addingPlaylistId && addingPlaylistId !== pl.id
+                            }
                             onSelect={async (e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -218,6 +222,41 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
               </DropdownMenu>
             </div>
           ) : null}
+        </div>
+      </div>
+    )
+  }
+
+  if (variant === 'cover') {
+    return (
+      <div
+        className="group cursor-pointer rounded-xl"
+        onClick={() => {
+          router.push(`/content/${work?.id}`)
+        }}
+      >
+        <div className="relative w-full h-16 rounded-xl overflow-hidden">
+          <img
+            src={resolveThumb(work?.thumbnailUrl)}
+            alt={work?.title || 'Untitled'}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => handleImgError(work?.thumbnailUrl, e)}
+          />
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 flex items-center">
+            <div className="px-4">
+              <div className="text-white text-lg font-medium line-clamp-1">
+                {work?.title || 'Untitled'}
+              </div>
+              <div
+                className="text-white/80 text-sm line-clamp-1 hover:underline"
+                onClick={goToUser}
+              >
+                {work?.user?.name || 'Unknown Creator'}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -266,7 +305,10 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
             </p>
           </div>
           {user ? (
-            <div className="flex-shrink-0 self-start" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex-shrink-0 self-start"
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenu
                 open={menuOpen}
                 onOpenChange={(open) => {
@@ -300,7 +342,9 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
                         playlists.map((pl) => (
                           <DropdownMenuItem
                             key={pl.id}
-                            disabled={!!addingPlaylistId && addingPlaylistId !== pl.id}
+                            disabled={
+                              !!addingPlaylistId && addingPlaylistId !== pl.id
+                            }
                             onSelect={async (e) => {
                               e.preventDefault()
                               e.stopPropagation()
