@@ -1,5 +1,6 @@
 'use client'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,8 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, User } from 'lucide-react'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { ChevronDown, LogOut, Plus, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -45,22 +45,15 @@ export default function Header() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              {/* <Button
-                variant="secondary"
+              <Button
                 onClick={() => router.push('/creator/upload')}
+                variant="secondary"
+                size="sm"
+                className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44]  text-sm"
               >
-                <span className="text-lg">+</span> Create
-              </Button> */}
-              {/* Notifications bell */}
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Notifications"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Bell className="h-5 w-5" />
-              </Button> */}
-              {/* Greeting with dropdown */}
+                <Plus className="size-4" />
+                Create
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none flex items-center gap-2">
@@ -70,7 +63,9 @@ export default function Header() {
                         alt={user?.name || user?.email || 'User'}
                       />
                       <AvatarFallback>
-                        {((user?.name || user?.email || 'U')[0] || 'U').toUpperCase()}
+                        {(
+                          (user?.name || user?.email || 'U')[0] || 'U'
+                        ).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />

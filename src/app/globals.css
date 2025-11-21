@@ -90,6 +90,18 @@ body {
   }
 }
 
+@supports (scrollbar-gutter: stable) {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
+
 :root {
   --background: #f5f5ff;
   --foreground: #2a2a4a;

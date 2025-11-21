@@ -1,12 +1,12 @@
 'use client'
 import WatchHistoryPage from '@/app/history/page'
 import SubscriptionsPage from '@/app/subscriptions/page'
-import { Button } from '@/components/ui/button'
+import TopTabs from '@/components/TopTabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { Pause, Play, Plus, Volume2, VolumeX } from 'lucide-react'
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -179,48 +179,18 @@ export default function HomePage() {
     } catch {}
   }
   const tabList = [
-    { key: 'All', label: 'All', left: '0px' },
-    { key: 'Subscriptions', label: 'Subscriptions', left: '80px' },
-    { key: 'History', label: 'History', left: '170px' },
+    { key: 'All', label: 'All' },
+    { key: 'Subscriptions', label: 'Subscriptions' },
+    { key: 'History', label: 'History' },
   ]
   return (
     <div id="homepage" className="h-full">
       <div className="flex items-center justify-between gap-8 mb-6 fixed top-6 z-9999 left-1/2 -translate-x-1/2">
-        <div className="relative flex items-center gap-8">
-          {tabList.map(({ key, label }) => (
-            <div key={key} className="flex flex-col items-center">
-              <button
-                className={`${
-                  activeTab === key ? 'text-white' : 'text-muted-foreground'
-                } text-sm`}
-                onClick={() => setActiveTab(key as any)}
-              >
-                {label}
-              </button>
-            </div>
-          ))}
-          <div
-            className="absolute bottom-[-8px] h-1 w-4 rounded bg-primary transition-all duration-300"
-            style={{
-              left: tabList.find((t) => t.key === activeTab)?.left || '0px',
-            }}
-          />
-        </div>
-        <button
-          className="text-white text-sm flex items-center gap-2"
-          type="button"
-        >
-          Filter
-        </button>
-        <Button
-          onClick={() => router.push('/creator/upload')}
-          variant="secondary"
-          size="sm"
-          className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] h-6 text-sm"
-        >
-          <Plus className="size-4" />
-          Create
-        </Button>
+        <TopTabs
+          tabs={tabList as any}
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key as any)}
+        />
       </div>
       <div className="px-4 py-4">
         {activeTab === 'Subscriptions' ? (
