@@ -224,7 +224,7 @@ export function SidebarPlaylistSection() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Switch
             id="autoplay-toggle"
@@ -236,7 +236,7 @@ export function SidebarPlaylistSection() {
       </div>
       {autoplayEnabled ? (
         <>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 my-2">
             <div>Playlist</div>
             {playlists.length > 0 ? (
               <Select
@@ -377,7 +377,7 @@ function PlaylistRow({
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-red-700"
+        className="h-7 w-7"
         onClick={(e) => {
           e.stopPropagation()
           onDelete?.()

@@ -115,7 +115,7 @@ body {
   --secondary-foreground: #4a4080;
   --muted: #f0f0fa;
   --muted-foreground: #6c6c8a;
-  --accent: #d8e6ff;
+  --accent: #d8eff;
   --accent-foreground: #2a2a4a;
   --destructive: #ff5470;
   --destructive-foreground: #ffffff;
@@ -181,7 +181,7 @@ body {
   --secondary-foreground: #f7f8fa;
   --muted: #222244;
   --muted-foreground: #86909c;
-  --accent: #303060;
+  --accent: rgba(246, 249, 252, 0.1);
   --accent-foreground: #e2e2f5;
   --destructive: #ff5470;
   --destructive-foreground: #ffffff;

@@ -26,7 +26,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <BackgroundSwitcher enabled={showBackgroundImage} />
       {!hideHeader && <Header />}
       <div
-        className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'}`}
+        className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : ''}`}
       >
         <div className="flex min-h-full">
           {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}

@@ -55,13 +55,13 @@ export default function CustomSidebar({
                     'relative z-2 flex items-center px-3 gap-2 w-full h-full'
                   }
                 >
-                  <Icon className="size-5 text-white" />
+                  <Icon className="size-5 text-foreground" />
                   <span
                     className={
                       'text-sm' +
                       (isActive
                         ? ' text-highlight'
-                        : ' text-muted-foreground hover:text-white/80')
+                        : ' text-muted-foreground hover:text-foreground/80')
                     }
                   >
                     {item.title}

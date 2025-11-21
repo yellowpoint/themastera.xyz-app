@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
+import BackButton from '@/components/BackButton'
 import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
 import SubscribeButton from '@/components/SubscribeButton'
 import {
@@ -18,9 +19,7 @@ import { formatDate, formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
 import {
   AlertTriangle,
-  ChevronLeft,
   Download,
-  Frown,
   Loader2,
   ThumbsDown,
   ThumbsUp,
@@ -69,8 +68,6 @@ export default function ContentDetailPage() {
       }
     }
   }, [workId])
-
-  
 
   const handleDownload = async () => {
     try {
@@ -251,30 +248,66 @@ export default function ContentDetailPage() {
 
   if (loading) {
     return (
-      <div className="h-full">
-        <div className="px-4 py-6 h-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
-            <div className="md:col-span-2 space-y-4">
+      <div className="h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full">
+          <div className="md:col-span-3 h-full px-2 overflow-y-auto">
+            <div className="space-y-4 mt-8">
               <Skeleton className="aspect-video rounded-xl" />
-              <Skeleton className="h-8 w-3/4" />
-              <div className="flex gap-4">
-                <Skeleton className="w-12 h-12 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-3 w-1/2" />
+              <div className="flex items-center justify-between gap-4 px-6">
+                <Skeleton className="h-6 w-2/3" />
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-28 rounded-md" />
+                  <Skeleton className="h-10 w-28 rounded-md" />
                 </div>
               </div>
             </div>
-            <div className="space-y-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex gap-3">
-                  <Skeleton className="w-32 h-20 rounded" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-2/3" />
-                  </div>
+          </div>
+          <div className="space-y-6 h-full px-4 py-8 overflow-y-auto overflow-x-hidden">
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-1/3" />
                 </div>
-              ))}
+              </div>
+              <div className="mt-3">
+                <Skeleton className="h-9 w-28 rounded-md" />
+              </div>
+            </div>
+
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+              <Skeleton className="h-4 w-32" />
+              <div className="mt-3 space-y-2">
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-20 w-full rounded-md" />
+              </div>
+            </div>
+
+            {user?.id && (
+              <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+                <Skeleton className="h-4 w-40" />
+                <div className="mt-3 space-y-2">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-3/4" />
+                </div>
+              </div>
+            )}
+
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+              <Skeleton className="h-4 w-24" />
+              <div className="mt-3 space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex gap-3">
+                    <Skeleton className="w-32 h-20 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -284,205 +317,191 @@ export default function ContentDetailPage() {
 
   if (error || !work) {
     return (
-      <div className="h-full bg-content-bg flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="text-6xl mb-4 flex items-center justify-center text-muted-foreground">
-            {error?.includes('not found') || error?.includes('deleted') ? (
-              <Frown className="w-12 h-12" />
-            ) : (
-              <AlertTriangle className="w-12 h-12" />
-            )}
+      <div className="h-full flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="mb-3 flex items-center justify-center text-muted-foreground">
+            <AlertTriangle className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">
-            {error?.includes('not found') || error?.includes('deleted')
-              ? 'Work Not Found'
-              : 'Failed to Load'}
-          </h2>
-          <p className="text-gray-500 mb-6">
-            {error || 'Could not find the requested work'}
+          <h2 className="text-xl font-semibold mb-2">Unable to Load</h2>
+          <p className="text-gray-500 mb-4">
+            {error || 'Please try again later.'}
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/content">
-              <Button variant="default">Browse Other Works</Button>
-            </Link>
-
-            <Link href="/">
-              <Button variant="ghost">
-                <span className="inline-flex items-center gap-2">
-                  <ChevronLeft className="size-4" />
-                  Home
-                </span>
-              </Button>
-            </Link>
-          </div>
+          <Link href="/content">
+            <Button variant="default">Browse Works</Button>
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-full bg-content-bg overflow-hidden">
-      <div className="h-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full">
-          {/* Main Content Area */}
-          <div className="md:col-span-3 h-full px-2">
-            <div className="mb-3">
-              <Link href="/">
-                <Button variant="ghost" size="sm">
-                  <span className="inline-flex items-center gap-2">
-                    <ChevronLeft className="size-4" />
-                    Home
+    <div className="h-screen overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full relative">
+        {/* Main Content Area */}
+        <div className="md:col-span-3 h-full px-2 overflow-y-auto">
+          <BackButton />
+          <VideoPlayer
+            videoUrl={work.fileUrl}
+            thumbnailUrl={work.thumbnailUrl}
+            title={work.title}
+            autoPlay={true}
+            onPlay={() => {
+              try {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(
+                    new CustomEvent('player:now-playing', {
+                      detail: { workId },
+                    })
+                  )
+                }
+              } catch (_) {}
+            }}
+            onEnded={handleEnded}
+          />
+
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-between gap-4 px-6">
+              <h1 className="text-2xl">{work.title}</h1>
+              <div className="flex items-center gap-4 relative">
+                <Button
+                  variant="secondary"
+                  className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                >
+                  <button
+                    onClick={handleLike}
+                    disabled={likeLoading || dislikeLoading}
+                    aria-busy={likeLoading}
+                    className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
+                  >
+                    {likeLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <ThumbsUp className={isLiked ? 'fill-white' : ''} />
+                    )}
+                    <span>{likesCount > 0 ? formatViews(likesCount) : 0}</span>
+                  </button>
+                  <div
+                    className="w-0 h-8 border-l-2 border-dashed opacity-20"
+                    style={{ borderColor: '#F2F3F5' }}
+                  />
+                  <button
+                    onClick={handleDislike}
+                    disabled={likeLoading || dislikeLoading}
+                    aria-busy={dislikeLoading}
+                    className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
+                  >
+                    {dislikeLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <ThumbsDown
+                        className={isDisliked ? 'fill-white' : ''}
+                        strokeWidth={2}
+                      />
+                    )}
+                  </button>
+                </Button>
+                <Button
+                  onClick={handleDownload}
+                  variant="secondary"
+                  className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                  disabled={downloadLoading}
+                  aria-busy={downloadLoading}
+                >
+                  <span className="inline-flex items-center gap-2 w-full">
+                    {downloadLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        <Download />
+                        Download
+                      </>
+                    )}
                   </span>
                 </Button>
-              </Link>
-            </div>
-            <VideoPlayer
-              videoUrl={work.fileUrl}
-              thumbnailUrl={work.thumbnailUrl}
-              title={work.title}
-              autoPlay={true}
-              onPlay={() => {
-                try {
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(
-                      new CustomEvent('player:now-playing', {
-                        detail: { workId },
-                      })
-                    )
-                  }
-                } catch (_) {}
-              }}
-              onEnded={handleEnded}
-            />
-
-            <div className="space-y-4 mt-4">
-              <div className="flex items-center justify-between gap-4 px-6">
-                <h1 className="text-2xl">{work.title}</h1>
-                <div className="flex items-center gap-4 relative">
-                  <Button
-                    variant="secondary"
-                    className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
-                  >
-                    <button
-                      onClick={handleLike}
-                      disabled={likeLoading || dislikeLoading}
-                      aria-busy={likeLoading}
-                      className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                    >
-                      {likeLoading ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <ThumbsUp className={isLiked ? 'fill-white' : ''} />
-                      )}
-                      <span>
-                        {likesCount > 0 ? formatViews(likesCount) : 0}
-                      </span>
-                    </button>
-                    <div
-                      className="w-0 h-8 border-l-2 border-dashed opacity-20"
-                      style={{ borderColor: '#F2F3F5' }}
-                    />
-                    <button
-                      onClick={handleDislike}
-                      disabled={likeLoading || dislikeLoading}
-                      aria-busy={dislikeLoading}
-                      className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                    >
-                      {dislikeLoading ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <ThumbsDown
-                          className={isDisliked ? 'fill-white' : ''}
-                          strokeWidth={2}
-                        />
-                      )}
-                    </button>
-                  </Button>
-                  <Button
-                    onClick={handleDownload}
-                    variant="secondary"
-                    className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
-                    disabled={downloadLoading}
-                    aria-busy={downloadLoading}
-                  >
-                    <span className="inline-flex items-center gap-2 w-full">
-                      {downloadLoading ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <>
-                          <Download />
-                          Download
-                        </>
-                      )}
-                    </span>
-                  </Button>
-                  {work.price && work.price > 0 ? (
-                    <Badge className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug">
-                      Pro
-                    </Badge>
-                  ) : null}
-                </div>
+                {work.price && work.price > 0 ? (
+                  <Badge className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug">
+                    Pro
+                  </Badge>
+                ) : null}
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="space-y-6 h-full px-4 overflow-y-auto overflow-x-hidden bg-white/10 backdrop-blur-md">
-            <div className="space-y-3">
-              <div className="flex flex-col">
-                <p className="text-2xl">
-                  {work?.user?.name || 'Unknown Artist'}
-                </p>
-                <p className="text-sm">
-                  {formatViews(authorFollowersCount)} subscribers
-                </p>
-              </div>
-              <SubscribeButton
-                size="sm"
-                userId={work?.user?.id}
-                isFollowing={isFollowing}
-                onChanged={() => handleFollow()}
-              />
-            </div>
-
-            <div className="">
-              <div className="">
-                <p className="text-muted-foreground">Video Description</p>
-                <div className="text-highlight">
-                  <p>
-                    Total Views: {formatViews(work.views ?? work.downloads)}
-                  </p>
-                  <p>
-                    Date added:{' '}
-                    {formatDate(
-                      work.uploadTime ?? work.createdAt,
-                      'MM-DD-YYYY'
-                    )}
-                  </p>
+        <div className="space-y-6 h-full px-4 py-8 overflow-y-auto overflow-x-hidden">
+          <div className="flex flex-col gap-6">
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="pt-2">
+                    <div className="size-8 rounded-full border-[0.8px] border-[#2B36D9] overflow-hidden">
+                      <img
+                        src={(work?.user?.image as any) || '/favicon.ico'}
+                        alt="avatar"
+                        className="size-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-white text-2xl leading-9">
+                    {work?.user?.name || 'Unknown Artist'}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <div className="text-white text-sm">
+                    {formatViews(authorFollowersCount)} subscribers
+                  </div>
+                  <div>
+                    <SubscribeButton
+                      userId={work?.user?.id}
+                      isFollowing={isFollowing}
+                      onChanged={() => handleFollow()}
+                    />
+                  </div>
                 </div>
               </div>
-              <Accordion
-                type="single"
-                collapsible
-                className="w-full mt-3 text-sm"
-                defaultValue="desc"
-              >
-                <AccordionItem value="desc">
-                  <AccordionContent>
-                    <div className={`text-sm text-secondary-foreground`}>
-                      <p className="whitespace-pre-wrap">
-                        {work?.description ||
-                          'The creator has not added a description yet...'}
-                      </p>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
             </div>
 
-            {user?.id && <SidebarPlaylistSection />}
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+              <div className="flex items-center justify-between">
+                <div className="text-muted-foreground text-sm">
+                  Video Description
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col gap-3">
+                <div className="text-[16px] leading-6 text-highlight">
+                  Total Views: {formatViews(work.views ?? work.downloads)}
+                </div>
+                <div className="text-[16px] leading-6 text-highlight">
+                  Date added:{' '}
+                  {formatDate(work.uploadTime ?? work.createdAt, 'MM-DD-YYYY')}
+                </div>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full text-sm"
+                  defaultValue="desc"
+                >
+                  <AccordionItem value="desc">
+                    <AccordionContent>
+                      <div className="text-sm text-secondary-foreground">
+                        <p className="whitespace-pre-wrap">
+                          {work?.description ||
+                            'The creator has not added a description yet...'}
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </div>
 
-            <div>
+            {user?.id && (
+              <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+                <SidebarPlaylistSection />
+              </div>
+            )}
+
+            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
               <div className="text-muted-foreground">Suggested</div>
               <WorkCardList
                 works={(relatedWorks || []).slice(0, 4)}
