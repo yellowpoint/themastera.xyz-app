@@ -1,10 +1,10 @@
 'use client'
 
-import BackgroundSwitcher from '@/components/BackgroundSwitcher'
 import Header, { HeaderHeight } from '@/components/Header'
-import AuthRequired from '@/components/auth-required'
 import { usePathname } from 'next/navigation'
+import BackgroundSwitcher from './BackgroundSwitcher'
 import CustomSidebar from './CustomSidebar'
+import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -15,20 +15,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const showBackgroundImage =
     pathname === '/' ||
     ['/explore'].some((prefix) => pathname?.startsWith(prefix))
-  const sidebarClass = hideHeader
-    ? 'sticky top-0 h-screen overflow-y-auto'
-    : `sticky top-[${HeaderHeight}] h-[calc(100vh-${HeaderHeight})] overflow-y-auto`
+
+  const sidebarStyle = {
+    top: hideHeader ? '0' : HeaderHeight,
+    height: hideHeader ? '100%' : `calc(100vh - ${HeaderHeight})`,
+  }
 
   return (
     <div className="flex flex-col h-screen">
       <BackgroundSwitcher enabled={showBackgroundImage} />
-      <div className="relative z-30">{!hideHeader && <Header />}</div>
-      {/* border-t-4 border-l-4 border-secondary */}
+      {!hideHeader && <Header />}
       <div
         className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : 'pt-6'}`}
       >
         <div className="flex min-h-full">
-          {!hideSidebar ? <CustomSidebar className={sidebarClass} /> : null}
+          {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
           <div className="flex-1">
             <AuthRequired>{children}</AuthRequired>
           </div>

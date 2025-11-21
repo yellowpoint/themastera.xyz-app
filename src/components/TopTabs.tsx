@@ -72,7 +72,8 @@ export default function TopTabs({
 
   return (
     <div
-      className={`h-[${HeaderHeight}] fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center`}
+      className={`fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center`}
+      style={{ height: HeaderHeight }}
     >
       <div
         ref={containerRef}

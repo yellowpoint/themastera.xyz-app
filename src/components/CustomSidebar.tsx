@@ -19,9 +19,9 @@ const items: NavItem[] = [
 ]
 
 export default function CustomSidebar({
-  className = '',
+  style = {},
 }: {
-  className?: string
+  style?: React.CSSProperties
 }) {
   const pathname = usePathname()
   const hideSidebar = pathname?.startsWith('/content/')
@@ -29,7 +29,8 @@ export default function CustomSidebar({
 
   return (
     <aside
-      className={`w-[${CustomSidebarWidth}] flex flex-col justify-center items-center ${className}`}
+      className={`flex flex-col justify-center items-center sticky overflow-y-auto`}
+      style={{ width: CustomSidebarWidth, ...style }}
     >
       <nav className="pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">
         <ul className="space-y-6 w-full">
