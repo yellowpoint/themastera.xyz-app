@@ -235,7 +235,7 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
           router.push(`/content/${work?.id}`)
         }}
       >
-        <div className="relative w-full h-16 rounded-xl overflow-hidden">
+        <div className="relative w-full h-14 rounded-xl overflow-hidden">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || 'Untitled'}
@@ -246,11 +246,11 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
           <div className="absolute inset-0 bg-black/40" />
           <div className="absolute inset-0 flex items-center">
             <div className="px-4">
-              <div className="text-white text-lg font-medium line-clamp-1">
+              <div className="text-white truncate hover:underline">
                 {work?.title || 'Untitled'}
               </div>
               <div
-                className="text-white/80 text-sm line-clamp-1 hover:underline"
+                className="text-white/80 text-sm truncate hover:underline"
                 onClick={goToUser}
               >
                 {work?.user?.name || 'Unknown Creator'}
