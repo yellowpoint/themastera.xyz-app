@@ -10,7 +10,6 @@ import {
   AccordionItem,
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { useSidebar } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import WorkCardList from '@/components/WorkCardList'
@@ -36,7 +35,6 @@ export default function ContentDetailPage() {
   const workId: string = Array.isArray(rawId) ? rawId[0] : rawId || ''
   const router = useRouter()
   const { user } = useAuth()
-  const { setOpen, isMobile } = useSidebar()
 
   const [work, setWork] = useState(null)
   const [relatedWorks, setRelatedWorks] = useState([])
@@ -72,11 +70,7 @@ export default function ContentDetailPage() {
     }
   }, [workId])
 
-  useEffect(() => {
-    if (!isMobile) {
-      setOpen(false)
-    }
-  }, [isMobile, setOpen])
+  
 
   const handleDownload = async () => {
     try {

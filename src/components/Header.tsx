@@ -8,11 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, Plus, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { CustomSidebarWidth } from './CustomSidebar'
+
+export const HeaderHeight = '80px'
 
 export default function Header() {
   const { user, signOut, loading } = useAuth()
@@ -21,7 +23,9 @@ export default function Header() {
   return (
     <>
       <div className="fixed left-0 top-0 z-40">
-        <div className="flex h-[80px] items-center gap-3 pl-4">
+        <div
+          className={`flex h-[${HeaderHeight}] w-[${CustomSidebarWidth}] items-center justify-center gap-3 pl-4`}
+        >
           <Link
             href="/"
             className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
@@ -37,11 +41,10 @@ export default function Header() {
               className="h-auto w-15 hidden dark:block"
             />
           </Link>
-          <SidebarTrigger className="md:hidden" />
         </div>
       </div>
       <div className="fixed right-0 top-0 z-40">
-        <div className="flex h-[80px] items-center gap-3 pr-4">
+        <div className={`flex h-[${HeaderHeight}] items-center gap-3 pr-4`}>
           {user ? (
             <>
               <Button

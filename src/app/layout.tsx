@@ -1,6 +1,4 @@
 import { AppLayout } from '@/components/AppLayout'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import '@fontsource-variable/jost'
 import type { Metadata } from 'next'
 import Script from 'next/script'
@@ -40,12 +38,7 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <SidebarProvider defaultOpen={false}>
-            <AppSidebar className="pt-16" />
-            <SidebarInset>
-              <AppLayout>{children}</AppLayout>
-            </SidebarInset>
-          </SidebarProvider>
+          <AppLayout>{children}</AppLayout>
         </Providers>
       </body>
     </html>

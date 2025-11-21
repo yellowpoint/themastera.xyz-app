@@ -11,6 +11,7 @@ import { request } from '@/lib/request'
 import { Search } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { HeaderHeight } from './Header'
 
 type TabItem = { key: string; label: string }
 
@@ -70,7 +71,9 @@ export default function TopTabs({
   }, [searchOpen, query])
 
   return (
-    <div className="h-[80px] fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center">
+    <div
+      className={`h-[${HeaderHeight}] fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center`}
+    >
       <div
         ref={containerRef}
         className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-[#F6F9FC1A] rounded-xl backdrop-blur ${className || ''}`}

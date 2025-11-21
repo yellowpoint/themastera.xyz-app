@@ -208,7 +208,7 @@ export default function HomePage() {
             {error}
           </div>
         ) : (
-          <div className="space-y-6 max-w-6xl mx-auto">
+          <div className="space-y-6 max-w-5xl mx-auto">
             {items.map((w) => {
               const { playbackId, src } = resolvePlayback(w.fileUrl)
               return (
