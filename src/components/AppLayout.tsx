@@ -1,5 +1,6 @@
 'use client'
 
+import BackgroundSwitcher from '@/components/BackgroundSwitcher'
 import Header, { HeaderHeight } from '@/components/Header'
 import AuthRequired from '@/components/auth-required'
 import { usePathname } from 'next/navigation'
@@ -11,19 +12,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     pathname?.startsWith(prefix)
   )
   const hideSidebar = pathname?.startsWith('/content/')
+  const showBackgroundImage =
+    pathname === '/' ||
+    ['/explore'].some((prefix) => pathname?.startsWith(prefix))
   const sidebarClass = hideHeader
     ? 'sticky top-0 h-screen overflow-y-auto'
     : `sticky top-[${HeaderHeight}] h-[calc(100vh-${HeaderHeight})] overflow-y-auto`
 
   return (
     <div className="flex flex-col h-screen">
-      <img
-        src="/bg.jpg"
-        alt=""
-        aria-hidden="true"
-        className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
-      />
-      <div className="fixed inset-0 z-0 pointer-events-none bg-black/30 backdrop-blur-md" />
+      <BackgroundSwitcher enabled={showBackgroundImage} />
       <div className="relative z-30">{!hideHeader && <Header />}</div>
       {/* border-t-4 border-l-4 border-secondary */}
       <div

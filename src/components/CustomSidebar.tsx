@@ -72,7 +72,7 @@ export default function CustomSidebar({
         </ul>
       </nav>
 
-      <div className=" px-4 pb-4 mt-auto text-white/70">
+      <div className="w-full pl-6 pb-6 text-muted-foreground">
         <div className="space-y-1 text-sm">
           <Link
             href="/privacy-policy"

@@ -24,7 +24,7 @@ export default function Header() {
     <>
       <div className="fixed left-0 top-0 z-40">
         <div
-          className={`flex h-[${HeaderHeight}] w-[${CustomSidebarWidth}] items-center justify-center gap-3 pl-4`}
+          className={`flex h-[${HeaderHeight}] w-[${CustomSidebarWidth}]  gap-3 pl-6`}
         >
           <Link
             href="/"
