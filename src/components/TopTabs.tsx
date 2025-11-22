@@ -86,7 +86,7 @@ export default function TopTabs({
                 ref={(el) => {
                   itemsRef.current[key] = el
                 }}
-                className={`${activeKey === key ? 'text-white' : 'text-muted-foreground'} text-sm`}
+                className={`transition-colors duration-300 ${activeKey === key ? 'text-highlight' : 'text-muted-foreground'} text-sm`}
                 type="button"
                 onClick={() => onChange(key)}
               >

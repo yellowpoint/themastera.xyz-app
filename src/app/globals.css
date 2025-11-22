@@ -40,7 +40,7 @@ textarea::placeholder {
 
 * {
   color-scheme: light dark;
-  border-color: var(--color-border);
+  /* border-color: var(--color-border); */
 }
 
 body {
@@ -319,5 +319,4 @@ mux-player {
 }
 .mux-player-controls-none mux-player {
   --controls: none;
-
 }

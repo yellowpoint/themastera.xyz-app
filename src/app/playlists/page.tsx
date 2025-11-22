@@ -228,14 +228,21 @@ export default function PlaylistsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
               {filteredSections.map((sec) => {
-                const first = sec.items[0]
-                const coverSrc = first?.thumbnailUrl || undefined
+                const thumbs = sec.items
+                  .map((i) => i.thumbnailUrl || null)
+                  .filter(Boolean) as string[]
+                const first = thumbs[0]
+                const coverSrcs = [
+                  first || undefined,
+                  thumbs[1] || first || undefined,
+                  thumbs[2] || first || undefined,
+                ]
                 return (
                   <PlaylistCard
                     key={sec.id}
                     title={sec.title}
                     href={`/section?section=${sec.id}`}
-                    coverSrc={coverSrc}
+                    coverSrcs={coverSrcs}
                   />
                 )
               })}
@@ -273,14 +280,21 @@ export default function PlaylistsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
               {filteredPlaylists.map((pl) => {
-                const cover = pl.items[0]
-                const coverSrc = cover?.thumbnail || undefined
+                const thumbs = pl.items
+                  .map((i) => i.thumbnail || null)
+                  .filter(Boolean) as string[]
+                const first = thumbs[0]
+                const coverSrcs = [
+                  first || undefined,
+                  thumbs[1] || first || undefined,
+                  thumbs[2] || first || undefined,
+                ]
                 return (
                   <div key={pl.id}>
                     <PlaylistCard
                       title={pl.name}
                       href={`/playlists/${pl.id}`}
-                      coverSrc={coverSrc}
+                      coverSrcs={coverSrcs}
                       updatedLabel={`Updated: ${formatDate((pl as any).updatedAt)}`}
                       showMenu
                       onEdit={() => {
