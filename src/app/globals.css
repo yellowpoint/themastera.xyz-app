@@ -317,8 +317,7 @@ mux-player {
   /* --media-object-fit: 'cover';
   --media-object-position: 'center'; */
 }
-#homepage mux-player {
+.mux-player-controls-none mux-player {
   --controls: none;
-  /* --media-object-fit: 'cover';
-  --media-object-position: 'center'; */
+
 }

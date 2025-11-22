@@ -184,7 +184,7 @@ export default function HomePage() {
     { key: 'History', label: 'History' },
   ]
   return (
-    <div id="homepage" className="h-full">
+    <div className="mux-player-controls-none h-full">
       <div className="">
         <TopTabs
           tabs={tabList as any}

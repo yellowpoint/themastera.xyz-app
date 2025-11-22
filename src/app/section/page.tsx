@@ -7,7 +7,7 @@ import WorkCardList from '@/components/WorkCardList'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { MoreVertical, Pause, Play, Search, Volume2, VolumeX } from 'lucide-react'
+import { Pause, Play, Search, Volume2, VolumeX } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -87,8 +87,16 @@ export default function SectionUnifiedPage() {
 
   const canLoadMore = page < totalPages
 
-  const heroItem = items[0]
-  const carouselItems = items.slice(1, 5)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const heroItem = items[currentIndex]
+  const carouselItems = items.slice(0, 4)
+  
+  const handleVideoEnded = () => {
+      if (items.length > 0) {
+          setCurrentIndex((prev) => (prev + 1) % items.length)
+      }
+  }
+
   const gridItems = items.filter(item => {
       if (!searchQuery) return true
       return item.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -152,7 +160,7 @@ export default function SectionUnifiedPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-8">
+    <div className="mux-player-controls-none container mx-auto px-4 py-6 space-y-8">
       <BackButton />
       {/* Hero Section */}
       {heroItem && (
@@ -160,10 +168,11 @@ export default function SectionUnifiedPage() {
              <VideoPlayer
                 title={heroItem.title}
                 videoUrl={resolvePlayback(heroItem.fileUrl).src}
-                loop
+                loop={false}
                 muted={heroMuted}
                 autoPlay
                 className="w-full h-full object-cover"
+                onEnded={handleVideoEnded}
              />
              
              {/* Overlay */}
@@ -173,47 +182,42 @@ export default function SectionUnifiedPage() {
              <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between pointer-events-auto">
                  <div className="flex items-end gap-6 w-full">
                      {/* Carousel Thumbnails */}
-                     <div className="flex gap-4 flex-shrink-0">
-                         {carouselItems.map(item => (
-                             <div 
-                                key={item.id} 
-                                className="w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-white/50 cursor-pointer transition-all relative"
-                                onClick={() => router.push(`/content/${item.id}`)}
-                             >
-                                 <img src={item.thumbnailUrl || '/thumbnail-placeholder.svg'} alt={item.title} className="w-full h-full object-cover" />
-                                 <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors" />
-                             </div>
-                         ))}
+                     <div className="flex gap-3 flex-shrink-0">
+                         {carouselItems.map((item, index) => {
+                             const isCurrent = index === currentIndex
+                             return (
+                                 <div 
+                                     key={item.id} 
+                                     className={`w-[100px] h-[73px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
+                                     onClick={() => setCurrentIndex(index)}
+                                 >
+                                     <img src={item.thumbnailUrl || '/thumbnail-placeholder.svg'} alt={item.title} className="w-full h-full object-cover" />
+                                 </div>
+                             )
+                         })}
                      </div>
 
                      {/* Hero Info */}
-                     <div className="flex-1 min-w-0 mb-2">
-                         <div className="flex items-center gap-3 mb-2">
-                             <span className="text-[#EAB308] font-medium">Watch Free</span>
-                             <h1 className="text-white text-3xl font-bold truncate">{heroItem.title}</h1>
+                     <div className="flex-1 min-w-0 mb-2 flex flex-col items-start gap-2">
+                         <div className="flex items-center gap-3 w-full min-w-0">
+                             <span className="flex-none text-highlight text-base font-normal ">Watch Free</span>
+                             <h1 className="text-white flex-1 text-xl font-normal  truncate">{heroItem.title}</h1>
                          </div>
-                         <div className="flex items-center gap-4 text-white/90">
+                         <div className="flex items-center gap-4 text-white/90 w-full">
                              <div className="flex items-center gap-2">
-                                 <img 
-                                    src={heroItem.user?.image || '/avatar-placeholder.svg'} 
-                                    alt={heroItem.user?.name} 
-                                    className="w-6 h-6 rounded-full"
-                                 />
-                                 <span className="font-medium">{heroItem.user?.name}</span>
+                                 <span className="font-medium text-white text-base ">{heroItem.user?.name}</span>
                              </div>
+                             
+                   
+
                              {/* Controls */}
-                             <div className="flex items-center gap-2 ml-4">
-                                 <button onClick={toggleHeroPlay} className="p-1 hover:text-[#EAB308] transition-colors text-white">
-                                     {heroPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+                             <div className="flex items-center gap-1">
+                                 <button onClick={toggleHeroPlay} className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white">
+                                     {heroPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" />}
                                  </button>
-                                 <div className="text-xs text-white/70 font-mono">
-                                     {heroItem.duration || '00:00'} / {heroItem.duration || '00:00'}
-                                 </div>
-                                 <button onClick={toggleHeroMute} className="p-1 hover:text-[#EAB308] transition-colors text-white ml-2">
-                                     {heroMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-                                 </button>
-                                 <button className="p-1 hover:text-[#EAB308] transition-colors text-white ml-1">
-                                     <MoreVertical size={20} />
+                       
+                                 <button onClick={toggleHeroMute} className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white">
+                                     {heroMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
                                  </button>
                              </div>
                          </div>
