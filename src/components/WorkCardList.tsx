@@ -15,6 +15,7 @@ type Props = {
   onLoadMore?: () => void
   columns?: 1 | 2 | 3 | 4 | 5 | 6
   variant?: 'grid' | 'simple' | 'cover'
+  extraMenuItems?: (work: Work) => React.ReactNode
 }
 
 export default function WorkCardList({
@@ -25,6 +26,7 @@ export default function WorkCardList({
   onLoadMore,
   columns = 3,
   variant,
+  extraMenuItems,
 }: Props) {
   const effectiveVariant: 'grid' | 'simple' | 'cover' = variant
     ? variant
@@ -67,7 +69,7 @@ export default function WorkCardList({
         effectiveVariant === 'simple' ? (
           <div className="space-y-4">
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} variant="simple" />
+              <WorkCard key={work.id} work={work} variant="simple" extraMenuItems={extraMenuItems?.(work)} />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
@@ -77,7 +79,7 @@ export default function WorkCardList({
         ) : effectiveVariant === 'cover' ? (
           <div className="space-y-4">
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} variant="cover" />
+              <WorkCard key={work.id} work={work} variant="cover" extraMenuItems={extraMenuItems?.(work)} />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
@@ -87,7 +89,7 @@ export default function WorkCardList({
         ) : (
           <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} />
+              <WorkCard key={work.id} work={work} extraMenuItems={extraMenuItems?.(work)} />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (

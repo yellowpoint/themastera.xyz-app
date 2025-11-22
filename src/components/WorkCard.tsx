@@ -38,9 +38,10 @@ type WorkCardProps = {
   ) => void
   formatViews?: (n: number) => string
   variant?: 'card' | 'simple' | 'cover'
+  extraMenuItems?: React.ReactNode
 }
 
-export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
+export default function WorkCard({ work, variant = 'card', extraMenuItems }: WorkCardProps) {
   const brokenThumbsRef = useRef<Set<string>>(new Set())
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
@@ -218,6 +219,7 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
                       )}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
+                  {extraMenuItems}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -378,6 +380,7 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
                       )}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
+                  {extraMenuItems}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

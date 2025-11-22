@@ -55,6 +55,8 @@ export async function GET(request: Request) {
         title: e.work.title,
         author: e.work.user?.name || 'Unknown',
         thumbnail: e.work.thumbnailUrl || null,
+        createdAt:
+          e.work.createdAt?.toISOString?.() || (e.work.createdAt as any),
       })),
     }))
     return NextResponse.json(apiSuccess({ items }), { status: 200 })

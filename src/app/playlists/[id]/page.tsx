@@ -1,35 +1,17 @@
 'use client'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import BackButton from '@/components/BackButton'
 import SortSearchToolbar from '@/components/SortSearchToolbar'
-import { Badge } from '@/components/ui/badge'
+import VideoPlayer from '@/components/VideoPlayer'
+import WorkCardList from '@/components/WorkCardList'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { PlaylistCard } from '@/contracts/domain/playlist'
 import { formatDate } from '@/lib/format'
 import { request } from '@/lib/request'
-import { MoreHorizontal, Play } from 'lucide-react'
-import Link from 'next/link'
+import { MoreHorizontal, Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'sonner'
@@ -47,7 +29,12 @@ export default function PlaylistDetailPage() {
   )
   const [sortAZ, setSortAZ] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
-  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [featuredVideoUrl, setFeaturedVideoUrl] = React.useState<string | null>(
+    null
+  )
+  const [heroPlaying, setHeroPlaying] = React.useState(false)
+  const [heroMuted, setHeroMuted] = React.useState(true)
+  const heroPlayerRef = React.useRef<HTMLDivElement>(null)
 
   const playlistId = params?.id
 
@@ -101,8 +88,68 @@ export default function PlaylistDetailPage() {
     return arr
   }, [playlist?.items, searchQuery, sortAZ])
 
-  const featured = filteredItems[currentIndex]
-  const carouselItems = filteredItems.slice(0, 4)
+  const featured = filteredItems[0]
+
+  React.useEffect(() => {
+    let ignore = false
+    async function loadFeaturedVideo() {
+      try {
+        if (!featured?.id) {
+          if (!ignore) setFeaturedVideoUrl(null)
+          return
+        }
+        const { data } = await request.get(`/api/works/${featured.id}`)
+        const work = (data as any)?.data?.work
+        if (!ignore) setFeaturedVideoUrl(work?.fileUrl || null)
+      } catch (_) {
+        if (!ignore) setFeaturedVideoUrl(null)
+      }
+    }
+    loadFeaturedVideo()
+    return () => {
+      ignore = true
+    }
+  }, [featured?.id])
+
+  const toggleHeroPlay = () => {
+    const player = heroPlayerRef.current?.querySelector('mux-player') as any
+    if (player) {
+      if (player.paused) {
+        player.play()
+        setHeroPlaying(true)
+      } else {
+        player.pause()
+        setHeroPlaying(false)
+      }
+    }
+  }
+
+  const toggleHeroMute = () => {
+    const player = heroPlayerRef.current?.querySelector('mux-player') as any
+    if (player) {
+      player.muted = !player.muted
+      setHeroMuted(player.muted)
+    }
+  }
+
+  React.useEffect(() => {
+    const player = heroPlayerRef.current?.querySelector('mux-player') as any
+    if (!player) return
+
+    const onPlay = () => setHeroPlaying(true)
+    const onPause = () => setHeroPlaying(false)
+    const onVolumeChange = () => setHeroMuted(player.muted)
+
+    player.addEventListener('play', onPlay)
+    player.addEventListener('pause', onPause)
+    player.addEventListener('volumechange', onVolumeChange)
+
+    return () => {
+      player.removeEventListener('play', onPlay)
+      player.removeEventListener('pause', onPause)
+      player.removeEventListener('volumechange', onVolumeChange)
+    }
+  }, [featuredVideoUrl])
 
   const latestUpdatedLabel = React.useMemo(() => {
     const d = playlist?.updatedAt
@@ -126,7 +173,7 @@ export default function PlaylistDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+    <div className="mux-player-controls-none mx-auto max-w-6xl px-4 sm:px-6 py-8">
       <BackButton />
 
       {loading ? (
@@ -140,64 +187,92 @@ export default function PlaylistDetailPage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              {playlist?.name || 'Playlist'}
-            </h1>
-            <div className="text-sm text-muted-foreground flex items-center gap-3">
-              <span>{filteredItems.length} Videos</span>
-              {latestUpdatedLabel ? <span>• {latestUpdatedLabel}</span> : null}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between px-6">
+              <div className="flex items-center gap-2">
+                <div className="text-white font-normal text-[36px] leading-[45px]">
+                  {playlist?.name || 'Playlist'}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={onPlayAll}
+                  className="h-11 px-[18px] bg-[#2B36D9] text-white rounded-[6px]"
+                >
+                  <Play className="mr-2 h-5 w-5 text-white" />
+                  Play all
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="h-11 w-11 p-0 rounded-[4px] bg-[#F6F9FC1A] hover:bg-[#FFFFFF33]"
+                >
+                  <MoreHorizontal className="h-5 w-5 text-[#C9CDD4]" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-8 px-6 text-[14px] leading-[22px] text-[#86909C]">
+              <div className="flex items-center">{featured?.author || '-'}</div>
+              <div className="w-[1.5px] h-[13.5px] bg-[#C9CDD4]" />
+              <div className="flex items-center">
+                {filteredItems.length} Videos
+              </div>
+              <div className="w-[1.5px] h-[13.5px] bg-[#C9CDD4]" />
+              <div className="flex items-center">
+                Latest added: {latestUpdatedLabel?.replace('Updated ', '')}
+              </div>
             </div>
           </div>
 
-          <div className="relative w-full aspect-video rounded-3xl overflow-hidden">
-            <img
-              src={featured?.thumbnail || '/thumbnail-placeholder.svg'}
-              alt={featured?.title || 'Thumbnail'}
-              className="w-full h-full object-cover"
-            />
+          <div
+            className="relative w-full aspect-video rounded-3xl overflow-hidden"
+            ref={heroPlayerRef}
+          >
+            {featuredVideoUrl ? (
+              <VideoPlayer
+                title={featured?.title}
+                videoUrl={featuredVideoUrl}
+                autoPlay
+                muted={heroMuted}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={featured?.thumbnail || '/thumbnail-placeholder.svg'}
+                alt={featured?.title || 'Thumbnail'}
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between pointer-events-auto">
-              <div className="flex items-end gap-6 w-full">
-                <div className="flex gap-3 flex-shrink-0">
-                  {carouselItems.map((item, index) => {
-                    const isCurrent = index === currentIndex
-                    return (
-                      <div
-                        key={item.id}
-                        className={`w-[100px] h-[73px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
-                        onClick={() => setCurrentIndex(index)}
-                      >
-                        <img
-                          src={item.thumbnail || '/thumbnail-placeholder.svg'}
-                          alt={item.title || 'Thumbnail'}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )
-                  })}
+            <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between pointer-events-auto">
+              <div className="flex-1 min-w-0 mb-2 flex flex-col items-start gap-2">
+                <div className="flex items-center gap-3 w-full min-w-0">
+                  <span className="flex-none text-highlight text-base font-normal">
+                    Watch Free
+                  </span>
+                  <h1 className="text-white flex-1 text-xl font-normal truncate">
+                    {featured?.title || 'Untitled'}
+                  </h1>
                 </div>
-                <div className="flex-1 min-w-0 mb-2 flex flex-col items-start gap-2">
-                  <div className="flex items-center gap-3 w-full min-w-0">
-                    <Badge
-                      variant="outline"
-                      className="bg-black/60 text-white border-white/50"
-                    >
-                      Watch Free
-                    </Badge>
-                    <h1 className="text-white flex-1 text-xl font-normal truncate">
-                      {featured?.title || 'Untitled'}
-                    </h1>
-                    <Button
-                      size="sm"
-                      className="bg-primary text-primary-foreground"
-                      onClick={onPlayAll}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      Play all
-                    </Button>
-                  </div>
-                  <div className="text-sm text-white/80">{featured?.author || '-'}</div>
+                <div className="text-sm text-white/90">
+                  {featured?.author || '-'}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={toggleHeroPlay}
+                    className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+                  >
+                    {heroPlaying ? (
+                      <Pause size={12} fill="currentColor" />
+                    ) : (
+                      <Play size={12} fill="currentColor" />
+                    )}
+                  </button>
+                  <button
+                    onClick={toggleHeroMute}
+                    className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+                  >
+                    {heroMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                  </button>
                 </div>
               </div>
             </div>
@@ -212,85 +287,30 @@ export default function PlaylistDetailPage() {
             className="gap-4"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="group">
-                <Link href={`/content/${item.id}`} className="block">
-                  <div className="relative mb-3">
-                    <div className="aspect-video">
-                      <img
-                        src={item.thumbnail || '/thumbnail-placeholder.svg'}
-                        alt={item.title || 'Thumbnail'}
-                        className="w-full h-full object-cover rounded-xl"
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
-                </Link>
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-base line-clamp-2">
-                        {item.title || 'Untitled'}
-                      </h3>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem asChild>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <button
-                                  className="w-full text-left disabled:opacity-50"
-                                  disabled={deletingWorkId === item.id}
-                                >
-                                  Remove from playlist
-                                </button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Remove video?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will remove the video from the
-                                    playlist.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => removeEntry(item.id)}
-                                  >
-                                    Confirm
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {item.author || '-'}
-                    </div>
-                    {playlist?.updatedAt ? (
-                      <div className="text-xs text-muted-foreground">
-                        Updated: {latestUpdatedLabel?.replace('Updated ', '')}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <WorkCardList
+            works={
+              filteredItems.map((i) => ({
+                id: i.id,
+                title: i.title,
+                thumbnailUrl: i.thumbnail || undefined,
+                user: { name: i.author },
+                createdAt: (i as any)?.createdAt,
+              })) as any
+            }
+            columns={3}
+            extraMenuItems={(work) => (
+              <DropdownMenuItem
+                onSelect={async (e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  await removeEntry(work.id)
+                }}
+                disabled={deletingWorkId === work.id}
+              >
+                Remove from playlist
+              </DropdownMenuItem>
+            )}
+          />
         </div>
       )}
     </div>

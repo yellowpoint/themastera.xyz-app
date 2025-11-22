@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
+import { apiFailure, apiSuccess } from '@/contracts/types/common'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
-import { apiSuccess, apiFailure } from '@/contracts/types/common'
-import { PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
+import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/playlists/[id] - get single playlist details for current user
 export async function GET(
@@ -53,11 +53,14 @@ export async function GET(
     const data = {
       id: pl.id,
       name: pl.name,
+      updatedAt: pl.updatedAt?.toISOString?.() || (pl.updatedAt as any),
       items: pl.entries.map((e) => ({
         id: e.work.id,
         title: e.work.title,
         author: e.work.user?.name || 'Unknown',
         thumbnail: e.work.thumbnailUrl || null,
+        createdAt:
+          e.work.createdAt?.toISOString?.() || (e.work.createdAt as any),
       })),
     }
 
