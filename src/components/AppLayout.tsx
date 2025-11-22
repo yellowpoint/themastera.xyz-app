@@ -11,7 +11,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const hideHeader = ['/content', '/section', '/playlists/'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
-  const hideSidebar = pathname?.startsWith('/content/')
+  const hideSidebar = ['/content', '/section', '/playlists/'].some((prefix) =>
+    pathname?.startsWith(prefix)
+  )
   const showBackgroundImage =
     pathname === '/' ||
     ['/explore'].some((prefix) => pathname?.startsWith(prefix))

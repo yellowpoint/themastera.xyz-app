@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { Work } from '@/contracts/domain/work'
 import { useAuth } from '@/hooks/useAuth'
-import { formatViews } from '@/lib/format'
+import { formatTimeAgo, formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
 import { ListPlus, Loader2, MoreVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -274,7 +274,7 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || 'Untitled'}
-            className="aspect-video w-full rounded-lg object-cover"
+            className="aspect-video w-full rounded-lg object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
             onError={(e) => handleImgError(work?.thumbnailUrl, e)}
           />
@@ -303,6 +303,11 @@ export default function WorkCard({ work, variant = 'card' }: WorkCardProps) {
             >
               {work?.user?.name || 'Unknown Creator'}
             </p>
+            {work?.createdAt && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Updated: {formatTimeAgo(work.createdAt)}
+              </p>
+            )}
           </div>
           {user ? (
             <div

@@ -29,6 +29,8 @@ function toHomepageItem(work: any) {
     durationSeconds,
     tags: work.tags || '',
     language: work.language || null,
+    fileUrl: work.fileUrl || null,
+    createdAt: work.createdAt,
   }
 }
 
