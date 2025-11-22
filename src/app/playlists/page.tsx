@@ -2,6 +2,7 @@
 
 import PlaylistCard from '@/components/PlaylistCard'
 import { createPlaylistApi } from '@/components/sidebar-playlist-section'
+import TopTabs from '@/components/TopTabs'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -22,10 +23,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import SortSearchToolbar from '@/components/SortSearchToolbar'
 import type { PlaylistCard as PlaylistCardContract } from '@/contracts/domain/playlist'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import React from 'react'
 
 import { formatDate } from '@/lib/format'
@@ -144,77 +146,28 @@ export default function PlaylistsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center justify-between gap-8 mb-6 fixed top-6 z-9999 left-1/2 -translate-x-1/2">
-        <div className="relative flex items-center gap-8">
-          {[
-            { key: 'recommend', label: 'Recommend list' },
-            { key: 'mine', label: 'My playlist' },
-          ].map(({ key, label }) => (
-            <div key={key} className="flex flex-col items-center">
-              <button
-                className={`${
-                  activeTab === key ? 'text-white' : 'text-muted-foreground'
-                } text-sm`}
-                onClick={() => setActiveTab(key as any)}
-              >
-                {label}
-              </button>
-            </div>
-          ))}
-          {/* 底部高亮条：通过绝对定位跟随活跃项 */}
-          <div
-            className="absolute bottom-[-8px] h-1 w-12 rounded bg-primary transition-all duration-300"
-            style={{
-              left: activeTab === 'recommend' ? '20px' : '130px',
-            }}
-          />
-        </div>
-        <button
-          className="text-white text-sm flex items-center gap-2"
-          type="button"
-        >
-          Filter
-        </button>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          variant="secondary"
-          size="sm"
-          className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] h-6 text-sm"
-        >
-          <Plus className="size-4" />
-          Create
-        </Button>
-      </div>
+      {/* Top fixed tabs */}
+      <TopTabs
+        tabs={[
+          { key: 'recommend', label: 'Recommend list' },
+          { key: 'mine', label: 'My playlist' },
+        ]}
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key as 'recommend' | 'mine')}
+      />
       <h1 className="text-4xl text-white mb-10">
         {activeTab === 'recommend' ? 'Recommend list' : 'My Playlists'}
       </h1>
-      <div className="flex items-center gap-3 mb-4">
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setSortAZ(false)}
-          className={`rounded-lg h-7 px-3 text-sm ${!sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
-        >
-          Recent added
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setSortAZ(true)}
-          className={`rounded-lg h-7 px-3 text-sm ${sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
-        >
-          A-Z
-        </Button>
-        <div className="relative w-80">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search playlist name"
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
+      <SortSearchToolbar
+        sortAZ={sortAZ}
+        onSortChange={setSortAZ}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        searchPlaceholder="Search playlist name"
+        showCreateButton={activeTab === 'mine'}
+        onCreateClick={() => setCreateOpen(true)}
+        className="mb-4"
+      />
       {activeTab === 'recommend' ? (
         <div className="p-0">
           {recLoading ? (

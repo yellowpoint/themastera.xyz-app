@@ -80,7 +80,7 @@ body {
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
+    scrollbar-color: #4e596966 transparent;
     /* scrollbar-gutter: stable; 不能使用，会导致 rounded和overflow-hidden组合后右边有空白  */
   }
 

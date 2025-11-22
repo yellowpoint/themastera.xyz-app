@@ -1,9 +1,8 @@
 'use client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import SortSearchToolbar from '@/components/SortSearchToolbar'
 import { LANGUAGE_CATEGORIES, MUSIC_CATEGORIES } from '@/config/categories'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search } from 'lucide-react'
+// Remove local Search usage; handled by SortSearchToolbar
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
@@ -34,11 +33,12 @@ export default function ExplorePage() {
   }
 
   const filteredCategories = useMemo(() => {
-    const categories = activeTab === 'music' ? MUSIC_CATEGORIES : LANGUAGE_CATEGORIES
+    const categories =
+      activeTab === 'music' ? MUSIC_CATEGORIES : LANGUAGE_CATEGORIES
     let res = categories
     const q = searchQuery.trim().toLowerCase()
     if (q) {
-      res = res.filter(c => c.toLowerCase().includes(q))
+      res = res.filter((c) => c.toLowerCase().includes(q))
     }
     if (sortAZ) {
       res = [...res].sort((a, b) => a.localeCompare(b))
@@ -61,40 +61,21 @@ export default function ExplorePage() {
             <h1 className="text-4xl text-white mb-10">
               {activeTab === 'music' ? 'Videos' : 'Language'}
             </h1>
-            <div className="flex items-center gap-3 mb-4">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setSortAZ(false)}
-                className={`rounded-lg h-7 px-3 text-sm ${!sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
-              >
-                Recent added
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setSortAZ(true)}
-                className={`rounded-lg h-7 px-3 text-sm ${sortAZ ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white hover:bg-white/20'}`}
-              >
-                A-Z
-              </Button>
-              <div className="relative w-80">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search category name"
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
+            <SortSearchToolbar
+              sortAZ={sortAZ}
+              onSortChange={setSortAZ}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              searchPlaceholder="Search category name"
+            />
             <section>
-              <div 
+              <div
                 className="grid grid-cols-3 gap-6"
                 onMouseLeave={() => setHoveredCat(null)}
               >
                 {filteredCategories.map((cat, idx) => {
-                  const queryParam = activeTab === 'music' ? 'category' : 'language'
+                  const queryParam =
+                    activeTab === 'music' ? 'category' : 'language'
                   return (
                     <Link
                       key={cat}
@@ -109,8 +90,14 @@ export default function ExplorePage() {
                             className="absolute inset-0 -m-2 bg-white/10 rounded-2xl z-[-1]"
                             layoutId="hoverBackground"
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1, transition: { duration: 0.15 } }}
-                            exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.2 } }}
+                            animate={{
+                              opacity: 1,
+                              transition: { duration: 0.15 },
+                            }}
+                            exit={{
+                              opacity: 0,
+                              transition: { duration: 0.15, delay: 0.2 },
+                            }}
                           />
                         )}
                       </AnimatePresence>

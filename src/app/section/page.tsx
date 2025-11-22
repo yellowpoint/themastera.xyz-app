@@ -1,13 +1,12 @@
 'use client'
 import BackButton from '@/components/BackButton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import SortSearchToolbar from '@/components/SortSearchToolbar'
 import VideoPlayer from '@/components/VideoPlayer'
 import WorkCardList from '@/components/WorkCardList'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
 import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { Pause, Play, Search, Volume2, VolumeX } from 'lucide-react'
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -27,6 +26,7 @@ export default function SectionUnifiedPage() {
   const [error, setError] = useState<string | null>(null)
   const [totalPages, setTotalPages] = useState<number>(1)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortAZ, setSortAZ] = useState(false)
 
   const [heroPlaying, setHeroPlaying] = useState(false)
   const [heroMuted, setHeroMuted] = useState(true)
@@ -97,10 +97,12 @@ export default function SectionUnifiedPage() {
       }
   }
 
-  const gridItems = items.filter(item => {
+  const gridItems = items
+    .filter((item) => {
       if (!searchQuery) return true
       return item.title.toLowerCase().includes(searchQuery.toLowerCase())
-  })
+    })
+    .sort((a, b) => (sortAZ ? a.title.localeCompare(b.title) : 0))
 
   const resolvePlayback = (fileUrl?: string | null) => {
     const src = fileUrl || ''
@@ -227,21 +229,14 @@ export default function SectionUnifiedPage() {
         </div>
       )}
 
-      {/* Search & Filter Bar */}
-      <div className="flex items-center gap-4">
-          <Button variant="secondary" className="bg-muted text-muted-foreground hover:text-foreground">
-              A-Z
-          </Button>
-          <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search the video name" 
-                className="pl-9 bg-muted border-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-          </div>
-      </div>
+      <SortSearchToolbar
+        sortAZ={sortAZ}
+        onSortChange={setSortAZ}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        searchPlaceholder="Search the video name"
+        className="gap-4"
+      />
 
       {/* Grid List */}
       <WorkCardList
