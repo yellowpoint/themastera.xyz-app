@@ -179,7 +179,7 @@ export default function PlaylistsPage() {
           ) : recError ? (
             <div className="p-6 text-sm text-muted-foreground">{recError}</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {filteredSections.map((sec) => {
                 const thumbs = sec.items
                   .map((i) => i.thumbnailUrl || null)
@@ -231,7 +231,7 @@ export default function PlaylistsPage() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {filteredPlaylists.map((pl) => {
                 const thumbs = pl.items
                   .map((i) => i.thumbnail || null)

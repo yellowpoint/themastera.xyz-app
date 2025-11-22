@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Home, ListVideo, Telescope } from 'lucide-react'
+import { BadgePlus, Home, ListVideo, Telescope } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,6 +16,8 @@ const items: NavItem[] = [
   { title: 'Home', url: '/', icon: Home },
   { title: 'Explore', url: '/explore', icon: Telescope },
   { title: 'Playlist', url: '/playlists', icon: ListVideo },
+  { title: 'Creator', url: '/creator', icon: BadgePlus },
+  // { title: 'Admin', url: '/admin', icon: Settings },
 ]
 
 export default function CustomSidebar({
@@ -29,7 +31,7 @@ export default function CustomSidebar({
 
   return (
     <aside
-      className={`flex flex-col justify-center items-center sticky overflow-y-auto`}
+      className={`flex flex-col justify-center items-center sticky overflow-y-hidden`}
       style={{ width: CustomSidebarWidth, ...style }}
     >
       <nav className="pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">

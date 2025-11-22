@@ -3,7 +3,7 @@
 import Header, { HeaderHeight } from '@/components/Header'
 import { usePathname } from 'next/navigation'
 import BackgroundSwitcher from './BackgroundSwitcher'
-import CustomSidebar from './CustomSidebar'
+import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
 import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +32,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       >
         <div className="flex min-h-full">
           {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
-          <div className="flex-1">
+          <div
+            className="flex-1"
+            style={{ paddingRight: hideHeader ? '0' : CustomSidebarWidth }}
+          >
             <AuthRequired>{children}</AuthRequired>
           </div>
         </div>

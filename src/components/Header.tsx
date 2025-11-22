@@ -23,7 +23,7 @@ export default function Header() {
   return (
     <>
       <div
-        className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-6`}
+        className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-8`}
         style={{ height: HeaderHeight, width: CustomSidebarWidth }}
       >
         <Link
