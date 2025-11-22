@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server'
+import {
+  PLAYLISTS_MAX_PER_USER,
+  PLAYLIST_ITEMS_MAX_PER_PLAYLIST,
+} from '@/config/limits'
+import { apiFailure, apiSuccess } from '@/contracts/types/common'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
-import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { PLAYLISTS_MAX_PER_USER, PLAYLIST_ITEMS_MAX_PER_PLAYLIST } from '@/config/limits'
 
 // GET /api/playlists - list playlists for current user
 export async function GET(request: Request) {
@@ -12,6 +15,18 @@ export async function GET(request: Request) {
     if (!userId) {
       return NextResponse.json(apiFailure('UNAUTHORIZED', 'Unauthorized'), {
         status: 401,
+      })
+    }
+
+    // Ensure a default playlist exists for the user
+    const DEFAULT_NAME = 'default'
+    const hasDefault = await prisma.playlist.findFirst({
+      where: { userId, name: DEFAULT_NAME },
+      select: { id: true },
+    })
+    if (!hasDefault) {
+      await prisma.playlist.create({
+        data: { userId, name: DEFAULT_NAME },
       })
     }
 
@@ -96,7 +111,10 @@ export async function POST(request: Request) {
     const count = await prisma.playlist.count({ where: { userId } })
     if (count >= PLAYLISTS_MAX_PER_USER) {
       return NextResponse.json(
-        apiFailure('CONFLICT', `Maximum ${PLAYLISTS_MAX_PER_USER} playlists per user`),
+        apiFailure(
+          'CONFLICT',
+          `Maximum ${PLAYLISTS_MAX_PER_USER} playlists per user`
+        ),
         { status: 409 }
       )
     }
