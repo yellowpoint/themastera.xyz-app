@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     }
 
     // Ensure a default playlist exists for the user
-    const DEFAULT_NAME = 'default'
+    const DEFAULT_NAME = 'Default'
     const hasDefault = await prisma.playlist.findFirst({
       where: { userId, name: DEFAULT_NAME },
       select: { id: true },

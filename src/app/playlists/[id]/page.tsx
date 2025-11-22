@@ -11,6 +11,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import BackButton from '@/components/BackButton'
+import SortSearchToolbar from '@/components/SortSearchToolbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -26,7 +28,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { PlaylistCard } from '@/contracts/domain/playlist'
 import { formatDate } from '@/lib/format'
 import { request } from '@/lib/request'
-import { ArrowLeft, MoreHorizontal, Play } from 'lucide-react'
+import { MoreHorizontal, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -45,6 +47,7 @@ export default function PlaylistDetailPage() {
   )
   const [sortAZ, setSortAZ] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [currentIndex, setCurrentIndex] = React.useState(0)
 
   const playlistId = params?.id
 
@@ -98,7 +101,8 @@ export default function PlaylistDetailPage() {
     return arr
   }, [playlist?.items, searchQuery, sortAZ])
 
-  const featured = filteredItems[0]
+  const featured = filteredItems[currentIndex]
+  const carouselItems = filteredItems.slice(0, 4)
 
   const latestUpdatedLabel = React.useMemo(() => {
     const d = playlist?.updatedAt
@@ -123,18 +127,7 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/playlists')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
-      </div>
+      <BackButton />
 
       {loading ? (
         <div className="space-y-3">
@@ -157,73 +150,67 @@ export default function PlaylistDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl overflow-hidden bg-muted">
-            <div className="relative">
-              <div className="aspect-video">
-                <img
-                  src={featured?.thumbnail || '/thumbnail-placeholder.svg'}
-                  alt={featured?.title || 'Thumbnail'}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 px-4 py-3 bg-gradient-to-t from-black/60 to-transparent text-white">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+          <div className="relative w-full aspect-video rounded-3xl overflow-hidden">
+            <img
+              src={featured?.thumbnail || '/thumbnail-placeholder.svg'}
+              alt={featured?.title || 'Thumbnail'}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between pointer-events-auto">
+              <div className="flex items-end gap-6 w-full">
+                <div className="flex gap-3 flex-shrink-0">
+                  {carouselItems.map((item, index) => {
+                    const isCurrent = index === currentIndex
+                    return (
+                      <div
+                        key={item.id}
+                        className={`w-[100px] h-[73px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
+                        onClick={() => setCurrentIndex(index)}
+                      >
+                        <img
+                          src={item.thumbnail || '/thumbnail-placeholder.svg'}
+                          alt={item.title || 'Thumbnail'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex-1 min-w-0 mb-2 flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-3 w-full min-w-0">
                     <Badge
                       variant="outline"
                       className="bg-black/60 text-white border-white/50"
                     >
                       Watch Free
                     </Badge>
-                    <span className="font-medium truncate max-w-[40vw]">
+                    <h1 className="text-white flex-1 text-xl font-normal truncate">
                       {featured?.title || 'Untitled'}
-                    </span>
+                    </h1>
+                    <Button
+                      size="sm"
+                      className="bg-primary text-primary-foreground"
+                      onClick={onPlayAll}
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Play all
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-primary text-primary-foreground"
-                    onClick={onPlayAll}
-                  >
-                    <Play className="mr-2 h-4 w-4" />
-                    Play all
-                  </Button>
-                </div>
-                <div className="text-xs text-white/80">
-                  {featured?.author || '-'}
-                </div>
-                <div className="mt-2">
-                  <Progress value={0} />
+                  <div className="text-sm text-white/80">{featured?.author || '-'}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setSortAZ(false)}
-              className={`rounded-lg h-7 px-3 text-sm ${!sortAZ ? 'bg-primary text-primary-foreground' : ''}`}
-            >
-              Recent added
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setSortAZ(true)}
-              className={`rounded-lg h-7 px-3 text-sm ${sortAZ ? 'bg-primary text-primary-foreground' : ''}`}
-            >
-              A-Z
-            </Button>
-            <div className="relative w-80 max-w-full">
-              <Input
-                placeholder="Search the video name"
-                className="pl-3"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
+          <SortSearchToolbar
+            sortAZ={sortAZ}
+            onSortChange={setSortAZ}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            searchPlaceholder="Search the video name"
+            className="gap-4"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredItems.map((item) => (
