@@ -28,7 +28,7 @@ export default function SortSearchToolbar({
   showCreateButton = false,
   onCreateClick,
   createLabel = 'Create',
-  size = 'compact',
+  size = 'normal',
 }: Props) {
   const btnSizeClass = size === 'compact' ? 'h-6 text-xs' : 'h-7 text-sm'
   const inputSizeClass =

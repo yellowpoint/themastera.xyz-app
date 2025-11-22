@@ -249,7 +249,7 @@ export default function HomePage() {
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-highlight flex-none">
+                            <span className="bg-highlight text-primary flex-none text-xs rounded px-2 py-1">
                               Watch Free
                             </span>
                             <div className="text-white text-xl truncate">

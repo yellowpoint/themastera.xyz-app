@@ -16,7 +16,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   )
   const showBackgroundImage =
     pathname === '/' ||
-    ['/explore', '/playlists'].some((prefix) => pathname?.startsWith(prefix))
+    ['/explore', '/playlists', '/auth', '/profile'].some((prefix) =>
+      pathname?.startsWith(prefix)
+    )
 
   const sidebarStyle = {
     top: hideHeader ? '0' : HeaderHeight,

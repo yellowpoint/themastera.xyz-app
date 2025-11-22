@@ -75,7 +75,7 @@ export default function Header() {
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card">
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => router.push('/profile')}>
                   <User className="mr-2 h-4 w-4" /> Profile
                 </DropdownMenuItem>
