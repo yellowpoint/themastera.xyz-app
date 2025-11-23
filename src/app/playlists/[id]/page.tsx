@@ -1,8 +1,6 @@
 'use client'
 
-import BackButton from '@/components/BackButton'
 import SortSearchToolbar from '@/components/SortSearchToolbar'
-import VideoPlayer from '@/components/VideoPlayer'
 import WorkCardList from '@/components/WorkCardList'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { PlaylistCard } from '@/contracts/domain/playlist'
 import { formatDate } from '@/lib/format'
 import { request } from '@/lib/request'
-import { MoreHorizontal, Pause, Play, Volume2, VolumeX } from 'lucide-react'
+import { MoreHorizontal, Play } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'sonner'
@@ -29,12 +27,6 @@ export default function PlaylistDetailPage() {
   )
   const [sortAZ, setSortAZ] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
-  const [featuredVideoUrl, setFeaturedVideoUrl] = React.useState<string | null>(
-    null
-  )
-  const [heroPlaying, setHeroPlaying] = React.useState(false)
-  const [heroMuted, setHeroMuted] = React.useState(true)
-  const heroPlayerRef = React.useRef<HTMLDivElement>(null)
 
   const playlistId = params?.id
 
@@ -90,67 +82,6 @@ export default function PlaylistDetailPage() {
 
   const featured = filteredItems[0]
 
-  React.useEffect(() => {
-    let ignore = false
-    async function loadFeaturedVideo() {
-      try {
-        if (!featured?.id) {
-          if (!ignore) setFeaturedVideoUrl(null)
-          return
-        }
-        const { data } = await request.get(`/api/works/${featured.id}`)
-        const work = (data as any)?.data?.work
-        if (!ignore) setFeaturedVideoUrl(work?.fileUrl || null)
-      } catch (_) {
-        if (!ignore) setFeaturedVideoUrl(null)
-      }
-    }
-    loadFeaturedVideo()
-    return () => {
-      ignore = true
-    }
-  }, [featured?.id])
-
-  const toggleHeroPlay = () => {
-    const player = heroPlayerRef.current?.querySelector('mux-player') as any
-    if (player) {
-      if (player.paused) {
-        player.play()
-        setHeroPlaying(true)
-      } else {
-        player.pause()
-        setHeroPlaying(false)
-      }
-    }
-  }
-
-  const toggleHeroMute = () => {
-    const player = heroPlayerRef.current?.querySelector('mux-player') as any
-    if (player) {
-      player.muted = !player.muted
-      setHeroMuted(player.muted)
-    }
-  }
-
-  React.useEffect(() => {
-    const player = heroPlayerRef.current?.querySelector('mux-player') as any
-    if (!player) return
-
-    const onPlay = () => setHeroPlaying(true)
-    const onPause = () => setHeroPlaying(false)
-    const onVolumeChange = () => setHeroMuted(player.muted)
-
-    player.addEventListener('play', onPlay)
-    player.addEventListener('pause', onPause)
-    player.addEventListener('volumechange', onVolumeChange)
-
-    return () => {
-      player.removeEventListener('play', onPlay)
-      player.removeEventListener('pause', onPause)
-      player.removeEventListener('volumechange', onVolumeChange)
-    }
-  }, [featuredVideoUrl])
-
   const latestUpdatedLabel = React.useMemo(() => {
     const d = playlist?.updatedAt
     if (!d) return null
@@ -174,8 +105,6 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="mux-player-controls-none mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <BackButton />
-
       {loading ? (
         <div className="space-y-3">
           <Skeleton className="h-8 w-1/2" />
@@ -219,61 +148,6 @@ export default function PlaylistDetailPage() {
               <div className="w-[1.5px] h-[13.5px] bg-[#C9CDD4]" />
               <div className="flex items-center">
                 Latest added: {latestUpdatedLabel?.replace('Updated ', '')}
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="relative w-full aspect-video rounded-3xl overflow-hidden"
-            ref={heroPlayerRef}
-          >
-            {featuredVideoUrl ? (
-              <VideoPlayer
-                title={featured?.title}
-                videoUrl={featuredVideoUrl}
-                autoPlay
-                muted={heroMuted}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <img
-                src={featured?.thumbnail || '/thumbnail-placeholder.svg'}
-                alt={featured?.title || 'Thumbnail'}
-                className="w-full h-full object-cover"
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between pointer-events-auto">
-              <div className="flex-1 min-w-0 mb-2 flex flex-col items-start gap-2">
-                <div className="flex items-center gap-3 w-full min-w-0">
-                  <span className="flex-none text-highlight text-base font-normal">
-                    Watch Free
-                  </span>
-                  <h1 className="text-white flex-1 text-xl font-normal truncate">
-                    {featured?.title || 'Untitled'}
-                  </h1>
-                </div>
-                <div className="text-sm text-white/90">
-                  {featured?.author || '-'}
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={toggleHeroPlay}
-                    className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-                  >
-                    {heroPlaying ? (
-                      <Pause size={12} fill="currentColor" />
-                    ) : (
-                      <Play size={12} fill="currentColor" />
-                    )}
-                  </button>
-                  <button
-                    onClick={toggleHeroMute}
-                    className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
-                  >
-                    {heroMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-                  </button>
-                </div>
               </div>
             </div>
           </div>

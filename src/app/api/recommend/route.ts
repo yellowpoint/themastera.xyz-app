@@ -29,6 +29,7 @@ export async function GET(_request: NextRequest) {
         durationSeconds: work.durationSeconds ?? null,
         tags: work.tags ?? '',
         language: work.language ?? null,
+        updatedAt: work.updatedAt ?? null,
       }
     }
 

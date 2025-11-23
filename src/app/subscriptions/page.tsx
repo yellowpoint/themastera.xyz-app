@@ -132,23 +132,17 @@ export default function SubscriptionsPage() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <div className="space-y-2 w-full">
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-3 w-1/3" />
-                  </div>
+            <Skeleton key={i} className="space-y-4 p-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="space-y-2 w-full">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-1/3" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full" />
-              </CardContent>
-              <CardFooter>
-                <Skeleton className="h-9 w-24" />
-              </CardFooter>
-            </Card>
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-9 w-24" />
+            </Skeleton>
           ))}
         </div>
       ) : items.length === 0 ? (

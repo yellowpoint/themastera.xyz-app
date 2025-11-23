@@ -12,11 +12,18 @@ import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, Plus, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import BackButton from './BackButton'
 import { CustomSidebarWidth } from './CustomSidebar'
 
 export const HeaderHeight = '80px'
 
-export default function Header() {
+export default function Header({
+  showBackButton = false,
+  showLogo = true,
+}: {
+  showBackButton?: boolean
+  showLogo?: boolean
+}) {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
 
@@ -26,21 +33,24 @@ export default function Header() {
         className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-8`}
         style={{ height: HeaderHeight, width: CustomSidebarWidth }}
       >
-        <Link
-          href="/"
-          className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
-        >
-          <img
-            src="/logo-black.png"
-            alt="Logo"
-            className="h-auto w-15 dark:hidden"
-          />
-          <img
-            src="/logo-white.png"
-            alt="Logo"
-            className="h-auto w-15 hidden dark:block"
-          />
-        </Link>
+        {showBackButton ? <BackButton className="" /> : null}
+        {showLogo ? (
+          <Link
+            href="/"
+            className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
+          >
+            <img
+              src="/logo-black.png"
+              alt="Logo"
+              className="h-auto w-15 dark:hidden"
+            />
+            <img
+              src="/logo-white.png"
+              alt="Logo"
+              className="h-auto w-15 hidden dark:block"
+            />
+          </Link>
+        ) : null}
       </div>
 
       <div

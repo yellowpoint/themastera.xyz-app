@@ -90,7 +90,7 @@ body {
   }
 }
 
-@supports (scrollbar-gutter: stable) {
+/* @supports (scrollbar-gutter: stable) {
   html {
     scrollbar-gutter: stable;
   }
@@ -100,7 +100,7 @@ body {
   html {
     overflow-y: scroll;
   }
-}
+} */
 
 :root {
   --background: #f5f5ff;

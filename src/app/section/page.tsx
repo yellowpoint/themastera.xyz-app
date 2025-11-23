@@ -1,5 +1,4 @@
 'use client'
-import BackButton from '@/components/BackButton'
 import SortSearchToolbar from '@/components/SortSearchToolbar'
 import WorkCardList from '@/components/WorkCardList'
 import { HOMEPAGE_SECTIONS } from '@/config/sections'
@@ -103,7 +102,6 @@ export default function SectionUnifiedPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-8">
-      <BackButton />
       <SortSearchToolbar
         sortAZ={sortAZ}
         onSortChange={setSortAZ}

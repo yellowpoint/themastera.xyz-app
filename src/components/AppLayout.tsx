@@ -8,7 +8,8 @@ import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const hideHeader = ['/section', '/playlists/'].some((prefix) =>
+  const hideHeader = [].some((prefix) => pathname?.startsWith(prefix))
+  const showBackOnRoutes = ['/section', '/playlists/'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const hideHeaderRightPadding = ['/content'].some((prefix) =>
@@ -31,15 +32,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-screen">
       <BackgroundSwitcher enabled={showBackgroundImage} />
-      {!hideHeader && <Header />}
+      {!hideHeader && (
+        <Header
+          showBackButton={showBackOnRoutes}
+          showLogo={!showBackOnRoutes}
+        />
+      )}
       <div
         className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : ''}`}
       >
-        <div className="flex min-h-full">
+        <div className="flex h-full">
           {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
           <div
-            className="flex-1"
+            className="flex-1  overflow-y-auto"
             style={{
+              height: hideSidebar ? '100%' : `calc(100vh - ${HeaderHeight})`,
               paddingRight:
                 hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
             }}

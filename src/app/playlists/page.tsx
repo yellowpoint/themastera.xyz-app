@@ -31,7 +31,7 @@ import { Plus } from 'lucide-react'
 import React from 'react'
 
 import HeroImageCarousel from '@/components/HeroImageCarousel'
-import { formatDate } from '@/lib/format'
+import { formatTimeAgo } from '@/lib/format'
 import { toast } from 'sonner'
 
 // Use shared contract types
@@ -218,6 +218,9 @@ export default function PlaylistsPage() {
                       title={sec.name}
                       href={`/section?section=${sec.id}`}
                       coverSrcs={coverSrcs}
+                      updatedLabel={`Updated: ${formatTimeAgo(
+                        (sec.list[0] as any).updatedAt
+                      )}`}
                     />
                   )
                 })}
@@ -271,7 +274,7 @@ export default function PlaylistsPage() {
                       title={pl.name}
                       href={`/playlists/${pl.id}`}
                       coverSrcs={coverSrcs}
-                      updatedLabel={`Updated: ${formatDate((pl as any).updatedAt)}`}
+                      updatedLabel={`Updated: ${formatTimeAgo((pl as any).updatedAt)}`}
                       showMenu
                       onEdit={() => {
                         if (typeof window !== 'undefined') {
