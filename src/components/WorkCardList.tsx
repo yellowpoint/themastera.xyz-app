@@ -69,7 +69,12 @@ export default function WorkCardList({
         effectiveVariant === 'simple' ? (
           <div className="space-y-4">
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} variant="simple" extraMenuItems={extraMenuItems?.(work)} />
+              <WorkCard
+                key={work.id}
+                work={work}
+                variant="simple"
+                extraMenuItems={extraMenuItems?.(work)}
+              />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
@@ -79,7 +84,12 @@ export default function WorkCardList({
         ) : effectiveVariant === 'cover' ? (
           <div className="space-y-4">
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} variant="cover" extraMenuItems={extraMenuItems?.(work)} />
+              <WorkCard
+                key={work.id}
+                work={work}
+                variant="cover"
+                extraMenuItems={extraMenuItems?.(work)}
+              />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
@@ -89,7 +99,11 @@ export default function WorkCardList({
         ) : (
           <div className={`grid grid-cols-1 ${mdColsClass} gap-6`}>
             {works.map((work) => (
-              <WorkCard key={work.id} work={work} extraMenuItems={extraMenuItems?.(work)} />
+              <WorkCard
+                key={work.id}
+                work={work}
+                extraMenuItems={extraMenuItems?.(work)}
+              />
             ))}
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
@@ -98,7 +112,7 @@ export default function WorkCardList({
           </div>
         )
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 border border-dashed rounded-lg text-center">
+        <div className="flex flex-col items-center justify-center py-16 rounded-lg text-center bg-[#F6F9FC1A]">
           <Inbox
             className="h-10 w-10 text-muted-foreground mb-3"
             aria-hidden="true"

@@ -173,7 +173,7 @@ body {
   --foreground: #fff;
   --card: #050938;
   --card-foreground: #e2e2f5;
-  --popover: rgba(78, 89, 105, 1);
+  --popover: #050938;
   --popover-foreground: #e2e2f5;
   --primary: #2b36d9;
   --primary-foreground: #ffffff;
