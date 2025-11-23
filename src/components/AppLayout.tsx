@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   )
   const showBackgroundImage =
     pathname === '/' ||
-    ['/explore', '/playlists', '/auth', '/profile'].some((prefix) =>
+    ['/explore', '/playlists', '/auth', '/profile', '/section'].some((prefix) =>
       pathname?.startsWith(prefix)
     )
 

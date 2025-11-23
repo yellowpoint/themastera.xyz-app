@@ -19,7 +19,6 @@ import {
   Empty,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
@@ -146,11 +145,9 @@ export default function SubscriptionsPage() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <Empty className="border">
+        <Empty className="bg-[#F6F9FC1A]">
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Users className="w-6 h-6" />
-            </EmptyMedia>
+            <Users className="w-6 h-6" />
             <EmptyTitle>No subscriptions yet</EmptyTitle>
             <EmptyDescription>
               Find creators you love and subscribe to them.
@@ -160,46 +157,48 @@ export default function SubscriptionsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((u) => (
-            <Card key={u.id}>
-              <CardHeader>
-                <Link
-                  href={`/user/${u.id}`}
-                  className="flex items-center gap-3 hover:opacity-90 transition-opacity"
-                >
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage
-                      src={u.image || ''}
-                      alt={u.name || u.email || 'User'}
-                    />
-                    <AvatarFallback>
-                      {(u.name || u.email || 'U').slice(0, 1).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <CardTitle className="truncate">
-                      {u.name || u.email}
-                    </CardTitle>
+            <Link href={`/user/${u.id}`}>
+              <Card key={u.id}>
+                <CardHeader>
+                  <Link
+                    href={`/user/${u.id}`}
+                    className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+                  >
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage
+                        src={u.image || ''}
+                        alt={u.name || u.email || 'User'}
+                      />
+                      <AvatarFallback>
+                        {(u.name || u.email || 'U').slice(0, 1).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <CardTitle className="truncate">
+                        {u.name || u.email}
+                      </CardTitle>
+                    </div>
+                  </Link>
+                  <CardAction></CardAction>
+                </CardHeader>
+                <CardContent>
+                  <SubscribeButton
+                    userId={u.id}
+                    isFollowing={u.isFollowing}
+                    onChanged={(action) => handleSubscribeChanged(u.id, action)}
+                    size="sm"
+                  />
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                    {u.description || 'aaaaa'}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <div className="text-sm text-muted-foreground flex items-center gap-4">
+                    <span>Works {u._count?.works ?? 0}</span>
                   </div>
-                </Link>
-                <CardAction></CardAction>
-              </CardHeader>
-              <CardContent>
-                <SubscribeButton
-                  userId={u.id}
-                  isFollowing={u.isFollowing}
-                  onChanged={(action) => handleSubscribeChanged(u.id, action)}
-                  size="sm"
-                />
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {u.description || ''}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <div className="text-sm text-muted-foreground flex items-center gap-4">
-                  <span>Works {u._count?.works ?? 0}</span>
-                </div>
-              </CardFooter>
-            </Card>
+                </CardFooter>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

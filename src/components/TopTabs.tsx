@@ -116,12 +116,12 @@ export default function TopTabs({
         <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
           <SheetContent
             side="right"
-            className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white"
+            className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0"
             hideClose
           >
             <SheetHeader>
               <div className="pt-2 px-0">
-                <InputGroup className="h-12 rounded-xl">
+                <InputGroup className="h-12 rounded-xl dark:bg-white/10">
                   <InputGroupAddon>
                     <InputGroupText>
                       <Search className="h-4 w-4" />

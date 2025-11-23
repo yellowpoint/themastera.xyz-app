@@ -44,7 +44,8 @@ export default function SubscribeButton({
     setFollowing(!!isFollowing)
   }, [isFollowing])
 
-  const handleClick = async () => {
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (pending || disabled) return
     if (!userId) return
 

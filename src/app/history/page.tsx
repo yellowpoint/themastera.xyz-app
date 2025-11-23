@@ -1,5 +1,4 @@
 'use client'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar as ShadCalendar } from '@/components/ui/calendar'
 import {
@@ -273,8 +272,11 @@ export default function WatchHistoryPage() {
                       ? w.downloads
                       : 0
                 return (
-                  <div key={item.id} className="group">
-                    <Link href={`/content/${w.id}`} className="block">
+                  <div
+                    key={item.id}
+                    className="group dark:bg-[#02000480] rounded-xl overflow-hidden"
+                  >
+                    <Link href={`/content/${w.id}`} className="block ">
                       <div className="relative mb-3">
                         <div className="aspect-video">
                           <img
@@ -290,9 +292,9 @@ export default function WatchHistoryPage() {
                       </div>
                     </Link>
                     <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0  p-2">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-base md:text-lg line-clamp-2">
+                          <h3 className="font-semibold text-base md:text-lg truncate">
                             {w?.title || 'Untitled'}
                           </h3>
                           <Button
@@ -305,7 +307,7 @@ export default function WatchHistoryPage() {
                             <Trash2 className="size-4" />
                           </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                        <p className="text-sm text-muted-foreground  truncate">
                           {w?.user?.name || 'Unknown Creator'}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
@@ -358,7 +360,7 @@ export default function WatchHistoryPage() {
             </div>
 
             {/* Right: Timeline */}
-            <ScrollArea className="lg:h-[calc(100vh-160px)] px-2">
+            <ScrollArea className="lg:h-[calc(100vh-160px)] px-2 ">
               <h2 className="text-base font-semibold mb-2">Timeline</h2>
               <Separator />
               <div className="space-y-6 mt-4">
@@ -367,7 +369,7 @@ export default function WatchHistoryPage() {
                   .map((day) => (
                     <div key={day}>
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline">{day}</Badge>
+                        <span className="text-xs text-foreground">{day}</span>
                       </div>
                       <div className="space-y-2">
                         {(groupsByDay[day] || []).map((it) => (

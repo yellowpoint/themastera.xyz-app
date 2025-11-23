@@ -41,7 +41,11 @@ type WorkCardProps = {
   extraMenuItems?: React.ReactNode
 }
 
-export default function WorkCard({ work, variant = 'card', extraMenuItems }: WorkCardProps) {
+export default function WorkCard({
+  work,
+  variant = 'card',
+  extraMenuItems,
+}: WorkCardProps) {
   const brokenThumbsRef = useRef<Set<string>>(new Set())
   const [playlists, setPlaylists] = useState<PlaylistSummary[]>([])
   const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(false)
@@ -266,13 +270,13 @@ export default function WorkCard({ work, variant = 'card', extraMenuItems }: Wor
 
   return (
     <div
-      className="group cursor-pointer block"
+      className="group cursor-pointer block dark:bg-[#02000480] rounded-xl overflow-hidden "
       onClick={() => {
         router.push(`/content/${work?.id}`)
       }}
     >
       <div className="relative mb-3">
-        <div className=" relative bg-background rounded-xl overflow-hidden ">
+        <div className=" relative bg-background ">
           <img
             src={resolveThumb(work?.thumbnailUrl)}
             alt={work?.title || 'Untitled'}
@@ -287,8 +291,8 @@ export default function WorkCard({ work, variant = 'card', extraMenuItems }: Wor
             {durationLabel}
           </div>
         </div>
-        <div className="absolute inset-0 bg-black/10  dark:bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-105 transition-all pointer-events-none"></div>
-        <div className="flex items-center gap-3 mt-3">
+        <div className="absolute inset-0 bg-black/10  dark:bg-white/10 opacity-0 group-hover:opacity-100 scale-90 flex items-center justify-center rounded-xl overflow-hidden group-hover:scale-115 transition-all pointer-events-none"></div>
+        <div className="flex items-center gap-3 mt-3 px-2">
           <div className="flex-shrink-0">
             <Avatar className="size-10 cursor-pointer" onClick={goToUser}>
               <AvatarImage src={work?.user?.image || undefined} />
