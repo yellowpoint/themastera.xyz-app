@@ -20,16 +20,13 @@ export default function BackgroundSwitcher({
   const bgImages = useMemo<BackgroundItem[]>(
     () =>
       images ?? [
-        { src: '/bg.jpg', label: 'Default' },
-        { src: 'https://picsum.photos/id/1003/1600/900', label: 'Mountains' },
-        { src: 'https://picsum.photos/id/1015/1600/900', label: 'River' },
-        { src: 'https://picsum.photos/id/1025/1600/900', label: 'Ocean' },
-        { src: 'https://picsum.photos/id/1035/1600/900', label: 'City' },
-        { src: 'https://picsum.photos/id/1042/1600/900', label: 'Forest' },
-        { src: 'https://picsum.photos/id/1069/1600/900', label: 'Valley' },
-        { src: 'https://picsum.photos/id/1074/1600/900', label: 'Sky' },
-        { src: 'https://picsum.photos/id/1084/1600/900', label: 'Lakeside' },
-        { src: 'https://picsum.photos/id/110/1600/900', label: 'Sunset' },
+        { src: '/bg/1.jpg', label: 'Electric Surge' },
+        { src: '/bg/2.jpg', label: 'RGB Glow' },
+        { src: '/bg/3.jpg', label: 'Blue Orb' },
+        { src: '/bg/4.jpg', label: 'Rainy Pane' },
+        { src: '/bg/5.jpg', label: 'Fire Trails' },
+        { src: '/bg/6.jpg', label: 'Psychedelic Flow' },
+        { src: '/bg/7.jpg', label: 'Digital Stream' },
         { src: null, label: 'None' },
       ],
     [images]
