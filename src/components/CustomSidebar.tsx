@@ -1,7 +1,15 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BadgePlus, Home, ListVideo, Telescope } from 'lucide-react'
+import {
+  BadgePlus,
+  Home,
+  Linkedin,
+  ListVideo,
+  Telescope,
+  Twitter,
+  Youtube,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -60,7 +68,7 @@ export default function CustomSidebar({
                   <Icon className="size-5 text-foreground" />
                   <span
                     className={
-                      'text-sm' +
+                      'text-sm font-medium' +
                       (isActive
                         ? ' text-highlight'
                         : ' text-muted-foreground hover:text-foreground/80')
@@ -76,6 +84,35 @@ export default function CustomSidebar({
       </nav>
 
       <div className="w-full pl-6 pb-6 text-muted-foreground">
+        <div className="flex items-center gap-4 mb-3">
+          <Link
+            href="https://www.linkedin.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="opacity-80 hover:opacity-100"
+            aria-label="LinkedIn"
+          >
+            <Linkedin className="size-4" />
+          </Link>
+          <Link
+            href="https://twitter.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="opacity-80 hover:opacity-100"
+            aria-label="Twitter"
+          >
+            <Twitter className="size-4" />
+          </Link>
+          <Link
+            href="https://www.youtube.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="opacity-80 hover:opacity-100"
+            aria-label="YouTube"
+          >
+            <Youtube className="size-4" />
+          </Link>
+        </div>
         <div className="space-y-1 text-sm">
           <Link
             href="/privacy-policy"

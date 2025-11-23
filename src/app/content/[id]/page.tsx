@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
-import BackButton from '@/components/BackButton'
+import { HeaderHeight } from '@/components/Header'
 import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
 import SubscribeButton from '@/components/SubscribeButton'
 import {
@@ -10,7 +10,6 @@ import {
   AccordionContent,
   AccordionItem,
 } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import WorkCardList from '@/components/WorkCardList'
@@ -335,100 +334,104 @@ export default function ContentDetailPage() {
   }
 
   return (
-    <div className="h-screen overflow-hidden">
+    <div
+      className="overflow-hidden"
+      style={{ height: 'calc(100vh - ' + HeaderHeight + ')' }}
+    >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full relative">
         {/* Main Content Area */}
-        <div className="md:col-span-3 h-full px-2 overflow-y-auto">
-          <BackButton />
-          <VideoPlayer
-            videoUrl={work.fileUrl}
-            thumbnailUrl={work.thumbnailUrl}
-            title={work.title}
-            autoPlay={true}
-            onPlay={() => {
-              try {
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(
-                    new CustomEvent('player:now-playing', {
-                      detail: { workId },
-                    })
-                  )
-                }
-              } catch (_) {}
-            }}
-            onEnded={handleEnded}
-          />
+        <div className="md:col-span-3 h-full px-2 pb-6 overflow-hidden">
+          <div className="flex justify-center">
+            <VideoPlayer
+              videoUrl={work.fileUrl}
+              thumbnailUrl={work.thumbnailUrl}
+              title={work.title}
+              autoPlay={true}
+              width={
+                'min(100%, calc((100vh - ' +
+                HeaderHeight +
+                ' - 80px) * 16 / 9))'
+              }
+              onPlay={() => {
+                try {
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(
+                      new CustomEvent('player:now-playing', {
+                        detail: { workId },
+                      })
+                    )
+                  }
+                } catch (_) {}
+              }}
+              onEnded={handleEnded}
+            />
+          </div>
 
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-between gap-4 px-6">
-              <h1 className="text-2xl">{work.title}</h1>
-              <div className="flex items-center gap-4 relative">
-                <Button
-                  variant="secondary"
-                  className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+          <div className="h-20 flex items-center justify-between gap-4 px-6">
+            <h1 className="text-2xl truncate" title={work.title}>
+              {work.title}
+            </h1>
+            <div className="flex items-center gap-4 relative">
+              <Button
+                variant="secondary"
+                className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+              >
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading || dislikeLoading}
+                  aria-busy={likeLoading}
+                  className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
                 >
-                  <button
-                    onClick={handleLike}
-                    disabled={likeLoading || dislikeLoading}
-                    aria-busy={likeLoading}
-                    className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                  >
-                    {likeLoading ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <ThumbsUp className={isLiked ? 'fill-white' : ''} />
-                    )}
-                    <span>{likesCount > 0 ? formatViews(likesCount) : 0}</span>
-                  </button>
-                  <div
-                    className="w-0 h-8 border-l-2 border-dashed opacity-20"
-                    style={{ borderColor: '#F2F3F5' }}
-                  />
-                  <button
-                    onClick={handleDislike}
-                    disabled={likeLoading || dislikeLoading}
-                    aria-busy={dislikeLoading}
-                    className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                  >
-                    {dislikeLoading ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <ThumbsDown
-                        className={isDisliked ? 'fill-white' : ''}
-                        strokeWidth={2}
-                      />
-                    )}
-                  </button>
-                </Button>
-                <Button
-                  onClick={handleDownload}
-                  variant="secondary"
-                  className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
-                  disabled={downloadLoading}
-                  aria-busy={downloadLoading}
+                  {likeLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <ThumbsUp className={isLiked ? 'fill-white' : ''} />
+                  )}
+                  <span>{likesCount > 0 ? formatViews(likesCount) : 0}</span>
+                </button>
+                <div
+                  className="w-0 h-8 border-l-2 border-dashed opacity-20"
+                  style={{ borderColor: '#F2F3F5' }}
+                />
+                <button
+                  onClick={handleDislike}
+                  disabled={likeLoading || dislikeLoading}
+                  aria-busy={dislikeLoading}
+                  className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
                 >
-                  <span className="inline-flex items-center gap-2 w-full">
-                    {downloadLoading ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <>
-                        <Download />
-                        Download
-                      </>
-                    )}
-                  </span>
-                </Button>
-                {work.price && work.price > 0 ? (
-                  <Badge className="absolute -right-2 -top-2 bg-primary text-white px-2.5 py-0 rounded text-sm font-normal leading-snug">
-                    Pro
-                  </Badge>
-                ) : null}
-              </div>
+                  {dislikeLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <ThumbsDown
+                      className={isDisliked ? 'fill-white' : ''}
+                      strokeWidth={2}
+                    />
+                  )}
+                </button>
+              </Button>
+              <Button
+                onClick={handleDownload}
+                variant="secondary"
+                className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                disabled={downloadLoading}
+                aria-busy={downloadLoading}
+              >
+                <span className="inline-flex items-center gap-2 w-full">
+                  {downloadLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <>
+                      <Download />
+                      Download
+                    </>
+                  )}
+                </span>
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="space-y-6 h-full px-4 py-8 overflow-y-auto overflow-x-hidden">
+        <div className="space-y-6 h-full px-4 pb-8 overflow-y-auto overflow-x-hidden">
           <div className="flex flex-col gap-6">
             <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
               <div className="flex flex-col gap-3">

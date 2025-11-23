@@ -171,13 +171,13 @@ body {
 .dark {
   --background: #000000;
   --foreground: #fff;
-  --card: #1a1a2e;
+  --card: #050938;
   --card-foreground: #e2e2f5;
   --popover: rgba(78, 89, 105, 1);
   --popover-foreground: #e2e2f5;
   --primary: #2b36d9;
   --primary-foreground: #ffffff;
-  --secondary: #4e5be8;
+  --secondary: #3b82f6;
   --secondary-foreground: #f7f8fa;
   --muted: #222244;
   --muted-foreground: #86909c;
@@ -185,15 +185,15 @@ body {
   --accent-foreground: #e2e2f5;
   --destructive: #ff5470;
   --destructive-foreground: #ffffff;
-  --border: #303052;
+  --border: #182092;
   --input: #303052;
   --ring: #2b36d9;
   --highlight: #d7ff01;
-  --chart-1: #a48fff;
-  --chart-2: #7986cb;
-  --chart-3: #64b5f6;
-  --chart-4: #4db6ac;
-  --chart-5: #ff79c6;
+  --chart-1: #60a5fa;
+  --chart-2: #3b82f6;
+  --chart-3: #2563eb;
+  --chart-4: #1d4ed8;
+  --chart-5: #1e40af;
   --sidebar: transparent;
   --sidebar-foreground: #c9cdd4;
   --sidebar-primary: #2b36d9;

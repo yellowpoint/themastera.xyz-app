@@ -8,10 +8,13 @@ import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const hideHeader = ['/content', '/section', '/playlists/'].some((prefix) =>
+  const hideHeader = ['/section', '/playlists/'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
-  const hideSidebar = ['/content', '/section', '/playlists/'].some((prefix) =>
+  const hideHeaderRightPadding = ['/content'].some((prefix) =>
+    pathname?.startsWith(prefix)
+  )
+  const hideSidebar = ['/content'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const showBackgroundImage =
@@ -36,7 +39,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
           <div
             className="flex-1"
-            style={{ paddingRight: hideHeader ? '0' : CustomSidebarWidth }}
+            style={{
+              paddingRight:
+                hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
+            }}
           >
             <AuthRequired>{children}</AuthRequired>
           </div>
