@@ -107,11 +107,10 @@ export default function SubscriptionsPage() {
   }, [totalPages])
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Subscriptions</h1>
-          <p className="text-sm text-muted-foreground">Creators you follow</p>
         </div>
 
         <div className="flex items-center gap-2 w-full max-w-md">

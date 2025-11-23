@@ -70,7 +70,7 @@ export default function HeroImageCarousel({
               return (
                 <div
                   key={item.id}
-                  className={`w-[100px] h-[74px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100 ring-2 ring-white' : 'opacity-50 hover:opacity-100'}`}
+                  className={`w-[100px] h-[74px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100 ring-2 ring-white' : 'opacity-50 hover:opacity-90'}`}
                   onClick={() => setCurrentIndex(index)}
                 >
                   <img
@@ -87,7 +87,7 @@ export default function HeroImageCarousel({
             })}
           </div>
           <div
-            className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-[#F6F9FC1A] rounded-xl px-4 h-[74px] cursor-auto"
+            className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-[#F6F9FC1A] rounded-xl px-4 h-[74px] cursor-auto backdrop-blur-md"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 w-full min-w-0">

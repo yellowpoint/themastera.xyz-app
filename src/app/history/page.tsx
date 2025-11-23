@@ -140,15 +140,16 @@ export default function WatchHistoryPage() {
   const renderFilters = () => (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
       <div className="flex items-center gap-2 flex-1">
-        <div className="relative w-full max-w-sm">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             debounceDelay={1000}
             onDebouncedValueChange={(v) => setDebouncedSearch(v)}
             placeholder="Search title or author"
+            className="pl-9"
           />
-          <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         </div>
       </div>
       <div className="flex items-center gap-2">
