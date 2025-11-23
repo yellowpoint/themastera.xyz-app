@@ -30,6 +30,7 @@ import { request } from '@/lib/request'
 import { Plus } from 'lucide-react'
 import React from 'react'
 
+import HeroImageCarousel from '@/components/HeroImageCarousel'
 import { formatDate } from '@/lib/format'
 import { toast } from 'sonner'
 
@@ -51,9 +52,18 @@ export default function PlaylistsPage() {
   const [sortAZ, setSortAZ] = React.useState(false)
   const [recLoading, setRecLoading] = React.useState(true)
   const [recError, setRecError] = React.useState<string | null>(null)
-  const [sections, setSections] = React.useState<
-    { id: string; title: string; items: HomepageItem[] }[]
+  const [recommendItems, setRecommendItems] = React.useState<
+    {
+      id: string
+      name: string
+      description?: string
+      coverUrl?: string
+      list: HomepageItem[]
+    }[]
   >([])
+  const heroItems = React.useMemo(() => {
+    return recommendItems.slice(0, 4)
+  }, [recommendItems])
 
   const fetchPlaylists = React.useCallback(async () => {
     setLoading(true)
@@ -72,13 +82,17 @@ export default function PlaylistsPage() {
     setRecLoading(true)
     setRecError(null)
     try {
-      const { data } = await request.get('/api/homepage')
-      const secs = ((data as any)?.data?.sections || []) as Array<{
+      const { data } = await request.get('/api/recommend')
+      const items = (
+        (data as any)?.success ? (data as any)?.data || [] : []
+      ) as Array<{
         id: string
-        title: string
-        items: HomepageItem[]
+        name: string
+        description?: string
+        coverUrl?: string
+        list: HomepageItem[]
       }>
-      setSections(secs)
+      setRecommendItems(items)
     } catch (e: any) {
       setRecError(e?.message || 'Failed to load')
     } finally {
@@ -99,13 +113,14 @@ export default function PlaylistsPage() {
     return arr
   }, [playlists, searchQuery, sortAZ])
 
-  const filteredSections = React.useMemo(() => {
+  const filteredRecommendSections = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    let arr = sections
-    if (q) arr = arr.filter((s) => s.title.toLowerCase().includes(q))
-    if (sortAZ) arr = [...arr].sort((a, b) => a.title.localeCompare(b.title))
+    let arr = recommendItems.slice(4)
+    if (q) arr = arr.filter((s) => (s.name || '').toLowerCase().includes(q))
+    if (sortAZ)
+      arr = [...arr].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
     return arr
-  }, [sections, searchQuery, sortAZ])
+  }, [recommendItems, searchQuery, sortAZ])
 
   const createPlaylist = async () => {
     const name = newName.trim()
@@ -155,19 +170,22 @@ export default function PlaylistsPage() {
         activeKey={activeTab}
         onChange={(key) => setActiveTab(key as 'recommend' | 'mine')}
       />
-      <h1 className="text-4xl text-white mb-10">
+      {/* <h1 className="text-4xl text-white mb-10">
         {activeTab === 'recommend' ? 'Recommend list' : 'My Playlists'}
-      </h1>
-      <SortSearchToolbar
-        sortAZ={sortAZ}
-        onSortChange={setSortAZ}
-        searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
-        searchPlaceholder="Search playlist name"
-        showCreateButton={activeTab === 'mine'}
-        onCreateClick={() => setCreateOpen(true)}
-        className="mb-4"
-      />
+      </h1> */}
+      {activeTab === 'mine' && (
+        <SortSearchToolbar
+          sortAZ={sortAZ}
+          onSortChange={setSortAZ}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          searchPlaceholder="Search playlist name"
+          showCreateButton={activeTab === 'mine'}
+          onCreateClick={() => setCreateOpen(true)}
+          className="mb-4"
+        />
+      )}
+
       {activeTab === 'recommend' ? (
         <div className="p-0">
           {recLoading ? (
@@ -179,27 +197,32 @@ export default function PlaylistsPage() {
           ) : recError ? (
             <div className="p-6 text-sm text-muted-foreground">{recError}</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredSections.map((sec) => {
-                const thumbs = sec.items
-                  .map((i) => i.thumbnailUrl || null)
-                  .filter(Boolean) as string[]
-                const first = thumbs[0]
-                const coverSrcs = [
-                  first || undefined,
-                  thumbs[1] || first || undefined,
-                  thumbs[2] || first || undefined,
-                ]
-                return (
-                  <PlaylistCard
-                    key={sec.id}
-                    title={sec.title}
-                    href={`/section?section=${sec.id}`}
-                    coverSrcs={coverSrcs}
-                  />
-                )
-              })}
-            </div>
+            <>
+              {heroItems.length > 0 && (
+                <HeroImageCarousel items={heroItems} className="mb-8" />
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {filteredRecommendSections.map((sec) => {
+                  const thumbs = sec.list
+                    .map((i) => i.thumbnailUrl || null)
+                    .filter(Boolean) as string[]
+                  const first = thumbs[0]
+                  const coverSrcs = [
+                    first || undefined,
+                    thumbs[1] || first || undefined,
+                    thumbs[2] || first || undefined,
+                  ]
+                  return (
+                    <PlaylistCard
+                      key={sec.id}
+                      title={sec.name}
+                      href={`/section?section=${sec.id}`}
+                      coverSrcs={coverSrcs}
+                    />
+                  )
+                })}
+              </div>
+            </>
           )}
         </div>
       ) : null}

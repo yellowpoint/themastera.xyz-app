@@ -240,59 +240,51 @@ export default function HomePage() {
                           setPlaying((p) => ({ ...p, [w.id]: false }))
                         }
                       />
-                      <div
-                        className="absolute bottom-6 left-0 right-0 flex items-center justify-between bg-[#1D212966] backdrop-blur-md px-8 cursor-auto py-2"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                        }}
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="bg-highlight text-primary flex-none text-xs rounded px-2 py-1">
-                              Watch Free
-                            </span>
-                            <div className="text-white text-xl truncate">
-                              {w.title}
-                            </div>
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-4 left-4 max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
+                          <div className="text-white text-lg  truncate">
+                            {w.title}
                           </div>
-                          <div className="text-white truncate">
+                          <div className="text-white/80 text-sm truncate">
                             {w.user?.name}
                           </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                togglePlay(w.id)
-                              }}
-                              aria-label="Play"
-                              className="h-6 w-6  text-white flex items-center justify-center"
-                            >
-                              {playing[w.id] ? (
-                                <Pause className="size-4" />
-                              ) : (
-                                <Play className="size-4" />
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                toggleMute(w.id)
-                              }}
-                              aria-label="Volume"
-                              className="h-6 w-6 text-white flex items-center justify-center"
-                            >
-                              {muted[w.id] ? (
-                                <VolumeX className="size-4" />
-                              ) : (
-                                <Volume2 className="size-4" />
-                              )}
-                            </button>
-                          </div>
+                        </div>
+                        <span className="absolute top-4 right-4 bg-highlight text-primary text-xs rounded px-3 py-1">
+                          Watch Free
+                        </span>
+                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              togglePlay(w.id)
+                            }}
+                            aria-label="Play"
+                            className="pointer-events-auto h-7 w-7 rounded-md bg-[#1D212999] text-white flex items-center justify-center"
+                          >
+                            {playing[w.id] ? (
+                              <Pause className="size-4" />
+                            ) : (
+                              <Play className="size-4" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              toggleMute(w.id)
+                            }}
+                            aria-label="Volume"
+                            className="pointer-events-auto h-7 w-7 rounded-md bg-[1D212999] text-white flex items-center justify-center"
+                          >
+                            {muted[w.id] ? (
+                              <VolumeX className="size-4" />
+                            ) : (
+                              <Volume2 className="size-4" />
+                            )}
+                          </button>
                         </div>
                       </div>
                     </div>
