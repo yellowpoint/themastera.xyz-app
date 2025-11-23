@@ -25,7 +25,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       richColors
-      // closeButton
+      closeButton
       style={
         {
           '--normal-bg': 'var(--popover)',

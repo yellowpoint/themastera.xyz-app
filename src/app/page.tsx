@@ -1,6 +1,7 @@
 'use client'
 import WatchHistoryPage from '@/app/history/page'
 import SubscriptionsPage from '@/app/subscriptions/page'
+import AuthRequired from '@/components/auth-required'
 import TopTabs from '@/components/TopTabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
@@ -192,11 +193,15 @@ export default function HomePage() {
           onChange={(key) => setActiveTab(key as any)}
         />
       </div>
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 h-full">
         {activeTab === 'Subscriptions' ? (
-          <SubscriptionsPage />
+          <AuthRequired enabled>
+            <SubscriptionsPage />
+          </AuthRequired>
         ) : activeTab === 'History' ? (
-          <WatchHistoryPage />
+          <AuthRequired enabled>
+            <WatchHistoryPage />
+          </AuthRequired>
         ) : loading ? (
           <div className="space-y-6 max-w-5xl mx-auto">
             {Array.from({ length: 6 }).map((_, i) => (

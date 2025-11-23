@@ -91,10 +91,29 @@ export async function GET(_request: NextRequest) {
       return works.map(toHomepageItem)
     }
 
+    function reorderList(sectionId: string, list: any[]) {
+      if (!Array.isArray(list)) return list
+      if (sectionId === 'recommended' && list.length >= 2) {
+        const arr = list.slice()
+        const t = arr[0]
+        arr[0] = arr[1]
+        arr[1] = t
+        return arr
+      }
+      if (sectionId === 'rising-creators' && list.length >= 3) {
+        const arr = list.slice()
+        const t = arr[0]
+        arr[0] = arr[2]
+        arr[2] = t
+        return arr
+      }
+      return list
+    }
+
     await Promise.all(
       items.map(async (item) => {
         const secItems = await fetchSectionItems(item.id)
-        item.list = secItems
+        item.list = reorderList(item.id, secItems)
       })
     )
 

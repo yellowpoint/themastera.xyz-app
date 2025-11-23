@@ -23,9 +23,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import AuthRequired from '@/components/auth-required'
 import SortSearchToolbar from '@/components/SortSearchToolbar'
 import type { PlaylistCard as PlaylistCardContract } from '@/contracts/domain/playlist'
 import type { HomepageItem } from '@/contracts/domain/work'
+import { useAuth } from '@/hooks/useAuth'
 import { request } from '@/lib/request'
 import { Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -40,6 +42,7 @@ type Playlist = PlaylistCardContract
 
 export default function PlaylistsPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = React.useState<'recommend' | 'mine'>(
     'recommend'
   )
@@ -103,9 +106,14 @@ export default function PlaylistsPage() {
   }, [])
 
   React.useEffect(() => {
-    fetchPlaylists()
     fetchRecommend()
-  }, [fetchPlaylists, fetchRecommend])
+  }, [fetchRecommend])
+
+  React.useEffect(() => {
+    if (activeTab === 'mine' && user) {
+      fetchPlaylists()
+    }
+  }, [activeTab, user, fetchPlaylists])
 
   const filteredPlaylists = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -175,18 +183,6 @@ export default function PlaylistsPage() {
       {/* <h1 className="text-4xl text-white mb-10">
         {activeTab === 'recommend' ? 'Recommend list' : 'My Playlists'}
       </h1> */}
-      {activeTab === 'mine' && (
-        <SortSearchToolbar
-          sortAZ={sortAZ}
-          onSortChange={setSortAZ}
-          searchQuery={searchQuery}
-          onSearchQueryChange={setSearchQuery}
-          searchPlaceholder="Search playlist name"
-          showCreateButton={activeTab === 'mine'}
-          onCreateClick={() => setCreateOpen(true)}
-          className="mb-4"
-        />
-      )}
 
       {activeTab === 'recommend' ? (
         <div className="p-0">
@@ -239,107 +235,121 @@ export default function PlaylistsPage() {
         </div>
       ) : null}
       {activeTab === 'mine' ? (
-        <div className="p-0">
-          {loading ? (
-            <div className="p-4 space-y-6">
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-10 w-28" />
-                <Skeleton className="h-10 w-28" />
-                <Skeleton className="h-10 w-28" />
-                <div className="ml-auto w-64">
-                  <Skeleton className="h-10 w-full" />
+        <AuthRequired enabled>
+          <div className="p-0">
+            <SortSearchToolbar
+              sortAZ={sortAZ}
+              onSortChange={setSortAZ}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              searchPlaceholder="Search playlist name"
+              showCreateButton={true}
+              onCreateClick={() => setCreateOpen(true)}
+              className="mb-4"
+            />
+            {loading ? (
+              <div className="p-4 space-y-6">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-28" />
+                  <Skeleton className="h-10 w-28" />
+                  <Skeleton className="h-10 w-28" />
+                  <div className="ml-auto w-64">
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div key={idx} className="space-y-3">
+                      <Skeleton className="h-40 w-full rounded-lg" />
+                      <Skeleton className="h-5 w-2/3" />
+                      <Skeleton className="h-4 w-1/3" />
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <div key={idx} className="space-y-3">
-                    <Skeleton className="h-40 w-full rounded-lg" />
-                    <Skeleton className="h-5 w-2/3" />
-                    <Skeleton className="h-4 w-1/3" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : filteredPlaylists.length === 0 ? (
-            <div className="p-6">
-              <div className="rounded-xl overflow-hidden">
-                <div className="">
-                  <div className="flex flex-col  items-center gap-4 w-40">
-                    <button
-                      type="button"
-                      onClick={() => setCreateOpen(true)}
-                      className="group size-40  rounded-xl   bg-[#F6F9FC1A] hover:bg-white/10 transition-colors flex items-center justify-center"
-                    >
-                      <Plus className="h-12 w-12 text-white/80 group-hover:text-white" />
-                    </button>
-                    <div className="text-white text-xl">
-                      Create first playlist
+            ) : filteredPlaylists.length === 0 ? (
+              <div className="p-6">
+                <div className="rounded-xl overflow-hidden">
+                  <div className="">
+                    <div className="flex flex-col  items-center gap-4 w-40">
+                      <button
+                        type="button"
+                        onClick={() => setCreateOpen(true)}
+                        className="group size-40  rounded-xl   bg-[#F6F9FC1A] hover:bg-white/10 transition-colors flex items-center justify-center"
+                      >
+                        <Plus className="h-12 w-12 text-white/80 group-hover:text-white" />
+                      </button>
+                      <div className="text-white text-xl">
+                        Create first playlist
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredPlaylists.map((pl) => {
-                const thumbs = pl.items
-                  .map((i) => i.thumbnail || null)
-                  .filter(Boolean) as string[]
-                const first = thumbs[0]
-                const coverSrcs = [
-                  first || undefined,
-                  thumbs[1] || first || undefined,
-                  thumbs[2] || first || undefined,
-                ]
-                return (
-                  <div key={pl.id}>
-                    <PlaylistCard
-                      title={pl.name}
-                      href={`/playlists/${pl.id}`}
-                      coverSrcs={coverSrcs}
-                      updatedLabel={`Updated: ${formatTimeAgo((pl as any).updatedAt)}`}
-                      showMenu
-                      onEdit={() => {
-                        router.push(`/playlists/${pl.id}`)
-                      }}
-                      onDelete={() => setOpenDeleteId(pl.id)}
-                    />
-                    <AlertDialog
-                      open={openDeleteId === pl.id}
-                      onOpenChange={(open) =>
-                        setOpenDeleteId(open ? pl.id : null)
-                      }
-                    >
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete playlist?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete the playlist and its
-                            entries.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <Button
-                            variant="destructive"
-                            onClick={async () => {
-                              await deletePlaylist(pl.id)
-                              setOpenDeleteId(null)
-                            }}
-                            loading={deletingId === pl.id}
-                            disabled={deletingId === pl.id}
-                          >
-                            Confirm
-                          </Button>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {filteredPlaylists.map((pl) => {
+                  const thumbs = pl.items
+                    .map((i) => i.thumbnail || null)
+                    .filter(Boolean) as string[]
+                  const first = thumbs[0]
+                  const coverSrcs = [
+                    first || undefined,
+                    thumbs[1] || first || undefined,
+                    thumbs[2] || first || undefined,
+                  ]
+                  return (
+                    <div key={pl.id}>
+                      <PlaylistCard
+                        title={pl.name}
+                        href={`/playlists/${pl.id}`}
+                        coverSrcs={coverSrcs}
+                        updatedLabel={`Updated: ${formatTimeAgo((pl as any).updatedAt)}`}
+                        showMenu
+                        onEdit={() => {
+                          router.push(`/playlists/${pl.id}`)
+                        }}
+                        onDelete={() => setOpenDeleteId(pl.id)}
+                      />
+                      <AlertDialog
+                        open={openDeleteId === pl.id}
+                        onOpenChange={(open) =>
+                          setOpenDeleteId(open ? pl.id : null)
+                        }
+                      >
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete playlist?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete the playlist and its
+                              entries.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <Button
+                              variant="destructive"
+                              onClick={async () => {
+                                await deletePlaylist(pl.id)
+                                setOpenDeleteId(null)
+                              }}
+                              loading={deletingId === pl.id}
+                              disabled={deletingId === pl.id}
+                            >
+                              Confirm
+                            </Button>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </AuthRequired>
       ) : null}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>

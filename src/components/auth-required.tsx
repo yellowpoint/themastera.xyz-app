@@ -1,38 +1,35 @@
 'use client'
 
-import React from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { useAuth } from '@/hooks/useAuth'
+import { usePathname, useRouter } from 'next/navigation'
+import React from 'react'
 
 type AuthRequiredProps = {
   children: React.ReactNode
   protectedPrefixes?: string[]
   title?: string
   message?: string
+  enabled?: boolean
 }
 
 export default function AuthRequired({
   children,
-  protectedPrefixes = [
-    '/creator',
-    '/history',
-    '/subscriptions',
-    '/playlists',
-    '/admin',
-  ],
+  protectedPrefixes = ['/creator', '/history', '/subscriptions', '/admin'],
   title = 'Authentication Required',
   message = 'Please login to access this page',
+  enabled,
 }: AuthRequiredProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, loading } = useAuth()
 
   const isProtected = React.useMemo(() => {
+    if (enabled === true) return true
     if (!pathname) return false
     return protectedPrefixes.some((prefix) => pathname.startsWith(prefix))
-  }, [pathname, protectedPrefixes])
+  }, [pathname, protectedPrefixes, enabled])
 
   if (loading) return null
 
