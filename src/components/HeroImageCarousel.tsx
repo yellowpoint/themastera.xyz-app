@@ -70,7 +70,7 @@ export default function HeroImageCarousel({
               return (
                 <div
                   key={item.id}
-                  className={`w-[100px] h-[74px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-100'}`}
+                  className={`w-[100px] h-[74px] rounded-lg overflow-hidden cursor-pointer transition-all relative ${isCurrent ? 'opacity-100 ring-2 ring-white' : 'opacity-50 hover:opacity-100'}`}
                   onClick={() => setCurrentIndex(index)}
                 >
                   <img
