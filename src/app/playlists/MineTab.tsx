@@ -109,7 +109,7 @@ export default function MineTab() {
 
   return (
     <AuthRequired enabled>
-      <div className="p-0">
+      <div>
         <SortSearchToolbar
           sortAZ={sortAZ}
           onSortChange={setSortAZ}

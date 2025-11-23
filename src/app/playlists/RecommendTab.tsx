@@ -1,12 +1,12 @@
 'use client'
 
-import React from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
 import HeroImageCarousel from '@/components/HeroImageCarousel'
 import PlaylistCard from '@/components/PlaylistCard'
-import { formatTimeAgo } from '@/lib/format'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { HomepageItem } from '@/contracts/domain/work'
+import { formatTimeAgo } from '@/lib/format'
 import { request } from '@/lib/request'
+import React from 'react'
 
 export default function RecommendTab() {
   const [recLoading, setRecLoading] = React.useState(true)
@@ -56,7 +56,7 @@ export default function RecommendTab() {
   }, [recommendItems])
 
   return (
-    <div className="p-0">
+    <div>
       {recLoading ? (
         <div className="p-4 space-y-6">
           <Skeleton className="w-full aspect-video rounded-3xl" />
