@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
 type CarouselItem = {
@@ -23,6 +24,7 @@ export default function HeroImageCarousel({
   autoRotateMs = 5000,
   className,
 }: Props) {
+  const router = useRouter()
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const carouselItems = React.useMemo(() => items.slice(0, 4), [items])
 
@@ -42,7 +44,13 @@ export default function HeroImageCarousel({
 
   return (
     <div
-      className={`relative w-full aspect-video rounded-3xl overflow-hidden group ${className || ''}`}
+      className={`relative w-full aspect-video rounded-3xl overflow-hidden group cursor-pointer ${className || ''}`}
+      onClick={() => {
+        const id = current?.id
+        if (id) {
+          router.push(`/section?section=${id}`)
+        }
+      }}
     >
       <img
         src={currentImg}
@@ -52,7 +60,10 @@ export default function HeroImageCarousel({
 
       <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between pointer-events-auto">
         <div className="flex items-end gap-6 w-full">
-          <div className="flex gap-3 flex-shrink-0">
+          <div
+            className="flex gap-3 flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             {carouselItems.map((item, index) => {
               const isCurrent =
                 index === currentIndex % Math.max(carouselItems.length, 1)
@@ -75,7 +86,10 @@ export default function HeroImageCarousel({
               )
             })}
           </div>
-          <div className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-[#F6F9FC1A] rounded-xl px-4 h-[74px]">
+          <div
+            className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-[#F6F9FC1A] rounded-xl px-4 h-[74px] cursor-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 w-full min-w-0">
               <h1 className="text-white flex-1 truncate">{currentTitle}</h1>
             </div>

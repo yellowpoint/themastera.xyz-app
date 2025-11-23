@@ -106,7 +106,7 @@ export default function PlaylistCard({
                 </div>
               </div>
             ) : (
-              <div className="absolute inset-0 bg-[#F6F9FC1A] flex items-center justify-center">
+              <div className="absolute inset-0 bg-[#F6F9FC1A] flex items-center justify-center rounded-lg overflow-hidden">
                 <div className="text-white/80 text-sm">
                   This playlist is empty
                 </div>

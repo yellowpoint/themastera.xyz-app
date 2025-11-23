@@ -2,9 +2,24 @@
 
 import SortSearchToolbar from '@/components/SortSearchToolbar'
 import WorkCardList from '@/components/WorkCardList'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { PlaylistCard } from '@/contracts/domain/playlist'
 import { formatDate } from '@/lib/format'
@@ -27,6 +42,8 @@ export default function PlaylistDetailPage() {
   )
   const [sortAZ, setSortAZ] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const [deleting, setDeleting] = React.useState(false)
 
   const playlistId = params?.id
 
@@ -100,7 +117,37 @@ export default function PlaylistDetailPage() {
 
   const onPlayAll = () => {
     if (!featured) return
+    try {
+      if (typeof window !== 'undefined') {
+        if (playlistId) {
+          window.localStorage.setItem('selectedPlaylistId', String(playlistId))
+        }
+        window.localStorage.setItem('autoplayPlaylistEnabled', '1')
+      }
+    } catch (_) {}
     router.push(`/content/${featured.id}`)
+  }
+
+  const confirmDelete = async () => {
+    if (!playlistId) return
+    setDeleting(true)
+    try {
+      await request.delete(`/api/playlists/${playlistId}`)
+      toast.success('Playlist deleted')
+      try {
+        if (typeof window !== 'undefined') {
+          const selectedId = window.localStorage.getItem('selectedPlaylistId')
+          if (selectedId === String(playlistId)) {
+            window.localStorage.removeItem('selectedPlaylistId')
+          }
+        }
+      } catch (_) {}
+      router.push('/playlists')
+    } catch (err) {
+    } finally {
+      setDeleting(false)
+      setDeleteOpen(false)
+    }
   }
 
   return (
@@ -117,35 +164,50 @@ export default function PlaylistDetailPage() {
       ) : (
         <div className="space-y-6">
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between px-6">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="text-white font-normal text-[36px] leading-[45px]">
+                <div className="text-white font-normal text-3xl">
                   {playlist?.name || 'Playlist'}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onPlayAll}
-                  className="h-11 px-[18px] bg-[#2B36D9] text-white rounded-[6px]"
+                  className="h-11 px-[18px] bg-primary text-white rounded-[6px]"
                 >
                   <Play className="mr-2 h-5 w-5 text-white" />
                   Play all
                 </Button>
-                <Button
-                  variant="secondary"
-                  className="h-11 w-11 p-0 rounded-[4px] bg-[#F6F9FC1A] hover:bg-[#FFFFFF33]"
-                >
-                  <MoreHorizontal className="h-5 w-5 text-[#C9CDD4]" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      className="h-11 w-11 p-0 rounded-[4px] bg-[#F6F9FC1A] hover:bg-[#FFFFFF33]"
+                    >
+                      <MoreHorizontal className="h-5 w-5 text-[#C9CDD4]" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        setDeleteOpen(true)
+                      }}
+                    >
+                      Delete playlist
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className="flex items-center gap-8 px-6 text-[14px] leading-[22px] text-[#86909C]">
+            <div className="flex items-center gap-8  text-sm text-[#86909C]">
               <div className="flex items-center">{featured?.author || '-'}</div>
-              <div className="w-[1.5px] h-[13.5px] bg-[#C9CDD4]" />
+              <div className="w-[1px] h-[13.5px] bg-[#86909C]" />
               <div className="flex items-center">
                 {filteredItems.length} Videos
               </div>
-              <div className="w-[1.5px] h-[13.5px] bg-[#C9CDD4]" />
+              <div className="w-[1px] h-[13.5px] bg-[#86909C]" />
               <div className="flex items-center">
                 Latest added: {latestUpdatedLabel?.replace('Updated ', '')}
               </div>
@@ -185,6 +247,25 @@ export default function PlaylistDetailPage() {
               </DropdownMenuItem>
             )}
           />
+
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete playlist</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. Delete this playlist?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

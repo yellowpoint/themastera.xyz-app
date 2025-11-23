@@ -22,8 +22,8 @@ export default function BackgroundSwitcher({
       images ?? [
         { src: '/bg/1.jpg', label: 'Electric Surge' },
         { src: '/bg/2.jpg', label: 'RGB Glow' },
-        { src: '/bg/3.jpg', label: 'Blue Orb' },
-        { src: '/bg/4.jpg', label: 'Rainy Pane' },
+        { src: '/bg/3.jpg', label: 'cyperpunk' },
+        { src: '/bg/4.jpg', label: 'Glass Reflection' },
         { src: '/bg/5.jpg', label: 'Fire Trails' },
         { src: '/bg/6.jpg', label: 'Psychedelic Flow' },
         { src: '/bg/7.jpg', label: 'Digital Stream' },

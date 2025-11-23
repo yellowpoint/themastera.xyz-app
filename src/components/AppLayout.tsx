@@ -30,23 +30,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
       <BackgroundSwitcher enabled={showBackgroundImage} />
-      {!hideHeader && (
-        <Header
-          showBackButton={showBackOnRoutes}
-          showLogo={!showBackOnRoutes}
-        />
-      )}
-      <div
-        className={`relative z-20 flex-1 h-full ${!hideHeader ? 'mt-16' : ''}`}
-      >
-        <div className="flex h-full">
+      <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
+        {!hideHeader && (
+          <Header
+            showBackButton={showBackOnRoutes}
+            showLogo={!showBackOnRoutes}
+          />
+        )}
+        <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>
           {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
           <div
-            className="flex-1  overflow-y-auto"
+            className="flex-1"
             style={{
               height: hideSidebar ? '100%' : `calc(100vh - ${HeaderHeight})`,
+              paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
               paddingRight:
                 hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
             }}

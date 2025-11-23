@@ -28,6 +28,7 @@ import type { PlaylistCard as PlaylistCardContract } from '@/contracts/domain/pl
 import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 import { Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
 import HeroImageCarousel from '@/components/HeroImageCarousel'
@@ -38,6 +39,7 @@ import { toast } from 'sonner'
 type Playlist = PlaylistCardContract
 
 export default function PlaylistsPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = React.useState<'recommend' | 'mine'>(
     'recommend'
   )
@@ -189,10 +191,17 @@ export default function PlaylistsPage() {
       {activeTab === 'recommend' ? (
         <div className="p-0">
           {recLoading ? (
-            <div className="p-4 space-y-2">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-40 w-full" />
+            <div className="p-4 space-y-6">
+              <Skeleton className="w-full aspect-video rounded-3xl" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="space-y-3">
+                    <Skeleton className="h-40 w-full rounded-lg" />
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : recError ? (
             <div className="p-6 text-sm text-muted-foreground">{recError}</div>
@@ -232,10 +241,24 @@ export default function PlaylistsPage() {
       {activeTab === 'mine' ? (
         <div className="p-0">
           {loading ? (
-            <div className="p-4 space-y-2">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-40 w-full" />
+            <div className="p-4 space-y-6">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-28" />
+                <Skeleton className="h-10 w-28" />
+                <Skeleton className="h-10 w-28" />
+                <div className="ml-auto w-64">
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="space-y-3">
+                    <Skeleton className="h-40 w-full rounded-lg" />
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : filteredPlaylists.length === 0 ? (
             <div className="p-6">
@@ -277,9 +300,7 @@ export default function PlaylistsPage() {
                       updatedLabel={`Updated: ${formatTimeAgo((pl as any).updatedAt)}`}
                       showMenu
                       onEdit={() => {
-                        if (typeof window !== 'undefined') {
-                          window.location.href = `/playlists/${pl.id}`
-                        }
+                        router.push(`/playlists/${pl.id}`)
                       }}
                       onDelete={() => setOpenDeleteId(pl.id)}
                     />

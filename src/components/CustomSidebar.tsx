@@ -39,16 +39,12 @@ export default function CustomSidebar({
   const hideSidebar = pathname?.startsWith('/content/')
   if (hideSidebar && !alwaysVisible) return null
 
-  const containerClass = alwaysVisible
-    ? 'flex flex-col h-full'
-    : 'flex flex-col justify-center items-center sticky overflow-y-hidden'
-
   return (
     <aside
-      className={containerClass}
+      className="fixed top-0 left-0 flex flex-col justify-center items-center h-full"
       style={{ width: CustomSidebarWidth, ...style }}
     >
-      <nav className="pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">
+      <nav className=" pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">
         <ul className="space-y-6 w-full">
           {items.map((item) => {
             const Icon = item.icon
