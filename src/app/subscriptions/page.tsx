@@ -157,7 +157,7 @@ export default function SubscriptionsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((u) => (
-            <Link href={`/user/${u.id}`}>
+            <Link href={`/user/${u.id}`} key={u.id}>
               <Card key={u.id}>
                 <CardHeader>
                   <Link

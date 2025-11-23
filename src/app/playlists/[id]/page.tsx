@@ -111,7 +111,7 @@ export default function PlaylistDetailPage() {
           <Skeleton className="h-64 w-full" />
         </div>
       ) : !playlist || filteredItems.length === 0 ? (
-        <Card className="p-8 text-center">
+        <Card className="p-8 text-center bg-[#F6F9FC1A] border-0">
           <p className="text-muted-foreground">No videos in this playlist</p>
         </Card>
       ) : (

@@ -86,11 +86,7 @@ export default function SectionUnifiedPage() {
     })
     .sort((a, b) => (sortAZ ? a.title.localeCompare(b.title) : 0))
 
-  if (loading && items.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-6 text-center">Loading...</div>
-    )
-  }
+  // Use skeletons via WorkCardList instead of plain loading text
 
   if (error && items.length === 0) {
     return (
@@ -118,7 +114,7 @@ export default function SectionUnifiedPage() {
         isLoadingMore={loadingMore}
         hasMore={canLoadMore}
         onLoadMore={() => setPage((p) => p + 1)}
-        columns={4}
+        columns={3}
       />
     </div>
   )

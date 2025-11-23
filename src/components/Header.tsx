@@ -8,12 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, Plus, User } from 'lucide-react'
+import { ChevronDown, LogOut, Plus, TextAlignStart, User } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import BackButton from './BackButton'
-import { CustomSidebarWidth } from './CustomSidebar'
+import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
 
 export const HeaderHeight = '80px'
 
@@ -26,6 +27,8 @@ export default function Header({
 }) {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const isDetailPage = pathname?.startsWith('/content/')
 
   return (
     <>
@@ -34,6 +37,29 @@ export default function Header({
         style={{ height: HeaderHeight, width: CustomSidebarWidth }}
       >
         {showBackButton ? <BackButton className="" /> : null}
+        {isDetailPage ? (
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                className="flex h-10 items-center justify-center"
+                title="Open Sidebar"
+                type="button"
+                aria-label="Open Sidebar"
+              >
+                <div className="text-white/90 relative">
+                  <TextAlignStart className="h-4 w-4" />
+                </div>
+              </button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
+              hideClose
+            >
+              <CustomSidebar style={{ width: '100%' }} alwaysVisible />
+            </SheetContent>
+          </Sheet>
+        ) : null}
         {showLogo ? (
           <Link
             href="/"

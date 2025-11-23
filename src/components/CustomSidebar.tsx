@@ -30,16 +30,22 @@ const items: NavItem[] = [
 
 export default function CustomSidebar({
   style = {},
+  alwaysVisible = false,
 }: {
   style?: React.CSSProperties
+  alwaysVisible?: boolean
 }) {
   const pathname = usePathname()
   const hideSidebar = pathname?.startsWith('/content/')
-  if (hideSidebar) return null
+  if (hideSidebar && !alwaysVisible) return null
+
+  const containerClass = alwaysVisible
+    ? 'flex flex-col h-full'
+    : 'flex flex-col justify-center items-center sticky overflow-y-hidden'
 
   return (
     <aside
-      className={`flex flex-col justify-center items-center sticky overflow-y-hidden`}
+      className={containerClass}
       style={{ width: CustomSidebarWidth, ...style }}
     >
       <nav className="pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">
