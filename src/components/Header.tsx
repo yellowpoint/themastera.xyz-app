@@ -53,7 +53,7 @@ export default function Header({
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
+              className="w-[160px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
               hideClose
             >
               <CustomSidebar style={{ width: '100%' }} alwaysVisible />

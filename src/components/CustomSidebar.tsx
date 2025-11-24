@@ -2,11 +2,14 @@
 
 import { motion } from 'framer-motion'
 import {
-  BadgePlus,
   Home,
+  Image,
   Linkedin,
   ListVideo,
+  ShoppingCart,
   Telescope,
+  Ticket,
+  Trophy,
   Twitter,
   Youtube,
 } from 'lucide-react'
@@ -24,7 +27,11 @@ const items: NavItem[] = [
   { title: 'Home', url: '/', icon: Home },
   { title: 'Explore', url: '/explore', icon: Telescope },
   { title: 'Playlist', url: '/playlists', icon: ListVideo },
-  { title: 'Creator', url: '/creator', icon: BadgePlus },
+  { title: 'Ranking', url: '/ranking', icon: Trophy },
+  { title: 'Exhibitions', url: '/exhibitions', icon: Image },
+  { title: 'Shop', url: '/shop', icon: ShoppingCart },
+  { title: 'Lottery', url: '/lottery', icon: Ticket },
+  // { title: 'Creator', url: '/creator', icon: BadgePlus },
   // { title: 'Admin', url: '/admin', icon: Settings },
 ]
 
@@ -44,8 +51,8 @@ export default function CustomSidebar({
       className="fixed top-0 left-0 flex flex-col justify-center items-center h-full"
       style={{ width: CustomSidebarWidth, ...style }}
     >
-      <nav className=" pl-6 pb-40 flex-1 w-full flex flex-col items-center justify-center ">
-        <ul className="space-y-6 w-full">
+      <nav className=" pl-6 pb-20 flex-1 w-full flex flex-col items-center justify-center ">
+        <ul className="space-y-4 w-full">
           {items.map((item) => {
             const Icon = item.icon
             const isActive = item.match
