@@ -268,7 +268,6 @@ export default function ContentDetailPage() {
                 <Skeleton className="w-8 h-8 rounded-full" />
                 <div className="flex-1">
                   <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-3 w-1/3" />
                 </div>
               </div>
               <div className="mt-3">
