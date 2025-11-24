@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const lightModePaths = ['/creator', '/user', '/admin']
+  const lightModePaths = ['/creator', '/admin']
   const isLightModePath =
     lightModePaths.some((p) => pathname?.startsWith(p)) ?? false
 

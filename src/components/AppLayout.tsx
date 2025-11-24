@@ -9,13 +9,13 @@ import AuthRequired from './auth-required'
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const hideHeader = [].some((prefix) => pathname?.startsWith(prefix))
-  const showBackOnRoutes = ['/section', '/playlists/'].some((prefix) =>
+  const showBackOnRoutes = ['/section', '/playlists/', '/user'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
-  const hideHeaderRightPadding = ['/content', '/creator'].some((prefix) =>
-    pathname?.startsWith(prefix)
+  const hideHeaderRightPadding = ['/content', '/creator', '/user'].some(
+    (prefix) => pathname?.startsWith(prefix)
   )
-  const hideSidebar = ['/content'].some((prefix) =>
+  const hideSidebar = ['/content', '/user'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const showBackgroundImage =

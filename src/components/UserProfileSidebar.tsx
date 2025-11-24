@@ -1,13 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Separator } from '@/components/ui/separator'
+import SubscribeButton from '@/components/SubscribeButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { Copy, Crown } from 'lucide-react'
 import { toast } from 'sonner'
-import SubscribeButton from '@/components/SubscribeButton'
 
 import type { AuthUser } from '@/hooks/useAuth'
 
@@ -36,7 +34,7 @@ export default function UserProfileSidebar({
 
   return (
     <div
-      className={`flex-none w-[300px] overflow-y-auto border-r border-dashed border-gray-300`}
+      className={`flex-none w-[300px] overflow-y-auto border-dashed border-gray-300`}
     >
       <div className="p-6 space-y-3">
         {/* Profile Header */}

@@ -1,4 +1,5 @@
 'use client'
+import { HeaderHeight } from '@/components/Header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import UserProfileSidebar from '@/components/UserProfileSidebar'
@@ -96,19 +97,21 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="h-full">
+    <div style={{ height: `calc(100vh - ${HeaderHeight})` }}>
       {/* Main split layout */}
-      <div className="container mx-auto px-4 py-6 flex gap-6 h-full">
+      <div className="mx-auto flex gap-6 h-full">
         {/* Left: Profile Sidebar */}
-        <UserProfileSidebar
-          user={user}
-          onSubscribeChanged={handleSubscribeChanged}
-        />
+        <div className="w-[320px] flex-shrink-0">
+          <UserProfileSidebar
+            user={user}
+            onSubscribeChanged={handleSubscribeChanged}
+          />
+        </div>
 
         {/* Right: Works and filters */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 h-full overflow-y-auto p-2 scrollbar-gutter-stable">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <Button
                 variant={sort === 'popular' ? 'default' : 'outline'}
                 size="sm"
@@ -130,17 +133,17 @@ export default function UserDetailPage() {
               >
                 Oldest
               </Button>
-            </div>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search works"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onDebouncedValueChange={(value) => setDebouncedSearch(value)}
-                className="pl-9 border-gray-300"
-                disabled={loading}
-              />
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search works"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onDebouncedValueChange={(value) => setDebouncedSearch(value)}
+                  className="pl-9 border-gray-300"
+                  disabled={loading}
+                />
+              </div>
             </div>
           </div>
 
