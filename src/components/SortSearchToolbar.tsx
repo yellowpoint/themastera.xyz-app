@@ -46,7 +46,7 @@ export default function SortSearchToolbar({
           btnSizeClass,
           !sortAZ
             ? 'bg-primary text-primary-foreground'
-            : 'bg-white/10 text-white hover:bg-white/20'
+            : 'bg-overlay text-white hover:bg-overlay-hover'
         )}
       >
         Recent added
@@ -60,7 +60,7 @@ export default function SortSearchToolbar({
           btnSizeClass,
           sortAZ
             ? 'bg-primary text-primary-foreground'
-            : 'bg-white/10 text-white hover:bg-white/20'
+            : 'bg-overlay text-white hover:bg-overlay-hover'
         )}
       >
         A-Z
@@ -74,7 +74,7 @@ export default function SortSearchToolbar({
         />
         <Input
           placeholder={searchPlaceholder}
-          className={cn(inputSizeClass, 'bg-white/10! text-white border-0!')}
+          className={cn(inputSizeClass, 'bg-overlay text-white border-0!')}
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
         />
@@ -83,7 +83,7 @@ export default function SortSearchToolbar({
         <Button
           onClick={onCreateClick}
           variant="secondary"
-          className={cn('bg-[#F6F9FC1A] hover:bg-[#FFFFFF44]', btnSizeClass)}
+          className={cn('bg-overlay hover:bg-overlay-hover', btnSizeClass)}
         >
           <Plus className="size-3" />
           {createLabel}

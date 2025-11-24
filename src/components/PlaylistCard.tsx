@@ -106,7 +106,7 @@ export default function PlaylistCard({
                 </div>
               </div>
             ) : (
-              <div className="absolute inset-0 bg-[#F6F9FC1A] flex items-center justify-center rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-overlay flex items-center justify-center rounded-lg overflow-hidden">
                 <div className="text-white/80 text-sm">
                   This playlist is empty
                 </div>
@@ -128,7 +128,7 @@ export default function PlaylistCard({
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="p-1 rounded-full hover:bg-white/10"
+                      className="p-1 rounded-full hover:bg-overlay-hover"
                       aria-label="More"
                     >
                       <svg

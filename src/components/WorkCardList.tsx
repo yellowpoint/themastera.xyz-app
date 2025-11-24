@@ -112,7 +112,7 @@ export default function WorkCardList({
           </div>
         )
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 rounded-lg text-center bg-[#F6F9FC1A]">
+        <div className="flex flex-col items-center justify-center py-16 rounded-lg text-center bg-overlay">
           <Inbox
             className="h-10 w-10 text-muted-foreground mb-3"
             aria-hidden="true"

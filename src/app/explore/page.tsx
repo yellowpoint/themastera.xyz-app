@@ -87,7 +87,7 @@ export default function ExplorePage() {
                       <AnimatePresence>
                         {hoveredCat === cat && (
                           <motion.span
-                            className="absolute inset-0 -m-2 bg-white/10 rounded-2xl z-[-1]"
+                            className="absolute inset-0 -m-2 bg-overlay rounded-2xl z-[-1]"
                             layoutId="hoverBackground"
                             initial={{ opacity: 0 }}
                             animate={{

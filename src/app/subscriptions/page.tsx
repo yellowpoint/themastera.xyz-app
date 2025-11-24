@@ -144,7 +144,7 @@ export default function SubscriptionsPage() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <Empty className="bg-[#F6F9FC1A]">
+        <Empty className="bg-overlay">
           <EmptyHeader>
             <Users className="w-6 h-6" />
             <EmptyTitle>No subscriptions yet</EmptyTitle>

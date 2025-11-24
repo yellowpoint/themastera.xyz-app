@@ -109,7 +109,7 @@ export default function HeroVideoCarousel({ items, className }: Props) {
               )
             })}
           </div>
-          <div className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-[#F6F9FC1A] rounded-xl px-4 h-[74px]">
+          <div className="flex-1 min-w-0 flex flex-col items-start justify-center gap-2 bg-overlay rounded-xl px-4 h-[74px]">
             <div className="flex items-center gap-3 w-full min-w-0">
               <span className="flex-none text-highlight text-base font-normal ">
                 Watch Free
@@ -127,7 +127,7 @@ export default function HeroVideoCarousel({ items, className }: Props) {
               <div className="flex items-center gap-1">
                 <button
                   onClick={toggleHeroPlay}
-                  className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+                  className="w-[18px] h-[18px] bg-overlay rounded-[2px] flex items-center justify-center hover:bg-overlay-hover transition-colors text-white"
                 >
                   {heroPlaying ? (
                     <Pause size={12} fill="currentColor" />
@@ -137,7 +137,7 @@ export default function HeroVideoCarousel({ items, className }: Props) {
                 </button>
                 <button
                   onClick={toggleHeroMute}
-                  className="w-[18px] h-[18px] bg-white/10 rounded-[2px] flex items-center justify-center hover:bg-white/20 transition-colors text-white"
+                  className="w-[18px] h-[18px] bg-overlay rounded-[2px] flex items-center justify-center hover:bg-overlay-hover transition-colors text-white"
                 >
                   {heroMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
                 </button>

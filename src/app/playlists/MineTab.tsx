@@ -148,7 +148,7 @@ export default function MineTab() {
                   <button
                     type="button"
                     onClick={() => setCreateOpen(true)}
-                    className="group size-40  rounded-xl   bg-[#F6F9FC1A] hover:bgwhite/10 transition-colors flex items-center justify-center"
+                    className="group size-40  rounded-xl   bg-overlay hover:bg-overlay-hover transition-colors flex items-center justify-center"
                   >
                     <Plus className="h-12 w-12 text-white/80 group-hover:text-white" />
                   </button>

@@ -31,7 +31,7 @@ export default function BackButton({
       onClick={handleClick}
       size={size}
       variant={variant as any}
-      className={`bg-[#F6F9FC1A] hover:bg-[#FFFFFF44] ${className || ''}`}
+      className={`bg-overlay hover:bg-overlay-hover ${className || ''}`}
     >
       <ChevronLeft className="size-4" />
       {label}

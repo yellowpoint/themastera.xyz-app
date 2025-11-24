@@ -375,7 +375,7 @@ export default function ContentDetailPage() {
             <div className="flex items-center gap-4 relative">
               <Button
                 variant="secondary"
-                className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                className="bg-overlay hover:bg-overlay-hover"
               >
                 <button
                   onClick={handleLike}
@@ -413,7 +413,7 @@ export default function ContentDetailPage() {
               <Button
                 onClick={handleDownload}
                 variant="secondary"
-                className="bg-[#FFFFFF33] hover:bg-[#FFFFFF44]"
+                className="bg-overlay hover:bg-overlay-hover"
                 disabled={downloadLoading}
                 aria-busy={downloadLoading}
               >

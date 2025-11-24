@@ -93,7 +93,7 @@ export default function TopTabs({
       >
         <div
           ref={containerRef}
-          className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-[#F6F9FC1A] rounded-xl backdrop-blur ${className || ''}`}
+          className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-overlay rounded-xl backdrop-blur ${className || ''}`}
         >
           <div className="flex items-center gap-8">
             {tabs.map(({ key, label }) => (
@@ -137,7 +137,7 @@ export default function TopTabs({
             >
               <SheetHeader>
                 <div className="pt-2 px-0">
-                  <InputGroup className="h-12 rounded-xl dark:bg-white/10">
+                  <InputGroup className="h-12 rounded-xl bg-overlay">
                     <InputGroupAddon>
                       <InputGroupText>
                         <Search className="h-4 w-4" />
@@ -171,7 +171,7 @@ export default function TopTabs({
                           href={`/content/${item.id}`}
                           prefetch
                         >
-                          <div className="flex items-center gap-3 hover:bg-white/5 rounded-md p-2">
+                          <div className="flex items-center gap-3 hover:bg-overlay-hover rounded-md p-2">
                             <div className="w-12 h-12 rounded-md overflow-hidden shrink-0">
                               <img
                                 src={

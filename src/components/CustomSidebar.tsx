@@ -64,7 +64,7 @@ export default function CustomSidebar({
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-active-indicator"
-                    className="absolute z-1 inset-0 rounded bg-[#F6F9FC1A] "
+                    className="absolute z-1 inset-0 rounded bg-overlay "
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
