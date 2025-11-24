@@ -1,5 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
+import { resolveUserCover } from '@/config/covers'
 import { useEffect, useState } from 'react'
 
 import { HeaderHeight } from '@/components/Header'
@@ -262,7 +263,7 @@ export default function ContentDetailPage() {
             </div>
           </div>
           <div className="space-y-6 h-full px-4 py-8 overflow-y-auto overflow-x-hidden">
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="w-8 h-8 rounded-full" />
                 <div className="flex-1">
@@ -275,7 +276,7 @@ export default function ContentDetailPage() {
               </div>
             </div>
 
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-3">
               <Skeleton className="h-4 w-32" />
               <div className="mt-3 space-y-2">
                 <Skeleton className="h-3 w-1/2" />
@@ -285,7 +286,7 @@ export default function ContentDetailPage() {
             </div>
 
             {user?.id && (
-              <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+              <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-3">
                 <Skeleton className="h-4 w-40" />
                 <div className="mt-3 space-y-2">
                   <Skeleton className="h-3 w-full" />
@@ -294,7 +295,7 @@ export default function ContentDetailPage() {
               </div>
             )}
 
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-3">
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-3">
               <Skeleton className="h-4 w-24" />
               <div className="mt-3 space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -433,38 +434,47 @@ export default function ContentDetailPage() {
 
         <div className="space-y-6 h-full px-4 pb-8 overflow-y-auto overflow-x-hidden">
           <div className="flex flex-col gap-6">
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="pt-2">
-                    <div className="size-8 rounded-full border-[0.8px] border-[#2B36D9] overflow-hidden">
+            <div className="rounded-lg overflow-hidden">
+              <div
+                style={{
+                  backgroundImage: `url(${resolveUserCover(work?.user?.coverImage as any, work?.user?.id as any)})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <div className="flex flex-col gap-3 bg-black/40 rounded-md p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="size-8 rounded-full border border-primary overflow-hidden">
                       <img
                         src={(work?.user?.image as any) || '/favicon.ico'}
                         alt="avatar"
                         className="size-full object-cover"
                       />
                     </div>
+                    <Link
+                      href={`/user/${work?.user?.id}`}
+                      className="text-white text-2xl"
+                    >
+                      {work?.user?.name || 'Unknown Artist'}
+                    </Link>
                   </div>
-                  <div className="text-white text-2xl leading-9">
-                    {work?.user?.name || 'Unknown Artist'}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <div className="text-white text-sm">
-                    {formatViews(authorFollowersCount)} subscribers
-                  </div>
-                  <div>
-                    <SubscribeButton
-                      userId={work?.user?.id}
-                      isFollowing={isFollowing}
-                      onChanged={() => handleFollow()}
-                    />
+                  <div className="flex flex-col gap-3">
+                    <div className="text-white text-sm">
+                      {formatViews(authorFollowersCount)} subscribers
+                    </div>
+                    <div>
+                      <SubscribeButton
+                        userId={work?.user?.id}
+                        isFollowing={isFollowing}
+                        onChanged={() => handleFollow()}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
               <div className="flex items-center justify-between">
                 <div className="text-muted-foreground text-sm">
                   Video Description
@@ -499,12 +509,12 @@ export default function ContentDetailPage() {
             </div>
 
             {user?.id && (
-              <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+              <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
                 <SidebarPlaylistSection />
               </div>
             )}
 
-            <div className="bg-[rgba(91,91,91,0.2)] rounded-lg p-2">
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
               <div className="text-muted-foreground mb-1">Suggested</div>
               <WorkCardList
                 works={(relatedWorks || []).slice(0, 4)}

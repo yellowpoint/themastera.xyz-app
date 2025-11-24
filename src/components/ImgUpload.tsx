@@ -34,6 +34,7 @@ type ImgUploadProps = {
   maxSize?: number
   bucket?: string
   folder?: string
+  subDir?: string
   required?: boolean
   initialImage?: CoverImage | null
 }
@@ -43,6 +44,7 @@ export default function ImgUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   bucket = 'data',
   folder = '',
+  subDir = 'covers',
   required = true, // Whether it is required
   initialImage = null, // Prefilled cover image (e.g., Mux thumbnail)
 }: ImgUploadProps) {
@@ -74,9 +76,10 @@ export default function ImgUpload({
     try {
       const fileExt = file.name.split('.').pop()
       const fileName = `cover_${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const dir = subDir || 'covers'
       const filePath = storageFolder
-        ? `${storageFolder}${user!.id}/covers/${fileName}`
-        : `${user!.id}/covers/${fileName}`
+        ? `${storageFolder}${user!.id}/${dir}/${fileName}`
+        : `${user!.id}/${dir}/${fileName}`
 
       const { data, error } = await supabase.storage
         .from(storageBucket)

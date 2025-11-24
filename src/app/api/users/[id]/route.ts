@@ -1,3 +1,4 @@
+import { resolveUserCover } from '@/config/covers'
 import { apiFailure, apiSuccess } from '@/contracts/types/common'
 import { prisma } from '@/lib/prisma'
 import { getAuthSession, requireAuth } from '@/middleware/auth'
@@ -112,6 +113,7 @@ export async function GET(
     return NextResponse.json(
       apiSuccess({
         ...user,
+        coverImage: resolveUserCover((user as any)?.coverImage, id),
         followersCount,
         followingCount,
         isFollowing,
@@ -150,6 +152,7 @@ export async function PUT(
     const body: Partial<{
       name: string
       image: string
+      coverImage: string
       description: string
       level: string
       points: number | string
@@ -182,6 +185,7 @@ export async function PUT(
 
     if (body.name !== undefined) updateData.name = body.name
     if (body.image !== undefined) updateData.image = body.image
+    if (body.coverImage !== undefined) updateData.coverImage = body.coverImage
     if (body.description !== undefined)
       updateData.description = body.description
     if (body.level !== undefined) updateData.level = body.level
