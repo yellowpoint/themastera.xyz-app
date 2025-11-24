@@ -320,3 +320,18 @@ mux-player {
 .mux-player-controls-none mux-player {
   --controls: none;
 }
+
+mux-player {
+  --seek-backward-button: none;
+  --seek-forward-button: none;
+  font-family: var(--font-sans);
+}
+
+mux-player::part(top),
+mux-player::part(center),
+mux-player::part(bottom),
+mux-player::part(button),
+mux-player::part(display),
+mux-player::part(time) {
+  font-family: var(--font-sans);
+}

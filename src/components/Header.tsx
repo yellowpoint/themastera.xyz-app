@@ -86,7 +86,7 @@ export default function Header({
         {user ? (
           <>
             <Button
-              onClick={() => router.push('/creator/upload')}
+              onClick={() => router.push('/creator')}
               variant="secondary"
               size="sm"
               className="bg-[#F6F9FC1A] hover:bg-[#FFFFFF44]  text-sm"

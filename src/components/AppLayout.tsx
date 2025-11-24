@@ -12,7 +12,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const showBackOnRoutes = ['/section', '/playlists/'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
-  const hideHeaderRightPadding = ['/content'].some((prefix) =>
+  const hideHeaderRightPadding = ['/content', '/creator'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const hideSidebar = ['/content'].some((prefix) =>

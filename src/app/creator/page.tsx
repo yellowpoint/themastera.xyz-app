@@ -26,7 +26,12 @@ import { useCreatorColumns } from './columns'
 
 export default function CreatorPage() {
   const router = useRouter()
-  const { works, loading: worksLoading, deleteWork, fetchWorks } = useWorks({ autoFetch: false })
+  const {
+    works,
+    loading: worksLoading,
+    deleteWork,
+    fetchWorks,
+  } = useWorks({ autoFetch: false })
   const [search, setSearch] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -113,6 +118,12 @@ export default function CreatorPage() {
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
+              <Button
+                className="ml-auto"
+                onClick={() => router.push('/creator/upload')}
+              >
+                Upload video
+              </Button>
             </div>
 
             {works.length === 0 && !worksLoading ? (

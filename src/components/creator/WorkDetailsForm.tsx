@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 import VideoPlayer from '@/components/VideoPlayer'
 import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
 import { LANGUAGE_CATEGORIES, MUSIC_CATEGORIES } from '@/config/categories'
+import { CustomSidebarWidth } from '../CustomSidebar'
 
 export type CoverImage = {
   fileUrl: string
@@ -456,7 +457,10 @@ export default function WorkDetailsForm({
 
       {/* Footer Action Bar */}
       {showFooter && (
-        <div className="bg-background border-t px-6 py-3 flex-shrink-0 absolute bottom-0 left-0 right-0 z-50">
+        <div
+          className="fixed bottom-0 right-0 z-50 bg-background border-t px-6 py-3 flex-shrink-0"
+          style={{ left: CustomSidebarWidth }}
+        >
           <div className="flex justify-between items-center">
             {onSaveDraft ? (
               <Button
