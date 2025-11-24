@@ -353,11 +353,6 @@ export default function ProfilePage() {
                     Your display name is not set yet.
                   </p>
                 )}
-                {!isEditing && formData.description?.trim() ? (
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {formData.description}
-                  </div>
-                ) : null}
                 {isEditing && isNameEmpty && (
                   <p className="text-xs text-red-500 mt-1">Name is required</p>
                 )}

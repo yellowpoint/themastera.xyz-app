@@ -335,7 +335,7 @@ export default function UploadPage() {
   if (!uploadedVideo) {
     return (
       <div className="h-full">
-        <div className="px-8 pt-6 pb-4 space-y-4">
+        <div className="px-8 pt-6 space-y-4">
           <div className="flex justify-between items-start">
             <h1 className="text-4xl font-normal">Upload video</h1>
           </div>
