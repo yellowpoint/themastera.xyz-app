@@ -27,7 +27,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       '/profile',
       '/section',
       '/ranking',
-      '/exhibitions',
+      '/event',
       '/shop',
       '/lottery',
     ].some((prefix) => pathname?.startsWith(prefix))

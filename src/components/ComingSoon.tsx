@@ -26,7 +26,7 @@ export default function ComingSoon({
   backLabel = 'Go back home',
 }: Props) {
   return (
-    <div className="flex h-[calc(100vh-80px)] items-center justify-center px-6">
+    <div className="flex h-[calc(100vh-140px)] items-center justify-center px-6">
       <Empty className="border-gray-200">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -46,4 +46,3 @@ export default function ComingSoon({
     </div>
   )
 }
-

@@ -346,7 +346,7 @@ export default function ContentDetailPage() {
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
-              autoPlay={true}
+              autoPlay
               width={
                 'min(100%, calc((100vh - ' +
                 HeaderHeight +

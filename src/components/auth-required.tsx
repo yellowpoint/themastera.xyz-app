@@ -35,7 +35,7 @@ export default function AuthRequired({
 
   if (isProtected && !user) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-[calc(100vh-160px)] flex items-center justify-center">
         <Card className="max-w-md w-full mx-4 shadow-sm">
           <div className="text-center p-8">
             <h2 className="text-2xl font-semibold mb-3">{title}</h2>

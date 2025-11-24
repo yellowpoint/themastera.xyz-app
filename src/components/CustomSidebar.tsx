@@ -28,7 +28,7 @@ const items: NavItem[] = [
   { title: 'Explore', url: '/explore', icon: Telescope },
   { title: 'Playlist', url: '/playlists', icon: ListVideo },
   { title: 'Ranking', url: '/ranking', icon: Trophy },
-  { title: 'Exhibitions', url: '/exhibitions', icon: Image },
+  { title: 'Event', url: '/event', icon: Image },
   { title: 'Shop', url: '/shop', icon: ShoppingCart },
   { title: 'Lottery', url: '/lottery', icon: Ticket },
   // { title: 'Creator', url: '/creator', icon: BadgePlus },

@@ -1,6 +1,7 @@
 'use client'
 import { Card, CardContent } from '@/components/ui/card'
 import MuxPlayer from '@mux/mux-player-react'
+import { useEffect, useRef } from 'react'
 
 type VideoPlayerProps = {
   videoUrl?: string
@@ -30,6 +31,40 @@ export default function VideoPlayer({
   muted = false,
   loop = false,
 }: VideoPlayerProps) {
+  const playerRef = useRef<any>(null)
+
+  useEffect(() => {
+    const el = playerRef.current as any
+    if (!el) return
+    try {
+      el.noMutedPref = true
+      el.noVolumePref = true
+      if (autoPlay && muted === false) {
+        el.autoplay = 'any'
+      }
+      el.volume = 1
+      el.muted = !!muted
+    } catch {}
+  }, [autoPlay, muted])
+
+  useEffect(() => {
+    const el = playerRef.current as any
+    if (!el) return
+    const enforce = () => {
+      try {
+        el.volume = 1
+        el.muted = !!muted
+      } catch {}
+    }
+    el.addEventListener('loadedmetadata', enforce)
+    el.addEventListener('canplay', enforce)
+    el.addEventListener('play', enforce)
+    return () => {
+      el.removeEventListener('loadedmetadata', enforce)
+      el.removeEventListener('canplay', enforce)
+      el.removeEventListener('play', enforce)
+    }
+  }, [muted])
   // Handle play event
   const handlePlay = () => {
     onPlay && onPlay()
@@ -85,6 +120,7 @@ export default function VideoPlayer({
               autoPlay={autoPlay}
               muted={muted}
               loop={loop}
+              ref={playerRef}
               playsInline
               onPlay={handlePlay}
               onPause={handlePause}
