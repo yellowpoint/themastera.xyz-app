@@ -2,12 +2,11 @@
 
 import ComingSoon from '@/components/ComingSoon'
 
-export default function LotteryPage() {
+export default function TreasuresPage() {
   return (
     <ComingSoon
-      title="Lottery"
+      title="Treasures"
       description="Lucky draws and rewards are coming soon."
     />
   )
 }
-

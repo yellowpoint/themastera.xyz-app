@@ -30,7 +30,7 @@ const items: NavItem[] = [
   { title: 'Ranking', url: '/ranking', icon: Trophy },
   { title: 'Event', url: '/event', icon: Image },
   { title: 'Shop', url: '/shop', icon: ShoppingCart },
-  { title: 'Lottery', url: '/lottery', icon: Ticket },
+  { title: 'Treasures', url: '/treasures', icon: Ticket },
   // { title: 'Creator', url: '/creator', icon: BadgePlus },
   // { title: 'Admin', url: '/admin', icon: Settings },
 ]

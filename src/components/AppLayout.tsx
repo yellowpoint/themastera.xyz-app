@@ -32,7 +32,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       '/ranking',
       '/event',
       '/shop',
-      '/lottery',
+      '/treasures',
     ].some((prefix) => pathname?.startsWith(prefix))
 
   const sidebarStyle = {
