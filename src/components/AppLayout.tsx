@@ -8,17 +8,19 @@ import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const hideHeader = [].some((prefix) => pathname?.startsWith(prefix))
+  const hideHeader = ['/beta-notice'].some((prefix) =>
+    pathname?.startsWith(prefix)
+  )
   const showBackOnRoutes = [
     '/section',
     '/playlists/',
     '/user',
     '/creator/',
   ].some((prefix) => pathname?.startsWith(prefix))
-  const hideHeaderRightPadding = ['/content', '/creator', '/user'].some(
+  const hideHeaderRightPadding = ['/content', '/creator', '/user','/auth'].some(
     (prefix) => pathname?.startsWith(prefix)
   )
-  const hideSidebar = ['/content', '/user'].some((prefix) =>
+  const hideSidebar = ['/content', '/user', '/beta-notice','/auth'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const showBackgroundImage =
@@ -41,30 +43,34 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      <BackgroundSwitcher enabled={showBackgroundImage} />
-      <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
-        {!hideHeader && (
-          <Header
-            showBackButton={showBackOnRoutes}
-            showLogo={!showBackOnRoutes}
-          />
-        )}
-        <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>
-          {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
-          <div
-            className="flex-1"
-            style={{
-              height: hideSidebar ? '100%' : `calc(100vh - ${HeaderHeight})`,
-              paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
-              paddingRight:
-                hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
-            }}
-          >
-            <AuthRequired>{children}</AuthRequired>
+    <AuthRequired>
+      <div className="flex flex-col h-screen overflow-hidden">
+        <BackgroundSwitcher enabled={showBackgroundImage} />
+        <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
+          {!hideHeader && (
+            <Header
+              showBackButton={showBackOnRoutes}
+              showLogo={!showBackOnRoutes}
+            />
+          )}
+          <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>
+            {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
+            <div
+              className="flex-1"
+              style={{
+                height: hideSidebar ? '100%' : `calc(100vh - ${HeaderHeight})`,
+                paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
+                paddingRight:
+                  hideHeader || hideHeaderRightPadding
+                    ? '0'
+                    : CustomSidebarWidth,
+              }}
+            >
+              {children}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AuthRequired>
   )
 }

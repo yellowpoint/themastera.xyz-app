@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { MagicCard } from '@/components/ui/magic-card'
+import { ENABLE_BETA_CHECK } from '@/config/beta'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
@@ -60,6 +61,26 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
+      // Check whitelist status first
+      if (ENABLE_BETA_CHECK) {
+        try {
+          const checkRes = await fetch(
+            `/api/beta/check?email=${encodeURIComponent(formData.email)}`
+          )
+          const checkData = await checkRes.json()
+          if (!checkData.allowed) {
+            setError('Access denied. Your email is not on the beta whitelist.')
+            setIsSubmitting(false)
+            return
+          }
+        } catch (checkErr) {
+          console.error('Whitelist check failed:', checkErr)
+          setError('Error verifying beta access. Please try again.')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       const result = await signIn({
         email: formData.email,
         password: formData.password,
