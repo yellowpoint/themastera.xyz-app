@@ -10,7 +10,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, Plus, TextAlignStart, User, Shield } from 'lucide-react'
+import {
+  ChevronDown,
+  LogOut,
+  Plus,
+  Shield,
+  TextAlignStart,
+  User,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import BackButton from './BackButton'
@@ -67,11 +74,11 @@ export default function Header({
             aria-label="Home"
           >
             <img
-              src="/logo/Mark.svg"
+              src="/logo/Vertical.svg"
               alt="Logo"
-              className="h-auto w-8 dark:invert"
+              className="h-auto w-14 dark:invert"
             />
-            <span className="text-xl">MASTERA</span>
+            {/* <span className="text-xl">MASTERA</span> */}
           </Link>
         ) : null}
       </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { request } from '@/lib/request'
 import { checkBetaAllowed } from '@/utils/beta'
@@ -55,8 +55,15 @@ export default function BetaNoticePage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-xl">
-        <CardHeader>
-          <CardTitle>NOTICE: STRICTLY CONFIDENTIAL BETA VERSION</CardTitle>
+        <CardHeader className="flex items-center gap-2">
+          <img
+            src="/logo/Vertical.svg"
+            alt="Logo"
+            className="h-auto w-14 dark:invert"
+          />
+          <span className="text-xl">
+            NOTICE: STRICTLY CONFIDENTIAL BETA VERSION
+          </span>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
