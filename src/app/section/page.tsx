@@ -98,6 +98,7 @@ export default function SectionUnifiedPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-8">
+      <h1 className="text-2xl font-semibold">{headerTitle}</h1>
       <SortSearchToolbar
         sortAZ={sortAZ}
         onSortChange={setSortAZ}

@@ -15,7 +15,7 @@ export default function ExplorePage() {
   const cols = 3
 
   const tabList = [
-    { key: 'music', label: 'Videos' },
+    { key: 'music', label: 'Category' },
     { key: 'language', label: 'Language' },
   ]
 
@@ -59,7 +59,7 @@ export default function ExplorePage() {
           />
           <div className="">
             <h1 className="text-4xl text-white mb-10">
-              {activeTab === 'music' ? 'Videos' : 'Language'}
+              {activeTab === 'music' ? 'Category' : 'Language'}
             </h1>
             <SortSearchToolbar
               sortAZ={sortAZ}
