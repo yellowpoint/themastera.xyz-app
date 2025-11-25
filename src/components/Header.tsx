@@ -93,7 +93,7 @@ export default function Header({
               onClick={() => router.push('/creator')}
               variant="secondary"
               size="sm"
-              className="bg-overlay hover:bg-overlay-hover  text-sm"
+              className="bg-overlay hover:bg-overlay-hover text-foreground text-sm"
             >
               <Plus className="size-4" />
               Create

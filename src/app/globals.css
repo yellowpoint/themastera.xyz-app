@@ -115,7 +115,7 @@ body {
   --secondary-foreground: #4a4080;
   --muted: #f0f0fa;
   --muted-foreground: #6c6c8a;
-  --accent: #d8eff;
+  --accent: #d8efff;
   --accent-foreground: #2a2a4a;
   --destructive: #ff5470;
   --destructive-foreground: #ffffff;
@@ -166,8 +166,8 @@ body {
   --shadow-2xl: 0px 4px 10px 0px hsl(240 30% 25% / 0.3);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  --overlay: rgba(246, 249, 252, 0.15);
-  --overlay-hover: rgba(246, 249, 252, 0.25);
+  --overlay: rgba(0, 0, 0, 0.15);
+  --overlay-hover: rgba(0, 0, 0, 0.25);
 }
 
 .dark {

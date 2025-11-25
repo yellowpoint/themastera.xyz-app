@@ -54,8 +54,8 @@ export default function AdminLayout({
   ]
 
   return (
-    <div className="flex h-full">
-      <aside className="w-[160px] border-r bg-[#02000233] backdrop-blur-[20px] text-white p-3">
+    <div className="flex min-h-screen">
+      <aside className="fixed top-[80px] bottom-0 inset-y-0 left-0 w-[160px] border-r p-3 overflow-y-auto">
         <nav>
           <ul className="space-y-2">
             {navItems.map((item) => {
@@ -70,7 +70,7 @@ export default function AdminLayout({
                     className={`flex items-center gap-2 px-2 py-2 rounded-md ${
                       active
                         ? 'bg-overlay text-highlight'
-                        : 'text-white/80 hover:text-white hover:bg-overlay-hover'
+                        : 'text-foreground/80 hover:text-foreground hover:bg-overlay'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default function AdminLayout({
           </ul>
         </nav>
       </aside>
-      <div className="flex-1 p-6">{children}</div>
+      <div className="flex-1 p-6 ml-[160px]">{children}</div>
     </div>
   )
 }
