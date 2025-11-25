@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { request } from '@/lib/request'
+import { checkBetaAllowed } from '@/utils/beta'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -18,13 +20,8 @@ export default function BetaNoticePage() {
     setStatus('checking')
     setMessage('')
     try {
-      const res = await fetch(`/api/beta/check?email=${encodeURIComponent(email)}`)
-      const data = await res.json()
-      if (data.allowed) {
-        setStatus('allowed')
-      } else {
-        setStatus('denied')
-      }
+      const allowed = await checkBetaAllowed(email)
+      setStatus(allowed ? 'allowed' : 'denied')
     } catch (error) {
       console.error('Error checking email:', error)
       setMessage('Error checking email. Please try again.')
@@ -35,19 +32,19 @@ export default function BetaNoticePage() {
   const applyForAccess = async () => {
     setStatus('applying')
     try {
-      const res = await fetch('/api/beta/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setStatus('applied')
-        setMessage(data.message || 'Application submitted successfully.')
-      } else {
-        setMessage(data.error || 'Error submitting application.')
-        setStatus('denied')
+      const { data, ok } = await request.post<{
+        message: string
+        status: 'PENDING' | 'APPROVED' | 'REJECTED'
+        exists: boolean
+      }>('/api/beta/apply', { email })
+      if (!ok || !data || (data as any).success === false) {
+        const msg =
+          (data as any)?.error?.message || 'Error submitting application.'
+        throw new Error(msg)
       }
+      const payload = (data as any)?.data
+      setStatus('applied')
+      setMessage(payload?.message || 'Application submitted successfully.')
     } catch (error) {
       console.error('Error applying:', error)
       setMessage('Error submitting application. Please try again.')
@@ -95,7 +92,12 @@ export default function BetaNoticePage() {
                 />
                 <Button
                   onClick={checkEmail}
-                  disabled={!email || status === 'checking' || status === 'applying' || status === 'allowed'}
+                  disabled={
+                    !email ||
+                    status === 'checking' ||
+                    status === 'applying' ||
+                    status === 'allowed'
+                  }
                 >
                   {status === 'checking' ? 'Checking...' : 'Check'}
                 </Button>

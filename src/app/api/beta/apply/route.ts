@@ -1,40 +1,59 @@
+import { apiFailure, apiSuccess } from '@/contracts/types/common'
 import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    const normalizedEmail = String(email || '').trim()
+    if (!normalizedEmail) {
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Email is required'),
+        { status: 400 }
+      )
+    }
+    if (!normalizedEmail.includes('@')) {
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Invalid email'),
+        { status: 400 }
+      )
     }
 
     const existingApplication = await prisma.betaApplication.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     })
 
     if (existingApplication) {
-      return NextResponse.json({
-        message: 'Application already exists',
-        status: existingApplication.status,
-      })
+      return NextResponse.json(
+        apiSuccess({
+          message: 'Application already exists',
+          status: existingApplication.status,
+          exists: true,
+        })
+      )
     }
 
     const newApplication = await prisma.betaApplication.create({
       data: {
-        email,
+        email: normalizedEmail,
         status: 'PENDING',
       },
     })
 
-    return NextResponse.json({
-      message: 'Application submitted successfully',
-      status: newApplication.status,
-    })
+    return NextResponse.json(
+      apiSuccess({
+        message: 'Application submitted successfully',
+        status: newApplication.status,
+        exists: false,
+      })
+    )
   } catch (error) {
     console.error('Error submitting application:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      apiFailure('INTERNAL_ERROR', 'Failed to submit application', {
+        message: (error as any)?.message,
+      }),
       { status: 500 }
     )
   }

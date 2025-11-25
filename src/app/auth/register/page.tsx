@@ -1,5 +1,6 @@
 'use client'
 
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { MagicCard } from '@/components/ui/magic-card'
 import { useAuth } from '@/hooks/useAuth'
-import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { generateVerifyEmailCallbackURL } from '@/utils/auth'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
@@ -101,8 +101,6 @@ export default function RegisterPage() {
     }
   }
 
-  
-
   return (
     <div className="min-h-full flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -142,10 +140,10 @@ export default function RegisterPage() {
                       onChange={(e) => handleChange('email', e.target.value)}
                       required
                     />
-                    <FieldDescription>
+                    {/* <FieldDescription>
                       We&apos;ll use this to contact you. We will not share your
                       email with anyone else.
-                    </FieldDescription>
+                    </FieldDescription> */}
                   </Field>
 
                   <Field>
