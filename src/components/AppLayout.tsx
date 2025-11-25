@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const hideHeaderRightPadding = ['/content', '/creator', '/user','/auth'].some(
     (prefix) => pathname?.startsWith(prefix)
   )
-  const hideSidebar = ['/content', '/user', '/beta-notice','/auth'].some((prefix) =>
+  const hideSidebar = ['/content', '/user', '/beta-notice','/auth','/admin'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
   const showBackgroundImage =

@@ -3,7 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
+import { ListVideo, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
 export default function AdminLayout({
@@ -12,11 +14,11 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { user, loading } = useAuth()
 
   if (loading) return null
 
-  // Logged in but not admin → show forbidden message
   const level = (user as any)?.level
   if (level !== 'Admin') {
     return (
@@ -42,5 +44,45 @@ export default function AdminLayout({
     )
   }
 
-  return <>{children}</>
+  const navItems = [
+    { title: 'Works', href: '/admin/works', icon: ListVideo },
+    {
+      title: 'Beta Applications',
+      href: '/admin/beta-applications',
+      icon: Sparkles,
+    },
+  ]
+
+  return (
+    <div className="flex h-full">
+      <aside className="w-[160px] border-r bg-[#02000233] backdrop-blur-[20px] text-white p-3">
+        <nav>
+          <ul className="space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const active =
+                pathname === item.href ||
+                (pathname || '').startsWith(item.href + '/')
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-2 px-2 py-2 rounded-md ${
+                      active
+                        ? 'bg-overlay text-highlight'
+                        : 'text-white/80 hover:text-white hover:bg-overlay-hover'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm">{item.title}</span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+      </aside>
+      <div className="flex-1 p-6">{children}</div>
+    </div>
+  )
 }

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, Plus, TextAlignStart, User } from 'lucide-react'
+import { ChevronDown, LogOut, Plus, TextAlignStart, User, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import BackButton from './BackButton'
@@ -109,6 +109,11 @@ export default function Header({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {user?.level === 'Admin' ? (
+                  <DropdownMenuItem onClick={() => router.push('/admin')}>
+                    <Shield className="mr-2 h-4 w-4" /> Admin
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem onClick={() => router.push('/profile')}>
                   <User className="mr-2 h-4 w-4" /> Profile
                 </DropdownMenuItem>
