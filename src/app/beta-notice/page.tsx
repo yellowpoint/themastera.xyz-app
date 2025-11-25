@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { request } from '@/lib/request'
 import { checkBetaAllowed } from '@/utils/beta'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -56,9 +57,11 @@ export default function BetaNoticePage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-xl">
         <CardHeader>
-          <img
+          <Image
             src="/logo/Vertical.svg"
             alt="Logo"
+            width={56}
+            height={44}
             className="h-auto w-14 mx-auto dark:invert mb-4"
           />
           <CardTitle className="text-center">
