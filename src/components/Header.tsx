@@ -63,18 +63,15 @@ export default function Header({
         {showLogo ? (
           <Link
             href="/"
-            className="flex items-center gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
+            className="flex items-baseline gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
+            aria-label="Home"
           >
             <img
-              src="/logo-black.png"
+              src="/logo/Mark.svg"
               alt="Logo"
-              className="h-auto w-15 dark:hidden"
+              className="h-auto w-8 dark:invert"
             />
-            <img
-              src="/logo-white.png"
-              alt="Logo"
-              className="h-auto w-15 hidden dark:block"
-            />
+            <span className="text-xl">MASTERA</span>
           </Link>
         ) : null}
       </div>
