@@ -128,9 +128,9 @@ export default function BetaNoticePage() {
 
             <div className="flex gap-3 pt-2">
               {status === 'allowed' ? (
-                <Button className="w-full">
-                  <Link href="/auth/login">Proceed to Login</Link>
-                </Button>
+                <Link href="/auth/login" className="w-full">
+                  <Button className="w-full">Proceed to Login</Button>
+                </Link>
               ) : (
                 (status === 'denied' || status === 'applying') && (
                   <Button
