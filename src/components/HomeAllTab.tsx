@@ -207,7 +207,13 @@ export default function HomeAllTab() {
               className="block"
             >
               <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
-                <VideoPlayer title={w.title} videoUrl={src} loop muted />
+                <VideoPlayer
+                  noControls
+                  title={w.title}
+                  videoUrl={src}
+                  loop
+                  muted
+                />
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute top-4 left-4 max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
                     <div className="text-white text-lg  truncate">

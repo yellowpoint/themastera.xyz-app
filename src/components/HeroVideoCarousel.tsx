@@ -80,6 +80,7 @@ export default function HeroVideoCarousel({ items, className }: Props) {
       ref={heroPlayerRef}
     >
       <VideoPlayer
+        noControls
         title={heroItem.title}
         videoUrl={resolvePlayback(heroItem.fileUrl).src}
         loop={false}

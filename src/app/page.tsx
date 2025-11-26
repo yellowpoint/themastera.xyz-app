@@ -32,13 +32,11 @@ export default function HomePage() {
     },
   ]
   return (
-    <div className="mux-player-controls-none h-full">
-      <TopTabs
-        tabs={tabList as any}
-        activeKey={activeTab}
-        onChange={(key) => setActiveTab(key as any)}
-        contentClassName="px-4 py-4 h-full"
-      />
-    </div>
+    <TopTabs
+      tabs={tabList as any}
+      activeKey={activeTab}
+      onChange={(key) => setActiveTab(key as any)}
+      contentClassName="px-4 py-4 h-full"
+    />
   )
 }

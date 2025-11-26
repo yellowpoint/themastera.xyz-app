@@ -16,6 +16,7 @@ type VideoPlayerProps = {
   autoPlay?: boolean
   muted?: boolean
   loop?: boolean
+  noControls?: boolean
 }
 
 export default function VideoPlayer({
@@ -30,6 +31,7 @@ export default function VideoPlayer({
   autoPlay = false,
   muted = false,
   loop = false,
+  noControls = false,
 }: VideoPlayerProps) {
   const playerRef = useRef<any>(null)
 
@@ -101,7 +103,10 @@ export default function VideoPlayer({
 
   // Show video player when there is access
   return (
-    <div style={{ width }} className="relative aspect-video">
+    <div
+      style={{ width }}
+      className={`relative aspect-video ${noControls ? 'mux-player-controls-none' : ''}`}
+    >
       {(() => {
         const isMuxPlayback = videoUrl && videoUrl.includes('stream.mux.com')
         if (isMuxPlayback) {
