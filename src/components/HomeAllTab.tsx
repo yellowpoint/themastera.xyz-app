@@ -187,7 +187,7 @@ export default function HomeAllTab() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="container space-y-6 mx-auto">
       {items.map((w) => {
         const { playbackId, src } = resolvePlayback(w.fileUrl)
         return (

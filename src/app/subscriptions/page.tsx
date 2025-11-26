@@ -107,7 +107,7 @@ export default function SubscriptionsPage() {
   }, [totalPages])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Subscriptions</h1>

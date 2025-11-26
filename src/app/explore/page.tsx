@@ -50,7 +50,7 @@ export default function ExplorePage() {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null)
 
   return (
-    <div className="container max-w-5xl mx-auto px-3 md:px-4 py-4 md:py-6">
+    <div className="container mx-auto px-3 md:px-4 py-4 md:py-6">
       <div className="flex justify-center mb-4">
         <div className="w-full">
           <TopTabs

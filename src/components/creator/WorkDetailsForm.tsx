@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 import VideoPlayer from '@/components/VideoPlayer'
 import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
 import { LANGUAGE_CATEGORIES, MUSIC_CATEGORIES } from '@/config/categories'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { CustomSidebarWidth } from '../CustomSidebar'
 
 export type CoverImage = {
@@ -97,7 +98,7 @@ export default function WorkDetailsForm({
     key: category,
     label: category,
   }))
-
+  const isMobile = useIsMobile()
   // Loading layer: extracted as a dedicated component
   if (loading) {
     return <PageLoading />
@@ -458,8 +459,8 @@ export default function WorkDetailsForm({
       {/* Footer Action Bar */}
       {showFooter && (
         <div
-          className="fixed bottom-0 right-0 z-50 bg-background border-t px-6 py-3 flex-shrink-0"
-          style={{ left: CustomSidebarWidth }}
+          className="fixed bottom-0 right-0 z-50 bg-background border-t px-6 py-3 flex-shrink-0 "
+          style={{ left: isMobile ? 0 : CustomSidebarWidth }}
         >
           <div className="flex justify-between items-center">
             {onSaveDraft ? (

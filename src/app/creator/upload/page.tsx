@@ -334,7 +334,7 @@ export default function UploadPage() {
   // Show simple uploader until a video is uploaded (when not copying or copy has no fileUrl)
   if (!uploadedVideo) {
     return (
-      <div className="h-full">
+      <div className="container mx-auto">
         <div className="px-8 pt-6 space-y-4">
           <div className="flex justify-between items-start">
             <h1 className="text-4xl font-normal">Upload video</h1>
@@ -343,14 +343,6 @@ export default function UploadPage() {
             One sentence to describe The benefit for people to upload videos on
             Mastera
           </p>
-          {/* {isUploading && (
-            <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
-              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-              <div className="text-sm text-yellow-700">
-                Upload in progress. Please do not refresh or close this page.
-              </div>
-            </div>
-          )} */}
         </div>
 
         <div className="px-8 py-10 flex justify-center">
@@ -375,73 +367,59 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="h-full">
-      <div className="flex gap-1 h-full">
-        {/* Middle Content - Upload Form */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden pb-18">
-          <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
-            {/* Header */}
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-normal">Upload video</h1>
-              </div>
+    <div className="container mx-auto px-4 pb-18">
+      {/* Middle Content - Upload Form */}
+      <div className="flex flex-col">
+        <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
+          {/* Header */}
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl font-normal">Upload video</h1>
             </div>
-
-            {/* Subtitle */}
-            <p className="text-base text-muted-foreground">
-              One sentence to describe The benefit for people to upload videos
-              on Mastera
-            </p>
-
-            {/* Unified warning during details editing (unsaved changes) */}
-            {/* {hasUnsavedChanges && (
-              <div className="flex items-start gap-2 p-2 border rounded-md bg-yellow-50">
-                <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-                <div className="text-sm text-yellow-700">
-                  You have unsaved changes. Please do not refresh or close this
-                  page.
-                </div>
-              </div>
-            )} */}
-
-            <Separator className="opacity-20" />
           </div>
 
-          {/* Scrollable Form Content */}
-          <div className="flex-1 overflow-y-auto px-8 py-2">
-            <WorkDetailsForm
-              value={{
-                title: uploadForm.title,
-                description: uploadForm.description,
-                category: uploadForm.category,
-                language: uploadForm.language,
-                isPaid: uploadForm.isPaid,
-                isForKids: uploadForm.isForKids,
-                thumbnailUrl: uploadForm.thumbnailUrl,
-              }}
-              onChange={(patch) =>
-                setUploadForm((prev) => ({
-                  ...prev,
-                  ...patch,
-                }))
-              }
-              showErrors={showErrors}
-              autoCover={autoCover}
-              onCoverUploadComplete={handleCoverUploadComplete}
-              uploadedVideo={uploadedVideo}
-              onVideoUploadComplete={handleVideoUploadComplete}
-              onCopyLink={handleCopyLink}
-              showFooter={true}
-              onSaveDraft={handleSaveDraft}
-              onCancel={handleSaveDraft}
-              onPrimary={() => submitWork()}
-              isSubmitting={isSubmitting}
-              primaryButtonText="Upload"
-              primaryButtonLoadingText="Uploading..."
-              saveDraftLabel="Save a draft"
-              cancelLabel="Cancel"
-            />
-          </div>
+          {/* Subtitle */}
+          <p className="text-base text-muted-foreground">
+            One sentence to describe The benefit for people to upload videos on
+            Mastera
+          </p>
+
+          <Separator className="opacity-20" />
+        </div>
+
+        <div className="flex-1 px-8 py-2">
+          <WorkDetailsForm
+            value={{
+              title: uploadForm.title,
+              description: uploadForm.description,
+              category: uploadForm.category,
+              language: uploadForm.language,
+              isPaid: uploadForm.isPaid,
+              isForKids: uploadForm.isForKids,
+              thumbnailUrl: uploadForm.thumbnailUrl,
+            }}
+            onChange={(patch) =>
+              setUploadForm((prev) => ({
+                ...prev,
+                ...patch,
+              }))
+            }
+            showErrors={showErrors}
+            autoCover={autoCover}
+            onCoverUploadComplete={handleCoverUploadComplete}
+            uploadedVideo={uploadedVideo}
+            onVideoUploadComplete={handleVideoUploadComplete}
+            onCopyLink={handleCopyLink}
+            showFooter={true}
+            onSaveDraft={handleSaveDraft}
+            onCancel={handleSaveDraft}
+            onPrimary={() => submitWork()}
+            isSubmitting={isSubmitting}
+            primaryButtonText="Upload"
+            primaryButtonLoadingText="Uploading..."
+            saveDraftLabel="Save a draft"
+            cancelLabel="Cancel"
+          />
         </div>
       </div>
     </div>

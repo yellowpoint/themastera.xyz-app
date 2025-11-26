@@ -97,68 +97,68 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div style={{ height: `calc(100vh - ${HeaderHeight})` }}>
-      {/* Main split layout */}
-      <div className="mx-auto flex gap-6 h-full">
-        {/* Left: Profile Sidebar */}
-        <div className="w-[320px] flex-shrink-0">
-          <UserProfileSidebar
-            user={user}
-            onSubscribeChanged={handleSubscribeChanged}
-          />
-        </div>
+    <div
+      className="mx-auto flex gap-2"
+      style={{ height: `calc(100vh - ${HeaderHeight})` }}
+    >
+      {/* Left: Profile Sidebar */}
+      <div className="w-[320px] flex-shrink-0">
+        <UserProfileSidebar
+          user={user}
+          onSubscribeChanged={handleSubscribeChanged}
+        />
+      </div>
 
-        {/* Right: Works and filters */}
-        <div className="flex-1 min-w-0 h-full overflow-y-auto p-2 scrollbar-gutter-stable">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Button
-                variant={sort === 'popular' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSort('popular')}
-              >
-                Popular
-              </Button>
-              <Button
-                variant={sort === 'latest' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSort('latest')}
-              >
-                Latest
-              </Button>
-              <Button
-                variant={sort === 'oldest' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSort('oldest')}
-              >
-                Oldest
-              </Button>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search works"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onDebouncedValueChange={(value) => setDebouncedSearch(value)}
-                  className="pl-9 border-gray-300"
-                  disabled={loading}
-                />
-              </div>
+      {/* Right: Works and filters */}
+      <div className="flex-1 min-w-0 h-full overflow-y-auto p-2 scrollbar-gutter-stable">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant={sort === 'popular' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSort('popular')}
+            >
+              Popular
+            </Button>
+            <Button
+              variant={sort === 'latest' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSort('latest')}
+            >
+              Latest
+            </Button>
+            <Button
+              variant={sort === 'oldest' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSort('oldest')}
+            >
+              Oldest
+            </Button>
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search works"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onDebouncedValueChange={(value) => setDebouncedSearch(value)}
+                className="pl-9 border-gray-300"
+                disabled={loading}
+              />
             </div>
           </div>
-
-          {/* Works grid */}
-          <WorkCardList
-            works={works}
-            isLoading={loading}
-            isLoadingMore={loadingMore}
-            hasMore={page < totalPages}
-            onLoadMore={async () => {
-              if (page >= totalPages) return
-              setPage((p) => Math.min(p + 1, totalPages))
-            }}
-          />
         </div>
+
+        {/* Works grid */}
+        <WorkCardList
+          works={works}
+          isLoading={loading}
+          isLoadingMore={loadingMore}
+          hasMore={page < totalPages}
+          onLoadMore={async () => {
+            if (page >= totalPages) return
+            setPage((p) => Math.min(p + 1, totalPages))
+          }}
+        />
       </div>
     </div>
   )

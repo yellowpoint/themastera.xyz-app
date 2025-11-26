@@ -227,29 +227,100 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="h-full">
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <Card className="w-full overflow-hidden p-0">
-          <div className="relative w-full h-48 md:h-64 bg-gray-200">
-            {formData.coverImage ? (
-              <img
-                src={formData.coverImage}
-                alt="Profile cover"
-                className="w-full h-full object-cover"
-              />
+    <div className="container mx-auto py-8 px-4">
+      <Card className="w-full overflow-hidden p-0">
+        <div className="relative w-full h-48 md:h-64 bg-gray-200">
+          {formData.coverImage ? (
+            <img
+              src={formData.coverImage}
+              alt="Profile cover"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-gray-200 to-gray-300" />
+          )}
+          {isEditing && (
+            <div
+              className={`${uploadingCover ? 'opacity-100 cursor-default' : 'opacity-50 hover:opacity-100 cursor-pointer'} absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity`}
+              onClick={
+                !uploadingCover
+                  ? () => coverInputRef.current?.click()
+                  : undefined
+              }
+            >
+              {uploadingCover ? (
+                <Spinner className="h-8 w-8 text-white" />
+              ) : (
+                <Camera className="w-8 h-8 text-white" />
+              )}
+            </div>
+          )}
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              e.target.files && handleCoverUpload(e.target.files)
+            }
+            className="hidden"
+            disabled={uploadingCover}
+          />
+        </div>
+        <CardContent className="pb-10">
+          <div className="flex relative z-20 justify-between items-center mb-8">
+            {!isEditing ? (
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 ml-auto"
+              >
+                <Edit className="w-4 h-4" />
+                Edit Profile
+              </Button>
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-gray-200 to-gray-300" />
+              <div className="flex gap-2 ml-auto">
+                <Button
+                  onClick={handleSave}
+                  disabled={isNameEmpty || uploading || uploadingCover}
+                  className="flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Save
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  className="flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </Button>
+              </div>
             )}
+          </div>
+          <div className="-mt-40 relative flex flex-col items-start">
+            <div className="size-28 md:size-32 rounded-full overflow-hidden ring-2 ring-white bg-gray-200 shadow">
+              {formData.avatar ? (
+                <img
+                  src={formData.avatar}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <span className="text-3xl md:text-4xl text-gray-600">
+                    {formData.name?.[0] || 'U'}
+                  </span>
+                </div>
+              )}
+            </div>
             {isEditing && (
               <div
-                className={`${uploadingCover ? 'opacity-100 cursor-default' : 'opacity-50 hover:opacity-100 cursor-pointer'} absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity`}
+                className={`${uploading ? 'opacity-100 cursor-default' : 'opacity-50 hover:opacity-100 cursor-pointer'} absolute left-0 top-0 w-28 h-28 md:w-32 md:h-32 rounded-full bg-black/50 flex items-center justify-center transition-opacity`}
                 onClick={
-                  !uploadingCover
-                    ? () => coverInputRef.current?.click()
-                    : undefined
+                  !uploading ? () => fileInputRef.current?.click() : undefined
                 }
               >
-                {uploadingCover ? (
+                {uploading ? (
                   <Spinner className="h-8 w-8 text-white" />
                 ) : (
                   <Camera className="w-8 h-8 text-white" />
@@ -257,150 +328,77 @@ export default function ProfilePage() {
               </div>
             )}
             <input
-              ref={coverInputRef}
+              ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={(e) =>
-                e.target.files && handleCoverUpload(e.target.files)
-              }
+              onChange={handleFileInputChange}
               className="hidden"
-              disabled={uploadingCover}
+              disabled={uploading}
             />
-          </div>
-          <CardContent className="pb-10">
-            <div className="flex relative z-20 justify-between items-center mb-8">
-              {!isEditing ? (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 ml-auto"
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <div className="flex gap-2 ml-auto">
-                  <Button
-                    onClick={handleSave}
-                    disabled={isNameEmpty || uploading || uploadingCover}
-                    className="flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleCancel}
-                    className="flex items-center gap-2"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancel
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div className="-mt-40 relative flex flex-col items-start">
-              <div className="size-28 md:size-32 rounded-full overflow-hidden ring-2 ring-white bg-gray-200 shadow">
-                {formData.avatar ? (
-                  <img
-                    src={formData.avatar}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <span className="text-3xl md:text-4xl text-gray-600">
-                      {formData.name?.[0] || 'U'}
-                    </span>
-                  </div>
-                )}
-              </div>
-              {isEditing && (
-                <div
-                  className={`${uploading ? 'opacity-100 cursor-default' : 'opacity-50 hover:opacity-100 cursor-pointer'} absolute left-0 top-0 w-28 h-28 md:w-32 md:h-32 rounded-full bg-black/50 flex items-center justify-center transition-opacity`}
-                  onClick={
-                    !uploading ? () => fileInputRef.current?.click() : undefined
-                  }
-                >
-                  {uploading ? (
-                    <Spinner className="h-8 w-8 text-white" />
-                  ) : (
-                    <Camera className="w-8 h-8 text-white" />
-                  )}
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileInputChange}
-                className="hidden"
-                disabled={uploading}
-              />
-              <div className="mt-3 w-full">
-                {isEditing ? (
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="Enter your name"
-                    className="h-10 text-xl font-normal w-full"
-                  />
-                ) : formData.name?.trim() ? (
-                  <h2 className="text-xl md:text-2xl font-semibold">
-                    {formData.name}
-                  </h2>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Your display name is not set yet.
-                  </p>
-                )}
-                {isEditing && isNameEmpty && (
-                  <p className="text-xs text-red-500 mt-1">Name is required</p>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+            <div className="mt-3 w-full">
+              {isEditing ? (
                 <Input
-                  value={user?.email || ''}
-                  readOnly
-                  disabled
-                  placeholder="your-email@example.com"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Enter your name"
+                  className="h-10 text-xl font-normal w-full"
                 />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
-                {isEditing ? (
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) =>
-                      handleInputChange('description', e.target.value)
-                    }
-                    placeholder="Tell us about yourself..."
-                    className="min-h-[120px] resize-none"
-                    maxLength={500}
-                  />
-                ) : formData.description?.trim() ? (
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {formData.description}
-                  </p>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No description yet. Add a short bio to let others know about
-                    you.
-                  </p>
-                )}
-                {isEditing && (
-                  <p className="text-xs text-muted-foreground text-right">
-                    {formData.description.length}/500
-                  </p>
-                )}
-              </div>
+              ) : formData.name?.trim() ? (
+                <h2 className="text-xl md:text-2xl font-semibold">
+                  {formData.name}
+                </h2>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Your display name is not set yet.
+                </p>
+              )}
+              {isEditing && isNameEmpty && (
+                <p className="text-xs text-red-500 mt-1">Name is required</p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          <div className="mt-6 space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email</label>
+              <Input
+                value={user?.email || ''}
+                readOnly
+                disabled
+                placeholder="your-email@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              {isEditing ? (
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    handleInputChange('description', e.target.value)
+                  }
+                  placeholder="Tell us about yourself..."
+                  className="min-h-[120px] resize-none"
+                  maxLength={500}
+                />
+              ) : formData.description?.trim() ? (
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {formData.description}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No description yet. Add a short bio to let others know about
+                  you.
+                </p>
+              )}
+              {isEditing && (
+                <p className="text-xs text-muted-foreground text-right">
+                  {formData.description.length}/500
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

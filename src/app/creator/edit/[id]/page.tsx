@@ -1,7 +1,7 @@
 'use client'
 
 import PageLoading from '@/components/PageLoading'
-import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
+import { UploadedVideo } from '@/components/VideoUpload'
 import WorkDetailsForm from '@/components/creator/WorkDetailsForm'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/useAuth'
@@ -286,89 +286,56 @@ export default function EditWorkPage() {
     return <PageLoading />
   }
 
-  // If we haven't loaded an existing video yet, show a simple uploader to allow replacing/adding
-  if (!uploadedVideo) {
-    return (
-      <div className="h-full">
-        <div className="px-8 pt-6 pb-4 space-y-4">
-          <div className="flex justify-between items-start">
-            <h1 className="text-4xl font-normal">Edit video</h1>
-          </div>
-          <p className="text-base text-muted-foreground">
-            Upload or replace your video to start editing details.
-          </p>
-        </div>
-
-        <div className="px-8 py-10 flex justify-center">
-          <div className="max-w-[640px] w-full">
-            <div className="rounded-lg p-10">
-              <VideoUpload onUploadComplete={handleVideoUploadComplete} />
-            </div>
-
-            <div className="text-center text-xs text-muted-foreground mt-8">
-              By editing your videos on Mastera, you acknowledge that you agree
-              to Mastera's Terms of Service and Community Guidelines.
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="h-full">
-      <div className="flex gap-1 h-full">
-        {/* Middle Content - Upload Form */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden pb-18">
-          <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
-            {/* Header */}
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-normal">Edit video</h1>
-              </div>
+    <div className="container mx-auto px-4 pb-18">
+      <div className="flex flex-col">
+        <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
+          {/* Header */}
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl font-normal">Edit video</h1>
             </div>
-
-            {/* Subtitle */}
-            <p className="text-base text-muted-foreground">
-              Update your video details before saving.
-            </p>
-
-            <Separator className="opacity-20" />
           </div>
 
-          {/* Scrollable Form Content */}
-          <div className="flex-1 overflow-y-auto px-8 py-2">
-            <WorkDetailsForm
-              value={{
-                title: uploadForm.title,
-                description: uploadForm.description,
-                category: uploadForm.category,
-                language: uploadForm.language,
-                isPaid: uploadForm.isPaid,
-                isForKids: uploadForm.isForKids,
-                thumbnailUrl: uploadForm.thumbnailUrl,
-              }}
-              onChange={(patch) =>
-                setUploadForm((prev) => ({
-                  ...prev,
-                  ...patch,
-                }))
-              }
-              showErrors={showErrors}
-              autoCover={autoCover}
-              onCoverUploadComplete={handleCoverUploadComplete}
-              uploadedVideo={uploadedVideo}
-              onVideoUploadComplete={handleVideoUploadComplete}
-              onCopyLink={handleCopyLink}
-              showFooter={true}
-              onSaveDraft={handleSaveDraft}
-              onCancel={() => router.push('/creator')}
-              onPrimary={() => submitWork()}
-              isSubmitting={isSubmitting}
-              primaryButtonText="Save changes"
-              primaryButtonLoadingText="Saving..."
-            />
-          </div>
+          {/* Subtitle */}
+          <p className="text-base text-muted-foreground">
+            Update your video details before saving.
+          </p>
+
+          <Separator className="opacity-20" />
+        </div>
+
+        <div className="flex-1 px-8 py-2">
+          <WorkDetailsForm
+            value={{
+              title: uploadForm.title,
+              description: uploadForm.description,
+              category: uploadForm.category,
+              language: uploadForm.language,
+              isPaid: uploadForm.isPaid,
+              isForKids: uploadForm.isForKids,
+              thumbnailUrl: uploadForm.thumbnailUrl,
+            }}
+            onChange={(patch) =>
+              setUploadForm((prev) => ({
+                ...prev,
+                ...patch,
+              }))
+            }
+            showErrors={showErrors}
+            autoCover={autoCover}
+            onCoverUploadComplete={handleCoverUploadComplete}
+            uploadedVideo={uploadedVideo}
+            onVideoUploadComplete={handleVideoUploadComplete}
+            onCopyLink={handleCopyLink}
+            showFooter={true}
+            onSaveDraft={handleSaveDraft}
+            onCancel={() => router.push('/creator')}
+            onPrimary={() => submitWork()}
+            isSubmitting={isSubmitting}
+            primaryButtonText="Save changes"
+            primaryButtonLoadingText="Saving..."
+          />
         </div>
       </div>
     </div>

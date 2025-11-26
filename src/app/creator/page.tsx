@@ -80,109 +80,105 @@ export default function CreatorPage() {
   }, [page, limit, statusFilter, debouncedSearch, loadWorks])
 
   return (
-    <div className="h-full">
-      <div className="">
-        <div className="max-w-7xl mx-auto px-8 py-6">
-          {/* Page Title */}
-          <div className="mb-10">
-            <h1 className="text-2xl font-normal">Dashboard</h1>
-          </div>
+    <div className="container mx-auto px-4 py-6">
+      {/* Page Title */}
+      <div className="mb-10">
+        <h1 className="text-2xl font-normal">Dashboard</h1>
+      </div>
 
-          <div className="space-y-6">
-            {/* Search and Filter */}
-            <div className="flex gap-4">
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search for video name"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onDebouncedValueChange={(value) => {
-                    setDebouncedSearch(value)
-                  }}
-                  className="pl-9 border-gray-300"
-                  disabled={worksLoading}
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger
-                  className="w-40 border-gray-300"
-                  disabled={worksLoading}
-                >
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                className="ml-auto"
-                onClick={() => router.push('/creator/upload')}
-              >
-                Upload video
-              </Button>
-            </div>
-
-            {works.length === 0 && !worksLoading ? (
-              <Empty className="border-gray-200">
-                <EmptyHeader>
-                  <EmptyTitle>
-                    {debouncedSearch || statusFilter !== 'all'
-                      ? 'No results found'
-                      : 'No works yet'}
-                  </EmptyTitle>
-                  <EmptyDescription>
-                    {debouncedSearch || statusFilter !== 'all'
-                      ? 'Try adjusting filters or changing your search.'
-                      : 'Upload your first video to get started.'}
-                  </EmptyDescription>
-                </EmptyHeader>
-                <EmptyContent>
-                  {debouncedSearch || statusFilter !== 'all' ? (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearch('')
-                        setDebouncedSearch('')
-                        setStatusFilter('all')
-                        setPage(1)
-                        setLimit(10)
-                      }}
-                    >
-                      Reset filters
-                    </Button>
-                  ) : (
-                    <Button onClick={() => router.push('/creator/upload')}>
-                      Upload video
-                    </Button>
-                  )}
-                </EmptyContent>
-              </Empty>
-            ) : (
-              <DataTableWithPagination
-                columns={columns}
-                data={works}
-                loading={worksLoading}
-                initialPageSize={limit}
-                serverPagination={{
-                  total,
-                  page,
-                  pageSize: limit,
-                  onPageChange: (nextPage) => {
-                    setPage(nextPage)
-                  },
-                  onPageSizeChange: (size) => {
-                    setLimit(size)
-                    setPage(1)
-                  },
-                }}
-              />
-            )}
+      <div className="space-y-6">
+        {/* Search and Filter */}
+        <div className="flex gap-4">
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search for video name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onDebouncedValueChange={(value) => {
+                setDebouncedSearch(value)
+              }}
+              className="pl-9 border-gray-300"
+              disabled={worksLoading}
+            />
           </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger
+              className="w-40 border-gray-300"
+              disabled={worksLoading}
+            >
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            className="ml-auto"
+            onClick={() => router.push('/creator/upload')}
+          >
+            Upload video
+          </Button>
         </div>
+
+        {works.length === 0 && !worksLoading ? (
+          <Empty className="border-gray-200">
+            <EmptyHeader>
+              <EmptyTitle>
+                {debouncedSearch || statusFilter !== 'all'
+                  ? 'No results found'
+                  : 'No works yet'}
+              </EmptyTitle>
+              <EmptyDescription>
+                {debouncedSearch || statusFilter !== 'all'
+                  ? 'Try adjusting filters or changing your search.'
+                  : 'Upload your first video to get started.'}
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              {debouncedSearch || statusFilter !== 'all' ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearch('')
+                    setDebouncedSearch('')
+                    setStatusFilter('all')
+                    setPage(1)
+                    setLimit(10)
+                  }}
+                >
+                  Reset filters
+                </Button>
+              ) : (
+                <Button onClick={() => router.push('/creator/upload')}>
+                  Upload video
+                </Button>
+              )}
+            </EmptyContent>
+          </Empty>
+        ) : (
+          <DataTableWithPagination
+            columns={columns}
+            data={works}
+            loading={worksLoading}
+            initialPageSize={limit}
+            serverPagination={{
+              total,
+              page,
+              pageSize: limit,
+              onPageChange: (nextPage) => {
+                setPage(nextPage)
+              },
+              onPageSizeChange: (size) => {
+                setLimit(size)
+                setPage(1)
+              },
+            }}
+          />
+        )}
       </div>
     </div>
   )
