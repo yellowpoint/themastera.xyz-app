@@ -128,7 +128,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="space-y-4 p-4">
               <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export default function SubscriptionsPage() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {items.map((u) => (
             <Link href={`/user/${u.id}`} key={u.id}>
               <Card key={u.id}>

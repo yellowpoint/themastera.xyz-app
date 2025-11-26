@@ -105,9 +105,9 @@ export default function WorkDetailsForm({
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Details form */}
-        <div className="lg:col-span-2">
+        <div className="md:col-span-2">
           <FieldGroup>
             {/* Video Details Section */}
             <FieldSet>
@@ -406,7 +406,7 @@ export default function WorkDetailsForm({
         </div>
 
         {/* Right: Video status */}
-        <div className="flex-none lg:col-span-1">
+        <div className="flex-none md:col-span-1">
           <div className="p-6 space-y-6 bg-background rounded-md border">
             <h2 className="text-2xl font-normal text-primary">Video status</h2>
 

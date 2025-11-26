@@ -230,7 +230,7 @@ export default function ProfilePage() {
     <div className="h-full">
       <div className="max-w-4xl mx-auto py-8 px-4">
         <Card className="w-full overflow-hidden p-0">
-          <div className="relative w-full h-48 md:h-56 lg:h-64 bg-gray-200">
+          <div className="relative w-full h-48 md:h-64 bg-gray-200">
             {formData.coverImage ? (
               <img
                 src={formData.coverImage}

@@ -168,7 +168,7 @@ export default function TopTabs({
           <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
             <SheetContent
               side="right"
-              className="w-[300px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0"
+              className="w-[300px] md:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0"
               hideClose
             >
               <SheetHeader>

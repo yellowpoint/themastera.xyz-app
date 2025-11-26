@@ -233,7 +233,7 @@ export default function WatchHistoryPage() {
         {renderFilters()}
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-video rounded-xl" />
@@ -261,9 +261,9 @@ export default function WatchHistoryPage() {
             </EmptyDescription>
           </Empty>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left: Grid of items */}
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               {items.map((item) => {
                 const w = item?.work || {}
                 const viewsCount =
@@ -361,7 +361,7 @@ export default function WatchHistoryPage() {
             </div>
 
             {/* Right: Timeline */}
-            <ScrollArea className="lg:h-[calc(100vh-160px)] px-2 ">
+            <ScrollArea className="md:h-[calc(100vh-160px)] px-2 ">
               <h2 className="text-base font-semibold mb-2">Timeline</h2>
               <Separator />
               <div className="space-y-6 mt-4">

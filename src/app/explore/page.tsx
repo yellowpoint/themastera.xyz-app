@@ -50,7 +50,7 @@ export default function ExplorePage() {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null)
 
   return (
-    <div className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <div className="container max-w-5xl mx-auto px-3 md:px-4 py-4 md:py-6">
       <div className="flex justify-center mb-4">
         <div className="w-full">
           <TopTabs
@@ -59,7 +59,7 @@ export default function ExplorePage() {
             onChange={(key) => setActiveTab(key as 'music' | 'language')}
           />
           <div className="">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl text-white mb-6 md:mb-10">
+            <h1 className="text-2xl md:text-4xl text-white mb-6 md:mb-10">
               {activeTab === 'music' ? 'Category' : 'Language'}
             </h1>
             <SortSearchToolbar
@@ -73,7 +73,7 @@ export default function ExplorePage() {
             />
             <section>
               <div
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
                 onMouseLeave={() => setHoveredCat(null)}
               >
                 {filteredCategories.map((cat, idx) => {
@@ -107,10 +107,10 @@ export default function ExplorePage() {
                         </AnimatePresence>
                       )}
                       <div
-                        className={`w-full rounded-xl overflow-hidden ring-1 ring-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] bg-gradient-to-br ${VARIANTS[computeVariantIndex(idx)]} h-[140px] sm:h-[160px] md:h-[180px]`}
+                        className={`w-full rounded-xl overflow-hidden ring-1 ring-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] bg-gradient-to-br ${VARIANTS[computeVariantIndex(idx)]} h-[140px] md:h-[180px]`}
                       >
-                        <div className="p-4 sm:p-6">
-                          <div className="text-white text-2xl sm:text-3xl md:text-4xl font-bold">
+                        <div className="p-4 md:p-6">
+                          <div className="text-white text-2xl md:text-4xl font-bold">
                             {cat.split('/').map((part, index) => (
                               <div key={index}>{part.trim()}</div>
                             ))}
