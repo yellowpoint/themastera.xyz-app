@@ -34,7 +34,8 @@ export default function SortSearchToolbar({
   const inputSizeClass =
     size === 'compact' ? 'h-6 text-xs pl-8' : 'h-7 text-sm pl-8'
   const iconSizeClass = size === 'compact' ? 'size-3' : 'h-4 w-4'
-  const searchWidthClass = size === 'compact' ? 'w-80 h-6 text-xs' : 'w-80'
+  const searchWidthClass =
+    size === 'compact' ? 'w-full sm:w-80 h-6 text-xs' : 'w-full sm:w-80'
   return (
     <div className={cn('flex items-center gap-3 mb-4', className)}>
       <Button

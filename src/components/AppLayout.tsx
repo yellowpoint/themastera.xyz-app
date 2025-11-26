@@ -58,7 +58,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col h-screen overflow-hidden">
         {!isMobile && <BackgroundSwitcher enabled={showBackgroundImage} />}
         <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
-          {!hideHeader && (
+          {!isMobile && !hideHeader && (
             <Header
               showBackButton={showBackOnRoutes}
               showLogo={!showBackOnRoutes}
