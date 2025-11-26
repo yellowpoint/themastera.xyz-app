@@ -8,9 +8,10 @@ import {
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet'
 import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
-import { Search } from 'lucide-react'
+import { Search, TextAlignStart } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import CustomSidebar from './CustomSidebar'
 import { HeaderHeight } from './Header'
 
 type TabItem = { key: string; label: string; content?: React.ReactNode }
@@ -39,6 +40,7 @@ export default function TopTabs({
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState<Work[]>([])
   const [loadingSuggest, setLoadingSuggest] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<Record<string, boolean>>({
     [activeKey]: true,
   })
@@ -61,6 +63,10 @@ export default function TopTabs({
       setMounted((m) => ({ ...m, [activeKey]: true }))
     }
   }, [activeKey, keepMounted])
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev)
+  }
 
   useEffect(() => {
     let ignore = false
@@ -95,39 +101,69 @@ export default function TopTabs({
           ref={containerRef}
           className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-overlay rounded-xl backdrop-blur ${className || ''}`}
         >
-          <div className="flex items-center gap-8">
-            {tabs.map(({ key, label }) => (
-              <div key={key} className="flex flex-col items-center">
-                <button
-                  ref={(el) => {
-                    itemsRef.current[key] = el
-                  }}
-                  className={`transition-colors duration-300 ${activeKey === key ? 'text-highlight' : 'text-muted-foreground'} text-sm font-medium`}
-                  type="button"
-                  onClick={() => onChange(key)}
-                >
-                  {label}
-                </button>
-              </div>
-            ))}
-            <div
-              className="absolute bottom-[6px] h-1 w-4 rounded bg-primary transition-all duration-300"
-              style={{ left: `${indicatorLeft}px` }}
-            />
-          </div>
-          <div className="flex w-[1px] items-center justify-center ml-4">
-            <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
-          </div>
-          <button
-            className="flex h-10 w-10 items-center justify-center"
-            title="Search"
-            type="button"
-            onClick={() => setSearchOpen(true)}
-          >
-            <div className="text-white/90 relative">
-              <Search className="h-4 w-4" />
+          <div className="flex items-center gap-3">
+            <button
+              className="md:hidden flex h-10 w-10 items-center justify-center"
+              title={sidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+              type="button"
+              onClick={handleToggleSidebar}
+            >
+              <TextAlignStart className="h-4 w-4" />
+            </button>
+            <div className="md:hidden flex w-[1px] items-center justify-center">
+              <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
             </div>
-          </button>
+            <div className="flex items-center gap-8">
+              {tabs.map(({ key, label }) => (
+                <div key={key} className="flex flex-col items-center">
+                  <button
+                    ref={(el) => {
+                      itemsRef.current[key] = el
+                    }}
+                    className={`transition-colors duration-300 ${activeKey === key ? 'text-highlight' : 'text-muted-foreground'} text-sm font-medium`}
+                    type="button"
+                    onClick={() => onChange(key)}
+                  >
+                    {label}
+                  </button>
+                </div>
+              ))}
+              <div
+                className="absolute bottom-[6px] h-1 w-4 rounded bg-primary transition-all duration-300"
+                style={{ left: `${indicatorLeft}px` }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex w-[1px] items-center justify-center ml-2">
+              <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
+            </div>
+            <button
+              className="flex h-10 w-10 items-center justify-center"
+              title="Search"
+              type="button"
+              onClick={() => setSearchOpen(true)}
+            >
+              <div className="text-white/90 relative">
+                <Search className="h-4 w-4" />
+              </div>
+            </button>
+          </div>
+
+          {/* Mobile Sidebar Drawer */}
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetContent
+              side="left"
+              className="z-[60] w-2/3 bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
+              hideClose
+            >
+              <CustomSidebar
+                style={{ width: '100%' }}
+                alwaysVisible
+                showHeaderFooter
+              />
+            </SheetContent>
+          </Sheet>
 
           <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
             <SheetContent

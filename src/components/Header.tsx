@@ -1,27 +1,15 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { useAuth } from '@/hooks/useAuth'
-import {
-  ChevronDown,
-  LogOut,
-  Plus,
-  Shield,
-  TextAlignStart,
-  User,
-} from 'lucide-react'
+import { TextAlignStart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import BackButton from './BackButton'
 import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
+import HeaderActions from './HeaderActions'
 
 export const HeaderHeight = '80px'
 
@@ -36,12 +24,18 @@ export default function Header({
   const router = useRouter()
   const pathname = usePathname()
   const isDetailPage = pathname?.startsWith('/content/')
+  const isMobile = useIsMobile()
+
+  useEffect(() => {}, [])
 
   return (
     <>
       <div
         className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-8`}
-        style={{ height: HeaderHeight, width: CustomSidebarWidth }}
+        style={{
+          height: HeaderHeight,
+          width: isMobile ? '0px' : CustomSidebarWidth,
+        }}
       >
         {showBackButton ? <BackButton className="" /> : null}
         {isDetailPage ? (
@@ -60,10 +54,14 @@ export default function Header({
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-[160px] sm:max-w-md bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
+              className="w-2/3 md:w-[160px] bg-[#02000233] backdrop-blur-[20px] text-white border-0 p-0 h-screen"
               hideClose
             >
-              <CustomSidebar style={{ width: '100%' }} alwaysVisible />
+              <CustomSidebar
+                style={{ width: '100%' }}
+                alwaysVisible
+                showHeaderFooter
+              />
             </SheetContent>
           </Sheet>
         ) : null}
@@ -87,63 +85,7 @@ export default function Header({
         className={`fixed right-0 top-0 z-40 flex items-center gap-3 pr-4`}
         style={{ height: HeaderHeight }}
       >
-        {user ? (
-          <>
-            <Button
-              onClick={() => router.push('/creator')}
-              variant="secondary"
-              size="sm"
-              className="bg-overlay hover:bg-overlay-hover text-foreground text-sm"
-            >
-              <Plus className="size-4" />
-              Create
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="outline-none flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage
-                      src={user?.image || ''}
-                      alt={user?.name || user?.email || 'User'}
-                    />
-                    <AvatarFallback>
-                      {(
-                        (user?.name || user?.email || 'U')[0] || 'U'
-                      ).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {user?.level === 'Admin' ? (
-                  <DropdownMenuItem onClick={() => router.push('/admin')}>
-                    <Shield className="mr-2 h-4 w-4" /> Admin
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem onClick={() => router.push('/profile')}>
-                  <User className="mr-2 h-4 w-4" /> Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => signOut({ onSuccess: () => router.push('/') })}
-                >
-                  <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
-              onClick={() => router.push('/auth/register')}
-            >
-              Sign up
-            </Button>
-            <Button onClick={() => router.push('/auth/login')}>Login</Button>
-          </>
-        )}
+        <HeaderActions />
       </div>
     </>
   )

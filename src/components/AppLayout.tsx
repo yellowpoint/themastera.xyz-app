@@ -1,6 +1,7 @@
 'use client'
 
 import Header, { HeaderHeight } from '@/components/Header'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { usePathname } from 'next/navigation'
 import BackgroundSwitcher from './BackgroundSwitcher'
 import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
@@ -8,6 +9,8 @@ import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const isMobile = useIsMobile()
+
   const hideHeader = ['/beta-notice'].some((prefix) =>
     pathname?.startsWith(prefix)
   )
@@ -53,7 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthRequired>
       <div className="flex flex-col h-screen overflow-hidden">
-        <BackgroundSwitcher enabled={showBackgroundImage} />
+        {!isMobile && <BackgroundSwitcher enabled={showBackgroundImage} />}
         <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
           {!hideHeader && (
             <Header
@@ -62,14 +65,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             />
           )}
           <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>
-            {!hideSidebar ? <CustomSidebar style={sidebarStyle} /> : null}
+            {!hideSidebar && !isMobile ? (
+              <CustomSidebar style={sidebarStyle} />
+            ) : null}
             <div
               className="flex-1"
               style={{
                 height: hideSidebar ? '100%' : `calc(100vh - ${HeaderHeight})`,
-                paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
+                paddingLeft: hideSidebar || isMobile ? '0' : CustomSidebarWidth,
                 paddingRight:
-                  hideHeader || hideHeaderRightPadding
+                  isMobile || hideHeader || hideHeaderRightPadding
                     ? '0'
                     : CustomSidebarWidth,
               }}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import HeaderActions from './HeaderActions'
 
 type NavItem = {
   title: string
@@ -38,9 +39,11 @@ const items: NavItem[] = [
 export default function CustomSidebar({
   style = {},
   alwaysVisible = false,
+  showHeaderFooter = false,
 }: {
   style?: React.CSSProperties
   alwaysVisible?: boolean
+  showHeaderFooter?: boolean
 }) {
   const pathname = usePathname()
   const hideSidebar = pathname?.startsWith('/content/')
@@ -48,9 +51,24 @@ export default function CustomSidebar({
 
   return (
     <aside
-      className="fixed top-0 left-0 flex flex-col justify-center items-center h-full"
+      className={`fixed top-0 left-0 flex flex-col ${showHeaderFooter ? 'justify-between' : 'justify-center'} items-center h-full`}
       style={{ width: CustomSidebarWidth, ...style }}
     >
+      {showHeaderFooter ? (
+        <div className="w-full pl-8 pt-6">
+          <Link
+            href="/"
+            aria-label="Home"
+            className="flex items-baseline gap-2"
+          >
+            <img
+              src="/logo/Vertical.svg"
+              alt="Logo"
+              className="h-auto w-14 dark:invert"
+            />
+          </Link>
+        </div>
+      ) : null}
       <nav className=" pl-6 pb-20 flex-1 w-full flex flex-col items-center justify-center ">
         <ul className="space-y-4 w-full">
           {items.map((item) => {
@@ -93,6 +111,11 @@ export default function CustomSidebar({
       </nav>
 
       <div className="w-full pl-6 pb-6 text-muted-foreground">
+        {showHeaderFooter ? (
+          <div className="mb-3 flex items-center justify-between pr-4">
+            <HeaderActions />
+          </div>
+        ) : null}
         <div className="flex items-center gap-4 mb-3">
           <Link
             href="https://www.linkedin.com/"
