@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { TextAlignStart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import BackButton from './BackButton'
 import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
 import HeaderActions from './HeaderActions'
@@ -16,30 +16,35 @@ export const HeaderHeight = '80px'
 export default function Header({
   showBackButton = false,
   showLogo = true,
+  showSidebarController = false,
 }: {
   showBackButton?: boolean
   showLogo?: boolean
+  showSidebarController?: boolean
 }) {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const isDetailPage = pathname?.startsWith('/content/')
   const isMobile = useIsMobile()
+  const [sheetOpen, setSheetOpen] = useState(false)
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    if (isMobile) setSheetOpen(false)
+  }, [pathname, isMobile])
 
   return (
     <>
       <div
-        className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-8`}
+        className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-4 md:pl-8`}
         style={{
           height: HeaderHeight,
-          width: isMobile ? '0px' : CustomSidebarWidth,
+          width: CustomSidebarWidth,
         }}
       >
-        {showBackButton ? <BackButton className="" /> : null}
-        {isDetailPage ? (
-          <Sheet>
+        {showBackButton ? <BackButton /> : null}
+        {showSidebarController || isDetailPage ? (
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <button
                 className="flex h-10 items-center justify-center"

@@ -98,11 +98,11 @@ export default function UserDetailPage() {
 
   return (
     <div
-      className="mx-auto flex gap-2"
+      className="mx-auto flex flex-col md:flex-row gap-2"
       style={{ height: `calc(100vh - ${HeaderHeight})` }}
     >
       {/* Left: Profile Sidebar */}
-      <div className="w-[320px] flex-shrink-0">
+      <div className="w-full md:w-[320px] md:flex-shrink-0">
         <UserProfileSidebar
           user={user}
           onSubscribeChanged={handleSubscribeChanged}
@@ -110,9 +110,9 @@ export default function UserDetailPage() {
       </div>
 
       {/* Right: Works and filters */}
-      <div className="flex-1 min-w-0 h-full overflow-y-auto p-2 scrollbar-gutter-stable">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+      <div className="md:flex-1 min-w-0 h-auto md:h-full md:overflow-y-auto p-2 scrollbar-gutter-stable">
+        <div className="flex flex-wrap items-center justify-start md:justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Button
               variant={sort === 'popular' ? 'default' : 'outline'}
               size="sm"
@@ -134,7 +134,7 @@ export default function UserDetailPage() {
             >
               Oldest
             </Button>
-            <div className="relative w-64">
+            <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search works"

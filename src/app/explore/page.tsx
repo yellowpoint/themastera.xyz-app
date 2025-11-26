@@ -68,8 +68,6 @@ export default function ExplorePage() {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               searchPlaceholder="Search category name"
-              size={isMobile ? 'compact' : 'normal'}
-              className="flex-wrap"
             />
             <section>
               <div

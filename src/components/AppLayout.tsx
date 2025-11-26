@@ -25,8 +25,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/section',
     '/playlists/',
     '/user',
-    '/creator/',
+    '/creator',
+    '/content/',
   ].some((prefix) => pathname?.startsWith(prefix))
+
+  const showSidebarController =
+    isMobile &&
+    [
+      '/ranking',
+      '/event',
+      '/shop',
+      '/treasures',
+      '/privacy-policy',
+      '/terms-of-service',
+    ].some((prefix) => pathname?.startsWith(prefix))
 
   const hideHeaderRightPadding = [
     '/content',
@@ -42,6 +54,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/beta-notice',
     '/auth',
     '/admin',
+    '/creator',
   ].some((prefix) => pathname?.startsWith(prefix))
 
   const showBackgroundImage =
@@ -63,6 +76,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     height: hideHeader ? '100%' : `calc(100vh - ${HeaderHeight})`,
   }
 
+  const getHideHeader = () => {
+    if (showSidebarController) return false
+    if (showBackOnRoutes) return false
+    if (hideHeader) return true
+    if (isMobile) return true
+    return false
+  }
+
   return (
     <ThemeProvider
       attribute="class"
@@ -76,10 +97,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col h-screen overflow-hidden">
             {!isMobile && <BackgroundSwitcher enabled={showBackgroundImage} />}
             <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
-              {!isMobile && !hideHeader && (
+              {!getHideHeader() && (
                 <Header
+                  showSidebarController={showSidebarController}
                   showBackButton={showBackOnRoutes}
-                  showLogo={!showBackOnRoutes}
+                  showLogo={!showBackOnRoutes && !showSidebarController}
                 />
               )}
               <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>

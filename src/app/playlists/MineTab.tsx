@@ -118,7 +118,6 @@ export default function MineTab() {
           searchPlaceholder="Search playlist name"
           showCreateButton={true}
           onCreateClick={() => setCreateOpen(true)}
-          className="mb-4"
         />
         {loading ? (
           <div className="p-4 space-y-6">

@@ -16,15 +16,18 @@ export default function ComingSoon({
   backLabel = 'Go back home',
 }: Props) {
   return (
-    <div className="flex h-[calc(100vh-140px)] items-center justify-center px-6">
+    <div className="flex md:h-[calc(100vh-140px)] min-h-[60vh] items-center justify-center  md:px-6">
       <div>
-        <div className="gap-4 flex flex-col items-center justify-center">
-          <FuzzyText fontSize={64} fontWeight={800}>
-            {title}
+        <div className="flex flex-col items-center justify-center gap-3 md:gap-4">
+          <FuzzyText fontSize={'clamp(1.75rem, 8vw, 3rem)'} fontWeight={800}>
+            Coming soon
           </FuzzyText>
-          <FuzzyText fontSize={34} fontWeight={400}>
+          {/* <FuzzyText
+            fontSize={'clamp(0.6rem, 4.5vw, 1.25rem)'}
+            fontWeight={400}
+          >
             {description}
-          </FuzzyText>
+          </FuzzyText> */}
         </div>
       </div>
     </div>

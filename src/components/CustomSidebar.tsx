@@ -1,5 +1,6 @@
 'use client'
 
+import { useIsMobile } from '@/hooks/use-mobile'
 import { motion } from 'framer-motion'
 import {
   Home,
@@ -47,6 +48,7 @@ export default function CustomSidebar({
 }) {
   const pathname = usePathname()
   const hideSidebar = pathname?.startsWith('/content/')
+  const isMobile = useIsMobile()
   if (hideSidebar && !alwaysVisible) return null
 
   return (
@@ -111,7 +113,7 @@ export default function CustomSidebar({
       </nav>
 
       <div className="w-full pl-6 pb-6 text-muted-foreground">
-        {showHeaderFooter ? (
+        {isMobile && showHeaderFooter ? (
           <div className="mb-3 flex items-center justify-between pr-4">
             <HeaderActions />
           </div>

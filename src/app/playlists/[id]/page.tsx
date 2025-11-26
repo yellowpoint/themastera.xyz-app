@@ -220,7 +220,6 @@ export default function PlaylistDetailPage() {
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
             searchPlaceholder="Search the video name"
-            className="gap-4"
           />
 
           <WorkCardList

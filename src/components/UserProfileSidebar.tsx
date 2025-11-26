@@ -34,7 +34,7 @@ export default function UserProfileSidebar({
 
   return (
     <div
-      className={`flex-none w-[300px] overflow-y-auto border-dashed border-gray-300`}
+      className={`flex-none w-full md:w-[300px] md:overflow-y-auto border-dashed border-gray-300`}
     >
       <div className="p-6 space-y-3">
         {/* Profile Header */}
