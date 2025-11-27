@@ -46,8 +46,9 @@ export default function AdminLayout({
 
   const navItems = [
     { title: 'Works', href: '/admin/works', icon: ListVideo },
+    { title: 'Quick Picks', href: '/admin/quick-picks', icon: Sparkles },
     {
-      title: 'Beta Applications',
+      title: 'Beta',
       href: '/admin/beta-applications',
       icon: Sparkles,
     },

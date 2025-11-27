@@ -156,6 +156,11 @@ export async function PUT(
     if (body.isForKids !== undefined) updateData.isForKids = body.isForKids
     if (body.quickPick !== undefined)
       (updateData as any).quickPick = body.quickPick
+    if (body.quickPickOrder !== undefined)
+      (updateData as any).quickPickOrder =
+        typeof body.quickPickOrder === 'number'
+          ? body.quickPickOrder
+          : parseInt(String(body.quickPickOrder), 10)
 
     // Update work
     const work = await prisma.work.update({

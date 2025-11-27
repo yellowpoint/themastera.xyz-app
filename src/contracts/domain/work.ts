@@ -24,6 +24,7 @@ export const WorkSchema = z.object({
   language: z.string().nullable().optional(),
   tags: z.string().optional(),
   quickPick: z.boolean().optional(),
+  quickPickOrder: z.number().nullable().optional(),
   isForKids: z.boolean().optional(),
   user: WorkUserSchema.nullable().optional(),
 })

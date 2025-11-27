@@ -98,6 +98,7 @@ model Work {
   language        String?
   tags            String?
   quickPick       Boolean? @default(false)
+  quickPickOrder  Int?
   fileUrl         String?
   thumbnailUrl    String?
   durationSeconds Int?

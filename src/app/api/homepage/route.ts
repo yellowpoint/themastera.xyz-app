@@ -24,23 +24,29 @@ function toHomepageItem(work: any) {
 
 export async function GET(request: NextRequest) {
   try {
-    const quickPicksWorks = await prisma.work.findMany({
+    const ordered = await prisma.work.findMany({
       where: {
         status: 'published',
         quickPick: true,
+        quickPickOrder: { not: null },
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
+        user: { select: { id: true, name: true, image: true } },
+      },
+      orderBy: [{ quickPickOrder: 'asc' }],
+    })
+    const fallback = await prisma.work.findMany({
+      where: {
+        status: 'published',
+        quickPick: true,
+        quickPickOrder: null,
+      },
+      include: {
+        user: { select: { id: true, name: true, image: true } },
       },
       orderBy: [{ createdAt: 'desc' }],
-      take: 8,
     })
+    const quickPicksWorks = [...ordered, ...fallback]
 
     const quickPicks = quickPicksWorks.map(toHomepageItem)
     return NextResponse.json(apiSuccess({ quickPicks }))
