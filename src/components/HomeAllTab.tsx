@@ -6,7 +6,7 @@ import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const VideoPlayerLazy = dynamic(() => import('@/components/VideoPlayer'), {
   ssr: false,
@@ -17,25 +17,28 @@ export default function HomeAllTab() {
   const [items, setItems] = useState<HomepageItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [playing, setPlaying] = useState<Record<string, boolean>>({})
-  const [muted, setMuted] = useState<Record<string, boolean>>({})
-  const [visible, setVisible] = useState<Record<string, boolean>>({})
-  const playersRef = useRef<Record<string, HTMLDivElement | null>>({})
+  const [media, setMedia] = useState<{
+    playing: Record<string, boolean>
+    muted: Record<string, boolean>
+    visible: Record<string, boolean>
+    players: Record<string, HTMLDivElement | null>
+    pausedByUser: Record<string, boolean>
+  }>({ playing: {}, muted: {}, visible: {}, players: {}, pausedByUser: {} })
   const router = useRouter()
 
   const pauseAllExcept = (targetId?: string) => {
-    setPlaying((p) => {
-      const next = { ...p }
-      Object.entries(playersRef.current).forEach(([id, node]) => {
+    setMedia((s) => {
+      const nextPlaying = { ...s.playing }
+      Object.entries(s.players).forEach(([id, node]) => {
         const player = node?.querySelector('mux-player') as any
         if (player && (!targetId || id !== targetId)) {
           try {
             player.pause()
           } catch {}
-          next[id] = false
+          nextPlaying[id] = false
         }
       })
-      return next
+      return { ...s, playing: nextPlaying }
     })
   }
 
@@ -48,9 +51,16 @@ export default function HomeAllTab() {
         const quickPicks = (data as any)?.data?.quickPicks || []
         setItems(quickPicks)
         const preIds = quickPicks.slice(0, 2).map((w: any) => w.id)
-        setVisible((v) => ({
-          ...v,
-          ...Object.fromEntries(preIds.map((id: string) => [id, true])),
+        setMedia((s) => ({
+          ...s,
+          visible: {
+            ...s.visible,
+            ...Object.fromEntries(preIds.map((id: string) => [id, true])),
+          },
+          muted: {
+            ...s.muted,
+            ...Object.fromEntries(preIds.map((id: string) => [id, true])),
+          },
         }))
       } catch (e: any) {
         setError(e?.message || 'Failed to load')
@@ -81,12 +91,19 @@ export default function HomeAllTab() {
           'mux-player'
         ) as any
         pauseAllExcept(mostVisibleId)
-        if (playerToPlay && playerToPlay.paused) {
+        if (
+          playerToPlay &&
+          playerToPlay.paused &&
+          !media.pausedByUser[mostVisibleId!]
+        ) {
           try {
             playerToPlay.play()
           } catch {}
+          setMedia((s) => ({
+            ...s,
+            playing: { ...s.playing, [mostVisibleId!]: true },
+          }))
         }
-        setPlaying((p) => ({ ...p, [mostVisibleId!]: true }))
       }
     }
 
@@ -96,12 +113,26 @@ export default function HomeAllTab() {
           const id = (entry.target as HTMLElement).dataset.id || ''
           if (entry.isIntersecting) {
             visibleElements.set(entry.target, entry)
-            if (id) setVisible((v) => ({ ...v, [id]: true }))
+            if (id)
+              setMedia((s) => ({
+                ...s,
+                visible: { ...s.visible, [id]: true },
+              }))
+            if (id)
+              setMedia((s) =>
+                s.muted[id] === undefined
+                  ? { ...s, muted: { ...s.muted, [id]: true } }
+                  : s
+              )
           } else {
             visibleElements.delete(entry.target)
             // 先不隐藏已经加载过的视频，隐藏的代码先保留
             // if (id) setVisible((v) => ({ ...v, [id]: false }))
-            if (id) setPlaying((p) => ({ ...p, [id]: false }))
+            if (id)
+              setMedia((s) => ({
+                ...s,
+                playing: { ...s.playing, [id]: false },
+              }))
             const player = entry.target.querySelector('mux-player') as any
             if (player && !player.paused) {
               try {
@@ -118,7 +149,7 @@ export default function HomeAllTab() {
       }
     )
 
-    const nodes = Object.values(playersRef.current).filter(Boolean)
+    const nodes = Object.values(media.players).filter(Boolean)
     nodes.forEach((node) => {
       if (!node) return
       observer.observe(node)
@@ -131,7 +162,7 @@ export default function HomeAllTab() {
       })
       observer.disconnect()
     }
-  }, [items])
+  }, [items, media.players])
 
   const resolvePlayback = (fileUrl?: string | null) => {
     const src = fileUrl || ''
@@ -141,28 +172,39 @@ export default function HomeAllTab() {
   }
 
   const togglePlay = (id: string) => {
-    const container = playersRef.current[id]
+    const container = media.players[id]
     const player = container?.querySelector('mux-player') as any
     if (!player) return
     try {
       if (player.paused) {
         pauseAllExcept(id)
         player.play()
-        setPlaying((p) => ({ ...p, [id]: true }))
+        setMedia((s) => ({
+          ...s,
+          playing: { ...s.playing, [id]: true },
+          pausedByUser: { ...s.pausedByUser, [id]: false },
+        }))
       } else {
         player.pause()
-        setPlaying((p) => ({ ...p, [id]: false }))
+        setMedia((s) => ({
+          ...s,
+          playing: { ...s.playing, [id]: false },
+          pausedByUser: { ...s.pausedByUser, [id]: true },
+        }))
       }
     } catch {}
   }
 
   const toggleMute = (id: string) => {
-    const container = playersRef.current[id]
+    const container = media.players[id]
     const player = container?.querySelector('mux-player') as any
     if (!player) return
     try {
       player.muted = !player.muted
-      setMuted((m) => ({ ...m, [id]: !!player.muted }))
+      setMedia((s) => ({
+        ...s,
+        muted: { ...s.muted, [id]: !!player.muted },
+      }))
     } catch {}
   }
 
@@ -192,14 +234,19 @@ export default function HomeAllTab() {
           <div
             key={w.id}
             ref={(el) => {
-              playersRef.current[w.id] = el
+              if (media.players[w.id] !== el) {
+                setMedia((s) => ({
+                  ...s,
+                  players: { ...s.players, [w.id]: el },
+                }))
+              }
             }}
             data-pid={playbackId || ''}
             data-id={w.id}
           >
             <div aria-label={w.title || 'View content'} className="block">
               <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
-                {visible[w.id] ? (
+                {media.visible[w.id] ? (
                   <VideoPlayerLazy
                     noControls
                     title={w.title}
@@ -209,7 +256,11 @@ export default function HomeAllTab() {
                     muted
                     onPlay={() => {
                       pauseAllExcept(w.id)
-                      setPlaying((p) => ({ ...p, [w.id]: true }))
+                      setMedia((s) => ({
+                        ...s,
+                        playing: { ...s.playing, [w.id]: true },
+                        pausedByUser: { ...s.pausedByUser, [w.id]: false },
+                      }))
                     }}
                   />
                 ) : (
@@ -244,7 +295,7 @@ export default function HomeAllTab() {
                   <span className="absolute top-4 right-4 bg-highlight text-primary text-xs rounded px-3 py-1">
                     Watch Free
                   </span>
-                  {visible[w.id] && (
+                  {media.visible[w.id] && (
                     <div className="absolute bottom-4 left-4 flex items-center gap-2">
                       <button
                         type="button"
@@ -256,7 +307,7 @@ export default function HomeAllTab() {
                         aria-label="Play"
                         className="pointer-events-auto h-7 w-7 rounded-md bg-[#1D212999] text-white flex items-center justify-center"
                       >
-                        {playing[w.id] ? (
+                        {media.playing[w.id] ? (
                           <Pause className="size-4" />
                         ) : (
                           <Play className="size-4" />
@@ -272,7 +323,7 @@ export default function HomeAllTab() {
                         aria-label="Volume"
                         className="pointer-events-auto h-7 w-7 rounded-md bg-[#1D212999] text-white flex items-center justify-center"
                       >
-                        {muted[w.id] ? (
+                        {(media.muted[w.id] ?? true) ? (
                           <VolumeX className="size-4" />
                         ) : (
                           <Volume2 className="size-4" />
