@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import { getAuthSession } from '@/middleware/auth'
 
 // POST /api/works/[id]/views - Increment view count
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -31,7 +32,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
     })
 
-    return NextResponse.json(apiSuccess({ id: updatedWork.id, views: updatedWork.views }))
+    // Optionally record watch history for logged-in users
+    let historyUpdated = false
+    try {
+      const { userId } = await getAuthSession(request)
+      if (userId) {
+        await prisma.watchHistory.upsert({
+          where: { userId_workId: { userId, workId: id } },
+          update: { watchedAt: new Date() },
+          create: { userId, workId: id, watchedAt: new Date() },
+        })
+        historyUpdated = true
+      }
+    } catch (e) {
+      // Do not fail the request if history recording fails
+    }
+
+    return NextResponse.json(
+      apiSuccess({ id: updatedWork.id, views: updatedWork.views, historyUpdated })
+    )
 
   } catch (error) {
     console.error('Error incrementing view count:', error)

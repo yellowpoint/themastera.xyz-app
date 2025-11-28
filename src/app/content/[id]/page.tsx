@@ -1,10 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { resolveUserCover } from '@/config/covers'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { HeaderHeight } from '@/components/Header'
-import { SidebarPlaylistSection } from '@/components/sidebar-playlist-section'
 import SubscribeButton from '@/components/SubscribeButton'
 import {
   Accordion,
@@ -12,8 +11,6 @@ import {
   AccordionItem,
 } from '@/components/ui/accordion'
 import { Skeleton } from '@/components/ui/skeleton'
-import VideoPlayer from '@/components/VideoPlayer'
-import WorkCardList from '@/components/WorkCardList'
 import { useAuth } from '@/hooks/useAuth'
 import { formatDate, formatViews } from '@/lib/format'
 import { request } from '@/lib/request'
@@ -24,9 +21,20 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+
+const VideoPlayer = dynamic(() => import('@/components/VideoPlayer'), {
+  ssr: false,
+})
+const WorkCardList = dynamic(() => import('@/components/WorkCardList'))
+const SidebarPlaylistSectionLazy = dynamic(() =>
+  import('@/components/sidebar-playlist-section').then(
+    (m) => m.SidebarPlaylistSection
+  )
+)
 
 export default function ContentDetailPage() {
   const params = useParams()
@@ -51,21 +59,26 @@ export default function ContentDetailPage() {
   const [likeLoading, setLikeLoading] = useState(false)
   const [dislikeLoading, setDislikeLoading] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(false)
+  const detailsAbortRef = useRef<AbortController | null>(null)
+  const relatedAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (workId) {
-      fetchWorkDetails()
-      fetchRelatedWorks()
-      // Announce currently playing work to sidebar
+      detailsAbortRef.current?.abort()
+      relatedAbortRef.current?.abort()
+      const d = new AbortController()
+      const r = new AbortController()
+      detailsAbortRef.current = d
+      relatedAbortRef.current = r
+      fetchWorkDetails(d.signal)
+      fetchRelatedWorks(r.signal)
       try {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('player:now-playing', { detail: { workId } })
           )
         }
-      } catch (_) {
-        // ignore
-      }
+      } catch (_) {}
     }
   }, [workId])
 
@@ -84,12 +97,12 @@ export default function ContentDetailPage() {
       a.click()
       document.body.removeChild(a)
 
-      // Best-effort increment downloads stat (ignore errors)
-      try {
-        await request.post('/api/works/stats', { workId, type: 'download' })
-      } catch (e) {
-        // silently ignore
-      }
+      void request.post(
+        '/api/works/stats',
+        { workId, type: 'download' },
+        {},
+        { showErrorToast: false, throwOnError: false }
+      )
     } catch (err) {
       console.error('Download error:', err)
       toast.error('Download failed. Please try again later.')
@@ -98,34 +111,26 @@ export default function ContentDetailPage() {
     }
   }
 
-  const fetchWorkDetails = async () => {
+  const fetchWorkDetails = async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       setError(null)
-      const { data } = await request.get(`/api/works/${workId}`)
+      const { data } = await request.get(`/api/works/${workId}?light=1`, {
+        signal,
+      })
 
       const { work, engagement, authorFollow } = data?.data || {}
       if (work) {
         setWork(work)
 
-        // Increment view count after successfully loading work details
-        try {
-          await request.post(`/api/works/${workId}/views`)
-        } catch (viewError) {
-          console.error('Error incrementing view count:', viewError)
-          // Don't show error to user for view count increment failure
-        }
+        void request.post(
+          `/api/works/${workId}/views`,
+          undefined,
+          {},
+          { showErrorToast: false, throwOnError: false }
+        )
 
-        // Record watch history (upsert latest viewed timestamp)
-        // Only record history for logged-in users
-        if (user?.id) {
-          try {
-            await request.post('/api/history', { workId })
-          } catch (historyError) {
-            // Do not block page on history errors
-            console.error('Error recording watch history:', historyError)
-          }
-        }
+        // History recording merged into views endpoint server-side
       }
       if (engagement) {
         const { reaction, likesCount, dislikesCount } = engagement
@@ -140,24 +145,36 @@ export default function ContentDetailPage() {
           setAuthorFollowersCount(authorFollow.followersCount)
         }
       }
-    } catch (err) {
+      setLoading(false)
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return
       console.error('Error fetching work details:', err)
       setError(err.message || 'Network error, please try again later')
-    } finally {
       setLoading(false)
     }
   }
 
-  const fetchRelatedWorks = async () => {
+  const fetchRelatedWorks = async (signal?: AbortSignal) => {
     try {
       const { data } = await request.get(
-        `/api/works/trending?limit=4&exclude=${workId}`
+        `/api/works/trending?limit=4&exclude=${workId}`,
+        { signal }
       )
       setRelatedWorks((data as any)?.data?.items || [])
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return
       console.error('Error fetching related works:', err)
     }
   }
+
+  useEffect(() => {
+    const first = (relatedWorks || [])[0] as any
+    if (first?.id) {
+      try {
+        router.prefetch(`/content/${first.id}`)
+      } catch (_) {}
+    }
+  }, [relatedWorks, router])
 
   // formatViews moved to shared module
 
@@ -343,6 +360,7 @@ export default function ContentDetailPage() {
         <div className="md:col-span-3 h-full px-2 pb-6 overflow-hidden">
           <div className="flex justify-center">
             <VideoPlayer
+              key={workId}
               videoUrl={work.fileUrl}
               thumbnailUrl={work.thumbnailUrl}
               title={work.title}
@@ -448,6 +466,7 @@ export default function ContentDetailPage() {
                         src={(work?.user?.image as any) || '/favicon.ico'}
                         alt="avatar"
                         className="size-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                     <Link
@@ -509,7 +528,7 @@ export default function ContentDetailPage() {
 
             {user?.id && (
               <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
-                <SidebarPlaylistSection />
+                <SidebarPlaylistSectionLazy />
               </div>
             )}
 

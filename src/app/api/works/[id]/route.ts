@@ -12,6 +12,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const isMinimal =
+      searchParams.get('light') === '1' || searchParams.get('minimal') === '1'
 
     const work = await prisma.work.findUnique({
       where: { id },
@@ -24,26 +27,30 @@ export async function GET(
             coverImage: true,
           },
         },
-        reviews: {
-          select: {
-            rating: true,
-            comment: true,
-            createdAt: true,
-            user: {
-              select: {
-                name: true,
-                image: true,
+        ...(isMinimal
+          ? {}
+          : {
+              reviews: {
+                select: {
+                  rating: true,
+                  comment: true,
+                  createdAt: true,
+                  user: {
+                    select: {
+                      name: true,
+                      image: true,
+                    },
+                  },
+                },
               },
-            },
-          },
-        },
-        purchases: {
-          select: {
-            id: true,
-            userId: true,
-            createdAt: true,
-          },
-        },
+              purchases: {
+                select: {
+                  id: true,
+                  userId: true,
+                  createdAt: true,
+                },
+              },
+            }),
       },
     })
 
