@@ -13,7 +13,13 @@
     "dbpush": "prisma db push && prisma generate",
     "dbstudio": "prisma studio",
     "dbbackup": "node scripts/backup-db.js",
-    "dbrestore": "node scripts/restore-db.js"
+    "dbrestore": "node scripts/restore-db.js",
+    "dbexportjson": "node scripts/export-json.js",
+    "dbimportjson": "node scripts/import-json.js",
+    "dbexportjson:local": "node scripts/export-json.js --env local",
+    "dbexportjson:prod": "node scripts/export-json.js --env prod",
+    "dbimportjson:local": "node scripts/import-json.js --env local",
+    "dbimportjson:prod": "node scripts/import-json.js --env prod --allow-prod"
   },
   "dependencies": {
     "@fontsource-variable/jost": "^5.2.8",
