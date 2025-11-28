@@ -10,14 +10,16 @@ const SubscriptionsPageLazy = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-sm text-muted-foreground">Loading...</div>
+      <div className="text-sm text-muted-foreground text-center">
+        Loading...
+      </div>
     ),
   }
 )
 const WatchHistoryPageLazy = dynamic(() => import('@/app/history/page'), {
   ssr: false,
   loading: () => (
-    <div className="text-sm text-muted-foreground">Loading...</div>
+    <div className="text-sm text-muted-foreground text-center">Loading...</div>
   ),
 })
 
