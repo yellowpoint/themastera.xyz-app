@@ -199,13 +199,7 @@ export default function HomeAllTab() {
             data-pid={playbackId || ''}
             data-id={w.id}
           >
-            <div
-              onClick={() => {
-                router.push(`/content/${w.id}`)
-              }}
-              aria-label={w.title || 'View content'}
-              className="block"
-            >
+            <div aria-label={w.title || 'View content'} className="block">
               <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
                 <VideoPlayer
                   noControls
@@ -214,7 +208,13 @@ export default function HomeAllTab() {
                   loop
                   muted
                 />
-                <div className="absolute inset-0 pointer-events-none">
+                <div
+                  className="absolute inset-0 z-10"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    router.push(`/content/${w.id}`)
+                  }}
+                >
                   <div className="absolute top-4 left-4 max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
                     <div className="text-white text-lg  truncate">
                       {w.title}
