@@ -1,11 +1,16 @@
 'use client'
 import { Skeleton } from '@/components/ui/skeleton'
-import VideoPlayer from '@/components/VideoPlayer'
 import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+
+const VideoPlayerLazy = dynamic(() => import('@/components/VideoPlayer'), {
+  ssr: false,
+  loading: () => <Skeleton className="aspect-video w-full rounded-xl" />,
+})
 
 export default function HomeAllTab() {
   const [items, setItems] = useState<HomepageItem[]>([])
@@ -13,7 +18,10 @@ export default function HomeAllTab() {
   const [error, setError] = useState<string | null>(null)
   const [playing, setPlaying] = useState<Record<string, boolean>>({})
   const [muted, setMuted] = useState<Record<string, boolean>>({})
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const [activeId, setActiveId] = useState<string | null>(null)
   const playersRef = useRef<Record<string, HTMLDivElement | null>>({})
+  const attachedRef = useRef<Record<string, boolean>>({})
   const router = useRouter()
 
   useEffect(() => {
@@ -21,9 +29,17 @@ export default function HomeAllTab() {
       try {
         setLoading(true)
         setError(null)
-        const { data } = await request.get(`/api/homepage?limit=8`)
+        const DEFAULT_LIMIT = 12
+        const { data } = await request.get(
+          `/api/homepage?limit=${DEFAULT_LIMIT}`
+        )
         const quickPicks = (data as any)?.data?.quickPicks || []
         setItems(quickPicks)
+        const preIds = quickPicks.slice(0, 2).map((w: any) => w.id)
+        setVisible((v) => ({
+          ...v,
+          ...Object.fromEntries(preIds.map((id: string) => [id, true])),
+        }))
       } catch (e: any) {
         setError(e?.message || 'Failed to load')
       } finally {
@@ -47,6 +63,8 @@ export default function HomeAllTab() {
         }
       }
       if (mostVisibleEntry) {
+        const id = (mostVisibleEntry.target as HTMLElement).dataset.id || ''
+        setActiveId(id || null)
         const playerToPlay = mostVisibleEntry.target.querySelector(
           'mux-player'
         ) as any
@@ -60,21 +78,23 @@ export default function HomeAllTab() {
             }
           }
         }
-        if (playerToPlay && playerToPlay.paused) {
-          try {
-            playerToPlay.play()
-          } catch {}
+        if (playerToPlay) {
         }
+      } else {
+        setActiveId(null)
       }
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const id = (entry.target as HTMLElement).dataset.id || ''
           if (entry.isIntersecting) {
             visibleElements.set(entry.target, entry)
+            if (id) setVisible((v) => ({ ...v, [id]: true }))
           } else {
             visibleElements.delete(entry.target)
+            if (id) setVisible((v) => ({ ...v, [id]: false }))
             const player = entry.target.querySelector('mux-player') as any
             if (player && !player.paused) {
               try {
@@ -85,7 +105,10 @@ export default function HomeAllTab() {
         })
         playMostVisible()
       },
-      { threshold: Array.from({ length: 20 }, (_, i) => i * 0.05) }
+      {
+        threshold: Array.from({ length: 20 }, (_, i) => i * 0.05),
+        rootMargin: '200px 0px',
+      }
     )
 
     const nodes = Object.values(playersRef.current).filter(Boolean)
@@ -136,6 +159,48 @@ export default function HomeAllTab() {
     }
   }, [items])
 
+  useEffect(() => {
+    Object.entries(visible).forEach(([id, isVisible]) => {
+      const node = playersRef.current[id]
+      if (!node) return
+      const player = node.querySelector('mux-player') as any
+      if (isVisible && player && !attachedRef.current[id]) {
+        const handlePlay = () => {
+          setPlaying((p) => ({ ...p, [id]: true }))
+        }
+        const handlePause = () => {
+          setPlaying((p) => ({ ...p, [id]: false }))
+        }
+        const handleVolumeChange = () => {
+          setMuted((m) => ({ ...m, [id]: !!player.muted }))
+        }
+        player.addEventListener('play', handlePlay)
+        player.addEventListener('pause', handlePause)
+        player.addEventListener('volumechange', handleVolumeChange)
+        setPlaying((p) => ({ ...p, [id]: !player.paused }))
+        setMuted((m) => ({ ...m, [id]: !!player.muted }))
+        ;(node as any).__listeners = {
+          handlePlay,
+          handlePause,
+          handleVolumeChange,
+        }
+        attachedRef.current[id] = true
+      }
+      if (!isVisible && attachedRef.current[id] && player) {
+        const listeners = (node as any).__listeners
+        if (listeners) {
+          player.removeEventListener('play', listeners.handlePlay)
+          player.removeEventListener('pause', listeners.handlePause)
+          player.removeEventListener(
+            'volumechange',
+            listeners.handleVolumeChange
+          )
+        }
+        attachedRef.current[id] = false
+      }
+    })
+  }, [visible])
+
   const resolvePlayback = (fileUrl?: string | null) => {
     const src = fileUrl || ''
     const m = src.match(/stream\.mux\.com\/([^.?]+)/)
@@ -171,7 +236,7 @@ export default function HomeAllTab() {
   if (loading) {
     return (
       <div className="space-y-6 max-w-5xl mx-auto">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 12 }).map((_, i) => (
           <Skeleton key={i} className="aspect-video w-full rounded-xl" />
         ))}
       </div>
@@ -200,14 +265,27 @@ export default function HomeAllTab() {
             data-id={w.id}
           >
             <div aria-label={w.title || 'View content'} className="block">
-              <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
-                <VideoPlayer
-                  noControls
-                  title={w.title}
-                  videoUrl={src}
-                  loop
-                  muted
-                />
+              <div
+                className={`relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video`}
+              >
+                {visible[w.id] ? (
+                  <VideoPlayerLazy
+                    noControls
+                    title={w.title}
+                    videoUrl={src}
+                    thumbnailUrl={w.thumbnailUrl || undefined}
+                    autoPlay
+                    loop
+                    muted
+                  />
+                ) : (
+                  <img
+                    src={w.thumbnailUrl || '/thumbnail-placeholder.svg'}
+                    alt={w.title || 'Thumbnail'}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                )}
                 <div
                   className="absolute inset-0 z-10"
                   onClick={(e) => {
@@ -226,40 +304,42 @@ export default function HomeAllTab() {
                   <span className="absolute top-4 right-4 bg-highlight text-primary text-xs rounded px-3 py-1">
                     Watch Free
                   </span>
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        togglePlay(w.id)
-                      }}
-                      aria-label="Play"
-                      className="pointer-events-auto h-7 w-7 rounded-md bg-[#1D212999] text-white flex items-center justify-center"
-                    >
-                      {playing[w.id] ? (
-                        <Pause className="size-4" />
-                      ) : (
-                        <Play className="size-4" />
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        toggleMute(w.id)
-                      }}
-                      aria-label="Volume"
-                      className="pointer-events-auto h-7 w-7 rounded-md bg-[1D212999] text-white flex items-center justify-center"
-                    >
-                      {muted[w.id] ? (
-                        <VolumeX className="size-4" />
-                      ) : (
-                        <Volume2 className="size-4" />
-                      )}
-                    </button>
-                  </div>
+                  {visible[w.id] && (
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          togglePlay(w.id)
+                        }}
+                        aria-label="Play"
+                        className="pointer-events-auto h-7 w-7 rounded-md bg-[#1D212999] text-white flex items-center justify-center"
+                      >
+                        {playing[w.id] ? (
+                          <Pause className="size-4" />
+                        ) : (
+                          <Play className="size-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          toggleMute(w.id)
+                        }}
+                        aria-label="Volume"
+                        className="pointer-events-auto h-7 w-7 rounded-md bg-[1D212999] text-white flex items-center justify-center"
+                      >
+                        {muted[w.id] ? (
+                          <VolumeX className="size-4" />
+                        ) : (
+                          <Volume2 className="size-4" />
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client'
 import { Card, CardContent } from '@/components/ui/card'
 import MuxPlayer from '@mux/mux-player-react'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type VideoPlayerProps = {
   videoUrl?: string
@@ -21,6 +21,7 @@ type VideoPlayerProps = {
 
 export default function VideoPlayer({
   videoUrl,
+  thumbnailUrl,
   title = 'Video Content',
   width = '100%',
   height = '400px',
@@ -34,6 +35,7 @@ export default function VideoPlayer({
   noControls = false,
 }: VideoPlayerProps) {
   const playerRef = useRef<any>(null)
+  const [loadingState, setLoadingState] = useState(true)
 
   useEffect(() => {
     const el = playerRef.current as any
@@ -117,6 +119,8 @@ export default function VideoPlayer({
             <MuxPlayer
               accent-color="var(--primary)"
               playbackId={effectivePlaybackId}
+              poster={thumbnailUrl}
+              preload="metadata"
               renditionOrder="desc"
               metadata={{
                 video_title: title,
@@ -130,6 +134,10 @@ export default function VideoPlayer({
               onPlay={handlePlay}
               onPause={handlePause}
               onEnded={handleEnded}
+              onWaiting={() => setLoadingState(true)}
+              onPlaying={() => setLoadingState(false)}
+              onCanPlay={() => setLoadingState(false)}
+              onLoadedData={() => setLoadingState(false)}
             />
           )
         }
@@ -141,6 +149,11 @@ export default function VideoPlayer({
           </div>
         )
       })()}
+      {noControls && loadingState && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+          <div className="size-12 rounded-full border-4 border-white border-t-transparent animate-spin" />
+        </div>
+      )}
     </div>
   )
 }

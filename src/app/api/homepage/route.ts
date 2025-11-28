@@ -24,6 +24,10 @@ function toHomepageItem(work: any) {
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const limitParam = parseInt(searchParams.get('limit') || '12', 10)
+    const limit = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 12
+
     const ordered = await prisma.work.findMany({
       where: {
         status: 'published',
@@ -34,22 +38,34 @@ export async function GET(request: NextRequest) {
         user: { select: { id: true, name: true, image: true } },
       },
       orderBy: [{ quickPickOrder: 'asc' }],
+      take: limit,
     })
-    const fallback = await prisma.work.findMany({
-      where: {
-        status: 'published',
-        quickPick: true,
-        quickPickOrder: null,
-      },
-      include: {
-        user: { select: { id: true, name: true, image: true } },
-      },
-      orderBy: [{ createdAt: 'desc' }],
-    })
-    const quickPicksWorks = [...ordered, ...fallback]
 
+    const remaining = Math.max(limit - ordered.length, 0)
+    let fallback: typeof ordered = []
+    if (remaining > 0) {
+      fallback = await prisma.work.findMany({
+        where: {
+          status: 'published',
+          quickPick: true,
+          quickPickOrder: null,
+        },
+        include: {
+          user: { select: { id: true, name: true, image: true } },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+        take: remaining,
+      })
+    }
+
+    const quickPicksWorks = [...ordered, ...fallback]
     const quickPicks = quickPicksWorks.map(toHomepageItem)
-    return NextResponse.json(apiSuccess({ quickPicks }))
+
+    const res = NextResponse.json(apiSuccess({ quickPicks }), {
+      status: 200,
+    })
+    res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+    return res
   } catch (error) {
     console.error('Error generating homepage data:', error)
     return NextResponse.json(
