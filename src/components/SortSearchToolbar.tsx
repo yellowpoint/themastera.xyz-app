@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Plus, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 type Props = {
-  sortAZ: boolean
-  onSortChange: (value: boolean) => void
+  sortAZ?: boolean
+  onSortChange?: (value: boolean) => void
   searchQuery: string
   onSearchQueryChange: (value: string) => void
   className?: string
@@ -16,6 +17,7 @@ type Props = {
   onCreateClick?: () => void
   createLabel?: string
   size?: 'compact' | 'normal'
+  showSortButtons?: boolean
 }
 
 export default function SortSearchToolbar({
@@ -29,6 +31,7 @@ export default function SortSearchToolbar({
   onCreateClick,
   createLabel = 'Create',
   size = 'normal',
+  showSortButtons = true,
 }: Props) {
   const btnSizeClass = size === 'compact' ? 'h-6 text-xs' : 'h-7 text-sm'
   const inputSizeClass =
@@ -36,36 +39,47 @@ export default function SortSearchToolbar({
   const iconSizeClass = size === 'compact' ? 'size-3' : 'h-4 w-4'
   const searchWidthClass =
     size === 'compact' ? 'w-full md:w-80 h-6 text-xs' : 'w-full md:w-80'
+
+  const [localQuery, setLocalQuery] = useState(searchQuery)
+
+  useEffect(() => {
+    setLocalQuery(searchQuery)
+  }, [searchQuery])
+
   return (
     <div className={cn('flex items-center gap-3 mb-4', className)}>
-      <Button
-        size="sm"
-        variant="secondary"
-        onClick={() => onSortChange(false)}
-        className={cn(
-          'rounded-lg px-3',
-          btnSizeClass,
-          !sortAZ
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-overlay text-white hover:bg-overlay-hover'
-        )}
-      >
-        Recent added
-      </Button>
-      <Button
-        size="sm"
-        variant="secondary"
-        onClick={() => onSortChange(true)}
-        className={cn(
-          'rounded-lg px-3',
-          btnSizeClass,
-          sortAZ
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-overlay text-white hover:bg-overlay-hover'
-        )}
-      >
-        A-Z
-      </Button>
+      {showSortButtons && (
+        <>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onSortChange(false)}
+            className={cn(
+              'rounded-lg px-3',
+              btnSizeClass,
+              !sortAZ
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-overlay text-white hover:bg-overlay-hover'
+            )}
+          >
+            Recent added
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onSortChange(true)}
+            className={cn(
+              'rounded-lg px-3',
+              btnSizeClass,
+              sortAZ
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-overlay text-white hover:bg-overlay-hover'
+            )}
+          >
+            A-Z
+          </Button>
+        </>
+      )}
       <div className={cn('relative', searchWidthClass)}>
         <Search
           className={cn(
@@ -76,8 +90,9 @@ export default function SortSearchToolbar({
         <Input
           placeholder={searchPlaceholder}
           className={cn(inputSizeClass, 'bg-overlay text-white border-0!')}
-          value={searchQuery}
-          onChange={(e) => onSearchQueryChange(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
+          onDebouncedValueChange={onSearchQueryChange}
         />
       </div>
       {showCreateButton ? (
