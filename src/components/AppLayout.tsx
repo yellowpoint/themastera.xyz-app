@@ -27,6 +27,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/user',
     '/creator',
     '/content/',
+    '/event/',
   ].some((prefix) => pathname?.startsWith(prefix))
 
   const showSidebarController =
@@ -55,6 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/auth',
     '/admin',
     '/creator',
+    '/event/',
   ].some((prefix) => pathname?.startsWith(prefix))
 
   const showBackgroundImage =

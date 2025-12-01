@@ -22,6 +22,7 @@ import {
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 // --- Types ---
@@ -43,7 +44,7 @@ const MOCK_EVENTS: EventItem[] = Array.from({ length: 9 }).map((_, i) => ({
   title: 'Shueisha Manga-Art Heritage Collection',
   dateRange: '2025.11.12-2025.11.25',
   status: 'Upcoming',
-  imageUrl: `/bg/${(i % 8) + 1}.jpg`, // Using existing background images as placeholders
+  imageUrl: `/bg/${(i % 7) + 1}.jpg`, // Using existing background images as placeholders
   artist: {
     name: 'Artist name',
     avatarUrl: '', // Fallback to initials
@@ -149,43 +150,45 @@ export default function EventPage() {
 
 function EventCard({ event }: { event: EventItem }) {
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors cursor-pointer">
-      {/* Image Container */}
-      <div className="relative aspect-video w-full overflow-hidden bg-muted">
-        <Image
-          src={event.imageUrl}
-          alt={event.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-col gap-3 p-4">
-        <h3 className="font-medium text-lg leading-tight line-clamp-2">
-          {event.title}
-        </h3>
-
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{event.dateRange}</span>
-          <Badge
-            variant="outline"
-            className="rounded-sm border-orange-500/50 text-orange-500 bg-orange-500/10 px-1.5 py-0 text-[10px] font-normal uppercase tracking-wide"
-          >
-            {event.status}
-          </Badge>
+    <Link href={`/event/${event.id}`} className="block">
+      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors cursor-pointer">
+        {/* Image Container */}
+        <div className="relative aspect-video w-full overflow-hidden bg-muted">
+          <Image
+            src={event.imageUrl}
+            alt={event.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
 
-        <div className="flex items-center gap-2 mt-1">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={event.artist.avatarUrl} />
-            <AvatarFallback className="text-[10px]">AN</AvatarFallback>
-          </Avatar>
-          <span className="text-sm text-muted-foreground">
-            {event.artist.name}
-          </span>
+        {/* Content */}
+        <div className="flex flex-col gap-3 p-4">
+          <h3 className="font-medium text-lg leading-tight line-clamp-2">
+            {event.title}
+          </h3>
+
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{event.dateRange}</span>
+            <Badge
+              variant="outline"
+              className="rounded-sm border-orange-500/50 text-orange-500 bg-orange-500/10 px-1.5 py-0 text-[10px] font-normal uppercase tracking-wide"
+            >
+              {event.status}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-2 mt-1">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={event.artist.avatarUrl} />
+              <AvatarFallback className="text-[10px]">AN</AvatarFallback>
+            </Avatar>
+            <span className="text-sm text-muted-foreground">
+              {event.artist.name}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
