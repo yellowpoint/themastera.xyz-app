@@ -1,7 +1,7 @@
 'use client'
+import FuzzyText from '@/components/ui/FuzzyText'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { ArrowLeft, SearchX } from 'lucide-react'
-import FuzzyText from '@/components/FuzzyText'
 
 export default function NotFound() {
   return (

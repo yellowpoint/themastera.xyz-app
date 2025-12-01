@@ -133,69 +133,6 @@ Mastera 平台是一个基于 Next.js 构建的全栈 Web 应用程序，旨在�
 
    在浏览器中打开 [http://localhost:3000](http://localhost:3000)。
 
-## 📁 项目结构
-
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/                # API 路由
-│   │   ├── auth/
-│   │   ├── works/
-│   │   ├── playlists/
-│   │   ├── search/
-│   │   ├── history/
-│   │   ├── section/
-│   │   └── users/
-│   ├── auth/               # 身份认证页面
-│   │   ├── login/
-│   │   ├── register/
-│   │   ├── forgot-password/
-│   │   ├── reset-password/
-│   │   └── verify-email/[email]/
-│   ├── creator/            # 创作者仪表板
-│   │   ├── page.tsx
-│   │   ├── upload/
-│   │   └── edit/[id]/
-│   ├── content/[id]/
-│   ├── explore/
-│   ├── history/
-│   ├── playlists/
-│   │   ├── page.tsx
-│   │   └── [id]/
-│   ├── profile/
-│   ├── search/
-│   ├── section/
-│   ├── subscriptions/
-│   ├── user/[id]/
-│   ├── admin/
-│   │   ├── page.tsx
-│   │   └── works/
-│   └── page.tsx
-├── components/             # 可复用组件
-│   ├── ui/                 # shadcn/ui 组件
-│   ├── VideoPlayer.tsx
-│   ├── WorkCard.tsx
-│   ├── app-sidebar.tsx
-│   └── Header.tsx
-├── hooks/
-│   ├── useAuth.tsx
-│   ├── useWorks.ts
-│   └── use-mobile.ts
-├── lib/
-│   ├── auth.ts
-│   ├── prisma.ts
-│   ├── supabase.ts
-│   └── request.ts
-├── contracts/
-│   ├── types/
-│   ├── api/
-│   └── domain/
-├── config/
-│   ├── categories.ts
-│   └── sections.ts
-└── utils/
-```
-
 ## 🧭 现有页面一览
 
 当前仓库中的页面（基于 App Router）：

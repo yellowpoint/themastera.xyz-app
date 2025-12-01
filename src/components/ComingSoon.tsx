@@ -1,6 +1,6 @@
 'use client'
 
-import FuzzyText from '@/components/FuzzyText'
+import FuzzyText from '@/components/ui/FuzzyText'
 
 type Props = {
   title?: string
