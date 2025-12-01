@@ -19,37 +19,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { request } from '@/lib/request'
 import { cn } from '@/lib/utils'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // --- Types ---
 interface EventItem {
   id: string
   title: string
   dateRange: string
-  status: 'Upcoming' | 'Ongoing' | 'Ended'
+  status: 'Upcoming' | 'On viewing' | 'Ended'
   imageUrl: string
   artist: {
     name: string
     avatarUrl: string
   }
 }
-
-// --- Mock Data ---
-const MOCK_EVENTS: EventItem[] = Array.from({ length: 9 }).map((_, i) => ({
-  id: `evt-${i}`,
-  title: 'Shueisha Manga-Art Heritage Collection',
-  dateRange: '2025.11.12-2025.11.25',
-  status: 'Upcoming',
-  imageUrl: `/bg/${(i % 7) + 1}.jpg`, // Using existing background images as placeholders
-  artist: {
-    name: 'Artist name',
-    avatarUrl: '', // Fallback to initials
-  },
-}))
 
 const TABS = [
   { key: 'on-viewing', label: 'On viewing' },
@@ -62,6 +50,61 @@ export default function EventPage() {
   const [activeTab, setActiveTab] = useState('upcoming')
   const [itemsPerPage, setItemsPerPage] = useState('5')
   const [currentPage, setCurrentPage] = useState(1)
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(0)
+
+  // Map tab key to status
+  const statusMap: Record<string, string> = {
+    'on-viewing': 'On viewing',
+    upcoming: 'Upcoming',
+    archive: 'Ended',
+  }
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true)
+      try {
+        const params = new URLSearchParams()
+        if (searchQuery) params.set('q', searchQuery)
+
+        const status = statusMap[activeTab]
+        if (status) params.set('status', status)
+
+        params.set('page', String(currentPage))
+        params.set('limit', itemsPerPage)
+
+        const { data } = await request.get(`/api/events?${params.toString()}`)
+        if (data?.success) {
+          const mappedEvents = (data.data.items || []).map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            dateRange: item.period || '',
+            status: item.status,
+            imageUrl: item.posterUrl || '/bg/1.jpg',
+            artist: {
+              name: item.artistName || 'Unknown Artist',
+              avatarUrl: item.artistAvatar || '',
+            },
+          }))
+          setEvents(mappedEvents)
+          setTotal(data.data.pagination?.total || 0)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    // Debounce search slightly
+    const timer = setTimeout(() => {
+      fetchEvents()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery, activeTab, itemsPerPage, currentPage])
+
+  const totalPages = Math.ceil(total / parseInt(itemsPerPage))
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -78,66 +121,110 @@ export default function EventPage() {
         />
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_EVENTS.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {events.length > 0 ? (
+              events.map((event) => <EventCard key={event.id} event={event} />)
+            ) : (
+              <div className="col-span-full text-center py-10 text-muted-foreground">
+                No events found
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Pagination */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 pb-4 text-sm text-muted-foreground">
-          <div>Total 99999 items</div>
+        {total > 0 && (
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 pb-4 text-sm text-muted-foreground">
+            <div>Total {total} items</div>
 
-          <div className="flex items-center gap-6">
-            <Pagination className="w-auto mx-0">
-              <PaginationContent>
-                <PaginationItem>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                </PaginationItem>
-                {[1, 2, 3, 4, 5].map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={currentPage === page}
-                      onClick={() => setCurrentPage(page)}
-                      className={cn(
-                        'h-8 w-8 cursor-pointer',
-                        currentPage === page &&
-                          'bg-primary text-primary-foreground hover:bg-primary/90'
-                      )}
+            <div className="flex items-center gap-6">
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     >
-                      {page}
-                    </PaginationLink>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
                   </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  {/* Simplified pagination logic */}
+                  {Array.from({ length: Math.min(5, totalPages) }).map(
+                    (_, i) => {
+                      // Show pages around current page
+                      let p = i + 1
+                      if (totalPages > 5) {
+                        if (currentPage > 3) p = currentPage - 2 + i
+                        if (p > totalPages) p = totalPages - (4 - i)
+                      }
+                      return (
+                        <PaginationItem key={p}>
+                          <PaginationLink
+                            isActive={currentPage === p}
+                            onClick={() => setCurrentPage(p)}
+                            className={cn(
+                              'h-8 w-8 cursor-pointer',
+                              currentPage === p &&
+                                'bg-primary text-primary-foreground hover:bg-primary/90'
+                            )}
+                          >
+                            {p}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    }
+                  )}
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={currentPage >= totalPages}
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
 
-            <div className="flex items-center gap-2">
-              <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
-                <SelectTrigger className="h-8 w-[100px]">
-                  <SelectValue placeholder="5 / Page" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5 / Page</SelectItem>
-                  <SelectItem value="10">10 / Page</SelectItem>
-                  <SelectItem value="20">20 / Page</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="flex items-center gap-2">
+                <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
+                  <SelectTrigger className="h-8 w-[100px]">
+                    <SelectValue placeholder="5 / Page" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 / Page</SelectItem>
+                    <SelectItem value="10">10 / Page</SelectItem>
+                    <SelectItem value="20">20 / Page</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <span>Go to</span>
-              <Input className="h-8 w-12 px-1 text-center" defaultValue="20" />
+              <div className="flex items-center gap-2">
+                <span>Go to</span>
+                <Input
+                  className="h-8 w-12 px-1 text-center"
+                  value={currentPage}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value)
+                    if (val >= 1 && val <= totalPages) setCurrentPage(val)
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
 
       {/* Background Gradient Overlay - Matching the design's dark abstract feel */}
@@ -151,7 +238,7 @@ export default function EventPage() {
 function EventCard({ event }: { event: EventItem }) {
   return (
     <Link href={`/event/${event.id}`} className="block">
-      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors cursor-pointer">
+      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors cursor-pointer h-full">
         {/* Image Container */}
         <div className="relative aspect-video w-full overflow-hidden bg-muted">
           <Image
@@ -163,7 +250,7 @@ function EventCard({ event }: { event: EventItem }) {
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-3 p-4 flex-1">
           <h3 className="font-medium text-lg leading-tight line-clamp-2">
             {event.title}
           </h3>
@@ -178,10 +265,12 @@ function EventCard({ event }: { event: EventItem }) {
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-auto pt-2">
             <Avatar className="h-6 w-6">
               <AvatarImage src={event.artist.avatarUrl} />
-              <AvatarFallback className="text-[10px]">AN</AvatarFallback>
+              <AvatarFallback className="text-[10px]">
+                {event.artist.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
               {event.artist.name}

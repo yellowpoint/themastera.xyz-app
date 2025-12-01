@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
-import { ListVideo, Sparkles } from 'lucide-react'
+import { Calendar, ListVideo, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
@@ -51,6 +51,11 @@ export default function AdminLayout({
       title: 'Beta',
       href: '/admin/beta-applications',
       icon: Sparkles,
+    },
+    {
+      title: 'Events',
+      href: '/admin/events',
+      icon: Calendar,
     },
   ]
 
