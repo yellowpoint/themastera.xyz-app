@@ -243,7 +243,10 @@ Mastera 平台是一个基于 Next.js 构建的全栈 Web 应用程序，旨在�
 - 保持色彩搭配简洁清爽
 - 界面语言使用英语
 - 使用 PNPM 进行包管理
+- 使用 tailwindcss，且响应式只使用 md breakpoint
+- 基础 ui 组件使用 shadcn/ui，使用前先去查询其用法与例子
 - 统一使用公共请求封装：`src/lib/request.ts`，避免在页面/组件中直接调用 `fetch`
+- 后端接口格式统一使用 @/contracts/types/common 中的 `apiSuccess` 和 `apiFailure` 类型
 
 ### 数据库操作
 

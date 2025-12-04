@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call Better Auth sendVerificationEmail
+    const origin = request.nextUrl.origin
     const result = await auth.api.sendVerificationEmail({
       body: {
         email: parsed.data.email,
-        callbackURL: generateVerifyEmailCallbackURL(parsed.data.email) // Use shared helper to generate callback URL
+        callbackURL: generateVerifyEmailCallbackURL(parsed.data.email, origin) // Use shared helper to generate callback URL
       }
     })
 

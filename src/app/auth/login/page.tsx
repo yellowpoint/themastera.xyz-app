@@ -25,6 +25,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { request } from '@/lib/request'
+import { toast } from 'sonner'
+
 type LoginFormData = {
   email: string
   password: string
@@ -36,6 +47,9 @@ export default function LoginPage() {
   const { signIn, loading } = useAuth()
   const [error, setError] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [isResending, setIsResending] = useState<boolean>(false)
+  const [isResendDialogOpen, setIsResendDialogOpen] = useState<boolean>(false)
+  const [needsVerification, setNeedsVerification] = useState<boolean>(false)
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -43,11 +57,50 @@ export default function LoginPage() {
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // Reset verification state when email changes
+    if (field === 'email') setNeedsVerification(false)
+  }
+
+  const openResendDialog = () => {
+    if (!formData.email) {
+      toast.error('Please enter your email address first')
+      return
+    }
+    setIsResendDialogOpen(true)
+  }
+
+  const handleResendVerification = async () => {
+    if (!formData.email) return
+
+    setIsResending(true)
+    try {
+      const {
+        data,
+        ok,
+        error: reqError,
+      } = await request.post('/api/auth/resend-verification', {
+        email: formData.email,
+      })
+
+      if (ok) {
+        toast.success('Verification email sent! Please check your inbox.')
+        setNeedsVerification(false)
+        setError('')
+        setIsResendDialogOpen(false)
+      } else {
+        toast.error(reqError || 'Failed to send verification email')
+      }
+    } catch (err) {
+      toast.error('An error occurred while sending verification email')
+    } finally {
+      setIsResending(false)
+    }
   }
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
+    setNeedsVerification(false)
 
     if (!formData.email.trim()) {
       setError('Please enter your email address')
@@ -86,7 +139,18 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError(getErrorMessage(result.error))
+        const errorMsg = getErrorMessage(result.error)
+        const errorCode = (result.error as any)?.code
+
+        // Check if error is related to verification
+        if (errorCode === 'EMAIL_NOT_VERIFIED') {
+          setNeedsVerification(true)
+          setError(
+            "Email not verified yet. Please check your inbox for the verification link, or click 'Resend verification email' below."
+          )
+        } else {
+          setError(errorMsg)
+        }
       } else {
         router.push('/')
       }
@@ -157,9 +221,11 @@ export default function LoginPage() {
                     />
                   </Field>
                   {error && (
-                    <FieldDescription className="text-red-500">
-                      {error}
-                    </FieldDescription>
+                    <div className="space-y-2">
+                      <FieldDescription className="text-red-500">
+                        {error}
+                      </FieldDescription>
+                    </div>
                   )}
                   <Field>
                     <Button
@@ -174,7 +240,18 @@ export default function LoginPage() {
                   <Field>
                     <FieldDescription className="text-center">
                       Don&apos;t have an account?{' '}
-                      <Link href="/auth/register">Sign up</Link>
+                      <Link href="/auth/register" className="hover:underline">
+                        Sign up
+                      </Link>
+                      <div className="mt-2">
+                        <button
+                          type="button"
+                          onClick={openResendDialog}
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          Resend verification email
+                        </button>
+                      </div>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -183,6 +260,34 @@ export default function LoginPage() {
           </MagicCard>
         </Card>
       </div>
+
+      <Dialog open={isResendDialogOpen} onOpenChange={setIsResendDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resend Verification Email</DialogTitle>
+            <DialogDescription>
+              We will send a verification link to{' '}
+              <span className="font-medium text-foreground">
+                {formData.email}
+              </span>
+              . Please check your inbox (and spam folder) to verify your
+              account.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsResendDialogOpen(false)}
+              disabled={isResending}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleResendVerification} loading={isResending}>
+              Send Verification Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
