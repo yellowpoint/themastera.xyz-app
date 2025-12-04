@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
-import { Calendar, ListVideo, Sparkles } from 'lucide-react'
+import { Calendar, ListVideo, Sparkles, User } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
@@ -45,13 +45,14 @@ export default function AdminLayout({
   }
 
   const navItems = [
-    { title: 'Works', href: '/admin/works', icon: ListVideo },
-    { title: 'Quick Picks', href: '/admin/quick-picks', icon: Sparkles },
     {
       title: 'Beta',
       href: '/admin/beta-applications',
       icon: Sparkles,
     },
+    { title: 'Users', href: '/admin/users', icon: User },
+    { title: 'Works', href: '/admin/works', icon: ListVideo },
+    { title: 'Quick Picks', href: '/admin/quick-picks', icon: Sparkles },
     {
       title: 'Events',
       href: '/admin/events',
