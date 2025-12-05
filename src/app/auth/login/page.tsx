@@ -1,6 +1,7 @@
 'use client'
 
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
+import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -24,16 +25,6 @@ import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { request } from '@/lib/request'
 import { toast } from 'sonner'
 
 type LoginFormData = {
@@ -47,7 +38,6 @@ export default function LoginPage() {
   const { signIn, loading } = useAuth()
   const [error, setError] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const [isResending, setIsResending] = useState<boolean>(false)
   const [isResendDialogOpen, setIsResendDialogOpen] = useState<boolean>(false)
   const [needsVerification, setNeedsVerification] = useState<boolean>(false)
   const [formData, setFormData] = useState<LoginFormData>({
@@ -69,32 +59,9 @@ export default function LoginPage() {
     setIsResendDialogOpen(true)
   }
 
-  const handleResendVerification = async () => {
-    if (!formData.email) return
-
-    setIsResending(true)
-    try {
-      const {
-        data,
-        ok,
-        error: reqError,
-      } = await request.post('/api/auth/resend-verification', {
-        email: formData.email,
-      })
-
-      if (ok) {
-        toast.success('Verification email sent! Please check your inbox.')
-        setNeedsVerification(false)
-        setError('')
-        setIsResendDialogOpen(false)
-      } else {
-        toast.error(reqError || 'Failed to send verification email')
-      }
-    } catch (err) {
-      toast.error('An error occurred while sending verification email')
-    } finally {
-      setIsResending(false)
-    }
+  const handleResendSuccess = () => {
+    setNeedsVerification(false)
+    setError('')
   }
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -261,33 +228,12 @@ export default function LoginPage() {
         </Card>
       </div>
 
-      <Dialog open={isResendDialogOpen} onOpenChange={setIsResendDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Resend Verification Email</DialogTitle>
-            <DialogDescription>
-              We will send a verification link to{' '}
-              <span className="font-medium text-foreground">
-                {formData.email}
-              </span>
-              . Please check your inbox (and spam folder) to verify your
-              account.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsResendDialogOpen(false)}
-              disabled={isResending}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleResendVerification} loading={isResending}>
-              Send Verification Email
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ResendVerificationEmailDialog
+        email={formData.email}
+        open={isResendDialogOpen}
+        onOpenChange={setIsResendDialogOpen}
+        onSuccess={handleResendSuccess}
+      />
     </div>
   )
 }

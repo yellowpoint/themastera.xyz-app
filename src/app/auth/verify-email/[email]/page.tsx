@@ -1,88 +1,97 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { CheckCircle, XCircle } from "lucide-react";
-import { request } from "@/lib/request";
+'use client'
+import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Spinner } from '@/components/ui/spinner'
+import { request } from '@/lib/request'
+import { CheckCircle, XCircle } from 'lucide-react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function VerifyEmailPage() {
-  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
-  const [message, setMessage] = useState<string>("");
-  const router = useRouter();
-  const params = useParams();
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    'verifying'
+  )
+  const [message, setMessage] = useState<string>('')
+  const [isResendDialogOpen, setIsResendDialogOpen] = useState(false)
+  const router = useRouter()
+  const params = useParams()
+  const searchParams = useSearchParams()
 
   // Get email from route parameters
-  const email = decodeURIComponent((params as any).email as string);
+  const email = decodeURIComponent((params as any).email as string)
+  const error = searchParams.get('error')
 
   useEffect(() => {
-    if (email) {
-      // Check if the email has been verified
-      checkEmailVerificationStatus(email);
-    } else {
-      setStatus("error");
-      setMessage("Missing verification parameters");
+    if (!email) {
+      setStatus('error')
+      setMessage('Missing verification parameters')
+      return
     }
-  }, [email]);
+
+    // If there is a token_expired error in the URL, show error immediately
+    if (error === 'token_expired') {
+      setStatus('error')
+      setMessage(
+        'Your verification link has expired. Please request a new one.'
+      )
+      return
+    }
+
+    // Check if the email has been verified
+    checkEmailVerificationStatus(email)
+  }, [email, error])
 
   const checkEmailVerificationStatus = async (email: string) => {
     try {
-      const { data } = await request.post<{ verified: boolean }>("/api/auth/check-verification-status", { email });
+      const { data } = await request.post<{ verified: boolean }>(
+        '/api/auth/check-verification-status',
+        { email }
+      )
 
-      if ((data as any) && (data as any).verified !== undefined ? true : (data?.success ?? false)) {
-        const payload: any = (data as any).data ?? data;
+      if (
+        (data as any) && (data as any).verified !== undefined
+          ? true
+          : (data?.success ?? false)
+      ) {
+        const payload: any = (data as any).data ?? data
         if (payload.verified) {
-          setStatus("success");
+          setStatus('success')
           setMessage(
-            "Your email has been successfully verified! You can now use all features."
-          );
+            'Your email has been successfully verified! You can now use all features.'
+          )
           // Redirect to the login page after 3 seconds
           setTimeout(() => {
-            router.push("/auth/login");
-          }, 3000);
+            router.push('/auth/login')
+          }, 3000)
         } else {
-          setStatus("error");
+          setStatus('error')
           setMessage(
-            "Email not verified yet, please check your inbox and click the verification link."
-          );
+            'Email not verified yet, please check your inbox and click the verification link.'
+          )
         }
       } else {
-        setStatus("error");
-        setMessage(((data as any)?.error) || "Failed to check verification status");
-      }
-    } catch (error) {
-      console.error("Error checking email verification status:", error);
-      setStatus("error");
-      setMessage("Network error, please try again later");
-    }
-  };
-
-  const resendVerification = async () => {
-    try {
-      if (!email) {
-        setMessage("Unable to get email address, please register again");
-        return;
-      }
-      const { data } = await request.post("/api/auth/resend-verification", { email });
-      if ((data as any)?.success ?? true) {
+        setStatus('error')
         setMessage(
-          "Verification email has been resent, please check your inbox"
-        );
-      } else {
-        setMessage(((data as any)?.error) || "Resend failed, please try again later");
+          (data as any)?.error || 'Failed to check verification status'
+        )
       }
     } catch (error) {
-      setMessage("Network error, please try again later");
+      console.error('Error checking email verification status:', error)
+      setStatus('error')
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : 'Network error, please try again later'
+      )
     }
-  };
+  }
 
   return (
     <div className="h-full flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardContent className="text-center p-8">
-          {status === "verifying" && (
+          {status === 'verifying' && (
             <>
               <div className="mb-4 mx-auto">
                 <Spinner className="h-8 w-8" />
@@ -94,7 +103,7 @@ export default function VerifyEmailPage() {
             </>
           )}
 
-          {status === "success" && (
+          {status === 'success' && (
             <>
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-green-600 mb-4">
@@ -107,7 +116,7 @@ export default function VerifyEmailPage() {
             </>
           )}
 
-          {status === "error" && (
+          {status === 'error' && (
             <>
               <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-red-600 mb-4">
@@ -117,14 +126,14 @@ export default function VerifyEmailPage() {
               <div className="space-y-3">
                 <Button
                   variant="default"
-                  onClick={resendVerification}
+                  onClick={() => setIsResendDialogOpen(true)}
                   className="w-full"
                 >
                   Resend Verification Email
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/auth/login")}
+                  onClick={() => router.push('/auth/login')}
                   className="w-full"
                 >
                   Return to Login
@@ -134,6 +143,12 @@ export default function VerifyEmailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ResendVerificationEmailDialog
+        email={email}
+        open={isResendDialogOpen}
+        onOpenChange={setIsResendDialogOpen}
+      />
     </div>
-  );
+  )
 }

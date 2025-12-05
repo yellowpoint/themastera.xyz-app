@@ -1,6 +1,7 @@
 'use client'
 
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
+import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -22,6 +23,7 @@ import { generateVerifyEmailCallbackURL } from '@/utils/auth'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 type RegisterFormData = {
   name: string
@@ -36,6 +38,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
+  const [isResendDialogOpen, setIsResendDialogOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
@@ -45,6 +48,14 @@ export default function RegisterPage() {
 
   const handleChange = (field: keyof RegisterFormData, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }))
+
+  const openResendDialog = () => {
+    if (!formData.email) {
+      toast.error('Please enter your email address first')
+      return
+    }
+    setIsResendDialogOpen(true)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -204,6 +215,15 @@ export default function RegisterPage() {
                       <FieldDescription className="px-6 text-center">
                         Already have an account?{' '}
                         <Link href="/auth/login">Sign in</Link>
+                        <div className="mt-2">
+                          <button
+                            type="button"
+                            onClick={openResendDialog}
+                            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                          >
+                            Resend verification email
+                          </button>
+                        </div>
                       </FieldDescription>
                     </Field>
                     <GoogleLoginButton />
@@ -214,6 +234,12 @@ export default function RegisterPage() {
           </MagicCard>
         </Card>
       </div>
+
+      <ResendVerificationEmailDialog
+        email={formData.email}
+        open={isResendDialogOpen}
+        onOpenChange={setIsResendDialogOpen}
+      />
     </div>
   )
 }
