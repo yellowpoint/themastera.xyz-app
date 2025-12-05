@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import VideoPlayer from '@/components/VideoPlayer'
 import { request } from '@/lib/request'
 import {
   Calendar,
@@ -19,19 +20,37 @@ import {
   Linkedin,
   Loader2,
   MapPin,
-  Maximize,
-  Play,
-  Settings,
-  SkipBack,
-  SkipForward,
   Twitter,
-  Volume2,
   Youtube,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+
+const getCleanImageUrl = (url: string) => {
+  if (!url) return ''
+  // If it looks like HTML, return as is
+  if (url.trim().startsWith('<')) return url
+  try {
+    // Handle relative URLs by providing a base if needed, or just catch error
+    const urlObj = new URL(url, 'http://dummy.com')
+    if (url.includes('/_next/image')) {
+      const innerUrl = urlObj.searchParams.get('url')
+      if (innerUrl) {
+        return innerUrl
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing URL:', url, e)
+  }
+  return url
+}
+
+const isEmbedCode = (str: string) => {
+  if (!str) return false
+  return str.trim().startsWith('<') || str.includes('<iframe')
+}
 
 export default function EventDetailPage() {
   const params = useParams()
@@ -55,19 +74,21 @@ export default function EventDetailPage() {
             status: e.status,
             period: e.period,
             location: e.location,
-            posterUrl: e.posterUrl || '',
+            posterUrl: getCleanImageUrl(e.posterUrl || ''),
             dates: e.dates || [],
             artist: {
               name: e.artistName || '',
-              avatar: e.artistAvatar || '',
+              avatar: getCleanImageUrl(e.artistAvatar || ''),
               detailName: e.artistDetailName || e.artistName || '',
-              detailAvatar: e.artistDetailAvatar || e.artistAvatar || '',
+              detailAvatar: getCleanImageUrl(
+                e.artistDetailAvatar || e.artistAvatar || ''
+              ),
               birth: e.artistBirth || '',
               bio: e.artistBio || '',
             },
             introduction: {
-              imageUrl: e.introductionImageUrl || '',
-              videoCover: e.introductionVideoCover || '',
+              imageUrl: getCleanImageUrl(e.introductionImageUrl || ''),
+              videoCover: getCleanImageUrl(e.introductionVideoCover || ''),
             },
             exhibitionInfo: {
               name: e.exhibitionName || '',
@@ -180,7 +201,10 @@ export default function EventDetailPage() {
               </SelectContent>
             </Select>
 
-            <Button className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base">
+            <Button
+              className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={event.status === 'Upcoming' || event.status === 'Ended'}
+            >
               Reserve Now
               <Badge className="ml-2 bg-yellow-400 text-black hover:bg-yellow-500 border-none">
                 Admission Free
@@ -233,44 +257,21 @@ export default function EventDetailPage() {
                 </div>
               </div>
 
-              {/* Video Player Mock */}
+              {/* Video Player */}
               {event.introduction.videoCover && (
-                <div className="relative aspect-video bg-black rounded-lg overflow-hidden group">
-                  <Image
-                    src={event.introduction.videoCover}
-                    alt="Video Cover"
-                    fill
-                    className="object-cover opacity-80"
-                  />
-
-                  {/* Play Button Center */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-                      <Play className="h-8 w-8 text-white fill-white" />
-                    </div>
-                  </div>
-
-                  {/* Controls Bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    {/* Progress Bar */}
-                    <div className="h-1 w-full bg-white/30 rounded-full mb-4 overflow-hidden cursor-pointer">
-                      <div className="h-full w-1/3 bg-blue-500"></div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-white">
-                      <div className="flex items-center gap-4">
-                        <Play className="h-5 w-5 fill-white" />
-                        <SkipBack className="h-5 w-5 fill-white" />
-                        <SkipForward className="h-5 w-5 fill-white" />
-                        <Volume2 className="h-5 w-5" />
-                        <span className="text-xs font-mono">1:51 / 4:12</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <Settings className="h-5 w-5" />
-                        <Maximize className="h-5 w-5" />
-                      </div>
-                    </div>
-                  </div>
+                <div className="rounded-lg overflow-hidden shadow-lg bg-black">
+                  {isEmbedCode(event.introduction.videoCover) ? (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: event.introduction.videoCover,
+                      }}
+                    />
+                  ) : (
+                    <VideoPlayer
+                      videoUrl={event.introduction.videoCover}
+                      thumbnailUrl={event.introduction.imageUrl}
+                    />
+                  )}
                 </div>
               )}
 
