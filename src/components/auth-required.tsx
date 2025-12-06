@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ENABLE_BETA_CHECK } from '@/config/beta'
 import { useAuth } from '@/hooks/useAuth'
+import { isBetaVerified } from '@/utils/beta'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -26,23 +27,20 @@ export default function AuthRequired({
   const pathname = usePathname()
   const { user, loading } = useAuth()
 
+  const betaVerified = isBetaVerified()
+
   React.useEffect(() => {
     if (!loading && ENABLE_BETA_CHECK) {
-      if (!user) {
+      if (!user && !betaVerified) {
         if (pathname !== '/beta-notice' && !pathname?.startsWith('/auth/')) {
           router.replace('/beta-notice')
         }
       }
     }
-  }, [loading, user, router, pathname])
+  }, [loading, user, router, pathname, betaVerified])
 
   const isProtected = React.useMemo(() => {
     if (enabled === true) return true
-    if (ENABLE_BETA_CHECK === true) {
-      if (pathname === '/beta-notice') return false
-      if (pathname?.startsWith('/auth/')) return false
-      return true
-    }
     if (!pathname) return false
     return protectedPrefixes.some((prefix) => pathname.startsWith(prefix))
   }, [pathname, protectedPrefixes, enabled])
@@ -52,6 +50,7 @@ export default function AuthRequired({
   if (
     ENABLE_BETA_CHECK &&
     !user &&
+    !betaVerified &&
     pathname !== '/beta-notice' &&
     !pathname?.startsWith('/auth/')
   )

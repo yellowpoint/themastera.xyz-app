@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { request } from '@/lib/request'
-import { checkBetaAllowed } from '@/utils/beta'
+import { checkBetaAllowed, setBetaVerified } from '@/utils/beta'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function BetaNoticePage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<
     'idle' | 'checking' | 'allowed' | 'denied' | 'applying' | 'applied'
@@ -22,7 +24,15 @@ export default function BetaNoticePage() {
     setMessage('')
     try {
       const allowed = await checkBetaAllowed(email)
-      setStatus(allowed ? 'allowed' : 'denied')
+      if (allowed) {
+        setBetaVerified(email)
+        setStatus('allowed')
+        setTimeout(() => {
+          router.replace('/')
+        }, 500)
+      } else {
+        setStatus('denied')
+      }
     } catch (error) {
       console.error('Error checking email:', error)
       setMessage('Error checking email. Please try again.')
@@ -116,7 +126,7 @@ export default function BetaNoticePage() {
 
             {status === 'allowed' && (
               <div className="bg-green-500/10 text-green-600 p-3 rounded-md text-sm">
-                Access granted. You may now log in.
+                Access granted. Redirecting to home...
               </div>
             )}
 
@@ -138,8 +148,8 @@ export default function BetaNoticePage() {
 
             <div className="flex gap-3 pt-2">
               {status === 'allowed' ? (
-                <Link href="/auth/login" className="w-full">
-                  <Button className="w-full">Proceed to Login</Button>
+                <Link href="/" className="w-full">
+                  <Button className="w-full">Go to Home</Button>
                 </Link>
               ) : (
                 (status === 'denied' || status === 'applying') && (

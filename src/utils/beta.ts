@@ -24,3 +24,20 @@ export async function checkBetaAllowed(
     throw err
   }
 }
+
+export function setBetaVerified(email: string) {
+  try {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('beta_verified', 'true')
+    if (email) localStorage.setItem('beta_verified_email', email)
+  } catch {}
+}
+
+export function isBetaVerified(): boolean {
+  try {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('beta_verified') === 'true'
+  } catch {
+    return false
+  }
+}
