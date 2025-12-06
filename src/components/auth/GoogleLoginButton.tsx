@@ -36,7 +36,6 @@ export default function GoogleLoginButton({
       setSubmitting(false)
     }
   }
-  return null
   return (
     <Field>
       <Button
