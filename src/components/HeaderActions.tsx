@@ -1,5 +1,6 @@
 'use client'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,10 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronDown, LogOut, Plus, Shield, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function HeaderActions({
   layout = 'row',
@@ -21,8 +23,22 @@ export default function HeaderActions({
 }) {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
-  const base = layout === 'column' ? 'flex flex-col gap-2' : 'flex items-center gap-3'
+  const base =
+    layout === 'column' ? 'flex flex-col gap-2' : 'flex items-center gap-3'
+
+  const handleSignOut = async (e: Event) => {
+    e.preventDefault()
+    if (isSigningOut) return
+    setIsSigningOut(true)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await signOut({ onSuccess: () => router.push('/') })
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
 
   return (
     <div className={`${base} ${className}`}>
@@ -41,8 +57,15 @@ export default function HeaderActions({
             <DropdownMenuTrigger asChild>
               <button className="outline-none flex items-center gap-2">
                 <Avatar>
-                  <AvatarImage src={user?.image || ''} alt={user?.name || user?.email || 'User'} />
-                  <AvatarFallback>{((user?.name || user?.email || 'U')[0] || 'U').toUpperCase()}</AvatarFallback>
+                  <AvatarImage
+                    src={user?.image || ''}
+                    alt={user?.name || user?.email || 'User'}
+                  />
+                  <AvatarFallback>
+                    {(
+                      (user?.name || user?.email || 'U')[0] || 'U'
+                    ).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -57,9 +80,15 @@ export default function HeaderActions({
                 <User className="mr-2 h-4 w-4" /> Profile
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => signOut({ onSuccess: () => router.push('/') })}
+                onSelect={handleSignOut}
+                disabled={isSigningOut}
               >
-                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                {isSigningOut ? (
+                  <Spinner className="mr-2 h-4 w-4" />
+                ) : (
+                  <LogOut className="mr-2 h-4 w-4" />
+                )}
+                Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -79,4 +108,3 @@ export default function HeaderActions({
     </div>
   )
 }
-
