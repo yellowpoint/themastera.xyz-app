@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { request } from '@/lib/request'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useEffect, useRef, useState } from 'react'
@@ -55,11 +56,15 @@ export default function AdminUsersPage() {
   const [debouncedQ, setDebouncedQ] = useState('')
   const hasRunFiltersEffect = useRef(false)
 
-  // Level update state
-  const [isLevelDialogOpen, setIsLevelDialogOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [newLevel, setNewLevel] = useState<string>('')
-  const [isUpdatingLevel, setIsUpdatingLevel] = useState(false)
+  // User edit state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    level: '',
+    emailVerified: false,
+  })
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -90,40 +95,44 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleLevelUpdate = async () => {
-    if (!selectedUser || !newLevel) return
+  const handleUserUpdate = async () => {
+    if (!editingUser) return
 
-    setIsUpdatingLevel(true)
+    setIsUpdating(true)
     try {
       const { data, ok } = await request.put('/api/admin/users', {
-        userId: selectedUser.id,
-        level: newLevel,
+        userId: editingUser.id,
+        ...editForm,
       })
 
       if (ok) {
-        toast.success(`User level updated to ${newLevel}`)
+        toast.success(`User updated successfully`)
         setItems((prev) =>
           prev.map((user) =>
-            user.id === selectedUser.id ? { ...user, level: newLevel } : user
+            user.id === editingUser.id ? { ...user, ...editForm } : user
           )
         )
-        setIsLevelDialogOpen(false)
+        setIsEditDialogOpen(false)
       } else {
         const errorMsg =
-          (data as any)?.error?.message || 'Failed to update level'
+          (data as any)?.error?.message || 'Failed to update user'
         toast.error(errorMsg)
       }
     } catch (error) {
-      toast.error('An error occurred while updating level')
+      toast.error('An error occurred while updating user')
     } finally {
-      setIsUpdatingLevel(false)
+      setIsUpdating(false)
     }
   }
 
-  const openLevelDialog = (user: User) => {
-    setSelectedUser(user)
-    setNewLevel(user.level)
-    setIsLevelDialogOpen(true)
+  const openEditDialog = (user: User) => {
+    setEditingUser(user)
+    setEditForm({
+      name: user.name || '',
+      level: user.level || 'User',
+      emailVerified: user.emailVerified || false,
+    })
+    setIsEditDialogOpen(true)
   }
 
   useEffect(() => {
@@ -234,8 +243,8 @@ export default function AdminUsersPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => openLevelDialog(user)}>
-                Change Level
+              <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                Edit User
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -286,22 +295,40 @@ export default function AdminUsersPage() {
         }}
       />
 
-      <Dialog open={isLevelDialogOpen} onOpenChange={setIsLevelDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change User Level</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update the level for user{' '}
-              <span className="font-medium">{selectedUser?.name}</span> (
-              {selectedUser?.email}).
+              Update details for user{' '}
+              <span className="font-medium">{editingUser?.name}</span> (
+              {editingUser?.email}).
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="level" className="text-right">
                 Level
               </Label>
-              <Select value={newLevel} onValueChange={setNewLevel}>
+              <Select
+                value={editForm.level}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, level: value })
+                }
+              >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a level" />
                 </SelectTrigger>
@@ -311,16 +338,31 @@ export default function AdminUsersPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="verified" className="text-right">
+                Verified
+              </Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Switch
+                  id="verified"
+                  checked={editForm.emailVerified}
+                  onCheckedChange={(checked) =>
+                    setEditForm({ ...editForm, emailVerified: checked })
+                  }
+                />
+                <Label htmlFor="verified">Email Verified</Label>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsLevelDialogOpen(false)}
-              disabled={isUpdatingLevel}
+              onClick={() => setIsEditDialogOpen(false)}
+              disabled={isUpdating}
             >
               Cancel
             </Button>
-            <Button onClick={handleLevelUpdate} loading={isUpdatingLevel}>
+            <Button onClick={handleUserUpdate} loading={isUpdating}>
               Save Changes
             </Button>
           </DialogFooter>

@@ -9,7 +9,6 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "dbgenerate": "prisma generate",
-    "dbmigrate": "prisma migrate dev",
     "dbpush": "prisma db push && prisma generate",
     "dbstudio": "prisma studio",
     "dbbackup": "node scripts/backup-db.js",

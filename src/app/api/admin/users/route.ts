@@ -54,32 +54,37 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/admin/users - update user level
+// PUT /api/admin/users - update user details
 export async function PUT(request: NextRequest) {
   try {
     const adminResult = await requireAdmin(request)
     if (adminResult) return adminResult
 
     const body = await request.json()
-    const { userId, level } = body
+    const { userId, level, name, emailVerified } = body
 
-    if (!userId || !level) {
+    if (!userId) {
       return NextResponse.json(
-        apiFailure('VALIDATION_FAILED', 'User ID and Level are required'),
+        apiFailure('VALIDATION_FAILED', 'User ID is required'),
         { status: 400 }
       )
     }
 
+    const updateData: any = {}
+    if (level !== undefined) updateData.level = level
+    if (name !== undefined) updateData.name = name
+    if (emailVerified !== undefined) updateData.emailVerified = emailVerified
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { level },
+      data: updateData,
     })
 
     return NextResponse.json(apiSuccess(updatedUser))
   } catch (error) {
-    console.error('Error updating user level:', error)
+    console.error('Error updating user:', error)
     return NextResponse.json(
-      apiFailure('INTERNAL_ERROR', 'Failed to update user level', {
+      apiFailure('INTERNAL_ERROR', 'Failed to update user', {
         message: (error as any)?.message,
       }),
       { status: 500 }
