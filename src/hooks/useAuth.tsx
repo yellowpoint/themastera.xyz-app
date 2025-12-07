@@ -42,14 +42,46 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
+  /**
+   * Helper for consistent error handling and reporting
+   */
+  const safeAuthCall = async <T = any,>(
+    action: string,
+    promise: Promise<any>,
+    params?: any
+  ): Promise<{ data?: T; error?: any }> => {
+    try {
+      const result = await promise
+      if (result?.error) {
+        reportError(action, result.error, params)
+        return { error: result.error }
+      }
+      return { data: result?.data }
+    } catch (error: any) {
+      reportError(`${action}_exception`, error, params)
+      return { error: { message: error.message || 'Unknown error' } }
+    }
+  }
+
+  /**
+   * Helper to refresh session state
+   */
+  const refreshSession = async (
+    errorContext: string = 'refreshSession',
+    params?: any
+  ) => {
+    try {
+      const session: any = await auth.getSession()
+      setUser(session?.data?.user || null)
+    } catch (error) {
+      reportError(errorContext, error, params)
+    }
+  }
+
   useEffect(() => {
     const getInitialSession = async () => {
       try {
-        const session: any = await auth.getSession()
-        setUser(session?.data?.user || null)
-      } catch (error) {
-        reportError('getInitialSession', error)
-        setUser(null)
+        await refreshSession('getInitialSession')
       } finally {
         setLoading(false)
       }
@@ -58,65 +90,50 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [])
 
   const signUp = async (params: any) => {
-    try {
-      const result: any = await auth.signUp.email(params)
-      if (result.error) {
-        reportError('signUp', result.error, params)
-        return { error: result.error }
-      }
-      if (result.data?.session) {
-        try {
-          const session: any = await auth.getSession()
-          setUser(session?.data?.user || null)
-        } catch (sessionError) {
-          reportError('signUp_session', sessionError, params)
-        }
-      }
-      return { data: result.data }
-    } catch (error: any) {
-      reportError('signUp_exception', error, params)
-      return { error: { message: error.message } }
+    const { data, error } = await safeAuthCall(
+      'signUp',
+      auth.signUp.email(params),
+      params
+    )
+
+    if (error) return { error }
+
+    if (data?.session) {
+      await refreshSession('signUp_session', params)
     }
+    return { data }
   }
 
   const signIn = async (params: any) => {
-    try {
-      const result: any = await auth.signIn.email(params)
-      if (result.error) {
-        reportError('signIn', result.error, params)
-        return { error: result.error }
-      }
-      if (result.data) {
-        try {
-          const session: any = await auth.getSession()
-          setUser(session?.data?.user || null)
-        } catch (sessionError) {
-          reportError('signIn_session', sessionError, params)
-        }
-      }
-      return { data: result.data?.user }
-    } catch (error: any) {
-      reportError('signIn_exception', error, params)
-      return { error: { message: error.message } }
+    const { data, error } = await safeAuthCall(
+      'signIn',
+      auth.signIn.email(params),
+      params
+    )
+
+    if (error) return { error }
+
+    if (data) {
+      await refreshSession('signIn_session', params)
     }
+    return { data: data?.user }
   }
 
   const signInWithGoogle = async (options?: { callbackURL?: string }) => {
-    try {
-      const result: any = await auth.signIn.social({
+    return safeAuthCall(
+      'signInWithGoogle',
+      auth.signIn.social({
         provider: 'google',
         callbackURL: options?.callbackURL ?? '/',
-      })
-      return { data: result?.data }
-    } catch (error: any) {
-      reportError('signInWithGoogle_exception', error, options)
-      return { error: { message: error.message } }
-    }
+      }),
+      options
+    )
   }
 
   const signOut = async (options: any = {}) => {
-    try {
-      await auth.signOut({
+    const { error } = await safeAuthCall(
+      'signOut',
+      auth.signOut({
         fetchOptions: {
           onSuccess: () => {
             setUser(null)
@@ -126,52 +143,29 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
             }
           },
         },
-      })
-      return { error: null }
-    } catch (error: any) {
-      reportError('signOut_exception', error, options)
-      return { error: { message: error.message } }
-    }
+      }),
+      options
+    )
+    return { error }
   }
 
   const resetPassword = async (email: string) => {
-    try {
-      const result: any = await auth.forgetPassword({
+    return safeAuthCall(
+      'resetPassword',
+      auth.forgetPassword({
         email,
         redirectTo: `${window.location.origin}/auth/reset-password`,
-      })
-      if (result.error) {
-        reportError('resetPassword', result.error, { email })
-        return { error: result.error }
-      }
-      return { data: result.data }
-    } catch (error: any) {
-      reportError('resetPassword_exception', error, { email })
-      return { error: { message: error.message } }
-    }
+      }),
+      { email }
+    )
   }
 
   const updateProfile = async (updates: any) => {
-    try {
-      const result: any = await auth.updateUser(updates)
-      if (result.error) {
-        reportError('updateProfile', result.error, updates)
-        return { error: result.error }
-      }
-      return { data: result.data }
-    } catch (error: any) {
-      reportError('updateProfile_exception', error, updates)
-      return { error: { message: error.message } }
-    }
+    return safeAuthCall('updateProfile', auth.updateUser(updates), updates)
   }
 
   const refreshUser = async () => {
-    try {
-      const session: any = await auth.getSession()
-      setUser(session?.data?.user || null)
-    } catch (error) {
-      reportError('refreshUser', error)
-    }
+    await refreshSession('refreshUser')
   }
 
   const value: AuthContextValue = {
