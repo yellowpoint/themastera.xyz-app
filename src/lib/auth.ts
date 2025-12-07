@@ -8,6 +8,11 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Minimal typing to keep compatibility; Better Auth types are inferred
 export const auth = betterAuth({
+  trustedOrigins: [
+    'https://app.themastera.xyz',
+    'https://test.themastera.xyz',
+    'http://localhost:3000', // for local development
+  ],
   database: prismaAdapter(prisma, {
     provider: process.env.NODE_ENV === 'production' ? 'postgresql' : 'sqlite',
   }),
