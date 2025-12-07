@@ -210,7 +210,7 @@ export default function LoginPage() {
                       <Link href="/auth/register" className="hover:underline">
                         Sign up
                       </Link>
-                      <div className="mt-2">
+                      <span className="mt-2 block">
                         <button
                           type="button"
                           onClick={openResendDialog}
@@ -218,7 +218,7 @@ export default function LoginPage() {
                         >
                           Resend verification email
                         </button>
-                      </div>
+                      </span>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>

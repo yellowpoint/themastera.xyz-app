@@ -36,7 +36,18 @@ export default function HeroVideoCarousel({ items, className }: Props) {
     const player = heroPlayerRef.current?.querySelector('mux-player') as any
     if (player) {
       if (player.paused) {
-        player.play()
+        try {
+          const playPromise = player.play()
+          if (playPromise !== undefined) {
+            playPromise.catch((error: any) => {
+              if (error.name !== 'AbortError') {
+                console.error('Play failed:', error)
+              }
+            })
+          }
+        } catch (e) {
+          // ignore
+        }
         setHeroPlaying(true)
       } else {
         player.pause()

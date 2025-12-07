@@ -1,6 +1,7 @@
 'use client'
-import { toast } from 'sonner'
 import type { ApiResponse } from '@/contracts/types/common'
+import * as Sentry from '@sentry/nextjs'
+import { toast } from 'sonner'
 
 export type RequestExtraOptions = {
   showErrorToast?: boolean
@@ -61,10 +62,26 @@ async function baseRequest<T = any>(
     const isAppError = data && data.success === false
     if (!res.ok || isAppError) {
       const msg = extractErrorMessage(res, data)
+
+      // Report to Sentry for all errors (collecting all for now as requested)
+      Sentry.captureMessage(`API Error [${method} ${url}]: ${msg}`, {
+        level: 'error',
+        tags: {
+          method,
+          url,
+          status: res.status,
+        },
+        extra: {
+          data,
+          requestBody: body,
+        },
+      })
+
       if (throwOnError) {
         const error: any = new Error(msg)
         error.status = res.status
         error.data = data
+        error.isReported = true
         throw error
       }
       return { ok: false, status: res.status, data, error: msg }
@@ -73,6 +90,20 @@ async function baseRequest<T = any>(
     return { ok: true, status: res.status, data }
   } catch (err: any) {
     const msg = err?.message || 'Network error, please try again later'
+
+    if (!err?.isReported) {
+      Sentry.captureException(err, {
+        tags: {
+          method,
+          url,
+          type: 'network_error',
+        },
+        extra: {
+          requestBody: body,
+        },
+      })
+    }
+
     if (showErrorToast && typeof window !== 'undefined') {
       toast.error(msg)
     }

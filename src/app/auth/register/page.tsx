@@ -215,7 +215,7 @@ export default function RegisterPage() {
                       <FieldDescription className="px-6 text-center">
                         Already have an account?{' '}
                         <Link href="/auth/login">Sign in</Link>
-                        <div className="mt-2">
+                        <span className="mt-2 block">
                           <button
                             type="button"
                             onClick={openResendDialog}
@@ -223,7 +223,7 @@ export default function RegisterPage() {
                           >
                             Resend verification email
                           </button>
-                        </div>
+                        </span>
                       </FieldDescription>
                     </Field>
                     <GoogleLoginButton />

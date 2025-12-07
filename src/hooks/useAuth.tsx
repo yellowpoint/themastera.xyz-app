@@ -1,5 +1,6 @@
 'use client'
 
+import { reportError } from '@/lib/error-reporting'
 import { createAuthClient } from 'better-auth/react'
 import {
   createContext,
@@ -47,7 +48,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         const session: any = await auth.getSession()
         setUser(session?.data?.user || null)
       } catch (error) {
-        console.error('Error getting initial session:', error)
+        reportError('getInitialSession', error)
         setUser(null)
       } finally {
         setLoading(false)
@@ -60,6 +61,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const result: any = await auth.signUp.email(params)
       if (result.error) {
+        reportError('signUp', result.error, params)
         return { error: result.error }
       }
       if (result.data?.session) {
@@ -67,11 +69,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           const session: any = await auth.getSession()
           setUser(session?.data?.user || null)
         } catch (sessionError) {
-          console.error('Error getting session after signup:', sessionError)
+          reportError('signUp_session', sessionError, params)
         }
       }
       return { data: result.data }
     } catch (error: any) {
+      reportError('signUp_exception', error, params)
       return { error: { message: error.message } }
     }
   }
@@ -80,6 +83,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const result: any = await auth.signIn.email(params)
       if (result.error) {
+        reportError('signIn', result.error, params)
         return { error: result.error }
       }
       if (result.data) {
@@ -87,11 +91,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           const session: any = await auth.getSession()
           setUser(session?.data?.user || null)
         } catch (sessionError) {
-          console.error('Error getting session after login:', sessionError)
+          reportError('signIn_session', sessionError, params)
         }
       }
       return { data: result.data?.user }
     } catch (error: any) {
+      reportError('signIn_exception', error, params)
       return { error: { message: error.message } }
     }
   }
@@ -104,6 +109,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       })
       return { data: result?.data }
     } catch (error: any) {
+      reportError('signInWithGoogle_exception', error, options)
       return { error: { message: error.message } }
     }
   }
@@ -123,6 +129,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       })
       return { error: null }
     } catch (error: any) {
+      reportError('signOut_exception', error, options)
       return { error: { message: error.message } }
     }
   }
@@ -134,10 +141,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
       if (result.error) {
+        reportError('resetPassword', result.error, { email })
         return { error: result.error }
       }
       return { data: result.data }
     } catch (error: any) {
+      reportError('resetPassword_exception', error, { email })
       return { error: { message: error.message } }
     }
   }
@@ -146,10 +155,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const result: any = await auth.updateUser(updates)
       if (result.error) {
+        reportError('updateProfile', result.error, updates)
         return { error: result.error }
       }
       return { data: result.data }
     } catch (error: any) {
+      reportError('updateProfile_exception', error, updates)
       return { error: { message: error.message } }
     }
   }
@@ -159,7 +170,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const session: any = await auth.getSession()
       setUser(session?.data?.user || null)
     } catch (error) {
-      console.error('Error refreshing user:', error)
+      reportError('refreshUser', error)
     }
   }
 

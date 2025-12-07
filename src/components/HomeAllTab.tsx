@@ -13,6 +13,21 @@ const VideoPlayerLazy = dynamic(() => import('@/components/VideoPlayer'), {
   loading: () => <Skeleton className="aspect-video w-full rounded-xl" />,
 })
 
+const safePlay = (player: any) => {
+  try {
+    const playPromise = player.play()
+    if (playPromise !== undefined) {
+      playPromise.catch((error: any) => {
+        if (error.name !== 'AbortError') {
+          // console.error('Play failed:', error)
+        }
+      })
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
 export default function HomeAllTab() {
   const [items, setItems] = useState<HomepageItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,9 +111,7 @@ export default function HomeAllTab() {
           playerToPlay.paused &&
           !media.pausedByUser[mostVisibleId!]
         ) {
-          try {
-            playerToPlay.play()
-          } catch {}
+          safePlay(playerToPlay)
           setMedia((s) => ({
             ...s,
             playing: { ...s.playing, [mostVisibleId!]: true },
@@ -178,7 +191,7 @@ export default function HomeAllTab() {
     try {
       if (player.paused) {
         pauseAllExcept(id)
-        player.play()
+        safePlay(player)
         setMedia((s) => ({
           ...s,
           playing: { ...s.playing, [id]: true },
