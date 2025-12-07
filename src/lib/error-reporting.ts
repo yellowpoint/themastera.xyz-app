@@ -1,3 +1,4 @@
+import { IS_SENTRY_ENABLED } from '@/config/sentry'
 import * as Sentry from '@sentry/nextjs'
 
 const SENSITIVE_KEYS = [
@@ -41,16 +42,18 @@ export const reportError = (action: string, error: any, params?: any) => {
     error,
     ...(sanitizedParams ? ['Params:', sanitizedParams] : [])
   )
-  Sentry.captureException(
-    error instanceof Error ? error : new Error(JSON.stringify(error)),
-    {
-      tags: {
-        auth_action: action,
-      },
-      extra: {
-        raw_error: error,
-        params: sanitizedParams,
-      },
-    }
-  )
+  if (IS_SENTRY_ENABLED) {
+    Sentry.captureException(
+      error instanceof Error ? error : new Error(JSON.stringify(error)),
+      {
+        tags: {
+          auth_action: action,
+        },
+        extra: {
+          raw_error: error,
+          params: sanitizedParams,
+        },
+      }
+    )
+  }
 }

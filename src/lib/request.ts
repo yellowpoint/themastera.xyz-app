@@ -1,4 +1,5 @@
 'use client'
+import { IS_SENTRY_ENABLED } from '@/config/sentry'
 import type { ApiResponse } from '@/contracts/types/common'
 import * as Sentry from '@sentry/nextjs'
 import { toast } from 'sonner'
@@ -64,18 +65,20 @@ async function baseRequest<T = any>(
       const msg = extractErrorMessage(res, data)
 
       // Report to Sentry for all errors (collecting all for now as requested)
-      Sentry.captureMessage(`API Error [${method} ${url}]: ${msg}`, {
-        level: 'error',
-        tags: {
-          method,
-          url,
-          status: res.status,
-        },
-        extra: {
-          data,
-          requestBody: body,
-        },
-      })
+      if (IS_SENTRY_ENABLED) {
+        Sentry.captureMessage(`API Error [${method} ${url}]: ${msg}`, {
+          level: 'error',
+          tags: {
+            method,
+            url,
+            status: res.status,
+          },
+          extra: {
+            data,
+            requestBody: body,
+          },
+        })
+      }
 
       if (throwOnError) {
         const error: any = new Error(msg)
@@ -91,7 +94,7 @@ async function baseRequest<T = any>(
   } catch (err: any) {
     const msg = err?.message || 'Network error, please try again later'
 
-    if (!err?.isReported) {
+    if (IS_SENTRY_ENABLED && !err?.isReported) {
       Sentry.captureException(err, {
         tags: {
           method,

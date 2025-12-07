@@ -3,8 +3,10 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs'
+import { IS_SENTRY_ENABLED } from './config/sentry'
 
 Sentry.init({
+  enabled: IS_SENTRY_ENABLED,
   dsn: 'https://f7ecb14baf28003d8b177663d9711b1b@o4510486516924416.ingest.us.sentry.io/4510486521708544',
 
   // Add optional integrations for additional features
