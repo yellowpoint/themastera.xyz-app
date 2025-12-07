@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/AppLayout'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 import '@fontsource-variable/jost'
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -20,26 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="antialiased" suppressHydrationWarning>
-      <head>
-        {process.env.NODE_ENV !== 'development' && (
-          <>
-            {/* Google tag (gtag.js) */}
-            <Script
-              src="https://www.googletagmanager.com/gtag/js?id=G-3R87FXD4BX"
-              strategy="afterInteractive"
-            />
-            <Script id="gtag-init" strategy="afterInteractive">
-              {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);} 
-            gtag('js', new Date());
-            gtag('config', 'G-3R87FXD4BX');
-          `}
-            </Script>
-          </>
-        )}
-      </head>
+      <head />
       <body>
+        <GoogleAnalytics gaId="G-3R87FXD4BX" />
         <AppLayout>{children}</AppLayout>
       </body>
     </html>
