@@ -48,7 +48,7 @@ const TABS = [
 export default function EventPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('upcoming')
-  const [itemsPerPage, setItemsPerPage] = useState('5')
+  const [itemsPerPage, setItemsPerPage] = useState('6')
   const [currentPage, setCurrentPage] = useState(1)
   const [events, setEvents] = useState<EventItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -107,7 +107,7 @@ export default function EventPage() {
   const totalPages = Math.ceil(total / parseInt(itemsPerPage))
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-full">
       <TopTabs tabs={TABS} activeKey={activeTab} onChange={setActiveTab} />
 
       {/* Main Content */}
@@ -139,7 +139,7 @@ export default function EventPage() {
 
         {/* Pagination */}
         {total > 0 && (
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-14 px-2 text-sm bg-overlay rounded-xl backdrop-blur ">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-12 px-2 text-sm bg-overlay rounded-xl backdrop-blur">
             <div>Total {total} items</div>
 
             <div className="flex items-center gap-6 ">
@@ -201,12 +201,12 @@ export default function EventPage() {
               <div className="flex items-center gap-2">
                 <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
                   <SelectTrigger className="h-8 w-[100px] border-0">
-                    <SelectValue placeholder="5 / Page" />
+                    <SelectValue placeholder="6 / Page" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="5">5 / Page</SelectItem>
-                    <SelectItem value="10">10 / Page</SelectItem>
-                    <SelectItem value="20">20 / Page</SelectItem>
+                    <SelectItem value="6">6 / Page</SelectItem>
+                    <SelectItem value="12">12 / Page</SelectItem>
+                    <SelectItem value="24">24 / Page</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
