@@ -1,9 +1,11 @@
 'use client'
 
 import EventStatusBadge from '@/components/EventStatusBadge'
+import TabsBar from '@/components/TabsBar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -11,8 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import VideoPlayer from '@/components/VideoPlayer'
 import { request } from '@/lib/request'
 import { formatDateRange } from '@/lib/utils'
@@ -54,6 +54,78 @@ const isEmbedCode = (str: string) => {
   return str.trim().startsWith('<') || str.includes('<iframe')
 }
 
+function ArtistCard({
+  detailName,
+  birth,
+  bio,
+  className = '',
+}: {
+  detailName: string
+  birth?: string
+  bio?: string
+  detailAvatar?: string
+  showAvatar?: boolean
+  className?: string
+}) {
+  return (
+    <Card className={`bg-card/70 px-4 ${className}`}>
+      <div className="space-y-1 text-foreground">
+        <div className="text-sm text-muted-foreground">Artist name</div>
+        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+          <h3 className="text-xl font-bold">{detailName}</h3>
+          <span className="text-sm">{birth}</span>
+        </div>
+      </div>
+      <p className="text-sm text-[#c9cdd4]">{bio}</p>
+    </Card>
+  )
+}
+
+function ExhibitionInfoCard({
+  info,
+  className = '',
+  showTitle = true,
+  useCard = true,
+}: {
+  info: { name: string; duration: string; location: string; curator: string }
+  className?: string
+  showTitle?: boolean
+  useCard?: boolean
+}) {
+  const Wrapper: any = useCard ? Card : 'div'
+  const wrapperProps = useCard
+    ? { className: `bg-card/70 px-4 ${className}` }
+    : { className }
+  return (
+    <Wrapper {...wrapperProps}>
+      {showTitle && (
+        <h4 className="text-xl text-foreground">Exhibition info</h4>
+      )}
+      <div className="rounded-xl space-y-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <span className="text-muted-foreground">Exhibition name</span>
+          <span className="md:col-span-3 font-medium">{info.name}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <span className="text-muted-foreground">Duration</span>
+          <div className="md:col-span-3 flex items-center gap-2">
+            <span>{info.duration}</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <span className="text-muted-foreground">Location</span>
+          <span className="md:col-span-3">{info.location}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <span className="text-muted-foreground">Curator</span>
+          <span className="md:col-span-3">{info.curator}</span>
+        </div>
+      </div>
+    </Wrapper>
+  )
+}
+
 export default function EventDetailPage() {
   const params = useParams()
   const id = params?.id as string
@@ -61,6 +133,9 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [selectedDate, setSelectedDate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<
+    'introduction' | 'artist' | 'info'
+  >('introduction')
 
   useEffect(() => {
     if (!id) return
@@ -124,18 +199,18 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Event not found</div>
+        <div className="">Event not found</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-6 md:p-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <div className="h-full px-6 pt-4">
+      <div className="max-w-7xl pb-16 mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Left Column: Poster */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-18">
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg shadow-xl border border-border/50 bg-muted">
+        <div className="md:col-span-5">
+          <div className="sticky top-20">
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-card/70">
               {event.posterUrl && (
                 <Image
                   src={event.posterUrl}
@@ -150,17 +225,16 @@ export default function EventDetailPage() {
         </div>
 
         {/* Right Column: Details */}
-        <div className="lg:col-span-7 space-y-8">
+        <div className="md:col-span-7 space-y-6">
           {/* Header Info */}
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-              {event.title}
-            </h1>
+          <Card className="bg-card/70 px-4 gap-6">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl">{event.title}</h1>
+              <EventStatusBadge status={event.status} />
+            </div>
 
-            <EventStatusBadge status={event.status} size="md" />
-
-            <div className="flex items-center gap-3 pt-2">
-              <Avatar className="h-8 w-8">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 border-2 border-highlight/50">
                 <AvatarImage src={event.artist.avatar} />
                 <AvatarFallback>
                   {event.artist.name.slice(0, 2).toUpperCase()}
@@ -171,22 +245,25 @@ export default function EventDetailPage() {
               </span>
             </div>
 
-            <div className="space-y-2 text-sm text-muted-foreground pt-2">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4 text-foreground" />
                 <span>{event.period}</span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
+                <MapPin className="h-4 w-4 text-foreground" />
                 <span>{event.location}</span>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Action Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-secondary/10 rounded-xl border border-border/50">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Select value={selectedDate} onValueChange={setSelectedDate}>
-              <SelectTrigger className="bg-background h-12">
+              <SelectTrigger
+                className="bg-[#6B75F8]! text-white! h-15! w-full border-0 text-md"
+                iconClassName="opacity-100 size-6 text-white"
+              >
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
@@ -199,49 +276,47 @@ export default function EventDetailPage() {
             </Select>
 
             <Button
-              className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className=" md:col-span-2 h-15 w-full relative text-2xl disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground"
               disabled={
                 event.status === 'Upcoming' || event.status === 'Archive'
               }
+              // onClick={() => {
+              //   alert('Reserve Now')
+              // }}
             >
               Reserve Now
-              <Badge className="ml-2 bg-yellow-400 text-black hover:bg-yellow-500 border-none">
+              <Badge className="absolute -top-2 right-2 bg-highlight text-primary  border-none rounded">
                 Admission Free
               </Badge>
             </Button>
           </div>
 
-          {/* Tabs */}
-          <Tabs defaultValue="introduction" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-transparent border-b rounded-none h-auto p-0 space-x-6 justify-start">
-              <TabsTrigger
-                value="introduction"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-3 font-medium"
-              >
-                Introduction
-              </TabsTrigger>
-              <TabsTrigger
-                value="artist"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-3 font-medium"
-              >
-                About artist
-              </TabsTrigger>
-              <TabsTrigger
-                value="info"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-3 font-medium"
-              >
-                Exhibition info
-              </TabsTrigger>
-            </TabsList>
+          <div>
+            {/* Tabs */}
+            <TabsBar
+              labelClassName="text-white text-base"
+              tabs={[
+                { key: 'introduction', label: 'Introduction' },
+                { key: 'artist', label: 'About artist' },
+                { key: 'info', label: 'Exhibition info' },
+              ]}
+              activeKey={activeTab}
+              onChange={(key) =>
+                setActiveTab(key as 'introduction' | 'artist' | 'info')
+              }
+            />
 
             {/* Introduction Tab */}
-            <TabsContent value="introduction" className="space-y-8 py-6">
+            <div
+              hidden={activeTab !== 'introduction'}
+              className="space-y-6 pt-6"
+            >
               {/* Collection Info */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">{event.title}</h3>
+              <Card className="bg-card/70 px-4">
+                <h3 className="text-xl">{event.title}</h3>
                 <div className="flex flex-col md:flex-row gap-6">
                   {event.introduction.imageUrl && (
-                    <div className="relative w-full md:w-1/3 aspect-[3/4] flex-shrink-0 rounded-lg overflow-hidden">
+                    <div className="relative w-full md:w-1/3 aspect-[3/4] flex-shrink-0 rounded-xl overflow-hidden">
                       <Image
                         src={event.introduction.imageUrl}
                         alt="Intro"
@@ -250,15 +325,15 @@ export default function EventDetailPage() {
                       />
                     </div>
                   )}
-                  <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                  <div className="text-sm text-[#C9CDD4] whitespace-pre-line">
                     {event.artist.bio}
                   </div>
                 </div>
-              </div>
+              </Card>
 
               {/* Video Player */}
               {event.introduction.videoCover && (
-                <div className="rounded-lg overflow-hidden shadow-lg bg-black">
+                <div className="rounded-xl overflow-hidden w-full aspect-[16/9] flex-shrink-0">
                   {isEmbedCode(event.introduction.videoCover) ? (
                     <div
                       dangerouslySetInnerHTML={{
@@ -275,132 +350,28 @@ export default function EventDetailPage() {
               )}
 
               {/* Artist Info Section (also in Intro tab as per design) */}
-              <div className="space-y-4 pt-6">
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">
-                    Artist name
-                  </div>
-                  <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2">
-                    <h3 className="text-xl font-bold">
-                      {event.artist.detailName}
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      {event.artist.birth}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {event.artist.bio}
-                </p>
-              </div>
+              <ArtistCard
+                detailName={event.artist.detailName}
+                birth={event.artist.birth}
+                bio={event.artist.bio}
+              />
 
-              {/* Exhibition Info Table (also in Intro tab as per design bottom part) */}
-              <div className="pt-6">
-                <h4 className="text-sm font-medium mb-4 text-muted-foreground">
-                  Exhibition info
-                </h4>
-                <div className="bg-secondary/20 rounded-lg p-6 space-y-4 text-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">
-                      Exhibition name
-                    </span>
-                    <span className="md:col-span-3 font-medium">
-                      {event.exhibitionInfo.name}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Duration</span>
-                    <div className="md:col-span-3 flex items-center gap-2">
-                      <span>{event.exhibitionInfo.duration}</span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Location</span>
-                    <span className="md:col-span-3">
-                      {event.exhibitionInfo.location}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Curator</span>
-                    <span className="md:col-span-3">
-                      {event.exhibitionInfo.curator}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
+              <ExhibitionInfoCard info={event.exhibitionInfo} />
+            </div>
 
-            <TabsContent value="artist" className="py-6">
-              <div className="text-muted-foreground">
-                {/* Duplicated content for now */}
-                <div className="space-y-4 pt-6">
-                  <div className="space-y-1">
-                    <div className="text-sm text-muted-foreground">
-                      Artist name
-                    </div>
-                    <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2">
-                      <h3 className="text-xl font-bold">
-                        {event.artist.detailName}
-                      </h3>
-                      <span className="text-xs text-muted-foreground">
-                        {event.artist.birth}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    {event.artist.detailAvatar && (
-                      <Avatar className="h-20 w-20">
-                        <AvatarImage src={event.artist.detailAvatar} />
-                        <AvatarFallback>AN</AvatarFallback>
-                      </Avatar>
-                    )}
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {event.artist.bio}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="info" className="py-6">
-              <div className="pt-6">
-                <div className="bg-secondary/20 rounded-lg p-6 space-y-4 text-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">
-                      Exhibition name
-                    </span>
-                    <span className="md:col-span-3 font-medium">
-                      {event.exhibitionInfo.name}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Duration</span>
-                    <div className="md:col-span-3 flex items-center gap-2">
-                      <span>{event.exhibitionInfo.duration}</span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Location</span>
-                    <span className="md:col-span-3">
-                      {event.exhibitionInfo.location}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <span className="text-muted-foreground">Curator</span>
-                    <span className="md:col-span-3">
-                      {event.exhibitionInfo.curator}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          <Separator className="my-8" />
-
+            <div hidden={activeTab !== 'artist'} className="pt-6">
+              <ArtistCard
+                detailName={event.artist.detailName}
+                birth={event.artist.birth}
+                bio={event.artist.bio}
+              />
+            </div>
+            <div hidden={activeTab !== 'info'} className="pt-6">
+              <ExhibitionInfoCard info={event.exhibitionInfo} />
+            </div>
+          </div>
           {/* Footer Links */}
-          <div className="space-y-4">
+          <Card className="bg-card/70 px-4">
             <div className="flex gap-4">
               <Linkedin className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
               <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -418,7 +389,7 @@ export default function EventDetailPage() {
               </Link>
               <span>Copyright</span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

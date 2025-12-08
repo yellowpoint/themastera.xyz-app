@@ -142,7 +142,7 @@ export default function VideoPlayer({
           )
         }
         return (
-          <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center h-full bg-card/70 rounded-lg">
             <div className="text-center">
               <p className="text-gray-500 mb-2">Unsupported video source</p>
             </div>

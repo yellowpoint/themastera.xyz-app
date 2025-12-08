@@ -82,7 +82,7 @@ const events = [
     introductionImageUrl:
       'https://mangaart.jp/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Fk789xrk0yzk2%2F332Dqhj3tkopRDP8BcNAPb%2F7e52048ce1f9d6a30a95e488d34cf357%2FREV_GR_006_banner.jpg%3Fw%3D1500%26fm%3Davif%26q%3D50&w=3840&q=75',
     introductionVideoCover:
-      '<iframe title="vimeo-player" src="https://player.vimeo.com/video/1143431086?h=d2a978c9b2" width="640" height="360" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"   allowfullscreen></iframe>',
+      '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1143431086?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>',
     exhibitionName: 'Keiichi Tanaami "TANAAMI!! AKATSUKA!!" (Tokyo)',
     exhibitionDuration: '2026.09.05-2026.10.04',
     exhibitionLocation:

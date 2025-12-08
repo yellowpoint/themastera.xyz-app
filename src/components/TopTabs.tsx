@@ -10,9 +10,10 @@ import type { Work } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 import { Search, TextAlignStart } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CustomSidebar from './CustomSidebar'
 import { HeaderHeight } from './Header'
+import TabsBar from './TabsBar'
 
 type TabItem = { key: string; label: string; content?: React.ReactNode }
 
@@ -33,9 +34,6 @@ export default function TopTabs({
   keepMounted?: boolean
   lazyMount?: boolean
 }) {
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const itemsRef = useRef<Record<string, HTMLButtonElement | null>>({})
-  const [indicatorLeft, setIndicatorLeft] = useState(0)
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState<Work[]>([])
@@ -44,19 +42,6 @@ export default function TopTabs({
   const [mounted, setMounted] = useState<Record<string, boolean>>({
     [activeKey]: true,
   })
-
-  const orderedKeys = useMemo(() => tabs.map((t) => t.key), [tabs])
-
-  useEffect(() => {
-    const container = containerRef.current
-    const current = itemsRef.current[activeKey]
-    if (!container || !current) return
-    const cRect = container.getBoundingClientRect()
-    const iRect = current.getBoundingClientRect()
-    const width = 16
-    const left = iRect.left - cRect.left + iRect.width / 2 - width / 2
-    setIndicatorLeft(left)
-  }, [activeKey, orderedKeys])
 
   useEffect(() => {
     if (keepMounted) {
@@ -98,7 +83,6 @@ export default function TopTabs({
         style={{ height: HeaderHeight }}
       >
         <div
-          ref={containerRef}
           className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-overlay rounded-xl backdrop-blur ${className || ''}`}
         >
           <div className="flex items-center gap-3">
@@ -113,26 +97,11 @@ export default function TopTabs({
             <div className="md:hidden flex w-[1px] items-center justify-center">
               <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
             </div>
-            <div className="flex items-center gap-8">
-              {tabs.map(({ key, label }) => (
-                <div key={key} className="flex flex-col items-center">
-                  <button
-                    ref={(el) => {
-                      itemsRef.current[key] = el
-                    }}
-                    className={`transition-colors duration-300 ${activeKey === key ? 'text-highlight' : 'text-muted-foreground'} text-sm font-medium`}
-                    type="button"
-                    onClick={() => onChange(key)}
-                  >
-                    {label}
-                  </button>
-                </div>
-              ))}
-              <div
-                className="absolute bottom-[6px] h-1 w-4 rounded bg-primary transition-all duration-300"
-                style={{ left: `${indicatorLeft}px` }}
-              />
-            </div>
+            <TabsBar
+              tabs={tabs.map(({ key, label }) => ({ key, label }))}
+              activeKey={activeKey}
+              onChange={onChange}
+            />
           </div>
           <div className="flex items-center gap-2">
             <div className="flex w-[1px] items-center justify-center ml-2">
