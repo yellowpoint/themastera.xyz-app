@@ -1,5 +1,6 @@
 'use client'
 
+import EventStatusBadge from '@/components/EventStatusBadge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import VideoPlayer from '@/components/VideoPlayer'
 import { request } from '@/lib/request'
+import { formatDateRange } from '@/lib/utils'
 import {
   Calendar,
   ExternalLink,
@@ -72,7 +74,7 @@ export default function EventDetailPage() {
             id: e.id,
             title: e.title,
             status: e.status,
-            period: e.period,
+            period: formatDateRange(e.dates) || e.period,
             location: e.location,
             posterUrl: getCleanImageUrl(e.posterUrl || ''),
             dates: e.dates || [],
@@ -155,12 +157,7 @@ export default function EventDetailPage() {
               {event.title}
             </h1>
 
-            <Badge
-              variant="outline"
-              className="border-green-500 text-green-500 px-3 py-1 text-xs uppercase tracking-wider"
-            >
-              {event.status}
-            </Badge>
+            <EventStatusBadge status={event.status} size="md" />
 
             <div className="flex items-center gap-3 pt-2">
               <Avatar className="h-8 w-8">
@@ -203,7 +200,9 @@ export default function EventDetailPage() {
 
             <Button
               className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
-              disabled={event.status === 'Upcoming' || event.status === 'Ended'}
+              disabled={
+                event.status === 'Upcoming' || event.status === 'Archive'
+              }
             >
               Reserve Now
               <Badge className="ml-2 bg-yellow-400 text-black hover:bg-yellow-500 border-none">

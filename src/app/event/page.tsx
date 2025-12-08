@@ -1,9 +1,9 @@
 'use client'
 
+import EventStatusBadge from '@/components/EventStatusBadge'
 import SortSearchToolbar from '@/components/SortSearchToolbar'
 import TopTabs from '@/components/TopTabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { request } from '@/lib/request'
-import { cn } from '@/lib/utils'
+import { cn, formatDateRange } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -31,7 +31,7 @@ interface EventItem {
   id: string
   title: string
   dateRange: string
-  status: 'Upcoming' | 'On viewing' | 'Ended'
+  status: 'Upcoming' | 'On viewing' | 'Archive'
   imageUrl: string
   artist: {
     name: string
@@ -58,7 +58,7 @@ export default function EventPage() {
   const statusMap: Record<string, string> = {
     'on-viewing': 'On viewing',
     upcoming: 'Upcoming',
-    archive: 'Ended',
+    archive: 'Archive',
   }
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function EventPage() {
           const mappedEvents = (data.data.items || []).map((item: any) => ({
             id: item.id,
             title: item.title,
-            dateRange: item.period || '',
+            dateRange: formatDateRange(item.dates) || item.period || '',
             status: item.status,
             imageUrl: item.posterUrl || '/bg/1.jpg',
             artist: {
@@ -107,7 +107,7 @@ export default function EventPage() {
   const totalPages = Math.ceil(total / parseInt(itemsPerPage))
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen">
       <TopTabs tabs={TABS} activeKey={activeTab} onChange={setActiveTab} />
 
       {/* Main Content */}
@@ -139,10 +139,10 @@ export default function EventPage() {
 
         {/* Pagination */}
         {total > 0 && (
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 pb-4 text-sm text-muted-foreground">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-14 px-2 text-sm bg-overlay rounded-xl backdrop-blur ">
             <div>Total {total} items</div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 ">
               <Pagination className="w-auto mx-0">
                 <PaginationContent>
                   <PaginationItem>
@@ -171,7 +171,7 @@ export default function EventPage() {
                             isActive={currentPage === p}
                             onClick={() => setCurrentPage(p)}
                             className={cn(
-                              'h-8 w-8 cursor-pointer',
+                              'h-8 w-8 cursor-pointer border-0',
                               currentPage === p &&
                                 'bg-primary text-primary-foreground hover:bg-primary/90'
                             )}
@@ -200,7 +200,7 @@ export default function EventPage() {
 
               <div className="flex items-center gap-2">
                 <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
-                  <SelectTrigger className="h-8 w-[100px]">
+                  <SelectTrigger className="h-8 w-[100px] border-0">
                     <SelectValue placeholder="5 / Page" />
                   </SelectTrigger>
                   <SelectContent>
@@ -214,7 +214,7 @@ export default function EventPage() {
               <div className="flex items-center gap-2">
                 <span>Go to</span>
                 <Input
-                  className="h-8 w-12 px-1 text-center"
+                  className="h-8 w-12 px-1 text-center dark:bg-input/30"
                   value={currentPage}
                   onChange={(e) => {
                     const val = parseInt(e.target.value)
@@ -226,11 +226,6 @@ export default function EventPage() {
           </div>
         )}
       </main>
-
-      {/* Background Gradient Overlay - Matching the design's dark abstract feel */}
-      <div className="fixed inset-0 -z-10 h-full w-full bg-background pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-background to-blue-900/20 opacity-50 blur-3xl" />
-      </div>
     </div>
   )
 }
@@ -238,7 +233,7 @@ export default function EventPage() {
 function EventCard({ event }: { event: EventItem }) {
   return (
     <Link href={`/event/${event.id}`} className="block">
-      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors cursor-pointer h-full">
+      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 cursor-pointer h-full">
         {/* Image Container */}
         <div className="relative aspect-video w-full overflow-hidden bg-muted">
           <Image
@@ -257,15 +252,10 @@ function EventCard({ event }: { event: EventItem }) {
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{event.dateRange}</span>
-            <Badge
-              variant="outline"
-              className="rounded-sm border-orange-500/50 text-orange-500 bg-orange-500/10 px-1.5 py-0 text-[10px] font-normal uppercase tracking-wide"
-            >
-              {event.status}
-            </Badge>
+            <EventStatusBadge status={event.status} />
           </div>
 
-          <div className="flex items-center gap-2 mt-auto pt-2">
+          <div className="flex items-center gap-2 mt-auto">
             <Avatar className="h-6 w-6">
               <AvatarImage src={event.artist.avatarUrl} />
               <AvatarFallback className="text-[10px]">

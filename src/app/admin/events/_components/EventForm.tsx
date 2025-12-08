@@ -105,7 +105,7 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
       artistBirth: '1985, Spain',
       artistBio:
         'Elena Rodriguez is a contemporary artist known for her immersive installations and vibrant color palettes. Her work explores themes of memory, nature, and the digital age.',
-      period: 'Mar 15 - Apr 30, 2025',
+      period: '2025.03.15-2025.04.30',
       location: 'The Grand Gallery, New York',
       posterUrl:
         'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800',
@@ -119,7 +119,9 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
       exhibitionCurator: 'Sarah Jenkins',
     }
     setFormData((prev: any) => ({ ...prev, ...template }))
-    setDatesText('Mar 15th 10:00 AM\nMar 16th 10:00 AM\nMar 20th 2:00 PM')
+    setDatesText(
+      '2025-03-15 10:00 AM\n2025-03-16 10:00 AM\n2025-04-30 14:00 PM'
+    )
     toast.success('Template data filled')
   }
 
@@ -159,7 +161,7 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
                 <SelectContent>
                   <SelectItem value="Upcoming">Upcoming</SelectItem>
                   <SelectItem value="On viewing">On viewing</SelectItem>
-                  <SelectItem value="Ended">Ended</SelectItem>
+                  <SelectItem value="Archive">Archive</SelectItem>
                 </SelectContent>
               </Select>
             </div>

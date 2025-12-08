@@ -32,7 +32,7 @@ const getStatusColor = (status: string) => {
       return 'bg-blue-100 text-blue-700'
     case 'On viewing':
       return 'bg-green-100 text-green-700'
-    case 'Ended':
+    case 'Archive':
       return 'bg-gray-100 text-gray-600'
     default:
       return 'bg-gray-100 text-gray-600'
@@ -206,7 +206,7 @@ export default function AdminEventsPage() {
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="Upcoming">Upcoming</SelectItem>
               <SelectItem value="On viewing">On viewing</SelectItem>
-              <SelectItem value="Ended">Ended</SelectItem>
+              <SelectItem value="Archive">Archive</SelectItem>
             </SelectContent>
           </Select>
         </div>

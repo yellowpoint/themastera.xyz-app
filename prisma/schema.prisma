@@ -262,7 +262,7 @@ model BetaApplication {
 model Event {
   id     String @id @default(uuid())
   title  String
-  status String @default("Upcoming") // Upcoming, On viewing, Ended
+  status String @default("Upcoming") // Upcoming, On viewing, Archive
 
   // Artist info
   artistName         String?
