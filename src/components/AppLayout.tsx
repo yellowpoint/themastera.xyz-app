@@ -106,7 +106,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   showLogo={!showBackOnRoutes && !showSidebarController}
                 />
               )}
-              <div className={`flex h-full ${!hideHeader ? 'pt-16' : ''}`}>
+              <div
+                className={`flex h-full`}
+                style={{
+                  paddingTop: hideHeader ? '0' : HeaderHeight,
+                }}
+              >
                 {!hideSidebar && !isMobile ? (
                   <CustomSidebar style={sidebarStyle} />
                 ) : null}

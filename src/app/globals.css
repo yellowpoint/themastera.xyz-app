@@ -11,10 +11,26 @@
   }
 
   /* 确保 line-clamp 正确工作 */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
@@ -123,19 +139,19 @@ body {
   --input: #e0e0f0;
   --ring: #2b36d9;
   --highlight: #2b36d9;
-  --chart-1: #6e56cf;
+  --chart-1: #2b36d9;
   --chart-2: #9e8cfc;
   --chart-3: #5d5fef;
   --chart-4: #7c75fa;
   --chart-5: #4740b3;
   --sidebar: #f0f0fa;
   --sidebar-foreground: #2a2a4a;
-  --sidebar-primary: #6e56cf;
+  --sidebar-primary: #2b36d9;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #d8e6ff;
   --sidebar-accent-foreground: #2a2a4a;
   --sidebar-border: #e0e0f0;
-  --sidebar-ring: #6e56cf;
+  --sidebar-ring: #2b36d9;
   --font-sans: 'Jost Variable', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: JetBrains Mono, monospace;

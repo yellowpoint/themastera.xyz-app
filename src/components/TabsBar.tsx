@@ -37,7 +37,7 @@ export default function TabsBar({
   return (
     <div
       ref={containerRef}
-      className={`relative flex items-center gap-8 ${className || ''}`}
+      className={`relative flex items-center gap-4 md:gap-8 ${className || ''}`}
     >
       {tabs.map(({ key, label }) => (
         <div key={key} className="flex flex-col items-center">
@@ -46,7 +46,7 @@ export default function TabsBar({
               itemsRef.current[key] = el
             }}
             className={cn(
-              'transition-colors duration-300 text-sm',
+              'transition-colors duration-300 text-sm whitespace-nowrap',
               activeKey === key ? 'text-highlight!' : 'text-muted-foreground',
               labelClassName || ''
             )}

@@ -385,11 +385,14 @@ export default function ContentDetailPage() {
             />
           </div>
 
-          <div className="h-20 flex items-center justify-between gap-4 px-6">
-            <h1 className="text-2xl truncate" title={work.title}>
+          <div className="h-auto md:h-20 flex flex-col md:flex-row items-start md:items-center justify-start md:justify-between gap-2 md:gap-4 px-2 md:px-6 ">
+            <h1
+              className="text-2xl md:text-2xl line-clamp-3 md:line-clamp-1! w-full"
+              title={work.title}
+            >
               {work.title}
             </h1>
-            <div className="flex items-center gap-4 relative">
+            <div className="flex items-center gap-2 md:gap-4 relative mt-2 md:mt-0">
               <Button
                 variant="secondary"
                 className="bg-overlay hover:bg-overlay-hover"

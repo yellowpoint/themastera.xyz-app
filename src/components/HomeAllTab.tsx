@@ -220,10 +220,10 @@ export default function HomeAllTab() {
       }))
     } catch {}
   }
-
+  const spaceYClassName = 'space-y-12 md:space-y-6'
   if (loading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className={`${spaceYClassName} max-w-5xl mx-auto`}>
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="aspect-video w-full rounded-xl" />
         ))}
@@ -240,7 +240,7 @@ export default function HomeAllTab() {
   }
 
   return (
-    <div className="container space-y-6 mx-auto">
+    <div className={`container ${spaceYClassName} mx-auto`}>
       {items.map((w) => {
         const { playbackId, src } = resolvePlayback(w.fileUrl)
         return (
@@ -297,7 +297,7 @@ export default function HomeAllTab() {
                     router.push(`/content/${w.id}`)
                   }}
                 >
-                  <div className="absolute top-4 left-4 max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
+                  <div className="absolute top-4 left-4 max-w-[60%] md:max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
                     <div className="text-white text-lg  truncate">
                       {w.title}
                     </div>
