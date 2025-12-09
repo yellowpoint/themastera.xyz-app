@@ -34,11 +34,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     isMobile &&
     [
       '/ranking',
-      '/event',
       '/shop',
       '/treasures',
       '/privacy-policy',
       '/terms-of-service',
+      '/auth',
     ].some((prefix) => pathname?.startsWith(prefix))
 
   const hideHeaderRightPadding = [

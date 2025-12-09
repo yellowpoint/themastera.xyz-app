@@ -96,7 +96,7 @@ export default function HeaderActions({
       ) : (
         <>
           <Button
-            variant="ghost"
+            variant="outline"
             className="text-muted-foreground hover:text-foreground"
             onClick={() => router.push('/auth/register')}
           >

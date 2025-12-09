@@ -113,7 +113,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center">
+    <div className="min-h-full flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Card className="w-full max-w-sm border-none p-0 shadow-none">
           <MagicCard
@@ -205,6 +205,7 @@ export default function RegisterPage() {
                       <div className="flex gap-3">
                         <Button
                           type="submit"
+                          className="w-full"
                           disabled={isSubmitting || loading}
                         >
                           {isSubmitting || loading

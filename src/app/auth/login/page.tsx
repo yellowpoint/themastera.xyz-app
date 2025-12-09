@@ -138,7 +138,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center">
+    <div className="min-h-full flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Card className="w-full max-w-sm border-none p-0 shadow-none">
           <MagicCard
@@ -203,7 +203,7 @@ export default function LoginPage() {
                       {isSubmitting || loading ? 'Logging in...' : 'Login'}
                     </Button>
                   </Field>
-                  <GoogleLoginButton />
+
                   <Field>
                     <FieldDescription className="text-center">
                       Don&apos;t have an account?{' '}
@@ -221,6 +221,7 @@ export default function LoginPage() {
                       </span>
                     </FieldDescription>
                   </Field>
+                  <GoogleLoginButton />
                 </FieldGroup>
               </form>
             </CardContent>
