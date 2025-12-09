@@ -5,23 +5,9 @@ import SortSearchToolbar from '@/components/SortSearchToolbar'
 import TopTabs from '@/components/TopTabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { request } from '@/lib/request'
-import { cn, formatDateRange } from '@/lib/utils'
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { formatDateRange } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -52,6 +38,7 @@ export default function EventPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [events, setEvents] = useState<EventItem[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [total, setTotal] = useState(0)
 
   // Map tab key to status
@@ -61,50 +48,55 @@ export default function EventPage() {
     archive: 'Archive',
   }
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true)
-      try {
-        const params = new URLSearchParams()
-        if (searchQuery) params.set('q', searchQuery)
-
-        const status = statusMap[activeTab]
-        if (status) params.set('status', status)
-
-        params.set('page', String(currentPage))
-        params.set('limit', itemsPerPage)
-
-        const { data } = await request.get(`/api/events?${params.toString()}`)
-        if (data?.success) {
-          const mappedEvents = (data.data.items || []).map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            dateRange: formatDateRange(item.dates) || item.period || '',
-            status: item.status,
-            imageUrl: item.posterUrl || '/bg/1.jpg',
-            artist: {
-              name: item.artistName || 'Unknown Artist',
-              avatarUrl: item.artistAvatar || '',
-            },
-          }))
+  const fetchEvents = async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true)
+    else setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (searchQuery) params.set('q', searchQuery)
+      const status = statusMap[activeTab]
+      if (status) params.set('status', status)
+      params.set('page', String(pageNum))
+      params.set('limit', itemsPerPage)
+      const { data } = await request.get(`/api/events?${params.toString()}`)
+      if (data?.success) {
+        const mappedEvents = (data.data.items || []).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          dateRange: formatDateRange(item.dates) || item.period || '',
+          status: item.status,
+          imageUrl: item.posterUrl || '/bg/1.jpg',
+          artist: {
+            name: item.artistName || 'Unknown Artist',
+            avatarUrl: item.artistAvatar || '',
+          },
+        }))
+        if (append) {
+          setEvents((prev) => [...prev, ...mappedEvents])
+          setCurrentPage(pageNum)
+        } else {
           setEvents(mappedEvents)
           setTotal(data.data.pagination?.total || 0)
+          setCurrentPage(pageNum)
         }
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setLoading(false)
       }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      if (append) setLoadingMore(false)
+      else setLoading(false)
     }
+  }
 
-    // Debounce search slightly
+  useEffect(() => {
     const timer = setTimeout(() => {
-      fetchEvents()
+      setCurrentPage(1)
+      fetchEvents(1, false)
     }, 300)
     return () => clearTimeout(timer)
-  }, [searchQuery, activeTab, itemsPerPage, currentPage])
+  }, [searchQuery, activeTab, itemsPerPage])
 
-  const totalPages = Math.ceil(total / parseInt(itemsPerPage))
+  const hasMore = events.length < total
 
   return (
     <div className="flex flex-col h-full">
@@ -120,111 +112,43 @@ export default function EventPage() {
           searchPlaceholder="Search event name"
         />
 
-        {/* Events Grid */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {events.length > 0 ? (
-              events.map((event) => <EventCard key={event.id} event={event} />)
-            ) : (
-              <div className="col-span-full text-center py-10 text-muted-foreground">
-                No events found
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {total > 0 && (
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-auto md:h-12 px-2 text-sm bg-overlay rounded-xl backdrop-blur py-1">
-            <div className="hidden md:block">Total {total} items</div>
-
-            <div className="flex flex-wrap items-center gap-3 md:gap-6 ">
-              <Pagination className="w-auto mx-0">
-                <PaginationContent>
-                  <PaginationItem>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                  </PaginationItem>
-                  {/* Simplified pagination logic */}
-                  {Array.from({ length: Math.min(5, totalPages) }).map(
-                    (_, i) => {
-                      // Show pages around current page
-                      let p = i + 1
-                      if (totalPages > 5) {
-                        if (currentPage > 3) p = currentPage - 2 + i
-                        if (p > totalPages) p = totalPages - (4 - i)
-                      }
-                      return (
-                        <PaginationItem key={p}>
-                          <PaginationLink
-                            isActive={currentPage === p}
-                            onClick={() => setCurrentPage(p)}
-                            className={cn(
-                              'h-8 w-8 cursor-pointer border-0',
-                              currentPage === p &&
-                                'bg-primary! text-primary-foreground hover:bg-primary/90'
-                            )}
-                          >
-                            {p}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )
-                    }
-                  )}
-                  <PaginationItem>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      disabled={currentPage >= totalPages}
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                      }
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-
-              <div className="flex items-center gap-2">
-                <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
-                  <SelectTrigger className="h-8 w-[100px] border-0">
-                    <SelectValue placeholder="6 / Page" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="6">6 / Page</SelectItem>
-                    <SelectItem value="12">12 / Page</SelectItem>
-                    <SelectItem value="24">24 / Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="hidden md:flex items-center gap-2">
-                <span>Go to</span>
-                <Input
-                  className="h-8 w-12 px-1 text-center dark:bg-input/30"
-                  value={currentPage}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value)
-                    if (val >= 1 && val <= totalPages) setCurrentPage(val)
-                  }}
-                />
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {loading ? (
+            Array.from({ length: parseInt(itemsPerPage) }).map((_, i) => (
+              <EventCardSkeleton key={i} />
+            ))
+          ) : events.length > 0 ? (
+            events.map((event) => <EventCard key={event.id} event={event} />)
+          ) : (
+            <div className="col-span-full text-center py-10 text-muted-foreground">
+              No events found
             </div>
-          </div>
-        )}
+          )}
+
+          {loadingMore &&
+            Array.from({ length: Math.min(3, parseInt(itemsPerPage)) }).map(
+              (_, i) => <EventCardSkeleton key={`more-${i}`} />
+            )}
+
+          {hasMore && events.length > 0 && !loading && (
+            <div className="col-span-full flex justify-center">
+              <Button
+                onClick={() => fetchEvents(currentPage + 1, true)}
+                disabled={loadingMore}
+                type="button"
+              >
+                {loadingMore ? 'Loading...' : 'Load more'}
+              </Button>
+            </div>
+          )}
+          {!loading && !loadingMore && !hasMore && events.length > 0 && (
+            <div className="col-span-full flex justify-center">
+              <p className="text-sm text-muted-foreground" aria-live="polite">
+                All items loaded
+              </p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )
@@ -269,5 +193,26 @@ function EventCard({ event }: { event: EventItem }) {
         </div>
       </div>
     </Link>
+  )
+}
+
+function EventCardSkeleton() {
+  return (
+    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 h-full">
+      <Skeleton className="aspect-video w-full" />
+      <div className="flex flex-col gap-3 p-4 flex-1">
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-3/4" />
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-5 w-20" />
+        </div>
+        <div className="flex items-center gap-2 mt-auto">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+    </div>
   )
 }

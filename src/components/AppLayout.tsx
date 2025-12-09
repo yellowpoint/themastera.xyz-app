@@ -46,7 +46,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/creator',
     '/user',
     '/auth',
-    '/admin',
+    // '/admin',
   ].some((prefix) => pathname?.startsWith(prefix))
 
   const hideSidebar = [

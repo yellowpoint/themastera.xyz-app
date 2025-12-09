@@ -1,8 +1,10 @@
-import {withSentryConfig} from '@sentry/nextjs';
+import { withSentryConfig } from '@sentry/nextjs'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
   images: {
+    // 直接先关闭图片优化，免得老是要加地址，以及supabase图片不能优化
+    unoptimized: true,
     // Allow loading images from Mux CDN. Do not use empty strings.
     remotePatterns: [
       {
@@ -40,6 +42,11 @@ const nextConfig = {
         hostname: 'images.ctfassets.net',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'szergwejzsajouambrob.supabase.co',
+        pathname: '/**',
+      },
     ],
   },
 }
@@ -48,9 +55,9 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "yellowpoint",
+  org: 'yellowpoint',
 
-  project: "javascript-nextjs",
+  project: 'javascript-nextjs',
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -65,7 +72,7 @@ export default withSentryConfig(nextConfig, {
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
   // side errors will fail.
-  tunnelRoute: "/monitoring",
+  tunnelRoute: '/monitoring',
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
@@ -75,4 +82,4 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
-});
+})

@@ -341,10 +341,7 @@ export default function EventDetailPage() {
                       }}
                     />
                   ) : (
-                    <VideoPlayer
-                      videoUrl={event.introduction.videoCover}
-                      thumbnailUrl={event.introduction.imageUrl}
-                    />
+                    <VideoPlayer videoUrl={event.introduction.videoCover} />
                   )}
                 </div>
               )}

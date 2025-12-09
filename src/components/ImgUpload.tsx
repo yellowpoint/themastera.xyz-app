@@ -37,6 +37,8 @@ type ImgUploadProps = {
   subDir?: string
   required?: boolean
   initialImage?: CoverImage | null
+  showAutoGenerate?: boolean
+  showFilename?: boolean
 }
 
 export default function ImgUpload({
@@ -47,6 +49,8 @@ export default function ImgUpload({
   subDir = 'covers',
   required = true, // Whether it is required
   initialImage = null, // Prefilled cover image (e.g., Mux thumbnail)
+  showAutoGenerate = true,
+  showFilename = true,
 }: ImgUploadProps) {
   const [uploading, setUploading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
@@ -215,15 +219,17 @@ export default function ImgUpload({
                     <RefreshCw className="size-4" />
                     Reselect
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (!uploading) autoGenerateCover()
-                    }}
-                  >
-                    <Sparkles className="size-4" />
-                    Auto generate
-                  </DropdownMenuItem>
+                  {showAutoGenerate && initialImage?.playbackId && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (!uploading) autoGenerateCover()
+                      }}
+                    >
+                      <Sparkles className="size-4" />
+                      Auto generate
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={(e) => {
@@ -256,9 +262,11 @@ export default function ImgUpload({
           disabled={uploading}
         />
       </div>
-      <p className="text-xs text-gray-600">
-        {coverImage?.originalName || 'No file selected'}
-      </p>
+      {showFilename && (
+        <p className="text-xs text-gray-600">
+          {coverImage?.originalName || 'No file selected'}
+        </p>
+      )}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )

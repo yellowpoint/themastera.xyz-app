@@ -1,5 +1,6 @@
 'use client'
 
+import ImgUpload from '@/components/ImgUpload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import VideoPlayer from '@/components/VideoPlayer'
+import VideoUpload, { UploadedVideo } from '@/components/VideoUpload'
 import { request } from '@/lib/request'
 import { Loader2, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -112,7 +115,7 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
       introductionImageUrl:
         'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
       introductionVideoCover:
-        'https://images.unsplash.com/photo-1574169208507-84376144848b?w=800',
+        'https://stream.mux.com/VMJzj3TPKvLozhDsBUB9A1C02XyWNS4o6nqjGR7qa5mA.m3u8',
       exhibitionName: 'Echoes of Tomorrow',
       exhibitionDuration: '45 Days',
       exhibitionLocation: 'Main Hall, Level 2',
@@ -168,10 +171,22 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Poster URL</Label>
+            <Label>Poster</Label>
+            <ImgUpload
+              showFilename={false}
+              folder="events"
+              subDir="poster"
+              initialImage={
+                formData.posterUrl ? { fileUrl: formData.posterUrl } : null
+              }
+              onUploadComplete={(img) =>
+                handleChange('posterUrl', img?.fileUrl || '')
+              }
+            />
             <Input
               value={formData.posterUrl || ''}
               onChange={(e) => handleChange('posterUrl', e.target.value)}
+              placeholder="Paste image URL"
             />
           </div>
 
@@ -216,10 +231,24 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label>Artist Avatar URL</Label>
+              <Label>Artist Avatar</Label>
+              <ImgUpload
+                showFilename={false}
+                folder="events"
+                subDir="artist"
+                initialImage={
+                  formData.artistAvatar
+                    ? { fileUrl: formData.artistAvatar }
+                    : null
+                }
+                onUploadComplete={(img) =>
+                  handleChange('artistAvatar', img?.fileUrl || '')
+                }
+              />
               <Input
                 value={formData.artistAvatar || ''}
                 onChange={(e) => handleChange('artistAvatar', e.target.value)}
+                placeholder="Paste image URL"
               />
             </div>
           </div>
@@ -238,22 +267,51 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
         <CardContent className="pt-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Intro Image URL</Label>
+              <Label>Intro Image</Label>
+              <ImgUpload
+                showFilename={false}
+                folder="events"
+                subDir="intro"
+                initialImage={
+                  formData.introductionImageUrl
+                    ? { fileUrl: formData.introductionImageUrl }
+                    : null
+                }
+                onUploadComplete={(img) =>
+                  handleChange('introductionImageUrl', img?.fileUrl || '')
+                }
+              />
               <Input
                 value={formData.introductionImageUrl || ''}
                 onChange={(e) =>
                   handleChange('introductionImageUrl', e.target.value)
                 }
+                placeholder="Paste image URL"
               />
             </div>
             <div className="space-y-2">
-              <Label>Intro Video Cover URL</Label>
-              <Input
-                value={formData.introductionVideoCover || ''}
-                onChange={(e) =>
-                  handleChange('introductionVideoCover', e.target.value)
-                }
-              />
+              <Label>Intro Video</Label>
+              <div className="space-y-3">
+                <VideoUpload
+                  onUploadComplete={(files: UploadedVideo[]) => {
+                    const first = files?.[0]
+                    if (!first) return
+                    handleChange('introductionVideoCover', first.fileUrl)
+                  }}
+                />
+                <Input
+                  placeholder="Paste video URL or embed code"
+                  value={formData.introductionVideoCover || ''}
+                  onChange={(e) =>
+                    handleChange('introductionVideoCover', e.target.value)
+                  }
+                />
+                {formData.introductionVideoCover && (
+                  <div className="rounded-xl overflow-hidden w-full aspect-[16/9]">
+                    <VideoPlayer videoUrl={formData.introductionVideoCover} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
