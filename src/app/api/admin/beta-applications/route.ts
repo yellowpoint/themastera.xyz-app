@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     if (adminResult) return adminResult
 
     const body = await request.json()
-    const email = String(body?.email || '').trim()
+    const email = String(body?.email || '').trim().toLowerCase()
     const status = String(body?.status || 'APPROVED')
       .trim()
       .toUpperCase()

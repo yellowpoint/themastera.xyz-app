@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
 
-    const normalizedEmail = String(email || '').trim()
+    const normalizedEmail = String(email || '').trim().toLowerCase()
     if (!normalizedEmail) {
       return NextResponse.json(
         apiFailure('VALIDATION_FAILED', 'Email is required'),
