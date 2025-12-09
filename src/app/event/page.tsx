@@ -139,10 +139,10 @@ export default function EventPage() {
 
         {/* Pagination */}
         {total > 0 && (
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-12 px-2 text-sm bg-overlay rounded-xl backdrop-blur">
-            <div>Total {total} items</div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-auto md:h-12 px-2 text-sm bg-overlay rounded-xl backdrop-blur py-1">
+            <div className="hidden md:block">Total {total} items</div>
 
-            <div className="flex items-center gap-6 ">
+            <div className="flex flex-wrap items-center gap-3 md:gap-6 ">
               <Pagination className="w-auto mx-0">
                 <PaginationContent>
                   <PaginationItem>
@@ -173,7 +173,7 @@ export default function EventPage() {
                             className={cn(
                               'h-8 w-8 cursor-pointer border-0',
                               currentPage === p &&
-                                'bg-primary text-primary-foreground hover:bg-primary/90'
+                                'bg-primary! text-primary-foreground hover:bg-primary/90'
                             )}
                           >
                             {p}
@@ -211,7 +211,7 @@ export default function EventPage() {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 <span>Go to</span>
                 <Input
                   className="h-8 w-12 px-1 text-center dark:bg-input/30"

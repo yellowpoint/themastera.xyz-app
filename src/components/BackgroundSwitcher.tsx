@@ -76,8 +76,8 @@ export default function BackgroundSwitcher({
             aria-hidden="true"
             className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
           />
-          {/* <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-black/90 via-black/30 to-transparent backdrop-blur-md" /> */}
-          <div className="fixed inset-0 z-0 pointer-events-none bg-black/40 backdrop-blur-md" />
+          <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-black/90 via-black/30 to-transparent " />
+          <div className="fixed inset-0 z-0 pointer-events-none bg-black/30 backdrop-blur-[4px]" />
         </>
       ) : (
         <div className="fixed inset-0 z-0 bg-background" />
