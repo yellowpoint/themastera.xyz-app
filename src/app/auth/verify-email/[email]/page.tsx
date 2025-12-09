@@ -18,8 +18,7 @@ export default function VerifyEmailPage() {
   const params = useParams()
   const searchParams = useSearchParams()
 
-  // Get email from route parameters
-  const email = decodeURIComponent((params as any).email as string)
+  const email = decodeURIComponent((params as any).email || '').toLowerCase()
   const error = searchParams.get('error')
 
   useEffect(() => {

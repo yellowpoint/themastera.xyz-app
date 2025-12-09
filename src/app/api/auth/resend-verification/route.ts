@@ -19,10 +19,11 @@ export async function POST(request: NextRequest) {
     }
 
     const origin = request.nextUrl.origin
+    const normalizedEmail = String(parsed.data.email).trim().toLowerCase()
     const result = await auth.api.sendVerificationEmail({
       body: {
-        email: parsed.data.email,
-        callbackURL: generateVerifyEmailCallbackURL(parsed.data.email, origin) // Use shared helper to generate callback URL
+        email: normalizedEmail,
+        callbackURL: generateVerifyEmailCallbackURL(normalizedEmail, origin)
       }
     })
 
