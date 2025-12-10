@@ -39,6 +39,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       '/privacy-policy',
       '/terms-of-service',
       '/auth',
+      '/admin',
     ].some((prefix) => pathname?.startsWith(prefix))
 
   const hideHeaderRightPadding = [
