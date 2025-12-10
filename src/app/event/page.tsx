@@ -99,11 +99,11 @@ export default function EventPage() {
   const hasMore = events.length < total
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="page-container">
       <TopTabs tabs={TABS} activeKey={activeTab} onChange={setActiveTab} />
 
       {/* Main Content */}
-      <main className="flex-1 p-6 space-y-6 container mx-auto max-w-7xl">
+      <main className="space-y-6">
         <h1 className="text-4xl">Event</h1>
         <SortSearchToolbar
           showSortButtons={false}

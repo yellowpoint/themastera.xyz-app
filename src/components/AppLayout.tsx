@@ -67,25 +67,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     // 侧边栏样式：根据 Header 是否隐藏决定位置与高度
     const sidebarStyle = {
       top: hideHeader ? '0' : HeaderHeight,
-      height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
     }
     return (
       <>
         {!hideHeader && <Header showBack={showHeaderBack} />}
-        <div className="flex h-full" style={contentContainerStyle}>
-          {!hideSidebar && <CustomSidebar style={sidebarStyle} />}
-          <main
-            className="flex-1"
-            style={{
-              height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
-              paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
-              paddingRight:
-                hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
-            }}
-          >
-            {children}
-          </main>
-        </div>
+        {!hideSidebar && <CustomSidebar style={sidebarStyle} />}
+        <main
+          className="h-full"
+          style={{
+            paddingTop: hideHeader ? '0' : HeaderHeight,
+            paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
+            paddingRight:
+              hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
+          }}
+        >
+          {children}
+        </main>
       </>
     )
   }
@@ -110,16 +107,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             showBack={showHeaderBack}
           />
         )}
-        <div className="flex h-full" style={contentContainerStyle}>
-          <main
-            className="flex-1"
-            style={{
-              height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
-            }}
-          >
-            {children}
-          </main>
-        </div>
+        <main
+          className="h-full"
+          style={{
+            paddingTop: hideHeader ? '0' : HeaderHeight,
+          }}
+        >
+          {children}
+        </main>
       </>
     )
   }

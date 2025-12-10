@@ -4,6 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {
+  .page-container {
+    @apply container mx-auto px-2 md:px-4 py-4 md:py-6;
+  }
+
   .transition-width {
     transition-property: width;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);

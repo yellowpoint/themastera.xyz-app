@@ -50,78 +50,71 @@ export default function ExplorePage() {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null)
 
   return (
-    <div className="container mx-auto px-3 md:px-4 py-4 md:py-6">
-      <div className="flex justify-center mb-4">
-        <div className="w-full">
-          <TopTabs
-            tabs={tabList}
-            activeKey={activeTab}
-            onChange={(key) => setActiveTab(key as 'music' | 'language')}
-          />
-          <div className="">
-            <h1 className="text-2xl md:text-4xl text-white mb-6 md:mb-10">
-              {activeTab === 'music' ? 'Category' : 'Language'}
-            </h1>
-            <SortSearchToolbar
-              sortAZ={sortAZ}
-              onSortChange={setSortAZ}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              searchPlaceholder="Search category name"
-            />
-            <section>
-              <div
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
-                onMouseLeave={() => setHoveredCat(null)}
+    <div className="page-container">
+      <TopTabs
+        tabs={tabList}
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key as 'music' | 'language')}
+      />
+      <div className="">
+        <h1 className="text-2xl md:text-4xl text-white mb-6 md:mb-10">
+          {activeTab === 'music' ? 'Category' : 'Language'}
+        </h1>
+        <SortSearchToolbar
+          sortAZ={sortAZ}
+          onSortChange={setSortAZ}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          searchPlaceholder="Search category name"
+        />
+        <section
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
+          onMouseLeave={() => setHoveredCat(null)}
+        >
+          {filteredCategories.map((cat, idx) => {
+            const queryParam = activeTab === 'music' ? 'category' : 'language'
+            return (
+              <Link
+                key={cat}
+                href={`/section?${queryParam}=${encodeURIComponent(cat)}`}
+                prefetch
+                className="relative group block"
+                onMouseEnter={() => setHoveredCat(cat)}
               >
-                {filteredCategories.map((cat, idx) => {
-                  const queryParam =
-                    activeTab === 'music' ? 'category' : 'language'
-                  return (
-                    <Link
-                      key={cat}
-                      href={`/section?${queryParam}=${encodeURIComponent(cat)}`}
-                      prefetch
-                      className="relative group block"
-                      onMouseEnter={() => setHoveredCat(cat)}
-                    >
-                      {!isMobile && (
-                        <AnimatePresence>
-                          {hoveredCat === cat && (
-                            <motion.span
-                              className="absolute inset-0 -m-2 bg-overlay rounded-2xl z-[-1]"
-                              layoutId="hoverBackground"
-                              initial={{ opacity: 0 }}
-                              animate={{
-                                opacity: 1,
-                                transition: { duration: 0.15 },
-                              }}
-                              exit={{
-                                opacity: 0,
-                                transition: { duration: 0.15, delay: 0.2 },
-                              }}
-                            />
-                          )}
-                        </AnimatePresence>
-                      )}
-                      <div
-                        className={`w-full rounded-xl overflow-hidden ring-1 ring-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] bg-gradient-to-br ${VARIANTS[computeVariantIndex(idx)]} h-[140px] md:h-[180px]`}
-                      >
-                        <div className="p-4 md:p-6">
-                          <div className="text-white text-2xl md:text-4xl font-bold">
-                            {cat.split('/').map((part, index) => (
-                              <div key={index}>{part.trim()}</div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            </section>
-          </div>
-        </div>
+                {!isMobile && (
+                  <AnimatePresence>
+                    {hoveredCat === cat && (
+                      <motion.span
+                        className="absolute inset-0 -m-2 bg-overlay rounded-2xl z-[-1]"
+                        layoutId="hoverBackground"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                          opacity: 1,
+                          transition: { duration: 0.15 },
+                        }}
+                        exit={{
+                          opacity: 0,
+                          transition: { duration: 0.15, delay: 0.2 },
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+                )}
+                <div
+                  className={`w-full rounded-xl overflow-hidden ring-1 ring-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] bg-gradient-to-br ${VARIANTS[computeVariantIndex(idx)]} h-[140px] md:h-[180px]`}
+                >
+                  <div className="p-4 md:p-6">
+                    <div className="text-white text-3xl md:text-4xl font-bold">
+                      {cat.split('/').map((part, index) => (
+                        <div key={index}>{part.trim()}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </section>
       </div>
     </div>
   )

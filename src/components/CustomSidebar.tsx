@@ -62,7 +62,7 @@ export default function CustomSidebar({
 
   return (
     <aside
-      className={`fixed top-0 left-0 flex flex-col ${showHeaderFooter ? 'justify-between' : 'justify-center'} items-center h-full`}
+      className={`fixed top-0 bottom-0 left-0 flex flex-col items-center  ${showHeaderFooter ? 'justify-between' : 'justify-center'} overflow-hidden`}
       style={{ width: CustomSidebarWidth, ...style }}
     >
       {showHeaderFooter ? (
@@ -80,7 +80,7 @@ export default function CustomSidebar({
           </Link>
         </div>
       ) : null}
-      <nav className=" pl-6 pb-20 flex-1 w-full flex flex-col items-center justify-center ">
+      <nav className="pl-6 flex-1 w-full flex flex-col items-center justify-center overflow-y-auto">
         <ul className="space-y-4 w-full">
           {items.map((item) => {
             const Icon = item.icon
@@ -121,7 +121,7 @@ export default function CustomSidebar({
         </ul>
       </nav>
 
-      <div className="w-full pl-6 pb-6 text-muted-foreground">
+      <div className="w-full pl-6 py-6 text-muted-foreground">
         {isMobile && showHeaderFooter ? (
           <div className="mb-3 flex items-center justify-between pr-4">
             <HeaderActions />

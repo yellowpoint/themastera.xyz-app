@@ -129,7 +129,7 @@ export default function EventForm({ initialData, isEdit }: EventFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       <div className="flex justify-end">
         <Button
           type="button"

@@ -287,7 +287,7 @@ export default function EditWorkPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 pb-18">
+    <div className="page-container pb-18">
       <div className="flex flex-col">
         <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">
           {/* Header */}

@@ -53,7 +53,7 @@ export default function HomePage() {
       tabs={tabList as any}
       activeKey={activeTab}
       onChange={(key) => setActiveTab(key as any)}
-      contentClassName="px-4 py-4 h-full"
+      // contentClassName="page-container"
     />
   )
 }

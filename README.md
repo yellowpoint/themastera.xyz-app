@@ -255,6 +255,7 @@ Mastera 平台是一个基于 Next.js 构建的全栈 Web 应用程序，旨在�
 - 统一使用公共请求封装：`src/lib/request.ts`，避免在页面/组件中直接调用 `fetch`
 - 后端接口格式统一使用 @/contracts/types/common 中的 `apiSuccess` 和 `apiFailure` 类型
 - 所有邮箱处理统一转换为小写（API 接口与数据库查找一律小写匹配）
+- 页面布局使用.page-container 类，定义在 src/app/globals.css 中，用于设置最大宽度和左右内边距等。
 
 ### 部署
 

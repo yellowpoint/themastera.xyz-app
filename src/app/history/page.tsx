@@ -225,7 +225,7 @@ export default function WatchHistoryPage() {
   )
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Watch History</h1>
       </div>
@@ -357,7 +357,7 @@ export default function WatchHistoryPage() {
           </div>
 
           {/* Right: Timeline */}
-          <ScrollArea className="md:h-[calc(100vh-160px)] px-2 ">
+          <ScrollArea className="hidden md:block md:h-[calc(100vh-160px)] px-2 ">
             <h2 className="text-base font-semibold mb-2">Timeline</h2>
             <Separator />
             <div className="space-y-6 mt-4">

@@ -205,189 +205,182 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className="h-full px-6 pt-4">
-      <div className="max-w-7xl pb-16 mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Left Column: Poster */}
-        <div className="md:col-span-5">
-          <div className="sticky top-20">
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-card/70">
-              {event.posterUrl && (
-                <Image
-                  src={event.posterUrl}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              )}
-            </div>
+    <div className="page-container pb-16 grid grid-cols-1 md:grid-cols-12 gap-6">
+      {/* Left Column: Poster */}
+      <div className="md:col-span-5">
+        <div className="sticky top-20">
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-card/70">
+            {event.posterUrl && (
+              <Image
+                src={event.posterUrl}
+                alt={event.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Right Column: Details */}
-        <div className="md:col-span-7 space-y-6">
-          {/* Header Info */}
-          <Card className="bg-card/70 px-4 gap-6">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl">{event.title}</h1>
-              <EventStatusBadge status={event.status} />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 border-2 border-highlight/50">
-                <AvatarImage src={event.artist.avatar} />
-                <AvatarFallback>
-                  {event.artist.name.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-muted-foreground">
-                {event.artist.name}
-              </span>
-            </div>
-
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-foreground" />
-                <span>{event.period}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-foreground" />
-                <span>{event.location}</span>
-              </div>
-            </div>
-          </Card>
-
-          {/* Action Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <Select value={selectedDate} onValueChange={setSelectedDate}>
-              <SelectTrigger
-                className="bg-[#6B75F8]! text-white! h-15! w-full border-0 text-md"
-                iconClassName="opacity-100 size-6 text-white"
-              >
-                <SelectValue placeholder="Select Date" />
-              </SelectTrigger>
-              <SelectContent>
-                {event.dates.map((date: string) => (
-                  <SelectItem key={date} value={date}>
-                    {date}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              className=" md:col-span-2 h-15 w-full relative text-2xl disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground"
-              disabled={
-                event.status === 'Upcoming' || event.status === 'Archive'
-              }
-              // onClick={() => {
-              //   alert('Reserve Now')
-              // }}
-            >
-              Reserve Now
-              <Badge className="absolute -top-2 right-2 bg-highlight text-primary  border-none rounded">
-                Admission Free
-              </Badge>
-            </Button>
+      {/* Right Column: Details */}
+      <div className="md:col-span-7 space-y-6">
+        {/* Header Info */}
+        <Card className="bg-card/70 px-4 gap-6">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl">{event.title}</h1>
+            <EventStatusBadge status={event.status} />
           </div>
 
-          <div>
-            {/* Tabs */}
-            <TabsBar
-              labelClassName="text-white text-base"
-              tabs={[
-                { key: 'introduction', label: 'Introduction' },
-                { key: 'artist', label: 'About artist' },
-                { key: 'info', label: 'Exhibition info' },
-              ]}
-              activeKey={activeTab}
-              onChange={(key) =>
-                setActiveTab(key as 'introduction' | 'artist' | 'info')
-              }
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8 border-2 border-highlight/50">
+              <AvatarImage src={event.artist.avatar} />
+              <AvatarFallback>
+                {event.artist.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium text-muted-foreground">
+              {event.artist.name}
+            </span>
+          </div>
+
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-foreground" />
+              <span>{event.period}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-foreground" />
+              <span>{event.location}</span>
+            </div>
+          </div>
+        </Card>
+
+        {/* Action Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <Select value={selectedDate} onValueChange={setSelectedDate}>
+            <SelectTrigger
+              className="bg-[#6B75F8]! text-white! h-15! w-full border-0 text-md"
+              iconClassName="opacity-100 size-6 text-white"
+            >
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              {event.dates.map((date: string) => (
+                <SelectItem key={date} value={date}>
+                  {date}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            className=" md:col-span-2 h-15 w-full relative text-2xl disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground"
+            disabled={event.status === 'Upcoming' || event.status === 'Archive'}
+            // onClick={() => {
+            //   alert('Reserve Now')
+            // }}
+          >
+            Reserve Now
+            <Badge className="absolute -top-2 right-2 bg-highlight text-primary  border-none rounded">
+              Admission Free
+            </Badge>
+          </Button>
+        </div>
+
+        <div>
+          {/* Tabs */}
+          <TabsBar
+            labelClassName="text-white text-base"
+            tabs={[
+              { key: 'introduction', label: 'Introduction' },
+              { key: 'artist', label: 'About artist' },
+              { key: 'info', label: 'Exhibition info' },
+            ]}
+            activeKey={activeTab}
+            onChange={(key) =>
+              setActiveTab(key as 'introduction' | 'artist' | 'info')
+            }
+          />
+
+          {/* Introduction Tab */}
+          <div hidden={activeTab !== 'introduction'} className="space-y-6 pt-6">
+            {/* Collection Info */}
+            <Card className="bg-card/70 px-4">
+              <h3 className="text-xl">{event.title}</h3>
+              <div className="flex flex-col md:flex-row gap-6">
+                {event.introduction.imageUrl && (
+                  <div className="relative w-full md:w-1/3 aspect-[3/4] flex-shrink-0 rounded-xl overflow-hidden">
+                    <Image
+                      src={event.introduction.imageUrl}
+                      alt="Intro"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="text-sm text-[#C9CDD4] whitespace-pre-line">
+                  {event.artist.bio}
+                </div>
+              </div>
+            </Card>
+
+            {/* Video Player */}
+            {event.introduction.videoCover && (
+              <div className="rounded-xl overflow-hidden w-full aspect-[16/9] flex-shrink-0">
+                {isEmbedCode(event.introduction.videoCover) ? (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: event.introduction.videoCover,
+                    }}
+                  />
+                ) : (
+                  <VideoPlayer videoUrl={event.introduction.videoCover} />
+                )}
+              </div>
+            )}
+
+            {/* Artist Info Section (also in Intro tab as per design) */}
+            <ArtistCard
+              detailName={event.artist.detailName}
+              birth={event.artist.birth}
+              bio={event.artist.bio}
             />
 
-            {/* Introduction Tab */}
-            <div
-              hidden={activeTab !== 'introduction'}
-              className="space-y-6 pt-6"
-            >
-              {/* Collection Info */}
-              <Card className="bg-card/70 px-4">
-                <h3 className="text-xl">{event.title}</h3>
-                <div className="flex flex-col md:flex-row gap-6">
-                  {event.introduction.imageUrl && (
-                    <div className="relative w-full md:w-1/3 aspect-[3/4] flex-shrink-0 rounded-xl overflow-hidden">
-                      <Image
-                        src={event.introduction.imageUrl}
-                        alt="Intro"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="text-sm text-[#C9CDD4] whitespace-pre-line">
-                    {event.artist.bio}
-                  </div>
-                </div>
-              </Card>
-
-              {/* Video Player */}
-              {event.introduction.videoCover && (
-                <div className="rounded-xl overflow-hidden w-full aspect-[16/9] flex-shrink-0">
-                  {isEmbedCode(event.introduction.videoCover) ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: event.introduction.videoCover,
-                      }}
-                    />
-                  ) : (
-                    <VideoPlayer videoUrl={event.introduction.videoCover} />
-                  )}
-                </div>
-              )}
-
-              {/* Artist Info Section (also in Intro tab as per design) */}
-              <ArtistCard
-                detailName={event.artist.detailName}
-                birth={event.artist.birth}
-                bio={event.artist.bio}
-              />
-
-              <ExhibitionInfoCard info={event.exhibitionInfo} />
-            </div>
-
-            <div hidden={activeTab !== 'artist'} className="pt-6">
-              <ArtistCard
-                detailName={event.artist.detailName}
-                birth={event.artist.birth}
-                bio={event.artist.bio}
-              />
-            </div>
-            <div hidden={activeTab !== 'info'} className="pt-6">
-              <ExhibitionInfoCard info={event.exhibitionInfo} />
-            </div>
+            <ExhibitionInfoCard info={event.exhibitionInfo} />
           </div>
-          {/* Footer Links */}
-          <Card className="bg-card/70 px-4">
-            <div className="flex gap-4">
-              <Linkedin className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
-              <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
-              <Youtube className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
-            </div>
-            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-              <Link href="#" className="hover:underline">
-                Policy
-              </Link>
-              <Link href="#" className="hover:underline">
-                Terms
-              </Link>
-              <Link href="#" className="hover:underline">
-                Privacy
-              </Link>
-              <span>Copyright</span>
-            </div>
-          </Card>
+
+          <div hidden={activeTab !== 'artist'} className="pt-6">
+            <ArtistCard
+              detailName={event.artist.detailName}
+              birth={event.artist.birth}
+              bio={event.artist.bio}
+            />
+          </div>
+          <div hidden={activeTab !== 'info'} className="pt-6">
+            <ExhibitionInfoCard info={event.exhibitionInfo} />
+          </div>
         </div>
+        {/* Footer Links */}
+        <Card className="bg-card/70 px-4">
+          <div className="flex gap-4">
+            <Linkedin className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+            <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+            <Youtube className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+          </div>
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+            <Link href="#" className="hover:underline">
+              Policy
+            </Link>
+            <Link href="#" className="hover:underline">
+              Terms
+            </Link>
+            <Link href="#" className="hover:underline">
+              Privacy
+            </Link>
+            <span>Copyright</span>
+          </div>
+        </Card>
       </div>
     </div>
   )

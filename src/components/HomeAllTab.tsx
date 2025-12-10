@@ -240,7 +240,7 @@ export default function HomeAllTab() {
   }
 
   return (
-    <div className={`container ${spaceYClassName} mx-auto`}>
+    <div className={`page-container ${spaceYClassName}`}>
       {items.map((w) => {
         const { playbackId, src } = resolvePlayback(w.fileUrl)
         return (
