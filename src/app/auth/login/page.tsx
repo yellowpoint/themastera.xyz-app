@@ -1,15 +1,9 @@
 'use client'
 
+import AuthCardLayout from '@/components/auth/AuthCardLayout'
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
@@ -17,11 +11,9 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { MagicCard } from '@/components/ui/magic-card'
 import { ENABLE_BETA_CHECK } from '@/config/beta'
 import { useAuth } from '@/hooks/useAuth'
 import { checkBetaAllowed } from '@/utils/beta'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -33,7 +25,6 @@ type LoginFormData = {
 }
 
 export default function LoginPage() {
-  const { theme } = useTheme()
   const router = useRouter()
   const { signIn, loading } = useAuth()
   const [error, setError] = useState<string>('')
@@ -138,92 +129,80 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex justify-center px-4">
-      <Card className="w-full max-w-sm border-none p-0 shadow-none">
-        <MagicCard
-          gradientColor={theme === 'dark' ? '#262626' : '#D9D9D955'}
-          className="p-0"
-        >
-          <CardHeader className="border-border border-b p-4 [.border-b]:pb-4">
-            <CardTitle>Login to your account</CardTitle>
-            <CardDescription>
-              Enter your email below to login to your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <form onSubmit={handleLogin}>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <div className="flex items-center">
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Link
-                      href="/auth/forgot-password"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange('password', e.target.value)
-                    }
-                    required
-                  />
-                </Field>
-                {error && (
-                  <div className="space-y-2">
-                    <FieldDescription className="text-red-500">
-                      {error}
-                    </FieldDescription>
-                  </div>
-                )}
-                <Field>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    loading={isSubmitting || loading}
-                  >
-                    {isSubmitting || loading ? 'Logging in...' : 'Login'}
-                  </Button>
-                </Field>
+    <>
+      <AuthCardLayout
+        title="Login to your account"
+        description="Enter your email below to login to your account"
+      >
+        <form onSubmit={handleLogin}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                required
+              />
+            </Field>
+            <Field>
+              <div className="flex items-center">
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Link
+                  href="/auth/forgot-password"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                required
+              />
+            </Field>
+            {error && (
+              <div className="space-y-2">
+                <FieldDescription className="text-red-500">
+                  {error}
+                </FieldDescription>
+              </div>
+            )}
+            <Field>
+              <Button
+                type="submit"
+                className="w-full"
+                loading={isSubmitting || loading}
+              >
+                {isSubmitting || loading ? 'Logging in...' : 'Login'}
+              </Button>
+            </Field>
 
-                <Field>
-                  <FieldDescription className="text-center">
-                    Don&apos;t have an account?{' '}
-                    <Link href="/auth/register" className="hover:underline">
-                      Sign up
-                    </Link>
-                    <span className="mt-2 block">
-                      <button
-                        type="button"
-                        onClick={openResendDialog}
-                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                      >
-                        Resend verification email
-                      </button>
-                    </span>
-                  </FieldDescription>
-                </Field>
-                <GoogleLoginButton />
-              </FieldGroup>
-            </form>
-          </CardContent>
-        </MagicCard>
-      </Card>
+            <Field>
+              <FieldDescription className="text-center">
+                Don&apos;t have an account?{' '}
+                <Link href="/auth/register" className="hover:underline">
+                  Sign up
+                </Link>
+                <span className="mt-2 block">
+                  <button
+                    type="button"
+                    onClick={openResendDialog}
+                    className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    Resend verification email
+                  </button>
+                </span>
+              </FieldDescription>
+            </Field>
+            <GoogleLoginButton />
+          </FieldGroup>
+        </form>
+      </AuthCardLayout>
 
       <ResendVerificationEmailDialog
         email={formData.email}
@@ -231,6 +210,6 @@ export default function LoginPage() {
         onOpenChange={setIsResendDialogOpen}
         onSuccess={handleResendSuccess}
       />
-    </div>
+    </>
   )
 }

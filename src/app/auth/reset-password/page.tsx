@@ -1,13 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import AuthCardLayout from '@/components/auth/AuthCardLayout'
 import {
   Field,
   FieldDescription,
@@ -72,59 +66,46 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle>Reset your password</CardTitle>
-            <CardDescription>
-              Set a new password for your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSubmit}>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="password">New Password</FieldLabel>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <FieldDescription>Minimum 8 characters</FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="confirm">Confirm Password</FieldLabel>
-                  <Input
-                    id="confirm"
-                    type="password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    required
-                  />
-                </Field>
-                {error && (
-                  <FieldDescription className="text-red-500">
-                    {error}
-                  </FieldDescription>
-                )}
-                {success && (
-                  <FieldDescription className="text-green-600">
-                    {success}
-                  </FieldDescription>
-                )}
-                <Field>
-                  <Button type="submit" className="w-full" loading={submitting}>
-                    {submitting ? 'Resetting...' : 'Reset Password'}
-                  </Button>
-                </Field>
-              </FieldGroup>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <AuthCardLayout
+      title="Reset your password"
+      description="Set a new password for your account"
+    >
+      <form onSubmit={onSubmit}>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="password">New Password</FieldLabel>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <FieldDescription>Minimum 8 characters</FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="confirm">Confirm Password</FieldLabel>
+            <Input
+              id="confirm"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+            />
+          </Field>
+          {error && (
+            <FieldDescription className="text-red-500">{error}</FieldDescription>
+          )}
+          {success && (
+            <FieldDescription className="text-green-600">{success}</FieldDescription>
+          )}
+          <Field>
+            <Button type="submit" className="w-full" loading={submitting}>
+              {submitting ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </Field>
+        </FieldGroup>
+      </form>
+    </AuthCardLayout>
   )
 }

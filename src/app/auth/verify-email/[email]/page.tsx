@@ -1,7 +1,7 @@
 'use client'
 import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import AuthCardLayout from '@/components/auth/AuthCardLayout'
 import { Spinner } from '@/components/ui/spinner'
 import { request } from '@/lib/request'
 import { CheckCircle, XCircle } from 'lucide-react'
@@ -87,67 +87,51 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="h-full flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="text-center p-8">
-          {status === 'verifying' && (
-            <>
-              <div className="mb-4 mx-auto">
-                <Spinner className="h-8 w-8" />
-              </div>
-              <h1 className="text-2xl font-bold mb-4">Verifying Email...</h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Verifying your email address, please wait...
-              </p>
-            </>
-          )}
+    <>
+      <AuthCardLayout title="Email Verification" contentClassName="text-center p-8">
+        {status === 'verifying' && (
+          <>
+            <div className="mb-4 mx-auto">
+              <Spinner className="h-8 w-8" />
+            </div>
+            <h1 className="text-2xl font-bold mb-4">Verifying Email...</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Verifying your email address, please wait...
+            </p>
+          </>
+        )}
 
-          {status === 'success' && (
-            <>
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-green-600 mb-4">
-                Verification Successful!
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
-              <p className="text-sm text-gray-500">
-                Redirecting to the login page in 3 seconds...
-              </p>
-            </>
-          )}
+        {status === 'success' && (
+          <>
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-green-600 mb-4">Verification Successful!</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+            <p className="text-sm text-gray-500">Redirecting to the login page in 3 seconds...</p>
+          </>
+        )}
 
-          {status === 'error' && (
-            <>
-              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-red-600 mb-4">
-                Verification Failed
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
-              <div className="space-y-3">
-                <Button
-                  variant="default"
-                  onClick={() => setIsResendDialogOpen(true)}
-                  className="w-full"
-                >
-                  Resend Verification Email
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push('/auth/login')}
-                  className="w-full"
-                >
-                  Return to Login
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+        {status === 'error' && (
+          <>
+            <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Verification Failed</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+            <div className="space-y-3">
+              <Button variant="default" onClick={() => setIsResendDialogOpen(true)} className="w-full">
+                Resend Verification Email
+              </Button>
+              <Button variant="outline" onClick={() => router.push('/auth/login')} className="w-full">
+                Return to Login
+              </Button>
+            </div>
+          </>
+        )}
+      </AuthCardLayout>
 
       <ResendVerificationEmailDialog
         email={email}
         open={isResendDialogOpen}
         onOpenChange={setIsResendDialogOpen}
       />
-    </div>
+    </>
   )
 }

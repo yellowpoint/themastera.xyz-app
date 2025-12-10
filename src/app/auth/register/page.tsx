@@ -1,15 +1,9 @@
 'use client'
 
+import AuthCardLayout from '@/components/auth/AuthCardLayout'
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton'
 import { ResendVerificationEmailDialog } from '@/components/auth/ResendVerificationEmailDialog'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
@@ -17,10 +11,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { MagicCard } from '@/components/ui/magic-card'
 import { useAuth } from '@/hooks/useAuth'
 import { generateVerifyEmailCallbackURL } from '@/utils/auth'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -33,7 +25,6 @@ type RegisterFormData = {
 }
 
 export default function RegisterPage() {
-  const { theme } = useTheme()
   const { signUp, loading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
@@ -113,134 +104,114 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        <Card className="w-full max-w-sm border-none p-0 shadow-none">
-          <MagicCard
-            gradientColor={theme === 'dark' ? '#262626' : '#D9D9D955'}
-            className="p-0"
-          >
-            <CardHeader className="border-border border-b p-4 [.border-b]:pb-4">
-              <CardTitle>Create an account</CardTitle>
-              <CardDescription>
-                Enter your information below to create your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <form onSubmit={handleSubmit}>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="John Doe"
-                      value={formData.name}
-                      onChange={(e) => handleChange('name', e.target.value)}
-                      required
-                    />
-                  </Field>
+    <>
+      <AuthCardLayout
+        title="Create an account"
+        description="Enter your information below to create your account"
+      >
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="name">Full Name</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                required
+              />
+            </Field>
 
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      value={formData.email}
-                      onChange={(e) => handleChange('email', e.target.value)}
-                      required
-                    />
-                    {/* <FieldDescription>
-                      We&apos;ll use this to contact you. We will not share your
-                      email with anyone else.
-                    </FieldDescription> */}
-                  </Field>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                value={formData.email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                required
+              />
+            </Field>
 
-                  <Field>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => handleChange('password', e.target.value)}
-                      required
-                    />
-                    <FieldDescription>
-                      Must be at least 8 characters long.
-                    </FieldDescription>
-                  </Field>
+            <Field>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleChange('password', e.target.value)}
+                required
+              />
+              <FieldDescription>
+                Must be at least 8 characters long.
+              </FieldDescription>
+            </Field>
 
-                  <Field>
-                    <FieldLabel htmlFor="confirm-password">
-                      Confirm Password
-                    </FieldLabel>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleChange('confirmPassword', e.target.value)
-                      }
-                      required
-                    />
-                    <FieldDescription>
-                      Please confirm your password.
-                    </FieldDescription>
-                  </Field>
+            <Field>
+              <FieldLabel htmlFor="confirm-password">
+                Confirm Password
+              </FieldLabel>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  handleChange('confirmPassword', e.target.value)
+                }
+                required
+              />
+              <FieldDescription>Please confirm your password.</FieldDescription>
+            </Field>
 
-                  {error && (
-                    <div className="text-destructive text-sm" role="alert">
-                      {error}
-                    </div>
-                  )}
-                  {success && (
-                    <div className="text-green-600 text-sm" role="status">
-                      {success}
-                    </div>
-                  )}
+            {error && (
+              <div className="text-destructive text-sm" role="alert">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="text-green-600 text-sm" role="status">
+                {success}
+              </div>
+            )}
 
-                  <FieldGroup>
-                    <Field>
-                      <div className="flex gap-3">
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={isSubmitting || loading}
-                        >
-                          {isSubmitting || loading
-                            ? 'Creating...'
-                            : 'Create Account'}
-                        </Button>
-                      </div>
-                      <FieldDescription className="px-6 text-center">
-                        Already have an account?{' '}
-                        <Link href="/auth/login">Sign in</Link>
-                        <span className="mt-2 block">
-                          <button
-                            type="button"
-                            onClick={openResendDialog}
-                            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                          >
-                            Resend verification email
-                          </button>
-                        </span>
-                      </FieldDescription>
-                    </Field>
-                    <GoogleLoginButton />
-                  </FieldGroup>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </MagicCard>
-        </Card>
-      </div>
+            <FieldGroup>
+              <Field>
+                <div className="flex gap-3">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting || loading}
+                  >
+                    {isSubmitting || loading ? 'Creating...' : 'Create Account'}
+                  </Button>
+                </div>
+                <FieldDescription className="px-6 text-center">
+                  Already have an account?{' '}
+                  <Link href="/auth/login">Sign in</Link>
+                  <span className="mt-2 block">
+                    <button
+                      type="button"
+                      onClick={openResendDialog}
+                      className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      Resend verification email
+                    </button>
+                  </span>
+                </FieldDescription>
+              </Field>
+              <GoogleLoginButton />
+            </FieldGroup>
+          </FieldGroup>
+        </form>
+      </AuthCardLayout>
 
       <ResendVerificationEmailDialog
         email={formData.email}
         open={isResendDialogOpen}
         onOpenChange={setIsResendDialogOpen}
       />
-    </div>
+    </>
   )
 }
