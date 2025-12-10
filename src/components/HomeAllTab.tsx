@@ -258,7 +258,7 @@ export default function HomeAllTab() {
             data-id={w.id}
           >
             <div aria-label={w.title || 'View content'} className="block">
-              <div className="relative z-0 rounded-2xl overflow-hidden cursor-pointer transition aspect-video">
+              <div className="relative z-0 rounded-xl overflow-hidden cursor-pointer transition aspect-video">
                 {media.visible[w.id] ? (
                   <VideoPlayerLazy
                     noControls

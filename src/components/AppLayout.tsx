@@ -25,6 +25,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   // 主题：在指定前缀路由下强制使用浅色主题
   const isLight = startsWithAny(['/creator', '/admin'])
 
+  // 某些路由下不限制宽度等（例如内容页、公告页）
+  const noPageContainer = startsWithAny(['/content', '/beta-notice'])
+
   // 是否强制隐藏 Header（例如公告页）
   const hideHeader = startsWithAny(['/beta-notice'])
 
@@ -76,7 +79,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
           }}
         >
-          <div className="page-container">{children}</div>
+          <div className={noPageContainer ? '' : 'page-container'}>
+            {children}
+          </div>
         </main>
       </>
     )
@@ -108,7 +113,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             paddingTop: hideHeader ? '0' : HeaderHeight,
           }}
         >
-          <div className="page-container">{children}</div>
+          <div className={noPageContainer ? '' : 'page-container'}>
+            {children}
+          </div>
         </main>
       </>
     )

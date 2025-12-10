@@ -107,7 +107,7 @@ export default function VideoPlayer({
   return (
     <div
       style={{ width }}
-      className={`relative aspect-video ${noControls ? 'mux-player-controls-none' : ''}`}
+      className={`relative aspect-video rounded-lg overflow-hidden ${noControls ? 'mux-player-controls-none' : ''}`}
     >
       {(() => {
         const isMuxPlayback = videoUrl && videoUrl.includes('stream.mux.com')

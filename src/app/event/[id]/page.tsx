@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import VideoPlayer from '@/components/VideoPlayer'
 import { request } from '@/lib/request'
 import { formatDateRange } from '@/lib/utils'
@@ -20,7 +21,6 @@ import {
   Calendar,
   ExternalLink,
   Linkedin,
-  Loader2,
   MapPin,
   Twitter,
   Youtube,
@@ -190,8 +190,89 @@ export default function EventDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-5">
+          <div className="sticky top-26">
+            <Skeleton className="aspect-[3/4] w-full rounded-xl" />
+          </div>
+        </div>
+
+        <div className="md:col-span-7 space-y-6">
+          <Card className="bg-card/70 px-4 gap-6">
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-8 w-2/3" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <Skeleton className="h-15 w-full rounded-md" />
+            <Skeleton className="md:col-span-2 h-15 w-full rounded-md" />
+          </div>
+
+          <div>
+            <div className="flex gap-3">
+              <Skeleton className="h-8 w-28" />
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-8 w-36" />
+            </div>
+
+            <div className="space-y-6 pt-6">
+              <Card className="bg-card/70 px-4">
+                <Skeleton className="h-6 w-40" />
+                <div className="flex flex-col md:flex-row gap-6">
+                  <Skeleton className="relative w-full md:w-1/3 aspect-[3/4] rounded-xl" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+              </Card>
+
+              <Skeleton className="rounded-xl w-full aspect-[16/9]" />
+
+              <Card className="bg-card/70 px-4">
+                <Skeleton className="h-5 w-32" />
+                <div className="space-y-2 mt-2">
+                  <Skeleton className="h-3 w-2/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </Card>
+
+              <Card className="bg-card/70 px-4">
+                <Skeleton className="h-5 w-32" />
+                <div className="space-y-3 mt-2">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-3 w-2/3" />
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          <Card className="bg-card/70 px-4">
+            <div className="flex gap-4">
+              <Skeleton className="h-5 w-5 rounded" />
+              <Skeleton className="h-5 w-5 rounded" />
+              <Skeleton className="h-5 w-5 rounded" />
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </Card>
+        </div>
       </div>
     )
   }
@@ -205,10 +286,10 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className=" pb-16 grid grid-cols-1 md:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
       {/* Left Column: Poster */}
       <div className="md:col-span-5">
-        <div className="sticky top-20">
+        <div className="sticky top-26">
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-card/70">
             {event.posterUrl && (
               <Image

@@ -265,13 +265,13 @@ export default function ContentDetailPage() {
 
   if (loading) {
     return (
-      <div className="h-screen">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full">
-          <div className="md:col-span-3 h-full px-2 overflow-y-auto">
-            <div className="space-y-4 mt-8">
+      <div style={{ height: 'calc(100vh - ' + HeaderHeight + ')' }}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full overflow-hidden">
+          <div className="md:col-span-3 md:h-full px-2 md:pl-8">
+            <div className="space-y-4 pb-6 md:pb-0">
               <Skeleton className="aspect-video rounded-xl" />
               <div className="flex items-center justify-between gap-4 px-6">
-                <Skeleton className="h-6 w-2/3" />
+                <Skeleton className="hidden md:block h-6 w-2/3" />
                 <div className="flex items-center gap-4">
                   <Skeleton className="h-10 w-28 rounded-md" />
                   <Skeleton className="h-10 w-28 rounded-md" />
@@ -279,7 +279,7 @@ export default function ContentDetailPage() {
               </div>
             </div>
           </div>
-          <div className="space-y-6 h-full px-4 py-8 overflow-y-auto overflow-x-hidden">
+          <div className="space-y-6 h-full px-4 overflow-y-auto overflow-x-hidden">
             <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="w-8 h-8 rounded-full" />
@@ -352,197 +352,193 @@ export default function ContentDetailPage() {
 
   return (
     <div
-      className="overflow-hidden"
+      className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full relative overflow-hidden"
       style={{ height: 'calc(100vh - ' + HeaderHeight + ')' }}
     >
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-0 h-full relative">
-        {/* Main Content Area */}
-        <div className="md:col-span-3 h-full px-2 pb-6 overflow-hidden">
-          <div className="flex justify-center">
-            <VideoPlayer
-              key={workId}
-              videoUrl={work.fileUrl}
-              thumbnailUrl={work.thumbnailUrl}
-              title={work.title}
-              autoPlay
-              width={
-                'min(100%, calc((100vh - ' +
-                HeaderHeight +
-                ' - 80px) * 16 / 9))'
-              }
-              onPlay={() => {
-                try {
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(
-                      new CustomEvent('player:now-playing', {
-                        detail: { workId },
-                      })
-                    )
-                  }
-                } catch (_) {}
-              }}
-              onEnded={handleEnded}
-            />
-          </div>
-
-          <div className="h-auto md:h-20 flex flex-col md:flex-row items-start md:items-center justify-start md:justify-between gap-2 md:gap-4 px-2 md:px-6 ">
-            <h1
-              className="text-2xl md:text-2xl line-clamp-3 md:line-clamp-1! w-full"
-              title={work.title}
-            >
-              {work.title}
-            </h1>
-            <div className="flex items-center gap-2 md:gap-4 relative mt-2 md:mt-0">
-              <Button
-                variant="secondary"
-                className="bg-overlay hover:bg-overlay-hover"
-              >
-                <button
-                  onClick={handleLike}
-                  disabled={likeLoading || dislikeLoading}
-                  aria-busy={likeLoading}
-                  className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                >
-                  {likeLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <ThumbsUp className={isLiked ? 'fill-white' : ''} />
-                  )}
-                  <span>{likesCount > 0 ? formatViews(likesCount) : 0}</span>
-                </button>
-                <div
-                  className="w-0 h-8 border-l-2 border-dashed opacity-20"
-                  style={{ borderColor: '#F2F3F5' }}
-                />
-                <button
-                  onClick={handleDislike}
-                  disabled={likeLoading || dislikeLoading}
-                  aria-busy={dislikeLoading}
-                  className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
-                >
-                  {dislikeLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <ThumbsDown
-                      className={isDisliked ? 'fill-white' : ''}
-                      strokeWidth={2}
-                    />
-                  )}
-                </button>
-              </Button>
-              <Button
-                onClick={handleDownload}
-                variant="secondary"
-                className="bg-overlay hover:bg-overlay-hover"
-                disabled={downloadLoading}
-                aria-busy={downloadLoading}
-              >
-                <span className="inline-flex items-center gap-2 w-full">
-                  {downloadLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <>
-                      <Download />
-                      Download
-                    </>
-                  )}
-                </span>
-              </Button>
-            </div>
-          </div>
+      {/* Main Content Area */}
+      <div className="md:col-span-3 md:h-full px-2 pb-6 md:pl-8">
+        <div className="flex justify-center">
+          <VideoPlayer
+            key={workId}
+            videoUrl={work.fileUrl}
+            thumbnailUrl={work.thumbnailUrl}
+            title={work.title}
+            autoPlay
+            width={
+              'min(100%, calc((100vh - ' + HeaderHeight + ' - 80px) * 16 / 9))'
+            }
+            onPlay={() => {
+              try {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(
+                    new CustomEvent('player:now-playing', {
+                      detail: { workId },
+                    })
+                  )
+                }
+              } catch (_) {}
+            }}
+            onEnded={handleEnded}
+          />
         </div>
 
-        <div className="space-y-6 h-full px-4 pb-8 overflow-y-auto overflow-x-hidden">
-          <div className="flex flex-col gap-6">
-            <div className="rounded-lg overflow-hidden">
-              <div
-                style={{
-                  backgroundImage: `url(${resolveUserCover(work?.user?.coverImage as any, work?.user?.id as any)})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
+        <div className="h-auto md:h-20 flex flex-col md:flex-row items-start md:items-center justify-start md:justify-between gap-2 md:gap-4 px-2 md:px-6">
+          <h1
+            className="text-xl md:text-2xl line-clamp-2 md:line-clamp-1! w-full"
+            title={work.title}
+          >
+            {work.title}
+          </h1>
+          <div className="flex items-center gap-2 md:gap-4 relative mt-2 md:mt-0">
+            <Button
+              variant="secondary"
+              className="bg-overlay hover:bg-overlay-hover"
+            >
+              <button
+                onClick={handleLike}
+                disabled={likeLoading || dislikeLoading}
+                aria-busy={likeLoading}
+                className="flex items-center gap-2.5 text-white hover:opacity-80 transition-opacity disabled:opacity-60"
               >
-                <div className="flex flex-col gap-3 bg-black/40 rounded-md p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="size-8 rounded-full border border-primary overflow-hidden">
-                      <img
-                        src={(work?.user?.image as any) || '/favicon.ico'}
-                        alt="avatar"
-                        className="size-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <Link
-                      href={`/user/${work?.user?.id}`}
-                      className="text-white text-2xl"
-                    >
-                      {work?.user?.name || 'Unknown Artist'}
-                    </Link>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <div className="text-white text-sm">
-                      {formatViews(authorFollowersCount)} subscribers
-                    </div>
-                    <div>
-                      <SubscribeButton
-                        userId={work?.user?.id}
-                        isFollowing={isFollowing}
-                        onChanged={() => handleFollow()}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
-              <div className="flex items-center justify-between">
-                <div className="text-muted-foreground text-sm">
-                  Video Description
-                </div>
-              </div>
-              <div className="mt-3 flex flex-col gap-3">
-                <div className="text-[16px] leading-6 text-highlight">
-                  Total Views: {formatViews(work.views ?? work.downloads)}
-                </div>
-                <div className="text-[16px] leading-6 text-highlight">
-                  Date added:{' '}
-                  {formatDate(work.uploadTime ?? work.createdAt, 'MM-DD-YYYY')}
-                </div>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="w-full text-sm"
-                  defaultValue="desc"
-                >
-                  <AccordionItem value="desc">
-                    <AccordionContent>
-                      <div className="text-sm text-secondary-foreground">
-                        <p className="whitespace-pre-wrap">
-                          {work?.description ||
-                            'The creator has not added a description yet...'}
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            </div>
-
-            {user?.id && (
-              <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
-                <SidebarPlaylistSectionLazy />
-              </div>
-            )}
-
-            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
-              <div className="text-muted-foreground mb-1">Suggested</div>
-              <WorkCardList
-                works={(relatedWorks || []).slice(0, 4)}
-                columns={1}
-                variant="cover"
+                {likeLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <ThumbsUp className={isLiked ? 'fill-white' : ''} />
+                )}
+                <span>{likesCount > 0 ? formatViews(likesCount) : 0}</span>
+              </button>
+              <div
+                className="w-0 h-8 border-l-2 border-dashed opacity-20"
+                style={{ borderColor: '#F2F3F5' }}
               />
+              <button
+                onClick={handleDislike}
+                disabled={likeLoading || dislikeLoading}
+                aria-busy={dislikeLoading}
+                className="flex items-center text-white hover:opacity-80 transition-opacity disabled:opacity-60"
+              >
+                {dislikeLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <ThumbsDown
+                    className={isDisliked ? 'fill-white' : ''}
+                    strokeWidth={2}
+                  />
+                )}
+              </button>
+            </Button>
+            <Button
+              onClick={handleDownload}
+              variant="secondary"
+              className="bg-overlay hover:bg-overlay-hover"
+              disabled={downloadLoading}
+              aria-busy={downloadLoading}
+            >
+              <span className="inline-flex items-center gap-2 w-full">
+                {downloadLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    <Download />
+                    Download
+                  </>
+                )}
+              </span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="h-full px-4 overflow-y-auto overflow-x-hidden">
+        <div className=" flex flex-col pb-6 md:pb-11 gap-6 ">
+          <div className="rounded-lg overflow-hidden">
+            <div
+              style={{
+                backgroundImage: `url(${resolveUserCover(work?.user?.coverImage as any, work?.user?.id as any)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              <div className="flex flex-col gap-3 bg-black/40 rounded-md p-2">
+                <div className="flex items-center gap-2">
+                  <div className="size-8 rounded-full border border-primary overflow-hidden">
+                    <img
+                      src={(work?.user?.image as any) || '/favicon.ico'}
+                      alt="avatar"
+                      className="size-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <Link
+                    href={`/user/${work?.user?.id}`}
+                    className="text-white text-2xl"
+                  >
+                    {work?.user?.name || 'Unknown Artist'}
+                  </Link>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <div className="text-white text-sm">
+                    {formatViews(authorFollowersCount)} subscribers
+                  </div>
+                  <div>
+                    <SubscribeButton
+                      userId={work?.user?.id}
+                      isFollowing={isFollowing}
+                      onChanged={() => handleFollow()}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
+            <div className="flex items-center justify-between">
+              <div className="text-muted-foreground text-sm">
+                Video Description
+              </div>
+            </div>
+            <div className="mt-3 flex flex-col gap-3">
+              <div className="text-[16px] leading-6 text-highlight">
+                Total Views: {formatViews(work.views ?? work.downloads)}
+              </div>
+              <div className="text-[16px] leading-6 text-highlight">
+                Date added:{' '}
+                {formatDate(work.uploadTime ?? work.createdAt, 'MM-DD-YYYY')}
+              </div>
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full text-sm"
+                defaultValue="desc"
+              >
+                <AccordionItem value="desc">
+                  <AccordionContent>
+                    <div className="text-sm text-secondary-foreground">
+                      <p className="whitespace-pre-wrap">
+                        {work?.description ||
+                          'The creator has not added a description yet...'}
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </div>
+
+          {user?.id && (
+            <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
+              <SidebarPlaylistSectionLazy />
+            </div>
+          )}
+
+          <div className="bg-[rgba(91,91,91,0.3)] rounded-lg p-2">
+            <div className="text-muted-foreground mb-1">Suggested</div>
+            <WorkCardList
+              works={(relatedWorks || []).slice(0, 4)}
+              columns={1}
+              variant="cover"
+            />
           </div>
         </div>
       </div>
