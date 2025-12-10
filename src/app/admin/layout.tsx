@@ -48,9 +48,6 @@ export default function AdminLayout({
               <Button variant="outline" onClick={() => router.push('/')}>
                 Back to Home
               </Button>
-              <Button onClick={() => router.push('/profile')}>
-                Go to Profile
-              </Button>
             </div>
           </div>
         </Card>

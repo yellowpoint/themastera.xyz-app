@@ -9,11 +9,9 @@ import { useEffect, useMemo, useState } from 'react'
 type BackgroundItem = { src: string | null; label: string }
 
 export default function BackgroundSwitcher({
-  enabled,
   images,
   storageKey = 'app:bgIndex',
 }: {
-  enabled: boolean
   images?: BackgroundItem[]
   storageKey?: string
 }) {
@@ -68,7 +66,7 @@ export default function BackgroundSwitcher({
 
   return (
     <>
-      {enabled && currentBgSrc ? (
+      {currentBgSrc ? (
         <>
           <img
             src={currentBgSrc}
@@ -83,110 +81,104 @@ export default function BackgroundSwitcher({
         <div className="fixed inset-0 z-0 bg-background" />
       )}
 
-      {enabled ? (
-        <>
+      <AnimatePresence>
+        {panelOpen ? (
+          <motion.div
+            onClick={() => setPanelOpen(false)}
+            className="fixed inset-0 z-30 bg-black/20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
+        ) : null}
+      </AnimatePresence>
+      <div className="fixed bottom-6 right-2 z-40">
+        {!panelOpen ? (
+          <button
+            type="button"
+            onClick={() => setPanelOpen(true)}
+            className="flex flex-col items-center p-2 gap-1 bg-[rgba(43,49,60,0.4)] rounded-[8px] backdrop-blur-sm"
+          >
+            <div className="w-[64px] h-[40px] rounded overflow-hidden">
+              {currentBgSrc ? (
+                <img
+                  src={currentBgSrc}
+                  alt="Background preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-black flex items-center justify-center">
+                  <Ban className="size-4 text-white/70" />
+                </div>
+              )}
+            </div>
+            <span className="text-[#C9CDD4] text-xs leading-5">Background</span>
+          </button>
+        ) : (
           <AnimatePresence>
-            {panelOpen ? (
-              <motion.div
-                onClick={() => setPanelOpen(false)}
-                className="fixed inset-0 z-30 bg-black/20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              />
-            ) : null}
-          </AnimatePresence>
-          <div className="fixed bottom-6 right-2 z-40">
-            {!panelOpen ? (
-              <button
-                type="button"
-                onClick={() => setPanelOpen(true)}
-                className="flex flex-col items-center p-2 gap-1 bg-[rgba(43,49,60,0.4)] rounded-[8px] backdrop-blur-sm"
-              >
-                <div className="w-[64px] h-[40px] rounded overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ type: 'spring', bounce: 0.2, duration: 0.3 }}
+              className="origin-bottom-right"
+            >
+              <Card className="w-[230px] rounded-2xl bg-[rgba(43,49,60,0.6)] backdrop-blur-md p-2 gap-0">
+                <div className="relative rounded-xl overflow-hidden h-[120px] w-full bg-[#2B313C]">
                   {currentBgSrc ? (
                     <img
                       src={currentBgSrc}
-                      alt="Background preview"
-                      className="w-full h-full object-cover"
+                      alt="Background"
+                      className="w-full h-full object-cover opacity-80"
                     />
                   ) : (
                     <div className="w-full h-full bg-black flex items-center justify-center">
-                      <Ban className="size-4 text-white/70" />
+                      <Ban className="size-8 text-white/70" />
                     </div>
                   )}
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center gap-1">
+                    {bgImages.map((_, i) => (
+                      <div
+                        key={i}
+                        className={`size-1.5 rounded-full ${i === bgIndex ? 'bg-white/90' : 'bg-white/40'}`}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <span className="text-[#C9CDD4] text-xs leading-5">
-                  Background
-                </span>
-              </button>
-            ) : (
-              <AnimatePresence>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 8 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.3 }}
-                  className="origin-bottom-right"
-                >
-                  <Card className="w-[230px] rounded-2xl bg-[rgba(43,49,60,0.6)] backdrop-blur-md p-2 gap-0">
-                    <div className="relative rounded-xl overflow-hidden h-[120px] w-full bg-[#2B313C]">
-                      {currentBgSrc ? (
-                        <img
-                          src={currentBgSrc}
-                          alt="Background"
-                          className="w-full h-full object-cover opacity-80"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-black flex items-center justify-center">
-                          <Ban className="size-8 text-white/70" />
-                        </div>
-                      )}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center gap-1">
-                        {bgImages.map((_, i) => (
-                          <div
-                            key={i}
-                            className={`size-1.5 rounded-full ${i === bgIndex ? 'bg-white/90' : 'bg-white/40'}`}
-                          />
-                        ))}
-                      </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-muted-foreground text-sm">
+                      Background
                     </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div>
-                        <div className="text-muted-foreground text-sm">
-                          Background
-                        </div>
-                        <div className="text-white/90 text-base font-medium">
-                          {bgImages[bgIndex]?.label}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="bg-[#2B313C]/60"
-                          onClick={onPrev}
-                        >
-                          <ChevronLeft className="size-4 text-white/90" />
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="bg-[#2B313C]/60"
-                          onClick={onNext}
-                        >
-                          <ChevronRight className="size-4 text-white/90" />
-                        </Button>
-                      </div>
+                    <div className="text-white/90 text-base font-medium">
+                      {bgImages[bgIndex]?.label}
                     </div>
-                  </Card>
-                </motion.div>
-              </AnimatePresence>
-            )}
-          </div>
-        </>
-      ) : null}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-[#2B313C]/60"
+                      onClick={onPrev}
+                    >
+                      <ChevronLeft className="size-4 text-white/90" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-[#2B313C]/60"
+                      onClick={onNext}
+                    >
+                      <ChevronRight className="size-4 text-white/90" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </div>
     </>
   )
 }

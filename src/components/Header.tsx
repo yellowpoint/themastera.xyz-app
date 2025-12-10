@@ -14,12 +14,12 @@ import HeaderActions from './HeaderActions'
 export const HeaderHeight = '80px'
 
 export default function Header({
-  showBackButton = false,
   showLogo = true,
+  showBack = false,
   showSidebarController = false,
 }: {
-  showBackButton?: boolean
   showLogo?: boolean
+  showBack?: boolean
   showSidebarController?: boolean
 }) {
   const { user, signOut, loading } = useAuth()
@@ -46,8 +46,24 @@ export default function Header({
           width: CustomSidebarWidth,
         }}
       >
-        {showBackButton ? <BackButton /> : null}
-        {showSidebarController || isDetailPage ? (
+        {showBack ? (
+          <BackButton />
+        ) : (
+          showLogo && (
+            <Link
+              href="/"
+              className="flex items-baseline gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
+              aria-label="Home"
+            >
+              <img
+                src="/logo/Vertical.svg"
+                alt="Logo"
+                className="h-auto w-14 dark:invert"
+              />
+            </Link>
+          )
+        )}
+        {(showSidebarController || isDetailPage) && (
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <button
@@ -57,7 +73,7 @@ export default function Header({
                 aria-label="Open Sidebar"
               >
                 <div className="text-white/90 relative">
-                  <TextAlignStart className="h-4 w-4" />
+                  <TextAlignStart className="size-5" />
                 </div>
               </button>
             </SheetTrigger>
@@ -73,21 +89,7 @@ export default function Header({
               />
             </SheetContent>
           </Sheet>
-        ) : null}
-        {showLogo ? (
-          <Link
-            href="/"
-            className="flex items-baseline gap-2 group-data-[collapsible=icon]/sidebar-wrapper:hidden"
-            aria-label="Home"
-          >
-            <img
-              src="/logo/Vertical.svg"
-              alt="Logo"
-              className="h-auto w-14 dark:invert"
-            />
-            {/* <span className="text-xl">MASTERA</span> */}
-          </Link>
-        ) : null}
+        )}
       </div>
 
       <div

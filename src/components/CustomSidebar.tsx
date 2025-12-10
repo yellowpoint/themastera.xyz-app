@@ -36,6 +36,15 @@ const items: NavItem[] = [
   // { title: 'Creator', url: '/creator', icon: BadgePlus },
   // { title: 'Admin', url: '/admin', icon: Settings },
 ]
+const footerItems = [
+  { title: 'Privacy', url: '/privacy-policy' },
+  { title: 'Terms', url: '/terms-of-service' },
+]
+// 侧边栏所有 URL 列表
+export const sidebarUrls = [
+  ...items.map((item) => item.url),
+  ...footerItems.map((item) => item.url),
+]
 
 export default function CustomSidebar({
   style = {},
@@ -119,47 +128,41 @@ export default function CustomSidebar({
           </div>
         ) : null}
         <div className="flex items-center gap-4 mb-3">
-          <Link
-            href="https://www.linkedin.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-80 hover:opacity-100"
-            aria-label="LinkedIn"
-          >
-            <Linkedin className="size-4" />
-          </Link>
-          <Link
-            href="https://twitter.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-80 hover:opacity-100"
-            aria-label="Twitter"
-          >
-            <Twitter className="size-4" />
-          </Link>
-          <Link
-            href="https://www.youtube.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-80 hover:opacity-100"
-            aria-label="YouTube"
-          >
-            <Youtube className="size-4" />
-          </Link>
+          {[
+            {
+              href: 'https://www.linkedin.com/',
+              icon: Linkedin,
+              label: 'LinkedIn',
+            },
+            { href: 'https://twitter.com/', icon: Twitter, label: 'Twitter' },
+            {
+              href: 'https://www.youtube.com/',
+              icon: Youtube,
+              label: 'YouTube',
+            },
+          ].map(({ href, icon: Icon, label }) => (
+            <Link
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="opacity-80 hover:opacity-100"
+              aria-label={label}
+            >
+              <Icon className="size-4" />
+            </Link>
+          ))}
         </div>
         <div className="space-y-1 text-sm">
-          <Link
-            href="/privacy-policy"
-            className="block opacity-80 hover:opacity-100"
-          >
-            Privacy
-          </Link>
-          <Link
-            href="/terms-of-service"
-            className="block opacity-80 hover:opacity-100"
-          >
-            Terms
-          </Link>
+          {footerItems.map((i) => (
+            <Link
+              key={i.url}
+              href={i.url}
+              className="block opacity-80 hover:opacity-100"
+            >
+              {i.title}
+            </Link>
+          ))}
         </div>
       </div>
     </aside>

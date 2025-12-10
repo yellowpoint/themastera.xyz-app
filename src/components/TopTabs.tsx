@@ -92,7 +92,7 @@ export default function TopTabs({
               type="button"
               onClick={handleToggleSidebar}
             >
-              <TextAlignStart className="h-4 w-4" />
+              <TextAlignStart className="size-5" />
             </button>
             <div className="md:hidden flex w-[1px] items-center justify-center">
               <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />

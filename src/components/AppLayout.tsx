@@ -7,50 +7,29 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { AuthProvider } from '@/hooks/useAuth'
 import { usePathname } from 'next/navigation'
 import BackgroundSwitcher from './BackgroundSwitcher'
-import CustomSidebar, { CustomSidebarWidth } from './CustomSidebar'
+import CustomSidebar, { CustomSidebarWidth, sidebarUrls } from './CustomSidebar'
 import AuthRequired from './auth-required'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isMobile = useIsMobile()
 
-  const isLightModePath =
-    ['/creator', '/admin'].some((p) => pathname?.startsWith(p)) ?? false
+  // 工具方法（组件内部）：基于当前路径进行前缀匹配；根路径'/'使用全等判断
+  const startsWithAny = (prefixes: string[]): boolean => {
+    if (!pathname) return undefined
+    return prefixes.some((p) =>
+      p === '/' ? pathname === '/' : pathname.startsWith(p)
+    )
+  }
 
-  const hideHeader = ['/beta-notice'].some((prefix) =>
-    pathname?.startsWith(prefix)
-  )
+  // 主题：在指定前缀路由下强制使用浅色主题
+  const isLight = startsWithAny(['/creator', '/admin'])
 
-  const showBackOnRoutes = [
-    '/section',
-    '/playlists/',
-    '/user',
-    '/creator',
-    '/content/',
-    '/event/',
-  ].some((prefix) => pathname?.startsWith(prefix))
+  // 是否强制隐藏 Header（例如公告页）
+  const hideHeader = startsWithAny(['/beta-notice'])
 
-  const showSidebarController =
-    isMobile &&
-    [
-      '/ranking',
-      '/shop',
-      '/treasures',
-      '/privacy-policy',
-      '/terms-of-service',
-      '/auth',
-      '/admin',
-    ].some((prefix) => pathname?.startsWith(prefix))
-
-  const hideHeaderRightPadding = [
-    '/content',
-    '/creator',
-    '/user',
-    '/auth',
-    // '/admin',
-  ].some((prefix) => pathname?.startsWith(prefix))
-
-  const hideSidebar = [
+  // 是否隐藏侧边栏（在某些路由或移动端）
+  const hideSidebar = startsWithAny([
     '/content',
     '/user',
     '/beta-notice',
@@ -58,81 +37,107 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     '/admin',
     '/creator',
     '/event/',
-  ].some((prefix) => pathname?.startsWith(prefix))
+  ])
 
+  // 是否在Header展示返回按钮
+  const showHeaderBack =
+    startsWithAny(['/event/', '/playlists/']) ||
+    !startsWithAny([...sidebarUrls, '/auth'])
+
+  // 是否显示背景图
   const showBackgroundImage =
-    pathname === '/' ||
-    [
-      '/explore',
-      '/playlists',
-      '/auth',
-      '/profile',
-      '/section',
-      '/ranking',
-      '/event',
-      '/shop',
-      '/treasures',
-    ].some((prefix) => pathname?.startsWith(prefix))
+    !isMobile &&
+    startsWithAny([...sidebarUrls, '/auth', '/profile', '/section'])
 
-  const sidebarStyle = {
-    top: hideHeader ? '0' : HeaderHeight,
-    height: hideHeader ? '100%' : `calc(100vh - ${HeaderHeight})`,
+  // 通用内容容器样式：根据是否隐藏 Header 设置上内边距
+  const contentContainerStyle = {
+    paddingTop: hideHeader ? '0' : HeaderHeight,
   }
 
-  const getHideHeader = () => {
-    if (showSidebarController) return false
-    if (showBackOnRoutes) return false
-    if (hideHeader) return true
-    if (isMobile) return true
-    return false
+  // PC 端布局：包含可选的侧边栏与内容区域的左右间距
+  const renderDesktopLayout = () => {
+    // 是否隐藏右侧填充（让内容区域更宽）
+    const hideHeaderRightPadding = startsWithAny([
+      '/content',
+      '/creator',
+      '/user',
+      '/auth',
+    ])
+
+    // 侧边栏样式：根据 Header 是否隐藏决定位置与高度
+    const sidebarStyle = {
+      top: hideHeader ? '0' : HeaderHeight,
+      height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
+    }
+    return (
+      <>
+        {!hideHeader && <Header showBack={showHeaderBack} />}
+        <div className="flex h-full" style={contentContainerStyle}>
+          {!hideSidebar && <CustomSidebar style={sidebarStyle} />}
+          <main
+            className="flex-1"
+            style={{
+              height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
+              paddingLeft: hideSidebar ? '0' : CustomSidebarWidth,
+              paddingRight:
+                hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
+            }}
+          >
+            {children}
+          </main>
+        </div>
+      </>
+    )
+  }
+
+  // 移动端布局：不渲染侧边栏，内容区域左右不留空白
+  const renderMobileLayout = () => {
+    const hasTopTabs = ['/', '/event', '/explore', '/playlists']
+    const mobileHideHeader = hideHeader || hasTopTabs.includes(pathname)
+    // 移动端侧边栏控制器：sidebarUrls 排除 hasTopTabs，再加上 '/auth', '/admin'
+    const showSidebarController = startsWithAny([
+      ...sidebarUrls.filter((u) => !hasTopTabs.includes(u)),
+      '/auth',
+      '/admin',
+    ])
+
+    return (
+      <>
+        {!mobileHideHeader && (
+          <Header
+            showSidebarController={showSidebarController}
+            showLogo={!showSidebarController}
+            showBack={showHeaderBack}
+          />
+        )}
+        <div className="flex h-full" style={contentContainerStyle}>
+          <main
+            className="flex-1"
+            style={{
+              height: hideHeader ? '100vh' : `calc(100vh - ${HeaderHeight})`,
+            }}
+          >
+            {children}
+          </main>
+        </div>
+      </>
+    )
   }
 
   return (
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      forcedTheme={isLightModePath ? 'light' : 'dark'}
+      forcedTheme={isLight ? 'light' : 'dark'}
       enableSystem={false}
     >
       <AuthProvider>
         <Toaster position="top-center" />
         <AuthRequired>
           <div className="flex flex-col h-screen overflow-hidden">
-            {!isMobile && <BackgroundSwitcher enabled={showBackgroundImage} />}
-            <div className={`relative z-20 flex-1 h-full overflow-y-auto `}>
-              {!getHideHeader() && (
-                <Header
-                  showSidebarController={showSidebarController}
-                  showBackButton={showBackOnRoutes}
-                  showLogo={!showBackOnRoutes && !showSidebarController}
-                />
-              )}
-              <div
-                className={`flex h-full`}
-                style={{
-                  paddingTop: hideHeader ? '0' : HeaderHeight,
-                }}
-              >
-                {!hideSidebar && !isMobile ? (
-                  <CustomSidebar style={sidebarStyle} />
-                ) : null}
-                <div
-                  className="flex-1"
-                  style={{
-                    height: hideSidebar
-                      ? '100%'
-                      : `calc(100vh - ${HeaderHeight})`,
-                    paddingLeft:
-                      hideSidebar || isMobile ? '0' : CustomSidebarWidth,
-                    paddingRight:
-                      isMobile || hideHeader || hideHeaderRightPadding
-                        ? '0'
-                        : CustomSidebarWidth,
-                  }}
-                >
-                  {children}
-                </div>
-              </div>
+            {showBackgroundImage && <BackgroundSwitcher />}
+            <div className={`relative z-20 flex-1 h-full overflow-y-auto`}>
+              {isMobile ? renderMobileLayout() : renderDesktopLayout()}
             </div>
           </div>
         </AuthRequired>
