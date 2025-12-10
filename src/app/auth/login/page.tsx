@@ -138,96 +138,92 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <Card className="w-full max-w-sm border-none p-0 shadow-none">
-          <MagicCard
-            gradientColor={theme === 'dark' ? '#262626' : '#D9D9D955'}
-            className="p-0"
-          >
-            <CardHeader className="border-border border-b p-4 [.border-b]:pb-4">
-              <CardTitle>Login to your account</CardTitle>
-              <CardDescription>
-                Enter your email below to login to your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <form onSubmit={handleLogin}>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange('email', e.target.value)
-                      }
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <div className="flex items-center">
-                      <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <Link
-                        href="/auth/forgot-password"
-                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange('password', e.target.value)
-                      }
-                      required
-                    />
-                  </Field>
-                  {error && (
-                    <div className="space-y-2">
-                      <FieldDescription className="text-red-500">
-                        {error}
-                      </FieldDescription>
-                    </div>
-                  )}
-                  <Field>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      loading={isSubmitting || loading}
+    <div className="flex justify-center px-4">
+      <Card className="w-full max-w-sm border-none p-0 shadow-none">
+        <MagicCard
+          gradientColor={theme === 'dark' ? '#262626' : '#D9D9D955'}
+          className="p-0"
+        >
+          <CardHeader className="border-border border-b p-4 [.border-b]:pb-4">
+            <CardTitle>Login to your account</CardTitle>
+            <CardDescription>
+              Enter your email below to login to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <form onSubmit={handleLogin}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                  />
+                </Field>
+                <Field>
+                  <div className="flex items-center">
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                     >
-                      {isSubmitting || loading ? 'Logging in...' : 'Login'}
-                    </Button>
-                  </Field>
-
-                  <Field>
-                    <FieldDescription className="text-center">
-                      Don&apos;t have an account?{' '}
-                      <Link href="/auth/register" className="hover:underline">
-                        Sign up
-                      </Link>
-                      <span className="mt-2 block">
-                        <button
-                          type="button"
-                          onClick={openResendDialog}
-                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          Resend verification email
-                        </button>
-                      </span>
+                      Forgot your password?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      handleInputChange('password', e.target.value)
+                    }
+                    required
+                  />
+                </Field>
+                {error && (
+                  <div className="space-y-2">
+                    <FieldDescription className="text-red-500">
+                      {error}
                     </FieldDescription>
-                  </Field>
-                  <GoogleLoginButton />
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </MagicCard>
-        </Card>
-      </div>
+                  </div>
+                )}
+                <Field>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    loading={isSubmitting || loading}
+                  >
+                    {isSubmitting || loading ? 'Logging in...' : 'Login'}
+                  </Button>
+                </Field>
+
+                <Field>
+                  <FieldDescription className="text-center">
+                    Don&apos;t have an account?{' '}
+                    <Link href="/auth/register" className="hover:underline">
+                      Sign up
+                    </Link>
+                    <span className="mt-2 block">
+                      <button
+                        type="button"
+                        onClick={openResendDialog}
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        Resend verification email
+                      </button>
+                    </span>
+                  </FieldDescription>
+                </Field>
+                <GoogleLoginButton />
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </MagicCard>
+      </Card>
 
       <ResendVerificationEmailDialog
         email={formData.email}

@@ -13,7 +13,7 @@ export default function PlaylistsPage() {
   )
 
   return (
-    <div className="page-container">
+    <div className="">
       {/* Top fixed tabs */}
       <TopTabs
         tabs={[

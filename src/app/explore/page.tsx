@@ -50,7 +50,7 @@ export default function ExplorePage() {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null)
 
   return (
-    <div className="page-container">
+    <div className="">
       <TopTabs
         tabs={tabList}
         activeKey={activeTab}

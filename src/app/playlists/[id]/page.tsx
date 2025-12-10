@@ -151,7 +151,7 @@ export default function PlaylistDetailPage() {
   }
 
   return (
-    <div className="page-container">
+    <div className="">
       {loading ? (
         <div className="space-y-3">
           <Skeleton className="h-8 w-1/2" />

@@ -334,7 +334,7 @@ export default function UploadPage() {
   // Show simple uploader until a video is uploaded (when not copying or copy has no fileUrl)
   if (!uploadedVideo) {
     return (
-      <div className="page-container">
+      <div className="">
         <div className="space-y-4">
           <div className="flex justify-between items-start">
             <h1 className="text-4xl font-normal">Upload video</h1>
@@ -367,7 +367,7 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="page-container pb-18">
+    <div className=" pb-18">
       {/* Middle Content - Upload Form */}
       <div className="flex flex-col">
         <div className="px-8 pt-6 pb-4 space-y-4 flex-shrink-0">

@@ -53,7 +53,6 @@ export default function HomePage() {
       tabs={tabList as any}
       activeKey={activeTab}
       onChange={(key) => setActiveTab(key as any)}
-      // contentClassName="page-container"
     />
   )
 }

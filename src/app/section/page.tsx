@@ -89,13 +89,11 @@ export default function SectionUnifiedPage() {
   // Use skeletons via WorkCardList instead of plain loading text
 
   if (error && items.length === 0) {
-    return (
-      <div className="page-container text-center text-red-500">{error}</div>
-    )
+    return <div className=" text-center text-red-500">{error}</div>
   }
 
   return (
-    <div className="page-container space-y-6">
+    <div className=" space-y-6">
       <h1 className="text-2xl font-semibold">{headerTitle}</h1>
       <SortSearchToolbar
         sortAZ={sortAZ}

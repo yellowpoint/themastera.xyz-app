@@ -99,7 +99,7 @@ export default function EventPage() {
   const hasMore = events.length < total
 
   return (
-    <div className="page-container">
+    <div className="">
       <TopTabs tabs={TABS} activeKey={activeTab} onChange={setActiveTab} />
 
       {/* Main Content */}

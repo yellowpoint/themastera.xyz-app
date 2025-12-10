@@ -49,11 +49,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     !isMobile &&
     startsWithAny([...sidebarUrls, '/auth', '/profile', '/section'])
 
-  // 通用内容容器样式：根据是否隐藏 Header 设置上内边距
-  const contentContainerStyle = {
-    paddingTop: hideHeader ? '0' : HeaderHeight,
-  }
-
   // PC 端布局：包含可选的侧边栏与内容区域的左右间距
   const renderDesktopLayout = () => {
     // 是否隐藏右侧填充（让内容区域更宽）
@@ -81,7 +76,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               hideHeader || hideHeaderRightPadding ? '0' : CustomSidebarWidth,
           }}
         >
-          {children}
+          <div className="page-container">{children}</div>
         </main>
       </>
     )
@@ -113,7 +108,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             paddingTop: hideHeader ? '0' : HeaderHeight,
           }}
         >
-          {children}
+          <div className="page-container">{children}</div>
         </main>
       </>
     )
@@ -129,12 +124,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <Toaster position="top-center" />
         <AuthRequired>
-          <div className="flex flex-col h-screen overflow-hidden">
-            {showBackgroundImage && <BackgroundSwitcher />}
-            <div className={`relative z-20 flex-1 h-full overflow-y-auto`}>
-              {isMobile ? renderMobileLayout() : renderDesktopLayout()}
-            </div>
+          {/* <div className="h-screen overflow-hidden"> */}
+          {showBackgroundImage && <BackgroundSwitcher />}
+          <div className={`relative z-20 h-screen overflow-y-auto`}>
+            {isMobile ? renderMobileLayout() : renderDesktopLayout()}
           </div>
+          {/* </div> */}
         </AuthRequired>
       </AuthProvider>
     </ThemeProvider>

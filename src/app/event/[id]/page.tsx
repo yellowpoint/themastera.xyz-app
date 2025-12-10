@@ -205,7 +205,7 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className="page-container pb-16 grid grid-cols-1 md:grid-cols-12 gap-6">
+    <div className=" pb-16 grid grid-cols-1 md:grid-cols-12 gap-6">
       {/* Left Column: Poster */}
       <div className="md:col-span-5">
         <div className="sticky top-20">

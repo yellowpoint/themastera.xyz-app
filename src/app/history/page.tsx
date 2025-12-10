@@ -225,7 +225,7 @@ export default function WatchHistoryPage() {
   )
 
   return (
-    <div className="page-container">
+    <div className="">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Watch History</h1>
       </div>

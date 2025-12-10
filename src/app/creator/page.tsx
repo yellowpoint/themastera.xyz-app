@@ -80,7 +80,7 @@ export default function CreatorPage() {
   }, [page, limit, statusFilter, debouncedSearch, loadWorks])
 
   return (
-    <div className="page-container">
+    <div className="">
       {/* Page Title */}
       <div className="mb-10">
         <h1 className="text-2xl font-normal">Dashboard</h1>
