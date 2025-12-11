@@ -198,7 +198,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="md:col-span-7 space-y-6">
-          <Card className="bg-card/70 px-4 gap-6">
+          <Card className="bg-overlay px-4 gap-6">
             <div className="flex flex-col gap-2">
               <Skeleton className="h-8 w-2/3" />
               <Skeleton className="h-5 w-24" />
@@ -226,7 +226,7 @@ export default function EventDetailPage() {
             </div>
 
             <div className="space-y-6 pt-6">
-              <Card className="bg-card/70 px-4">
+              <Card className="bg-overlay px-4">
                 <Skeleton className="h-6 w-40" />
                 <div className="flex flex-col md:flex-row gap-6">
                   <Skeleton className="relative w-full md:w-1/3 aspect-[3/4] rounded-xl" />
@@ -240,7 +240,7 @@ export default function EventDetailPage() {
 
               <Skeleton className="rounded-xl w-full aspect-[16/9]" />
 
-              <Card className="bg-card/70 px-4">
+              <Card className="bg-overlay px-4">
                 <Skeleton className="h-5 w-32" />
                 <div className="space-y-2 mt-2">
                   <Skeleton className="h-3 w-2/3" />
@@ -248,7 +248,7 @@ export default function EventDetailPage() {
                 </div>
               </Card>
 
-              <Card className="bg-card/70 px-4">
+              <Card className="bg-overlay px-4">
                 <Skeleton className="h-5 w-32" />
                 <div className="space-y-3 mt-2">
                   <Skeleton className="h-3 w-full" />
@@ -259,7 +259,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <Card className="bg-card/70 px-4">
+          <Card className="bg-overlay px-4">
             <div className="flex gap-4">
               <Skeleton className="h-5 w-5 rounded" />
               <Skeleton className="h-5 w-5 rounded" />

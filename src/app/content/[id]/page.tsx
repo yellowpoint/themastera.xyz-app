@@ -382,7 +382,7 @@ export default function ContentDetailPage() {
           />
         </div>
 
-        <div className="h-auto md:h-20 flex flex-col md:flex-row items-start md:items-center justify-start md:justify-between gap-2 md:gap-4 px-2 md:px-6">
+        <div className="h-auto md:h-20 flex flex-col md:flex-row items-start md:items-center justify-start md:justify-between gap-2 md:gap-4 px-2 md:px-6 pt-2 md:pt-0">
           <h1
             className="text-xl md:text-2xl line-clamp-2 md:line-clamp-1! w-full"
             title={work.title}

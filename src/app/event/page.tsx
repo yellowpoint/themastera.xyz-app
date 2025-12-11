@@ -198,7 +198,7 @@ function EventCard({ event }: { event: EventItem }) {
 
 function EventCardSkeleton() {
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card/50 h-full">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-overlay h-full">
       <Skeleton className="aspect-video w-full" />
       <div className="flex flex-col gap-3 p-4 flex-1">
         <div className="space-y-2">

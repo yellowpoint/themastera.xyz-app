@@ -79,32 +79,34 @@ export default function TopTabs({
   return (
     <div>
       <div
-        className={`fixed top-0 z-50 left-1/2 -translate-x-1/2  flex items-center justify-center`}
+        className={`fixed top-0 z-50 left-1/2 -translate-x-1/2 flex items-center justify-center w-screen px-2 md:px-0`}
         style={{ height: HeaderHeight }}
       >
         <div
-          className={`relative flex items-center justify-between gap-2 px-4 py-2 h-[46px] bg-overlay rounded-xl backdrop-blur ${className || ''}`}
+          className={`relative flex items-center justify-between gap-4  md:pl-4 py-2 h-[46px] bg-overlay rounded-xl backdrop-blur w-full md:w-auto ${className || ''}`}
         >
-          <div className="flex items-center gap-3">
+          <div className="md:hidden flex items-center">
             <button
-              className="md:hidden flex h-10 w-10 items-center justify-center"
+              className="flex h-10 w-10 items-center justify-center"
               title={sidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
               type="button"
               onClick={handleToggleSidebar}
             >
               <TextAlignStart className="size-5" />
             </button>
-            <div className="md:hidden flex w-[1px] items-center justify-center">
+            <div className="flex w-[1px] items-center justify-center">
               <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
             </div>
+          </div>
+          <div className="flex items-center justify-center flex-1 min-w-0 md:flex-none md:justify-start">
             <TabsBar
               tabs={tabs.map(({ key, label }) => ({ key, label }))}
               activeKey={activeKey}
               onChange={onChange}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex w-[1px] items-center justify-center ml-2">
+          <div className="flex items-center">
+            <div className="flex w-[1px] items-center justify-center">
               <div className="bg-[rgba(255,255,255,0.12)] h-5 w-full" />
             </div>
             <button
@@ -114,7 +116,7 @@ export default function TopTabs({
               onClick={() => setSearchOpen(true)}
             >
               <div className="text-white/90 relative">
-                <Search className="h-4 w-4" />
+                <Search className="size-5" />
               </div>
             </button>
           </div>
