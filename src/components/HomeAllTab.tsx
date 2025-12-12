@@ -4,7 +4,6 @@ import type { HomepageItem } from '@/contracts/domain/work'
 import { request } from '@/lib/request'
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -248,6 +247,8 @@ export default function HomeAllTab() {
     <div className={` ${spaceYClassName}`}>
       {items.map((w) => {
         const { playbackId, src } = resolvePlayback(w.fileUrl)
+        const thumbUrl = `https://image.mux.com/${playbackId}/thumbnail.webp?width=1920&fit_mode=smartcrop&time=3`
+
         return (
           <div
             key={w.id}
@@ -264,12 +265,12 @@ export default function HomeAllTab() {
           >
             <div aria-label={w.title || 'View content'} className="block">
               <div className="relative z-0 rounded-xl overflow-hidden cursor-pointer transition aspect-[9/16] md:aspect-video">
-                {media.visible[w.id] ? (
+                {media.visible[w.id] && (
                   <VideoPlayerLazy
                     noControls
                     title={w.title}
                     videoUrl={src}
-                    thumbnailUrl={w.thumbnailUrl || undefined}
+                    thumbnailUrl={thumbUrl}
                     loop
                     muted
                     onPlay={() => {
@@ -280,19 +281,6 @@ export default function HomeAllTab() {
                         pausedByUser: { ...s.pausedByUser, [w.id]: false },
                       }))
                     }}
-                  />
-                ) : (
-                  <Image
-                    src={w.thumbnailUrl || '/thumbnail-placeholder.svg'}
-                    alt={w.title || 'Thumbnail'}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 100vw"
-                    className="object-cover"
-                    priority={false}
-                    loading="lazy"
-                    unoptimized={
-                      w.thumbnailUrl ? !/mux\.com/.test(w.thumbnailUrl) : false
-                    }
                   />
                 )}
                 <div
