@@ -343,14 +343,6 @@ body {
   }
 }
 
-mux-player {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  /* --media-object-fit: 'contain'; */
-  /* height: 100%; */
-  /* --media-object-fit: 'cover';
-  --media-object-position: 'center'; */
-}
 .mux-player-controls-none mux-player {
   --controls: none;
 }

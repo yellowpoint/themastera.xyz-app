@@ -1,5 +1,5 @@
 'use client'
-import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import MuxPlayer from '@mux/mux-player-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -7,8 +7,7 @@ type VideoPlayerProps = {
   videoUrl?: string
   thumbnailUrl?: string
   title?: string
-  width?: string | number
-  height?: string | number
+
   className?: string
   onPlay?: () => void
   onPause?: () => void
@@ -23,8 +22,6 @@ export default function VideoPlayer({
   videoUrl,
   thumbnailUrl,
   title = 'Video Content',
-  width = '100%',
-  height = '400px',
   className = '',
   onPlay,
   onPause,
@@ -85,29 +82,25 @@ export default function VideoPlayer({
   // If there is no video source, display an error message
   if (!videoUrl) {
     return (
-      <Card className={className}>
-        <CardContent className="p-0">
-          <div
-            style={{ width, height }}
-            className="flex items-center justify-center bg-gray-100 rounded-lg"
-          >
-            <div className="text-center">
-              <p className="text-gray-500 mb-2">Video file does not exist</p>
-              <p className="text-sm text-gray-400">
-                Please check if the video file has been uploaded
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full h-full flex items-center justify-center bg-overlay rounded-lg">
+        <div className="text-center">
+          <p className="mb-2 text-white">Video file does not exist</p>
+          <p className="text-sm text-gray-400">
+            Please check if the video file has been uploaded
+          </p>
+        </div>
+      </div>
     )
   }
 
   // Show video player when there is access
   return (
     <div
-      style={{ width }}
-      className={`relative aspect-video rounded-lg overflow-hidden ${noControls ? 'mux-player-controls-none' : ''}`}
+      className={cn(
+        'relative rounded-lg overflow-hidden w-full h-full',
+        noControls ? 'mux-player-controls-none' : '',
+        className
+      )}
     >
       {(() => {
         const isMuxPlayback = videoUrl && videoUrl.includes('stream.mux.com')
@@ -131,6 +124,11 @@ export default function VideoPlayer({
               loop={loop}
               ref={playerRef}
               playsInline
+              className="w-full h-full"
+              style={{
+                ['--media-object-fit' as any]: 'cover',
+                ['--media-object-position' as any]: 'center',
+              }}
               onPlay={handlePlay}
               onPause={handlePause}
               onEnded={handleEnded}

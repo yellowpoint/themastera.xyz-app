@@ -10,7 +10,9 @@ import { useEffect, useState } from 'react'
 
 const VideoPlayerLazy = dynamic(() => import('@/components/VideoPlayer'), {
   ssr: false,
-  loading: () => <Skeleton className="aspect-video w-full rounded-xl" />,
+  loading: () => (
+    <Skeleton className="aspect-[9/16] md:aspect-video w-full rounded-xl" />
+  ),
 })
 
 const safePlay = (player: any) => {
@@ -220,12 +222,15 @@ export default function HomeAllTab() {
       }))
     } catch {}
   }
-  const spaceYClassName = 'space-y-12 md:space-y-6'
+  const spaceYClassName = 'space-y-6'
   if (loading) {
     return (
       <div className={`${spaceYClassName} max-w-5xl mx-auto`}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="aspect-video w-full rounded-xl" />
+          <Skeleton
+            key={i}
+            className="aspect-[9/16] md:aspect-video w-full rounded-xl"
+          />
         ))}
       </div>
     )
@@ -258,7 +263,7 @@ export default function HomeAllTab() {
             data-id={w.id}
           >
             <div aria-label={w.title || 'View content'} className="block">
-              <div className="relative z-0 rounded-xl overflow-hidden cursor-pointer transition aspect-video">
+              <div className="relative z-0 rounded-xl overflow-hidden cursor-pointer transition aspect-[9/16] md:aspect-video">
                 {media.visible[w.id] ? (
                   <VideoPlayerLazy
                     noControls

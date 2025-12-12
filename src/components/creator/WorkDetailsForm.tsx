@@ -428,8 +428,6 @@ export default function WorkDetailsForm({
                   <VideoPlayer
                     videoUrl={uploadedVideo.fileUrl}
                     title={value.title || 'Preview'}
-                    width="100%"
-                    height="100%"
                     autoPlay={false}
                     muted={true}
                   />

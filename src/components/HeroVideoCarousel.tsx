@@ -97,7 +97,6 @@ export default function HeroVideoCarousel({ items, className }: Props) {
         loop={false}
         muted={heroMuted}
         autoPlay
-        className="w-full h-full object-cover"
         onEnded={handleVideoEnded}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />

@@ -356,17 +356,20 @@ export default function ContentDetailPage() {
       style={{ height: 'calc(100vh - ' + HeaderHeight + ')' }}
     >
       {/* Main Content Area */}
-      <div className="md:col-span-3 md:h-full px-2 pb-6 md:pl-8">
-        <div className="flex justify-center">
+      <div className="md:col-span-3 md:h-full px-2 pb-6 md:pl-8 ">
+        <div
+          className="mx-auto aspect-video"
+          style={{
+            width:
+              'min(100%, calc((100vh - ' + HeaderHeight + ' - 80px) * 16 / 9))',
+          }}
+        >
           <VideoPlayer
             key={workId}
             videoUrl={work.fileUrl}
             thumbnailUrl={work.thumbnailUrl}
             title={work.title}
             autoPlay
-            width={
-              'min(100%, calc((100vh - ' + HeaderHeight + ' - 80px) * 16 / 9))'
-            }
             onPlay={() => {
               try {
                 if (typeof window !== 'undefined') {
