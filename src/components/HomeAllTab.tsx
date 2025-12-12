@@ -297,19 +297,19 @@ export default function HomeAllTab() {
                     router.push(`/content/${w.id}`)
                   }}
                 >
-                  <div className="absolute top-4 left-4 max-w-[60%] md:max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
-                    <div className="text-white text-lg  truncate">
+                  <div className="absolute top-2 md:top-4 left-2 md:left-4 max-w-[60%] md:max-w-[30%] bg-[#1D212999] backdrop-blur-md rounded-xl px-2 md:px-4 py-2 shadow-lg">
+                    <div className="text-white md:text-lg  truncate">
                       {w.title}
                     </div>
-                    <div className="text-white/80 text-sm truncate">
+                    <div className="text-white/80 text-xs md:text-sm truncate">
                       {w.user?.name}
                     </div>
                   </div>
-                  <span className="absolute top-4 right-4 bg-highlight text-primary text-xs rounded px-3 py-1">
+                  <span className="absolute top-2 md:top-4 right-2 md:right-4 bg-highlight text-primary text-xs rounded px-3 py-1">
                     Watch Free
                   </span>
                   {media.visible[w.id] && (
-                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                    <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 flex items-center gap-2">
                       <button
                         type="button"
                         onClick={(e) => {

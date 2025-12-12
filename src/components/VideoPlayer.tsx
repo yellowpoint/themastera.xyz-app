@@ -151,7 +151,7 @@ export default function VideoPlayer({
       })()}
       {noControls && loadingState && (
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-          <div className="size-12 rounded-full border-4 border-white border-t-transparent animate-spin" />
+          <div className="size-6 md:size-12 rounded-full border-2 md:border-4 border-white border-t-transparent animate-spin" />
         </div>
       )}
     </div>

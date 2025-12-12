@@ -36,11 +36,11 @@ export default function Header({
   return (
     <>
       <div
-        className="md:hidden w-full fixed left-0 top-0 z-40 bg-[#02000233] backdrop-blur-[20px]"
+        className="md:hidden w-full fixed left-0 top-0 z-60 bg-[#02000233] backdrop-blur-[20px]"
         style={{ height: HeaderHeight }}
       ></div>
       <div
-        className={`fixed left-0 top-0 z-40 flex items-center gap-3 pl-4 md:pl-8`}
+        className={`fixed left-0 top-0 z-60 flex items-center gap-3 pl-4 md:pl-8`}
         style={{
           height: HeaderHeight,
           width: CustomSidebarWidth,
@@ -93,7 +93,7 @@ export default function Header({
       </div>
 
       <div
-        className={`fixed right-0 top-0 z-40 flex items-center gap-3 pr-4`}
+        className={`fixed right-0 top-0 z-60 flex items-center gap-3 pr-4`}
         style={{ height: HeaderHeight }}
       >
         <HeaderActions />
