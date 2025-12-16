@@ -55,6 +55,21 @@ function Button({
 
   const isDisabled = (disabled ?? false) || loading
 
+  if (asChild) {
+    return (
+      <Comp
+        data-slot="button"
+        data-loading={loading ? '' : undefined}
+        aria-busy={loading || undefined}
+        disabled={isDisabled}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
+
   return (
     <Comp
       data-slot="button"
