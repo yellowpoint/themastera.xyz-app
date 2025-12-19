@@ -242,21 +242,462 @@ Mastera 平台是一个基于 Next.js 构建的全栈 Web 应用程序，旨在�
 
 ## 🔧 开发指南
 
-### 代码规范
+### 代码规范 (Code Standards)
 
-- 使用 TypeScript 确保类型安全
-- 遵循 ESLint 配置保证代码质量
-- 使用 Lucide React 图标而非直接使用 emoji
-- 保持色彩搭配简洁清爽
-- 界面语言使用英语
-- 使用 PNPM 进行包管理
-- 使用 tailwindcss，且响应式只使用 md breakpoint
-- 基础 ui 组件使用 shadcn/ui，使用前先去查询其用法与例子
-- 统一使用公共请求封装：`src/lib/request.ts`，避免在页面/组件中直接调用 `fetch`
-- 后端接口格式统一使用 @/contracts/types/common 中的 `apiSuccess` 和 `apiFailure` 类型
-- 所有邮箱处理统一转换为小写（API 接口与数据库查找一律小写匹配）
-- 页面布局使用.page-container 类，定义在 src/app/globals.css 中，用于设置最大宽度和左右内边距等。
+#### 1. 通用规范
 
-### 部署
+- **语言**: 使用 TypeScript 确保类型安全,遵循路径别名 `@/*` 指向 `./src/*`
+- **包管理器**: 统一使用 PNPM 进行包管理
+- **开发工具**: 遵循 ESLint 和 Prettier 配置保证代码质量
+- **界面语言**: 界面文本使用英语,代码注释可使用中文说明复杂逻辑
+
+#### 2. 文件和命名规范
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 文件名 | 驼峰式 (camelCase) 或 帕斯卡式 (PascalCase) | `LoginForm.tsx`, `useAuth.tsx`, `request.ts` |
+| 组件名 | 帕斯卡式 (PascalCase) | `AuthProvider`, `CustomSidebar`, `VideoPlayer` |
+| 函数/变量 | 驼峰式 (camelCase) | `getUserProfile`, `isLoading`, `videoUrl` |
+| 常量 | 大写蛇形 (UPPER_SNAKE_CASE) | `MAX_FILE_SIZE`, `API_BASE_URL` |
+| 类型/接口 | 帕斯卡式 (PascalCase) | `ApiResponse<T>`, `UserProfile`, `WorkMetadata` |
+| 数据库表/字段 | 蛇形命名 (snake_case) | `user`, `work_likes`, `created_at` |
+
+#### 3. 前端开发规范
+
+**React 组件**
+- 优先使用函数组件,避免类组件
+- 使用 `'use client'` 指令标记客户端组件
+- 自定义 Hook 命名以 `use` 开头 (如 `useAuth`, `useWorks`)
+- 组件文件结构: 导入 → 类型定义 → 组件实现 → 导出
+
+**样式规范**
+- **Tailwind CSS 优先**: 使用 Tailwind utility classes
+- **响应式设计**: 仅使用 `md` breakpoint (避免使用 sm/lg/xl)
+- **全局类**: 页面布局使用 `.page-container` 类 (定义在 [src/app/globals.css](src/app/globals.css))
+- **CSS 变量**: 使用 `--color-*`, `--shadow-*` 等自定义属性
+- **UI 组件**: 优先使用 shadcn/ui 组件库,使用前查阅 [shadcn/ui 文档](https://ui.shadcn.com)
+
+**图标和资源**
+- 使用 Lucide React 图标库,避免直接使用 emoji
+- 图标组件: `import { IconName } from 'lucide-react'`
+
+#### 4. 后端开发规范
+
+**API 路由规范**
+- 路径: `src/app/api/[module]/route.ts`
+- HTTP 方法: 使用标准 REST 动词 (GET, POST, PUT, PATCH, DELETE)
+- 响应格式: **必须**使用统一的 API 响应类型
+
+**统一 API 响应格式** ([src/contracts/types/common.ts](src/contracts/types/common.ts))
+
+```typescript
+// 成功响应
+{
+  success: true,
+  data: T,
+  error: null
+}
+
+// 失败响应
+{
+  success: false,
+  data: null,
+  error: {
+    code: 'ERROR_CODE',      // UNAUTHORIZED | FORBIDDEN | NOT_FOUND | VALIDATION_FAILED | CONFLICT | INTERNAL_ERROR
+    message: 'Error message',
+    details?: any
+  }
+}
+```
+
+**使用辅助函数**
+```typescript
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+
+// 成功
+return NextResponse.json(apiSuccess(data))
+
+// 失败
+return NextResponse.json(
+  apiFailure('NOT_FOUND', 'User not found'),
+  { status: 404 }
+)
+```
+
+#### 5. 统一请求封装
+
+**禁止直接使用 fetch**,必须使用 [src/lib/request.ts](src/lib/request.ts) 的封装:
+
+```typescript
+import { request } from '@/lib/request'
+
+// GET 请求
+const result = await request.get<User>('/api/users/me')
+
+// POST 请求
+const result = await request.post<Work>('/api/works', {
+  title: 'My Work',
+  description: 'Description'
+})
+
+// 不显示错误提示
+const result = await request.get('/api/data', {}, {
+  showErrorToast: false,
+  throwOnError: false
+})
+```
+
+**请求选项**
+- `showErrorToast`: 是否显示错误提示 (默认 `true`)
+- `throwOnError`: 是否抛出错误 (默认 `true`)
+- `parseJson`: 是否自动解析 JSON (默认 `true`)
+
+#### 6. 数据验证和类型安全
+
+- **Zod 验证**: 使用 Zod 进行数据验证和类型推导
+- **Prisma 类型**: 利用 Prisma 生成的类型确保数据库操作类型安全
+- **API Contract**: 定义 API 输入输出类型在 `src/contracts/` 目录
+
+```typescript
+import { z } from 'zod'
+
+const CreateWorkSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().optional(),
+  price: z.number().min(0)
+})
+
+type CreateWorkInput = z.infer<typeof CreateWorkSchema>
+```
+
+#### 7. 邮箱处理规范
+
+**重要**: 所有邮箱处理必须转换为小写
+
+```typescript
+// ✅ 正确
+const email = userInput.trim().toLowerCase()
+const user = await prisma.user.findUnique({
+  where: { email: email.toLowerCase() }
+})
+
+// ❌ 错误
+const user = await prisma.user.findUnique({
+  where: { email: userInput }  // 未转换小写
+})
+```
+
+#### 8. 错误处理和日志
+
+**Sentry 集成**
+- 开发环境: 默认关闭 (可通过 `NEXT_PUBLIC_ENABLE_SENTRY=true` 强制开启)
+- 生产环境: 默认开启 (可通过 `NEXT_PUBLIC_ENABLE_SENTRY=false` 强制关闭)
+- 自动上报: 所有 API 错误会自动上报到 Sentry ([src/lib/request.ts:68-80](src/lib/request.ts#L68-L80))
+
+**用户反馈**
+- 使用 `sonner` 库显示 Toast 通知
+- 错误消息应简洁明了,提供用户可操作的建议
+
+```typescript
+import { toast } from 'sonner'
+
+toast.success('Work published successfully')
+toast.error('Failed to upload file')
+toast.info('Processing video...')
+```
+
+#### 9. 格式化规则 (Prettier)
+
+```json
+{
+  "semi": false,              // 不使用分号
+  "trailingComma": "es5",     // ES5 兼容的尾逗号
+  "singleQuote": true,        // 使用单引号
+  "tabWidth": 2,              // 2 空格缩进
+  "useTabs": false,           // 使用空格而非 Tab
+  "bracketSpacing": true,     // 对象花括号空格
+  "endOfLine": "lf"           // Unix 换行符
+}
+```
+
+#### 10. ESLint 规则
+
+```javascript
+// 禁用的规则
+"react/no-unescaped-entities": "off",      // 允许未转义的引号
+"@next/next/no-img-element": "off",        // 允许使用 <img> 标签
+"react-hooks/exhaustive-deps": "off"       // 不强制 Hook 依赖检查
+```
+
+### 📐 开发工作流 (SOP)
+
+#### 1. 开始开发
+
+```bash
+# 1. 拉取最新代码
+git pull origin main
+
+# 2. 安装依赖
+pnpm install
+
+# 3. 生成 Prisma 客户端
+pnpm dbgen
+
+# 4. 启动开发服务器
+pnpm dev
+```
+
+#### 2. 添加新功能
+
+**步骤**:
+1. **创建功能分支**: `git checkout -b feature/your-feature-name`
+2. **设计 API 接口**: 在 `src/contracts/` 中定义类型
+3. **数据库变更**: 修改 `prisma/schema.prisma` 并运行 `pnpm dbpush`
+4. **实现 API 路由**: 在 `src/app/api/` 中创建路由
+5. **创建前端组件**: 在 `src/components/` 中实现 UI
+6. **创建页面**: 在 `src/app/` 中创建页面路由
+7. **测试功能**: 本地测试所有流程
+8. **代码检查**: 运行 `pnpm lint` 确保代码质量
+
+#### 3. API 开发模板
+
+```typescript
+// src/app/api/[module]/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { apiSuccess, apiFailure } from '@/contracts/types/common'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+export async function GET(req: NextRequest) {
+  try {
+    // 1. 身份验证
+    const session = await auth.api.getSession({ headers: req.headers })
+    if (!session?.user) {
+      return NextResponse.json(
+        apiFailure('UNAUTHORIZED', 'Please login'),
+        { status: 401 }
+      )
+    }
+
+    // 2. 参数验证
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get('id')
+    if (!id) {
+      return NextResponse.json(
+        apiFailure('VALIDATION_FAILED', 'Missing id parameter'),
+        { status: 400 }
+      )
+    }
+
+    // 3. 业务逻辑
+    const data = await prisma.model.findUnique({
+      where: { id }
+    })
+    if (!data) {
+      return NextResponse.json(
+        apiFailure('NOT_FOUND', 'Resource not found'),
+        { status: 404 }
+      )
+    }
+
+    // 4. 返回成功响应
+    return NextResponse.json(apiSuccess(data))
+
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json(
+      apiFailure('INTERNAL_ERROR', 'Internal server error'),
+      { status: 500 }
+    )
+  }
+}
+```
+
+#### 4. 组件开发模板
+
+```typescript
+// src/components/YourComponent.tsx
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { request } from '@/lib/request'
+import { toast } from 'sonner'
+
+interface YourComponentProps {
+  title: string
+  onSuccess?: () => void
+}
+
+export function YourComponent({ title, onSuccess }: YourComponentProps) {
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState(null)
+
+  const handleAction = async () => {
+    setLoading(true)
+    try {
+      const result = await request.post('/api/your-endpoint', {
+        // request body
+      })
+
+      if (result.ok && result.data?.success) {
+        toast.success('Action completed successfully')
+        onSuccess?.()
+      }
+    } catch (error) {
+      // 错误已由 request 封装处理
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="page-container">
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <Button onClick={handleAction} disabled={loading}>
+        {loading ? 'Processing...' : 'Submit'}
+      </Button>
+    </div>
+  )
+}
+```
+
+#### 5. 数据库操作规范
+
+```bash
+# 修改数据库模型后
+pnpm dbpush          # 推送到数据库并生成客户端
+
+# 查看数据库
+pnpm dbstudio        # 打开 Prisma Studio GUI
+
+# 备份数据库
+pnpm dbbackup        # 备份当前数据库
+
+# 导出/导入 JSON
+pnpm dbexportjson:local   # 导出本地数据库为 JSON
+pnpm dbimportjson:local   # 从 JSON 导入到本地数据库
+```
+
+**数据库查询最佳实践**:
+```typescript
+// ✅ 使用 select 减少数据传输
+const user = await prisma.user.findUnique({
+  where: { id },
+  select: {
+    id: true,
+    name: true,
+    email: true,
+    // 只选择需要的字段
+  }
+})
+
+// ✅ 使用 include 关联查询
+const work = await prisma.work.findUnique({
+  where: { id },
+  include: {
+    creator: {
+      select: { id: true, name: true, avatarUrl: true }
+    },
+    tags: true
+  }
+})
+
+// ✅ 邮箱查询统一小写
+const user = await prisma.user.findUnique({
+  where: { email: email.toLowerCase() }
+})
+```
+
+#### 6. Git 提交规范
+
+遵循 Conventional Commits 风格:
+
+```bash
+# 格式: <type>(<scope>): <subject>
+
+# 类型
+feat:      # 新功能
+fix:       # Bug 修复
+refactor:  # 重构(不改变功能)
+style:     # 样式调整
+docs:      # 文档更新
+test:      # 测试相关
+chore:     # 构建/工具变动
+
+# 示例
+git commit -m "feat(auth): 添加 Google OAuth 登录支持"
+git commit -m "fix(upload): 修复大文件上传失败问题"
+git commit -m "refactor(api): 统一错误处理逻辑"
+```
+
+#### 7. 环境变量管理
+
+**必需环境变量**:
+```env
+# 数据库
+DATABASE_URL=              # Prisma 数据库连接
+DIRECT_URL=                # 直连 URL (用于迁移)
+
+# 认证
+BETTER_AUTH_SECRET=        # Better Auth 密钥
+BETTER_AUTH_URL=           # 认证服务 URL
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# 邮件服务
+RESEND_API_KEY=            # Resend 邮件服务
+
+# 视频处理
+MUX_TOKEN_ID=              # Mux 令牌 ID
+MUX_TOKEN_SECRET=          # Mux 令牌密钥
+
+# 监控 (可选)
+NEXT_PUBLIC_ENABLE_SENTRY= # true/false 强制开关
+SENTRY_DSN=                # Sentry 项目 DSN
+```
+
+#### 8. 常见问题和解决方案
+
+**问题 1: Prisma Client 未生成**
+```bash
+pnpm dbgen
+```
+
+**问题 2: 端口被占用**
+```bash
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+
+# macOS/Linux
+lsof -ti:3000 | xargs kill -9
+```
+
+**问题 3: 依赖安装失败**
+```bash
+# 清理缓存重新安装
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+**问题 4: TypeScript 类型错误**
+```bash
+# 重新生成类型
+pnpm dbgen
+# 重启 TypeScript 服务器 (VS Code: Cmd/Ctrl + Shift + P → Restart TS Server)
+```
+
+### 🚀 部署
 
 应用程序配置为在 Vercel、Netlify 或类似的 Next.js 兼容托管服务上部署。
+
+**部署前检查清单**:
+- [ ] 所有环境变量已配置
+- [ ] 数据库迁移已应用 (`pnpm dbpush`)
+- [ ] 构建成功 (`pnpm build`)
+- [ ] Sentry 配置正确 (org: `yellowpoint`)
+- [ ] 允许的图片域名已在 [next.config.mjs](next.config.mjs) 中配置
