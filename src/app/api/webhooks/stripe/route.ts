@@ -45,6 +45,9 @@ export async function POST(req: Request) {
             `[Webhook] checkout.session.completed - Subscription Details:`,
             subscription
           )
+          console.log(
+            `[Webhook] checkout.session.completed - Current Period End: ${subscription.items.data[0].current_period_end}`
+          )
           // 我们需要 userId，通常存在 metadata 中
           const userId = session.metadata?.userId
 
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
                 stripeCustomerId: subscription.customer as string,
                 stripePriceId: subscription.items.data[0].price.id,
                 stripeCurrentPeriodEnd: new Date(
-                  (subscription as any).current_period_end * 1000
+                  subscription.items.data[0].current_period_end * 1000
                 ),
               },
             })
@@ -70,9 +73,14 @@ export async function POST(req: Request) {
         break
       }
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as Stripe.Invoice
-        const subscriptionId = ((invoice as any).subscription ||
-          (invoice as any).subscription_details?.subscription) as string
+        const invoice = event.data.object // 使用 any 类型暂时绕过类型检查
+        console.log(
+          'invoice.payment_succeeded - Invoice Details:',
+          JSON.stringify(invoice, null, 2)
+        ) // 打印实际数据结构
+
+        const subscriptionId = (invoice.subscription ||
+          invoice.subscription_details?.subscription) as string
 
         console.log(
           `[Webhook] invoice.payment_succeeded - Invoice ID: ${invoice.id}, Subscription ID: ${subscriptionId}`
@@ -85,6 +93,9 @@ export async function POST(req: Request) {
             `[Webhook] invoice.payment_succeeded - Subscription Details:`,
             subscription
           )
+          console.log(
+            `[Webhook] invoice.payment_succeeded - Current Period End: ${subscription.items.data[0].current_period_end}`
+          )
 
           // 更新订阅期限
           // 注意：如果是第一次支付，可能 checkout.session.completed 还没跑，这里可能会找不到用户
@@ -95,7 +106,7 @@ export async function POST(req: Request) {
               data: {
                 stripePriceId: subscription.items.data[0].price.id,
                 stripeCurrentPeriodEnd: new Date(
-                  (subscription as any).current_period_end * 1000
+                  subscription.items.data[0].current_period_end * 1000
                 ),
               },
             })
@@ -113,18 +124,20 @@ export async function POST(req: Request) {
         break
       }
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription
+        const subscription = event.data.object
         console.log(
           `[Webhook] customer.subscription.updated - Subscription ID: ${subscription.id}, Status: ${subscription.status}`
         )
-
+        console.log(
+          `[Webhook] customer.subscription.updated - Current Period End: ${subscription.items.data[0].current_period_end}`
+        )
         try {
           await prisma.user.update({
             where: { stripeSubscriptionId: subscription.id },
             data: {
               stripePriceId: subscription.items.data[0].price.id,
               stripeCurrentPeriodEnd: new Date(
-                (subscription as any).current_period_end * 1000
+                subscription.items.data[0].current_period_end * 1000
               ),
             },
           })
@@ -137,7 +150,7 @@ export async function POST(req: Request) {
         break
       }
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription
+        const subscription = event.data.object
         console.log(
           `[Webhook] customer.subscription.deleted - Subscription ID: ${subscription.id}`
         )
