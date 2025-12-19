@@ -19,6 +19,8 @@ export interface AuthUser {
   level?: string
   points?: number
   earnings?: number
+  stripePriceId?: string
+  stripeCurrentPeriodEnd?: string
 }
 
 export interface AuthContextValue {

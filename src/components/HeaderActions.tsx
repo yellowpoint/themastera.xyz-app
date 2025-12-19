@@ -9,8 +9,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Spinner } from '@/components/ui/spinner'
+import { SUBSCRIPTION_LEVELS } from '@/config/subscriptions'
 import { useAuth } from '@/hooks/useAuth'
-import { ChevronDown, LogOut, Plus, Shield, User } from 'lucide-react'
+import {
+  ChevronDown,
+  Crown,
+  LogOut,
+  Plus,
+  Shield,
+  Star,
+  User,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -40,6 +49,16 @@ export default function HeaderActions({
     }
   }
 
+  const isPro =
+    user?.stripePriceId === SUBSCRIPTION_LEVELS.PRO.priceId &&
+    user?.stripeCurrentPeriodEnd &&
+    new Date(user.stripeCurrentPeriodEnd) > new Date()
+
+  const isMax =
+    user?.stripePriceId === SUBSCRIPTION_LEVELS.MAX.priceId &&
+    user?.stripeCurrentPeriodEnd &&
+    new Date(user.stripeCurrentPeriodEnd) > new Date()
+
   return (
     <div className={`${base} ${className}`}>
       {user ? (
@@ -56,17 +75,35 @@ export default function HeaderActions({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="outline-none flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage
-                    src={user?.image || ''}
-                    alt={user?.name || user?.email || 'User'}
-                  />
-                  <AvatarFallback>
-                    {(
-                      (user?.name || user?.email || 'U')[0] || 'U'
-                    ).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar>
+                    <AvatarImage
+                      src={user?.image || ''}
+                      alt={user?.name || user?.email || 'User'}
+                    />
+                    <AvatarFallback>
+                      {(
+                        (user?.name || user?.email || 'U')[0] || 'U'
+                      ).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isMax && (
+                    <div
+                      className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-[2px] border-2 border-background"
+                      title="Max Member"
+                    >
+                      <Crown className="w-3 h-3 text-white fill-white" />
+                    </div>
+                  )}
+                  {isPro && !isMax && (
+                    <div
+                      className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px] border-2 border-background"
+                      title="Pro Member"
+                    >
+                      <Star className="w-3 h-3 text-white fill-white" />
+                    </div>
+                  )}
+                </div>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
@@ -78,6 +115,26 @@ export default function HeaderActions({
               ) : null}
               <DropdownMenuItem onClick={() => router.push('/profile')}>
                 <User className="mr-2 h-4 w-4" /> Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push('/subscriptions')}
+                className=""
+              >
+                {isMax ? (
+                  <>
+                    <Crown className="mr-2 h-4 w-4 fill-yellow-500 text-yellow-500" />{' '}
+                    Max Plan
+                  </>
+                ) : isPro ? (
+                  <>
+                    <Star className="mr-2 h-4 w-4 fill-blue-500 text-blue-500" />{' '}
+                    Pro Plan
+                  </>
+                ) : (
+                  <>
+                    <Crown className="mr-2 h-4 w-4" /> Upgrade Plan
+                  </>
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={handleSignOut}

@@ -129,6 +129,22 @@ export const auth = betterAuth({
         type: 'number',
         defaultValue: 0,
       },
+      stripePriceId: {
+        type: 'string',
+        required: false,
+      },
+      stripeCurrentPeriodEnd: {
+        type: 'date',
+        required: false,
+      },
+      stripeSubscriptionId: {
+        type: 'string',
+        required: false,
+      },
+      stripeCustomerId: {
+        type: 'string',
+        required: false,
+      },
     },
   },
   plugins: [nextCookies()],
