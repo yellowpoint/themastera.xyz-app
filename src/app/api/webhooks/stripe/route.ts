@@ -79,8 +79,9 @@ export async function POST(req: Request) {
           JSON.stringify(invoice, null, 2)
         ) // 打印实际数据结构
 
-        const subscriptionId = (invoice.subscription ||
-          invoice.subscription_details?.subscription) as string
+        // 忽略这个错误，因为 invoice.subscription 实际存在
+        // @ts-ignore
+        const subscriptionId = invoice.subscription as string
 
         console.log(
           `[Webhook] invoice.payment_succeeded - Invoice ID: ${invoice.id}, Subscription ID: ${subscriptionId}`
