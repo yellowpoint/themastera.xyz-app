@@ -79,7 +79,9 @@ export default function RecommendTab() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredRecommendSections.map((sec) => {
-              const thumbs = sec.list
+              const list = sec.list || []
+              if (list.length === 0) return null
+              const thumbs = list
                 .map((i) => i.thumbnailUrl || null)
                 .filter(Boolean) as string[]
               const first = thumbs[0]
@@ -88,15 +90,20 @@ export default function RecommendTab() {
                 thumbs[1] || first || undefined,
                 thumbs[2] || first || undefined,
               ]
+              const lastUpdated = list[0]?.updatedAt
+
               return (
                 <PlaylistCard
                   key={sec.id}
                   title={sec.name}
                   href={`/section?section=${sec.id}`}
                   coverSrcs={coverSrcs}
-                  updatedLabel={`Updated: ${formatTimeAgo(
-                    (sec.list[0] as any).updatedAt
-                  )}`}
+                  coverSrc={sec.coverUrl}
+                  updatedLabel={
+                    lastUpdated
+                      ? `Updated: ${formatTimeAgo(lastUpdated)}`
+                      : undefined
+                  }
                 />
               )
             })}
