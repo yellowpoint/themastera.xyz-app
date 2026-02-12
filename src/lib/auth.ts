@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { nextCookies } from 'better-auth/next-js'
+import { bearer } from "better-auth/plugins"; // 引入 bearer 插件
 import { Resend } from 'resend'
 import { prisma } from './prisma'
 
@@ -131,5 +132,5 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()],
+  plugins: [nextCookies(), bearer()],
 })

@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     cors_origin: origin,
     new_asset_settings: {
       playback_policies: ['public'],
+      video_quality: 'plus',
       // Enable static MP4/M4A renditions via the new API
       static_renditions: [
         { resolution: 'highest' },
