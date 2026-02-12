@@ -38,17 +38,23 @@ export default function VideoPlayer({
     const el = playerRef.current as any
     if (!el) return
     try {
-      el.noMutedPref = true
-      el.noVolumePref = true
+      if (noControls) {
+        el.noMutedPref = true
+        el.noVolumePref = true
+      }
       if (autoPlay && muted === false) {
         el.autoplay = 'any'
       }
-      el.volume = 1
-      el.muted = !!muted
+      if (noControls) {
+        el.volume = 1
+        el.muted = !!muted
+      }
     } catch {}
-  }, [autoPlay, muted])
+  }, [autoPlay, muted, noControls])
 
   useEffect(() => {
+    if (!noControls) return
+
     const el = playerRef.current as any
     if (!el) return
     const enforce = () => {
@@ -65,7 +71,7 @@ export default function VideoPlayer({
       el.removeEventListener('canplay', enforce)
       el.removeEventListener('play', enforce)
     }
-  }, [muted])
+  }, [muted, noControls])
   // Handle play event
   const handlePlay = () => {
     onPlay && onPlay()
@@ -114,7 +120,7 @@ export default function VideoPlayer({
               playbackId={effectivePlaybackId}
               poster={thumbnailUrl}
               preload="metadata"
-              renditionOrder="desc"
+
               metadata={{
                 video_title: title,
               }}
